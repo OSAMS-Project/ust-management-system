@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './assetlist.css';
 import AssetSearchbar from "../components/assetlists/assetsearchbar";
 import AssetTable from "../components/assetlists/assettable";
-import InfoCards from "../components/assetlists/infocards";
 import AddAsset from "../components/assetlists/addasset";
 import AssetCategory from "../components/assetlists/addcategory";
 import AssetLocation from "../components/assetlists/addlocation";
@@ -197,7 +196,7 @@ const AssetList = () => {
   }, []);
 
   useEffect(() => {
-    const eventSource = new EventSource('${process.env.REACT_APP_API_URL}/api/assets/sse');
+    const eventSource = new EventSource(`${process.env.REACT_APP_API_URL}/api/assets/sse`);
 
     eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -240,8 +239,7 @@ const AssetList = () => {
       });
   }, [assets, searchQuery, sortCriteria]);
 
-  const totalAssets = filteredAndSortedAssets.length;
-  const totalCost = filteredAndSortedAssets.reduce((acc, asset) => acc + parseFloat(asset.cost || 0), 0);
+
 
   const showNotification = (message, type = 'success') => {
     setNotification({ message, type });
@@ -249,13 +247,7 @@ const AssetList = () => {
   };
 
   return (
-    <div className="asset-list-container">
-      <InfoCards 
-        totalAssets={totalAssets} 
-        totalCost={`₱${totalCost.toFixed(2)}`}
-        assetsForBorrowing={assetsForBorrowing}
-      />
-      
+    <div className="asset-list-container">     
       {/* Add this new div to contain the search bar and sort dropdown */}
       <div className="flex justify-between items-center mb-4">
         <AssetSearchbar handleSearch={handleSearch} />
