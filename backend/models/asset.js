@@ -92,28 +92,32 @@ const updateAsset = async (values, id) => {
 };
 
 const deleteAsset = async (assetId) => {
-  const deleteBorrowLogsQuery = 'DELETE FROM borrow_logs WHERE asset_id = $1';
-  const deleteBorrowLogsForRequestsQuery = `
-    DELETE FROM borrow_logs
-    WHERE borrowing_request_id IN (
-      SELECT id FROM borrowing_requests
-      WHERE selected_assets @> jsonb_build_array(jsonb_build_object('asset_id', $1::text))
-    )
-  `;
-  const deleteAssetQuery = 'DELETE FROM Assets WHERE asset_id = $1 RETURNING *';
-  const deleteBorrowingRequestsQuery = `
-    DELETE FROM borrowing_requests
-    WHERE selected_assets @> jsonb_build_array(jsonb_build_object('asset_id', $1::text))
-  `;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
 
-  const result = await executeTransaction([
-    { query: deleteBorrowLogsQuery, params: [assetId] },
-    { query: deleteBorrowLogsForRequestsQuery, params: [assetId] },
-    { query: deleteBorrowingRequestsQuery, params: [assetId] },
-    { query: deleteAssetQuery, params: [assetId] }
-  ]);
+    // Delete related borrow logs
+    const deleteBorrowLogsQuery = 'DELETE FROM borrow_logs WHERE asset_id = $1';
+    await client.query(deleteBorrowLogsQuery, [assetId]);
 
-  return result[3][0]; // Return the deleted asset data
+    // Delete the asset
+    const deleteAssetQuery = 'DELETE FROM assets WHERE asset_id = $1 RETURNING *';
+    const result = await client.query(deleteAssetQuery, [assetId]);
+
+    await client.query('COMMIT');
+
+    if (result.rows.length === 0) {
+      throw new Error('Asset not found');
+    }
+
+    return result.rows[0];
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error in deleteAsset:', error);
+    throw error;
+  } finally {
+    client.release();
+  }
 };
 
 const updateAssetActiveStatus = async (assetId, isActive, quantityForBorrowing = 0) => {
