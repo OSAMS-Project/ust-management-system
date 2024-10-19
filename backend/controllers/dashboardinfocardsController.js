@@ -1,6 +1,7 @@
 const Asset = require('../models/asset');
 const User = require('../models/user');
 const Event = require('../models/events');
+const BorrowingRequest = require('../models/borrowingrequest');
 
 exports.getTotalAssets = async (req, res) => {
   try {
@@ -52,5 +53,35 @@ exports.getRecentEvents = async (req, res) => {
   } catch (error) {
     console.error('Error getting recent events:', error);
     res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+};
+
+exports.getTotalAssetsForBorrowing = async (req, res) => {
+  try {
+    const totalAssetsForBorrowing = await Asset.getTotalAssetsForBorrowing();
+    res.json({ totalAssetsForBorrowing });
+  } catch (error) {
+    console.error('Error getting total assets for borrowing:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.getTotalPendingRequests = async (req, res) => {
+  try {
+    const totalPendingRequests = await BorrowingRequest.getTotalPendingRequests();
+    res.json({ totalPendingRequests });
+  } catch (error) {
+    console.error('Error getting total pending requests:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.getTotalAcceptedRequests = async (req, res) => {
+  try {
+    const totalAcceptedRequests = await BorrowingRequest.getTotalAcceptedRequests();
+    res.json({ totalAcceptedRequests });
+  } catch (error) {
+    console.error('Error getting total accepted requests:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };

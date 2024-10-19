@@ -218,6 +218,13 @@ const readAsset = async (assetId) => {
   return result[0];
 };
 
+// Add this new function
+const getTotalAssetsForBorrowing = async () => {
+  const query = "SELECT COUNT(*) as count FROM Assets WHERE is_active = true AND quantity_for_borrowing > 0";
+  const result = await executeTransaction([{ query, params: [] }]);
+  return parseInt(result[0].count, 10);
+};
+
 module.exports = {
   createAssetsTable,
   createAsset,
@@ -233,5 +240,6 @@ module.exports = {
   getActiveAssets,
   updateQuantity,
   updateAssetQuantity,
-  readAsset
+  readAsset,
+  getTotalAssetsForBorrowing
 };

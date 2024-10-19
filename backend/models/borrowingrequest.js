@@ -90,6 +90,18 @@ class BorrowingRequest {
       throw error;
     }
   }
+
+  static async getTotalPendingRequests() {
+    const query = "SELECT COUNT(*) as count FROM borrowing_requests WHERE status = 'Pending'";
+    const result = await executeTransaction([{ query, params: [] }]);
+    return parseInt(result[0].count, 10);
+  }
+
+  static async getTotalAcceptedRequests() {
+    const query = "SELECT COUNT(*) as count FROM borrowing_requests WHERE status = 'Approved'";
+    const result = await executeTransaction([{ query, params: [] }]);
+    return parseInt(result[0].count, 10);
+  }
 }
 
 module.exports = BorrowingRequest;

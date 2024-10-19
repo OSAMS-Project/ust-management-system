@@ -7,5 +7,8 @@ router.get('/total-users', dashboardInfoCardsController.getTotalUsers);
 router.get('/total-events', dashboardInfoCardsController.getTotalEvents);
 router.get('/recent-assets', dashboardInfoCardsController.getRecentlyAddedAssets);
 router.get('/recent-events', dashboardInfoCardsController.getRecentEvents);
+router.get('/total-assets-for-borrowing', dashboardInfoCardsController.getTotalAssetsForBorrowing);
+router.get('/total-pending-requests', dashboardInfoCardsController.getTotalPendingRequests);
+router.get('/total-accepted-requests', dashboardInfoCardsController.getTotalAcceptedRequests);
 
 module.exports = router;
