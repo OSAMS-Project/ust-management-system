@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
+import jsPDF from 'jspdf';
 
 const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, handleAddAsset, updateEventAssets, updateAssetQuantity }) => {
   const [editingAsset, setEditingAsset] = useState(null);
@@ -121,6 +122,46 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
     )
   ), [localAssets, editingAsset, editQuantity]);
 
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    const lineHeight = 10;
+    let yPosition = 20;
+
+    doc.setFontSize(18);
+    doc.text('Event Details', 20, yPosition);
+    yPosition += lineHeight * 2;
+
+    doc.setFontSize(12);
+    doc.text(`Unique ID: ${selectedEvent.unique_id}`, 20, yPosition);
+    yPosition += lineHeight;
+    doc.text(`Event Name: ${selectedEvent.event_name}`, 20, yPosition);
+    yPosition += lineHeight;
+    doc.text(`Event Location: ${selectedEvent.event_location}`, 20, yPosition);
+    yPosition += lineHeight;
+    doc.text(`Description: ${selectedEvent.description}`, 20, yPosition);
+    yPosition += lineHeight;
+    doc.text(`Date: ${new Date(selectedEvent.event_date).toLocaleDateString()}`, 20, yPosition);
+    yPosition += lineHeight;
+    doc.text(`Created At: ${new Date(selectedEvent.created_at).toLocaleDateString()}`, 20, yPosition);
+    yPosition += lineHeight;
+    doc.text(`Start Time: ${selectedEvent.event_start_time}`, 20, yPosition);
+    yPosition += lineHeight;
+    doc.text(`End Time: ${selectedEvent.event_end_time}`, 20, yPosition);
+    yPosition += lineHeight * 2;
+
+    doc.setFontSize(14);
+    doc.text('Event Assets:', 20, yPosition);
+    yPosition += lineHeight;
+
+    doc.setFontSize(12);
+    localAssets.forEach((asset) => {
+      doc.text(`${asset.assetName} - Quantity: ${asset.quantity}`, 30, yPosition);
+      yPosition += lineHeight;
+    });
+
+    doc.save(`${selectedEvent.event_name}_details.pdf`);
+  };
+
   if (!showExploreModal || !selectedEvent) return null;
 
   return (
@@ -140,12 +181,20 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
         <h3 className="text-xl mt-4 mb-2">Event Assets:</h3>
         {memoizedAssetList}
         
-        <button
-          onClick={() => setShowExploreModal(false)}
-          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Close
-        </button>
+        <div className="flex justify-between mt-4">
+          <button
+            onClick={() => setShowExploreModal(false)}
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Close
+          </button>
+          <button
+            onClick={handleDownloadPDF}
+            className="bg-green-500 text-white px-4 py-2 rounded"
+          >
+            Download PDF
+          </button>
+        </div>
       </div>
     </div>
   );
