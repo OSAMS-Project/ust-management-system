@@ -50,10 +50,8 @@
   bottom: -5px;
   left: 0;
   background-color: #333;
-  transition: all 0.2s;
 }
 
-.nav__item:hover::before,
 .nav__item.active::before {
   width: 100%;
 }
