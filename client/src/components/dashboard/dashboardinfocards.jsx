@@ -22,32 +22,68 @@ const DashboardInfoCards = ({ formatTime }) => {
       try {
         const assetsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-assets`);
         setTotalAssets(assetsResponse.data.totalAssets);
-
+      } catch (error) {
+        console.error('Error fetching total assets:', error);
+        setError('Failed to fetch total assets');
+      }
+    
+      try {
         const usersResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-users`);
         setTotalUsers(usersResponse.data.totalUsers);
-
+      } catch (error) {
+        console.error('Error fetching total users:', error);
+        setError('Failed to fetch total users');
+      }
+    
+      try {
         const eventsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-events`);
         setTotalEvents(eventsResponse.data.totalEvents);
-
+      } catch (error) {
+        console.error('Error fetching total events:', error);
+        setError('Failed to fetch total events');
+      }
+    
+      try {
         const assetsForBorrowingResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-assets-for-borrowing`);
         setTotalAssetsForBorrowing(assetsForBorrowingResponse.data.totalAssetsForBorrowing);
-
+      } catch (error) {
+        console.error('Error fetching total assets for borrowing:', error);
+        setError('Failed to fetch total assets for borrowing');
+      }
+    
+      try {
         const pendingRequestsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-pending-requests`);
         setTotalPendingRequests(pendingRequestsResponse.data.totalPendingRequests);
-
+      } catch (error) {
+        console.error('Error fetching total pending requests:', error);
+        setError('Failed to fetch total pending requests');
+      }
+    
+      try {
         const acceptedRequestsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-accepted-requests`);
         setTotalAcceptedRequests(acceptedRequestsResponse.data.totalAcceptedRequests);
-
+      } catch (error) {
+        console.error('Error fetching total accepted requests:', error);
+        setError('Failed to fetch total accepted requests');
+      }
+    
+      try {
         const recentAssetsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/recent-assets`);
         setRecentAssets(recentAssetsResponse.data);
-
+      } catch (error) {
+        console.error('Error fetching recent assets:', error);
+        setError('Failed to fetch recent assets');
+      }
+    
+      try {
         const recentEventsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/recent-events`);
         setRecentEvents(recentEventsResponse.data);
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        setError('Failed to fetch dashboard data');
+        console.error('Error fetching recent events:', error);
+        setError('Failed to fetch recent events');
       }
     };
+    
 
     fetchData();
   }, []);
@@ -114,7 +150,7 @@ const DashboardInfoCards = ({ formatTime }) => {
           </div>
         </div>
 
-        {/* <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.jpg')"}}>
+        <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.jpg')"}}>
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col items-center text-center">
             <h2 className="text-7xl font-bold text-yellow-400">
@@ -122,7 +158,7 @@ const DashboardInfoCards = ({ formatTime }) => {
             </h2>
             <p className="text-2xl font-semibold text-white mt-2">Total Assets for Borrowing</p>
           </div>
-        </div> */}
+        </div>
 
         <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.jpg')"}}>
           <div className="absolute inset-0 bg-black opacity-50"></div>
