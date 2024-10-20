@@ -146,6 +146,28 @@ app.listen(port, () => {
   console.log('  - POST   /api/events');
   console.log('  - PUT    /api/events/:uniqueId');
   console.log('  - DELETE /api/events/delete/:uniqueId');
+  console.log('  - GET    /api/users');
+  console.log('  - POST   /api/users');
+  console.log('  - PUT    /api/users/:id');
+  console.log('  - DELETE /api/users/:id');
+  console.log('  - GET    /api/suppliers');
+  console.log('  - POST   /api/suppliers');
+  console.log('  - DELETE /api/suppliers/:supplierName');
+  console.log('  - GET    /api/asset-activity-logs');
+  console.log('  - POST   /api/asset-activity-logs');
+  console.log('  - GET    /api/dashboard');
+  console.log('  - GET    /api/borrowing-requests');
+  console.log('  - POST   /api/borrowing-requests');
+  console.log('  - PUT    /api/borrowing-requests/:id');
+  console.log('  - DELETE /api/borrowing-requests/:id');
+  console.log('  - GET    /api/borrow-logs');
+  console.log('  - POST   /api/borrow-logs');
+  console.log('  - GET    /api/assets/sse');
+  console.log('  - PUT    /api/assets/updateQuantity/:assetId');
+  console.log('  - POST   /api/events/:eventId/addAssets');
+  console.log('  - POST   /api/events/:eventId/removeAsset');
+  console.log('  - POST   /api/events/:eventId/updateAssetQuantity');
+  console.log('  - DELETE /api/Events/delete/:eventId');
   initializeTables();
 });
 

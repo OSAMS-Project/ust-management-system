@@ -29,14 +29,14 @@ const DashboardInfoCards = ({ formatTime }) => {
         const eventsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-events`);
         setTotalEvents(eventsResponse.data.totalEvents);
 
-        // const assetsForBorrowingResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-assets-for-borrowing`);
-        // setTotalAssetsForBorrowing(assetsForBorrowingResponse.data.totalAssetsForBorrowing);
+        const assetsForBorrowingResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-assets-for-borrowing`);
+        setTotalAssetsForBorrowing(assetsForBorrowingResponse.data.totalAssetsForBorrowing);
 
-        // const pendingRequestsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-pending-requests`);
-        // setTotalPendingRequests(pendingRequestsResponse.data.totalPendingRequests);
+        const pendingRequestsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-pending-requests`);
+        setTotalPendingRequests(pendingRequestsResponse.data.totalPendingRequests);
 
-        // const acceptedRequestsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-accepted-requests`);
-        // setTotalAcceptedRequests(acceptedRequestsResponse.data.totalAcceptedRequests);
+        const acceptedRequestsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-accepted-requests`);
+        setTotalAcceptedRequests(acceptedRequestsResponse.data.totalAcceptedRequests);
 
         const recentAssetsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/recent-assets`);
         setRecentAssets(recentAssetsResponse.data);
@@ -113,7 +113,7 @@ const DashboardInfoCards = ({ formatTime }) => {
             <p className="text-2xl font-semibold text-white mt-2">Total Events</p>
           </div>
         </div>
-{/* 
+
         <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.jpg')"}}>
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col items-center text-center">
@@ -142,7 +142,7 @@ const DashboardInfoCards = ({ formatTime }) => {
             </h2>
             <p className="text-2xl font-semibold text-white mt-2">Accepted Borrowing Requests</p>
           </div>
-        </div> */}
+        </div>
       </div>
 
       {/* Recent Added Assets Section */}
