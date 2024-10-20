@@ -114,7 +114,7 @@ const DashboardInfoCards = ({ formatTime }) => {
           </div>
         </div>
 
-        <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.jpg')"}}>
+        {/* <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.jpg')"}}>
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col items-center text-center">
             <h2 className="text-7xl font-bold text-yellow-400">
@@ -122,7 +122,7 @@ const DashboardInfoCards = ({ formatTime }) => {
             </h2>
             <p className="text-2xl font-semibold text-white mt-2">Total Assets for Borrowing</p>
           </div>
-        </div>
+        </div> */}
 
         <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.jpg')"}}>
           <div className="absolute inset-0 bg-black opacity-50"></div>

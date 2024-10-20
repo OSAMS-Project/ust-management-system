@@ -76,7 +76,7 @@ function SignIn({ setUser }) {
     </GoogleOAuthProvider>
 
     {/* Buttons Side-by-Side */}
-    <div className="flex justify-between gap-4 mt-8">
+    {/* <div className="flex justify-between gap-4 mt-8">
       <Link
         to="/email"
         className="flex-1 text-center text-white bg-blue-600 hover:bg-blue-700 font-medium py-3 px-6 rounded transition duration-300"
@@ -97,7 +97,7 @@ function SignIn({ setUser }) {
       >
         Borrow here
       </Link>
-    </div>
+    </div> */}
   </div>
 
 </div>

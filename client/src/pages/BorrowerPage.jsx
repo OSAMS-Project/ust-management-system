@@ -89,13 +89,13 @@ function BorrowerForm() {
   return (
     <div className="flex min-h-screen w-screen overflow-hidden">
     <div className="w-1/2 bg-cover bg-center hidden lg:block" style={{ backgroundImage: "url('./ust-image.JPG')" }}></div>
-    <div className="w-full lg:w-1/2 flex flex-col justify-center p-12 bg-white">
-      <h1 className="text-5xl font-extrabold text-black mb-6 leading-tight">Asset Request Form</h1>
-      <p className="text-xl text-gray-600 mb-10 leading-relaxed">
+    <div className="w-full lg:w-1/2 flex flex-col justify-center p-6 bg-white">
+      <h1 className="text-3xl font-bold text-black mb-4 leading-snug">Asset Request Form</h1>
+      <p className="text-lg text-gray-600 mb-6 leading-relaxed">
         Borrow Materials from UST-OSA Asset Management System
       </p>
   
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* Name Field */}
         <div className="relative">
           <input
@@ -106,11 +106,11 @@ function BorrowerForm() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder=" "
-            className="block w-full px-4 py-3 border-b-2 border-gray-300 bg-transparent text-lg text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
+            className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
           />
           <label
             htmlFor="name"
-            className="absolute left-4 top-3 text-gray-500 duration-300 transform -translate-y-8 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-8"
+            className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
           >
             Enter your name
           </label>
@@ -126,11 +126,11 @@ function BorrowerForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder=" "
-            className="block w-full px-4 py-3 border-b-2 border-gray-300 bg-transparent text-lg text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
+            className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
           />
           <label
             htmlFor="email"
-            className="absolute left-4 top-3 text-gray-500 duration-300 transform -translate-y-8 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-8"
+            className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
           >
             Enter your email
           </label>
@@ -146,11 +146,11 @@ function BorrowerForm() {
             value={department}
             onChange={(e) => setDepartment(e.target.value)}
             placeholder=" "
-            className="block w-full px-4 py-3 border-b-2 border-gray-300 bg-transparent text-lg text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
+            className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
           />
           <label
             htmlFor="department"
-            className="absolute left-4 top-3 text-gray-500 duration-300 transform -translate-y-8 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-8"
+            className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
           >
             Enter your department
           </label>
@@ -158,20 +158,20 @@ function BorrowerForm() {
   
         {/* Selected Assets Display and Select Asset Button */}
         <div className="relative flex flex-col">
-          <h2 className="text-lg font-semibold text-black mb-4">Selected Assets:</h2>
+          <h2 className="text-base font-semibold text-black mb-2">Selected Assets:</h2>
           {selectedAssets.length > 0 ? (
-            <ul className="list-disc pl-5 mb-4 text-gray-600 tracking-wide">
+            <ul className="list-disc pl-4 mb-2 text-gray-600 tracking-wide text-sm">
               {selectedAssets.map((asset, index) => (
                 <li key={index}>{asset.assetName} (Quantity: {asset.quantity})</li>
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500 mb-4">No assets selected.</p>
+            <p className="text-gray-500 mb-2 text-sm">No assets selected.</p>
           )}
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded tracking-wider"
+            className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded text-sm tracking-wide"
           >
             Select Asset
           </button>
@@ -187,11 +187,11 @@ function BorrowerForm() {
             value={purpose}
             onChange={(e) => setPurpose(e.target.value)}
             placeholder=" "
-            className="block w-full px-4 py-3 border-b-2 border-gray-300 bg-transparent text-lg text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
+            className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
           />
           <label
             htmlFor="purpose"
-            className="absolute left-4 top-3 text-gray-500 duration-300 transform -translate-y-8 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-8"
+            className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
           >
             Enter the purpose of borrowing
           </label>
@@ -207,11 +207,11 @@ function BorrowerForm() {
             value={contactNo}
             onChange={(e) => setContactNo(e.target.value)}
             placeholder=" "
-            className="block w-full px-4 py-3 border-b-2 border-gray-300 bg-transparent text-lg text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
+            className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
           />
           <label
             htmlFor="contactNo"
-            className="absolute left-4 top-3 text-gray-500 duration-300 transform -translate-y-8 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-8"
+            className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
           >
             Enter your contact number
           </label>
@@ -226,11 +226,11 @@ function BorrowerForm() {
             required
             value={expectedReturnDate}
             onChange={(e) => setExpectedReturnDate(e.target.value)}
-            className="block w-full px-4 py-3 border-b-2 border-gray-300 bg-transparent text-lg text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300"
+            className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300"
           />
           <label
             htmlFor="expectedReturnDate"
-            className="absolute left-4 top-3 text-gray-500 duration-300 transform -translate-y-8 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-8"
+            className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
           >
             Expected Date of Return
           </label>
@@ -244,11 +244,11 @@ function BorrowerForm() {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder=" "
-            className="block w-full px-4 py-3 border-b-2 border-gray-300 bg-transparent text-lg text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
+            className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
           />
           <label
             htmlFor="notes"
-            className="absolute left-4 top-3 text-gray-500 duration-300 transform -translate-y-8 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-8"
+            className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
           >
             Additional Notes
           </label>
@@ -258,7 +258,7 @@ function BorrowerForm() {
         <div className="relative">
           <label
             htmlFor="coverLetter"
-            className="block mb-2 text-sm font-medium text-gray-600"
+            className="block mb-1 text-sm font-medium text-gray-600"
           >
             Upload Cover Letter (PDF only)
           </label>
@@ -269,7 +269,7 @@ function BorrowerForm() {
             accept=".pdf"
             onChange={handleFileChange}
             className="block w-full text-sm text-gray-500
-              file:mr-4 file:py-2 file:px-4
+              file:mr-3 file:py-2 file:px-3
               file:rounded-full file:border-0
               file:text-sm file:font-semibold
               file:bg-gray-200 file:text-gray-700
@@ -281,7 +281,7 @@ function BorrowerForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`w-full ${isSubmitting ? 'bg-gray-400' : 'bg-black'} text-white text-lg font-medium py-3 rounded-md hover:bg-gray-900 transition-colors duration-300 transform hover:scale-105 tracking-wider`}
+          className={`w-full ${isSubmitting ? 'bg-gray-400' : 'bg-black'} text-white text-lg font-medium py-2 rounded-md hover:bg-gray-900 transition-colors duration-300 transform hover:scale-105 tracking-wider`}
         >
           {isSubmitting ? 'Submitting...' : 'Submit Request'}
         </button>
@@ -289,13 +289,13 @@ function BorrowerForm() {
   
       {/* Confirmation Message */}
       {confirmationMessage && (
-        <div className="mt-4 text-green-500">
+        <div className="mt-3 text-green-500">
           {confirmationMessage}
         </div>
       )}
   
       {/* Back to Login */}
-      <Link to="/" className="mt-8 text-gray-600 hover:text-gray-500 transition-colors duration-300">
+      <Link to="/" className="mt-5 text-gray-600 hover:text-gray-500 transition-colors duration-300">
         ← Back to Login
       </Link>
   
@@ -311,6 +311,7 @@ function BorrowerForm() {
       />
     </div>
   </div>
+  
   
   );
 }
