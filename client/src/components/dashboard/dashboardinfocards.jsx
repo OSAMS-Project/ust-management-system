@@ -22,68 +22,32 @@ const DashboardInfoCards = ({ formatTime }) => {
       try {
         const assetsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-assets`);
         setTotalAssets(assetsResponse.data.totalAssets);
-      } catch (error) {
-        console.error('Error fetching total assets:', error);
-        setError('Failed to fetch total assets');
-      }
-    
-      try {
+
         const usersResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-users`);
         setTotalUsers(usersResponse.data.totalUsers);
-      } catch (error) {
-        console.error('Error fetching total users:', error);
-        setError('Failed to fetch total users');
-      }
-    
-      try {
+
         const eventsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-events`);
         setTotalEvents(eventsResponse.data.totalEvents);
-      } catch (error) {
-        console.error('Error fetching total events:', error);
-        setError('Failed to fetch total events');
-      }
-    
-      try {
+
         const assetsForBorrowingResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-assets-for-borrowing`);
         setTotalAssetsForBorrowing(assetsForBorrowingResponse.data.totalAssetsForBorrowing);
-      } catch (error) {
-        console.error('Error fetching total assets for borrowing:', error);
-        setError('Failed to fetch total assets for borrowing');
-      }
-    
-      try {
+
         const pendingRequestsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-pending-requests`);
         setTotalPendingRequests(pendingRequestsResponse.data.totalPendingRequests);
-      } catch (error) {
-        console.error('Error fetching total pending requests:', error);
-        setError('Failed to fetch total pending requests');
-      }
-    
-      try {
+
         const acceptedRequestsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-accepted-requests`);
         setTotalAcceptedRequests(acceptedRequestsResponse.data.totalAcceptedRequests);
-      } catch (error) {
-        console.error('Error fetching total accepted requests:', error);
-        setError('Failed to fetch total accepted requests');
-      }
-    
-      try {
+
         const recentAssetsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/recent-assets`);
         setRecentAssets(recentAssetsResponse.data);
-      } catch (error) {
-        console.error('Error fetching recent assets:', error);
-        setError('Failed to fetch recent assets');
-      }
-    
-      try {
+
         const recentEventsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/recent-events`);
         setRecentEvents(recentEventsResponse.data);
       } catch (error) {
-        console.error('Error fetching recent events:', error);
-        setError('Failed to fetch recent events');
+        console.error('Error fetching dashboard data:', error);
+        setError('Failed to fetch dashboard data');
       }
     };
-    
 
     fetchData();
   }, []);
