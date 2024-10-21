@@ -4,7 +4,6 @@ const pool = require('../config/database');  // Adjust the path if necessary
 const createAssetsTable = async () => {
   const query = `
 CREATE TABLE IF NOT EXISTS Assets (
-      id SERIAL PRIMARY KEY,
       asset_id VARCHAR(20) UNIQUE NOT NULL,
       "assetName" VARCHAR(255) NOT NULL,
       "assetDetails" TEXT,

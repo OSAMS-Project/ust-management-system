@@ -12,10 +12,10 @@ class BorrowingRequest {
         contact_no VARCHAR(20) NOT NULL,
         cover_letter_path TEXT,
         selected_assets JSONB NOT NULL,
-        expected_return_date DATE,
-        notes TEXT,
         status VARCHAR(20) DEFAULT 'Pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                expected_return_date DATE,
+        notes TEXT,
       )
     `;
     return executeTransaction([{ query, params: [] }]);
