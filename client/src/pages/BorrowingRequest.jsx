@@ -61,7 +61,7 @@ const BorrowingRequest = () => {
 
   const renderTable = (title, data, showActions) => (
     <div className="mb-8">
-      <h2 className="text-xl font-bold mb-4">{title}</h2>
+      <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border-collapse shadow-lg rounded-lg">
           <thead className="bg-black text-[#FEC00F]">
@@ -117,14 +117,17 @@ const BorrowingRequest = () => {
   );
 
   return (
-    <div className="container w-full md:w-4/5 xl:w-3/5 mx-auto px-2">
-      <h1 className="flex items-center font-sans font-bold break-normal text-indigo-500 px-2 py-8 text-xl md:text-2xl">
+    <div className="container w-full mx-auto px-6">
+      <h1 className="flex items-center font-sans font-bold break-normal text-black px-2 py-4 text-xl md:text-2xl">
         Borrowing Requests
       </h1>
 
-      <div id='recipients' className="p-8 mt-6 lg:mt-0 rounded shadow bg-white">
+      <div id='recipients' className="p-4 mt-4 lg:mt-0 mb-4 rounded shadow bg-white">
         {renderTable("Pending Requests", pendingRequests, true)}
-        {renderTable("Accepted Requests", acceptedRequests, true)}
+      </div>
+
+      <div id='recipients' className="p-4 mt-4 lg:mt-0 rounded shadow bg-white">
+      {renderTable("Accepted Requests", acceptedRequests, true)}
       </div>
     </div>
   );

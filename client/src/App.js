@@ -15,6 +15,7 @@ import BorrowerForm from "./pages/BorrowerPage";
 import ProfilePage from "./pages/Profile";
 import BorrowingRequest from "./pages/BorrowingRequest";
 import RoleManagement from "./pages/RoleManagement";
+import QRPage from "./pages/QRPage";
 function App() {
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem('user');
@@ -73,6 +74,7 @@ function AppContent({ user, setUser }) {
           <Route path="/financetracking" element={<PrivateRoute user={user}><FinanceTracking /></PrivateRoute>} />
           <Route path="/supplierlist" element={<PrivateRoute user={user}><SupplierList /></PrivateRoute>} />
           <Route path="/roles" element={<PrivateRoute user={user}><RoleManagement /></PrivateRoute>} />
+          <Route path="/qr" element={<PrivateRoute user={user}><QRPage /></PrivateRoute>} />
         </Routes>
       </div>
     </div>

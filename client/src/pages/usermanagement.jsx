@@ -102,7 +102,7 @@ const UserManagement = () => {
   
     <div className="px-4">
       {/* User List Section */}
-      <div className="bg-white p-4 rounded-lg shadow-lg overflow-x-auto">
+      <div className="bg-white shadow-lg overflow-x-auto">
         <table className="min-w-full bg-white border-collapse">
           <thead className="bg-black text-[#FEC00F]">
             <tr>
