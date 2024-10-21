@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 
-
 const BorrowingRequest = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -64,30 +63,30 @@ const BorrowingRequest = () => {
     <div className="mb-8">
       <h2 className="text-xl font-bold mb-4">{title}</h2>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left text-gray-500">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+        <table className="min-w-full bg-white border-collapse shadow-lg rounded-lg">
+          <thead className="bg-black text-[#FEC00F]">
             <tr>
-              <th scope="col" className="px-6 py-3">Name</th>
-              <th scope="col" className="px-6 py-3">Email</th>
-              <th scope="col" className="px-6 py-3">Department</th>
-              <th scope="col" className="px-6 py-3">Purpose</th>
-              <th scope="col" className="px-6 py-3">Borrowed Asset</th>
-              <th scope="col" className="px-6 py-3">Quantity</th>
-              <th scope="col" className="px-6 py-3">Cover Letter</th>
-              <th scope="col" className="px-6 py-3">Expected Return Date</th>
-              {showActions && <th scope="col" className="px-6 py-3">Actions</th>}
+              <th className="py-3 px-4 border-b text-center">Name</th>
+              <th className="py-3 px-4 border-b text-center">Email</th>
+              <th className="py-3 px-4 border-b text-center">Department</th>
+              <th className="py-3 px-4 border-b text-center">Purpose</th>
+              <th className="py-3 px-4 border-b text-center">Borrowed Asset</th>
+              <th className="py-3 px-4 border-b text-center">Quantity</th>
+              <th className="py-3 px-4 border-b text-center">Cover Letter</th>
+              <th className="py-3 px-4 border-b text-center">Expected Return Date</th>
+              {showActions && <th className="py-3 px-4 border-b text-center">Actions</th>}
             </tr>
           </thead>
           <tbody>
             {data.map((request) => (
-              <tr key={request.id} className="bg-white border-b hover:bg-gray-50">
-                <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{request.name}</td>
-                <td className="px-6 py-4">{request.email}</td>
-                <td className="px-6 py-4">{request.department}</td>
-                <td className="px-6 py-4">{request.purpose}</td>
-                <td className="px-6 py-4">{request.borrowed_asset_names}</td>
-                <td className="px-6 py-4">{request.borrowed_asset_quantities}</td>
-                <td className="px-6 py-4">
+              <tr key={request.id} className="hover:bg-gray-50 transition duration-150">
+                <td className="py-2 px-4 border-b text-center">{request.name}</td>
+                <td className="py-2 px-4 border-b text-center">{request.email}</td>
+                <td className="py-2 px-4 border-b text-center">{request.department}</td>
+                <td className="py-2 px-4 border-b text-center">{request.purpose}</td>
+                <td className="py-2 px-4 border-b text-center">{request.borrowed_asset_names}</td>
+                <td className="py-2 px-4 border-b text-center">{request.borrowed_asset_quantities}</td>
+                <td className="py-2 px-4 border-b text-center">
                   {request.cover_letter_url ? (
                     <a href={`${process.env.REACT_APP_API_URL}${request.cover_letter_url}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                       View Cover Letter
@@ -96,16 +95,16 @@ const BorrowingRequest = () => {
                     'No cover letter'
                   )}
                 </td>
-                <td className="px-6 py-4">{moment(request.expectedReturnDate).format('MMMM Do YYYY')}</td>
+                <td className="py-2 px-4 border-b text-center">{moment(request.expectedReturnDate).format('MMMM Do YYYY')}</td>
                 {showActions && (
-                  <td className="px-6 py-4">
+                  <td className="py-2 px-4 border-b text-center">
                     {request.status === 'Pending' ? (
                       <>
-                        <button onClick={() => handleStatusUpdate(request.id, 'Approved')} className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs">Approve</button>
-                        <button onClick={() => handleStatusUpdate(request.id, 'Rejected')} className="bg-red-500 text-white px-3 py-1 rounded text-xs">Reject</button>
+                        <button onClick={() => handleStatusUpdate(request.id, 'Approved')} className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs hover:bg-green-600 transition duration-300">Approve</button>
+                        <button onClick={() => handleStatusUpdate(request.id, 'Rejected')} className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300">Reject</button>
                       </>
                     ) : (
-                      <button onClick={() => handleReturnAsset(request.id)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs">Returned</button>
+                      <button onClick={() => handleReturnAsset(request.id)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition duration-300">Returned</button>
                     )}
                   </td>
                 )}

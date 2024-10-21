@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faList, faUsers, faChartLine, faCalendarAlt, faUserCog, faCog, faSignOutAlt, faClipboardList,} from '@fortawesome/free-solid-svg-icons';
+import { faHome, faList, faUsers, faChartLine, faCalendarAlt, faUserCog, faCog, faSignOutAlt, faClipboardList, faFontAwesomeFlag} from '@fortawesome/free-solid-svg-icons';
 import { Link, useLocation } from 'react-router-dom';
 
 // Modal Component
@@ -39,6 +39,7 @@ const MENU_LIST = [
   { text: "Finance Tracking", to: "/financetracking", icon: faChartLine },
   { text: "Events Management", to: "/events", icon: faCalendarAlt },
   { text: "User Management", to: "/users", icon: faUserCog },
+  { text: "Role Management", to: "/role", icon: faFontAwesomeFlag },
 ];
 
 const Sidebar = ({ user, onLogout }) => {

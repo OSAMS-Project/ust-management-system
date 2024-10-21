@@ -14,6 +14,7 @@ import EmailRequestForm from "./pages/RequestPage";
 import BorrowerForm from "./pages/BorrowerPage";
 import ProfilePage from "./pages/Profile";
 import BorrowingRequest from "./pages/BorrowingRequest";
+import RoleManagement from "./pages/RoleManagement";
 function App() {
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem('user');
@@ -38,7 +39,7 @@ function App() {
 
 function AppContent({ user, setUser }) {
   const location = useLocation();
-  const isPublicRoute = ["/", "/login", "/email", "/borrower", "/admin"].includes(location.pathname);
+  const isPublicRoute = ["/", "/login", "/request", "/borrow", "/admin"].includes(location.pathname);
 
   const handleLogout = () => {
     setUser(null);
@@ -58,8 +59,8 @@ function AppContent({ user, setUser }) {
           {/* Public Routes */}
           <Route path="/" element={<PublicRoute user={user}><SignIn setUser={setUser} /></PublicRoute>} />
           <Route path="/login" element={<PublicRoute user={user}><SignIn setUser={setUser} /></PublicRoute>} />
-          <Route path="/email" element={<PublicRoute user={user}><EmailRequestForm /></PublicRoute>} />
-          <Route path="/borrower" element={<PublicRoute user={user}><BorrowerForm /></PublicRoute>} />
+          <Route path="/request" element={<PublicRoute user={user}><EmailRequestForm /></PublicRoute>} />
+          <Route path="/borrow" element={<PublicRoute user={user}><BorrowerForm /></PublicRoute>} />
           <Route path="/admin" element={<PublicRoute user={user}><AdminForm setUser={setUser} /></PublicRoute>} />
           
           {/* Private Routes */}
@@ -71,6 +72,7 @@ function AppContent({ user, setUser }) {
           <Route path="/profile" element={<PrivateRoute user={user}><ProfilePage user={user} /></PrivateRoute>} />
           <Route path="/financetracking" element={<PrivateRoute user={user}><FinanceTracking /></PrivateRoute>} />
           <Route path="/supplierlist" element={<PrivateRoute user={user}><SupplierList /></PrivateRoute>} />
+          <Route path="/roles" element={<PrivateRoute user={user}><RoleManagement /></PrivateRoute>} />
         </Routes>
       </div>
     </div>
