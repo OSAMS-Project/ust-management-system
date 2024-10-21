@@ -3,12 +3,13 @@ const { executeTransaction } = require('../utils/queryExecutor');
 class BorrowLogs {
   static async createBorrowLogsTable() {
     const query = `
-      CREATE TABLE IF NOT EXISTS borrow_logs (
+ CREATE TABLE IF NOT EXISTS borrow_logs (
         id SERIAL PRIMARY KEY,
         asset_id VARCHAR(20) REFERENCES Assets(asset_id),
         borrower_name VARCHAR(255) NOT NULL,
         borrower_email VARCHAR(255) NOT NULL,
         borrower_department VARCHAR(255) NOT NULL,
+        quantity_borrowed INTEGER NOT NULL,
         date_borrowed TIMESTAMP NOT NULL,
         date_returned TIMESTAMP,
         borrowing_request_id INTEGER REFERENCES borrowing_requests(id)
