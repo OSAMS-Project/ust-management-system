@@ -39,7 +39,7 @@ const MENU_LIST = [
   { text: "Finance Tracking", to: "/financetracking", icon: faChartLine },
   { text: "Events Management", to: "/events", icon: faCalendarAlt },
   { text: "User Management", to: "/users", icon: faUserCog },
-  { text: "Role Management", to: "/role", icon: faFontAwesomeFlag },
+  { text: "Role Management", to: "/roles", icon: faFontAwesomeFlag },
 ];
 
 const Sidebar = ({ user, onLogout }) => {
