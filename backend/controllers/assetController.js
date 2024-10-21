@@ -49,7 +49,7 @@ const deleteAsset = async (req, res) => {
     const deletedAsset = await Asset.deleteAsset(id);
     if (deletedAsset) {
       res.status(200).json({ 
-        message: 'Asset, related borrow logs, and associated borrowing requests deleted successfully', 
+        message: 'Asset, related activity logs, and borrow logs deleted successfully', 
         deletedAsset
       });
     } else {
