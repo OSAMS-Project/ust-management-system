@@ -31,10 +31,14 @@ const IncomingAssets = ({ user }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!user || !user.name) {
+      console.error('User information is not available');
+      return;
+    }
     try {
       const assetData = {
         ...newAsset,
-        created_by: user?.name || 'Unknown User'
+        created_by: user.name
       };
       console.log('Sending asset data:', assetData);
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/incoming-assets`, assetData, {
@@ -49,12 +53,14 @@ const IncomingAssets = ({ user }) => {
       setNewAsset({ assetName: '', quantity: '', expectedArrival: '' });
     } catch (error) {
       console.error('Error adding incoming asset:', error.response ? error.response.data : error.message);
+      // You might want to show an error message to the user here
     }
   };
 
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Incoming Assets</h1>
+      <p className="text-lg mb-4">Logged in as: {user?.name || "User"}</p>
       <button 
         onClick={() => setIsModalOpen(true)}
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"

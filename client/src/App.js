@@ -77,7 +77,9 @@ function AppContent({ user, setUser }) {
           <Route path="/supplierlist" element={<PrivateRoute user={user}><SupplierList /></PrivateRoute>} />
           <Route path="/roles" element={<PrivateRoute user={user}><RoleManagement /></PrivateRoute>} />
           <Route path="/qr" element={<PrivateRoute user={user}><QRPage /></PrivateRoute>} />
-          <Route path="/incoming-assets" element={<PrivateRoute user={user}><IncomingAssets /></PrivateRoute>} />
+          <Route path="/incoming-assets" element={<PrivateRoute user={user}> <IncomingAssets user={user} /></PrivateRoute>
+            } 
+          />
         </Routes>
       </div>
     </div>
