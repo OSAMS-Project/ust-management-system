@@ -18,6 +18,8 @@ const assetActivityLogRoutes = require('./routes/assetactivitylogRoutes');
 const dashboardInfoCardsRoutes = require('./routes/dashboardinfocardsRoutes');
 const borrowingRequestRoutes = require('./routes/borrowingrequestRoutes');
 const borrowLogsRoutes = require('./routes/borrowLogsRoutes');
+const incomingAssetRoutes = require('./routes/incomingAssetRoutes');
+const IncomingAsset = require('./models/incomingassets');
 
 const { createEventsTable, createEventAssetsTable } = require('./models/events');
 
@@ -25,7 +27,10 @@ const app = express();
 const sse = new SSE();
 app.set('sse', sse);
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000', // Replace with your frontend URL
+  credentials: true
+}));
 app.use(bodyParser.json()); // Use body-parser middleware to parse JSON requests
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -47,6 +52,8 @@ app.use('/api/asset-activity-logs', assetActivityLogRoutes);
 app.use('/api/dashboard', dashboardInfoCardsRoutes);
 app.use('/api/borrowing-requests', borrowingRequestRoutes);
 app.use('/api/borrow-logs', borrowLogsRoutes);
+app.use('/api/incoming-assets', incomingAssetRoutes);
+app.use('/api', userRoutes);
 
 // SSE endpoint
 app.get('/api/assets/sse', (req, res) => {
@@ -290,3 +297,7 @@ app.delete('/api/Events/delete/:eventId', async (req, res) => {
     client.release();
   }
 });
+
+// Add this line to create the table when the server starts
+IncomingAsset.createIncomingAssetsTable();
+
