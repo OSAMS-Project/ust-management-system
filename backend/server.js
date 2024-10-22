@@ -53,7 +53,6 @@ app.use('/api/dashboard', dashboardInfoCardsRoutes);
 app.use('/api/borrowing-requests', borrowingRequestRoutes);
 app.use('/api/borrow-logs', borrowLogsRoutes);
 app.use('/api/incoming-assets', incomingAssetRoutes);
-app.use('/api', userRoutes);
 
 // SSE endpoint
 app.get('/api/assets/sse', (req, res) => {
@@ -300,4 +299,3 @@ app.delete('/api/Events/delete/:eventId', async (req, res) => {
 
 // Add this line to create the table when the server starts
 IncomingAsset.createIncomingAssetsTable();
-

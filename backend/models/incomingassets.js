@@ -9,17 +9,15 @@ const IncomingAsset = {
 
   addIncomingAsset: async (assetData) => {
     console.log('Adding incoming asset:', assetData);
-    const { assetName, quantity, expectedArrival, created_by } = assetData;
+    const { assetName, quantity, expectedArrival, created_by, user_picture } = assetData;
     console.log('Created by:', created_by);
     const query = `
-      INSERT INTO incoming_assets (asset_name, quantity, expected_arrival, created_by)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO incoming_assets (asset_name, quantity, expected_arrival, created_by, user_picture)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
     `;
-    const values = [assetName, quantity, expectedArrival, created_by];
-    console.log('Query values:', values);
+    const values = [assetName, quantity, expectedArrival, created_by, user_picture];
     const { rows } = await pool.query(query, values);
-    console.log('Added asset:', rows[0]);
     return rows[0];
   },
 
@@ -51,6 +49,7 @@ const IncomingAsset = {
         expected_arrival DATE NOT NULL,
         supplier_id VARCHAR(255),
         created_by VARCHAR(255),
+        user_picture TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;

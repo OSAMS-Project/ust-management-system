@@ -17,7 +17,8 @@ const incomingAssetController = {
       console.log('Received asset data:', req.body);
       const assetData = {
         ...req.body,
-        created_by: req.body.created_by || 'unknown user'
+        created_by: req.body.created_by || 'unknown user',
+        user_picture: req.body.user_picture || null
       };
       console.log('Asset data to be added:', assetData);
       const newAsset = await IncomingAsset.addIncomingAsset(assetData);

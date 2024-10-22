@@ -19,6 +19,7 @@ const IncomingAssets = ({ user }) => {
   const fetchIncomingAssets = async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/incoming-assets`);
+      console.log('Fetched incoming assets:', response.data);
       setIncomingAssets(response.data);
     } catch (error) {
       console.error('Error fetching incoming assets:', error);
@@ -31,14 +32,15 @@ const IncomingAssets = ({ user }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user || !user.name) {
+    if (!user || !user.name || !user.picture) {
       console.error('User information is not available');
       return;
     }
     try {
       const assetData = {
         ...newAsset,
-        created_by: user.name
+        created_by: user.name,
+        user_picture: user.picture
       };
       console.log('Sending asset data:', assetData);
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/incoming-assets`, assetData, {
@@ -53,14 +55,16 @@ const IncomingAssets = ({ user }) => {
       setNewAsset({ assetName: '', quantity: '', expectedArrival: '' });
     } catch (error) {
       console.error('Error adding incoming asset:', error.response ? error.response.data : error.message);
-      // You might want to show an error message to the user here
     }
   };
 
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Incoming Assets</h1>
-      <p className="text-lg mb-4">Logged in as: {user?.name || "User"}</p>
+      <div className="flex items-center mb-4">
+        <img src={user?.picture || "https://via.placeholder.com/40"} alt="Profile" className="w-10 h-10 rounded-full object-cover mr-2" />
+        <p className="text-lg">Logged in as: {user?.name || "User"}</p>
+      </div>
       <button 
         onClick={() => setIsModalOpen(true)}
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
@@ -84,7 +88,16 @@ const IncomingAssets = ({ user }) => {
               <td className="border p-2">{asset.asset_name}</td>
               <td className="border p-2">{asset.quantity}</td>
               <td className="border p-2">{new Date(asset.expected_arrival).toLocaleDateString()}</td>
-              <td className="border p-2">{asset.created_by}</td>
+              <td className="border p-2">
+                <div className="flex items-center">
+                  <img 
+                    src={asset.user_picture || "https://via.placeholder.com/30"} 
+                    alt={asset.created_by} 
+                    className="w-8 h-8 rounded-full mr-2"
+                  />
+                  {asset.created_by}
+                </div>
+              </td>
             </tr>
           ))}
         </tbody>
