@@ -17,6 +17,8 @@ import BorrowingRequest from "./pages/BorrowingRequest";
 import RoleManagement from "./pages/RoleManagement";
 import QRPage from "./pages/QRPage";
 import IncomingAssets from './pages/incomingassests';
+import AssetMaintenance from "./pages/AssetMaintenance";
+import AssetIssue from "./pages/AssetIssue";
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -70,6 +72,8 @@ function AppContent({ user, setUser }) {
           <Route path="/dashboard" element={<PrivateRoute user={user}><Dashboard user={user} /></PrivateRoute>} />
           <Route path="/events" element={<PrivateRoute user={user}><Events /></PrivateRoute>} />
           <Route path="/assets" element={<PrivateRoute user={user}><AssetList /></PrivateRoute>} />
+          <Route path="/asset-maintenance" element={<PrivateRoute user={user}><AssetMaintenance /></PrivateRoute>} />
+          <Route path="/asset-issue" element={<PrivateRoute user={user}><AssetIssue /></PrivateRoute>} />
           <Route path="/borrowingrequest" element={<PrivateRoute user={user}><BorrowingRequest /></PrivateRoute>} />
           <Route path="/users" element={<PrivateRoute user={user}><UserManagement /></PrivateRoute>} />
           <Route path="/profile" element={<PrivateRoute user={user}><ProfilePage user={user} /></PrivateRoute>} />

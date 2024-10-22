@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faList, faUsers, faChartLine, faCalendarAlt, faUserCog, faCog, faSignOutAlt, faClipboardList, faFontAwesomeFlag, faQrcode, faBoxOpen } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faList, faUsers, faChartLine, faCalendarAlt, faUserCog, faCog, faSignOutAlt, faClipboardList, faFontAwesomeFlag, faQrcode, faBoxOpen, faTools, faExclamationTriangle, faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { Link, useLocation } from 'react-router-dom';
 
 // Modal Component
@@ -21,19 +21,70 @@ const Modal = ({ isOpen, onClose, onConfirm }) => {
   );
 };
 
-const NavItem = ({ to, text, icon, isActive }) => (
-  <Link 
-    to={to} 
-    className={`flex items-center p-3 rounded-md transition duration-200 ${isActive ? 'text-yellow-500' : 'text-white'}`}
-  >
-    <FontAwesomeIcon icon={icon} className="mr-3" />
-    <span className="font-medium">{text}</span>
-  </Link>
-);
+const NavItem = ({ to, text, icon, isActive, subItems }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+
+  const isSubItemActive = subItems && subItems.some(item => item.to === location.pathname);
+
+  const toggleSubmenu = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsOpen(!isOpen);
+  };
+
+  if (subItems) {
+    return (
+      <div className="relative">
+        <Link 
+          to={to}
+          className={`flex items-center w-full p-3 rounded-md transition duration-200 ${isActive || isSubItemActive ? 'text-yellow-500' : 'text-white'}`}
+        >
+          <FontAwesomeIcon icon={icon} className="mr-3" />
+          <span className="font-medium">{text}</span>
+          <button 
+            onClick={toggleSubmenu}
+            className="ml-auto focus:outline-none"
+          >
+            <FontAwesomeIcon 
+              icon={isOpen ? faChevronUp : faChevronDown} 
+              className="transition-transform duration-300"
+            />
+          </button>
+        </Link>
+        {isOpen && (
+          <div className="pl-6 mt-2 space-y-2 submenu">
+            {subItems.map((item) => (
+              <NavItem key={item.text} {...item} isActive={location.pathname === item.to} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <Link 
+      to={to} 
+      className={`flex items-center p-3 rounded-md transition duration-200 ${isActive ? 'text-yellow-500' : 'text-white'}`}
+    >
+      <FontAwesomeIcon icon={icon} className="mr-3" />
+      <span className="font-medium">{text}</span>
+    </Link>
+  );
+};
 
 const MENU_LIST = [
   { text: "Home (Dashboard)", to: "/dashboard", icon: faHome },
-  { text: "Asset Lists", to: "/assets", icon: faList },
+  { 
+    text: "Asset Lists", 
+    to: "/assets", 
+    icon: faList,
+    subItems: [
+      { text: "Asset Maintenance", to: "/asset-maintenance", icon: faTools },
+      { text: "Asset Issue", to: "/asset-issue", icon: faExclamationTriangle },
+    ]
+  },
   { text: "Borrowing Request", to: "/borrowingrequest", icon: faClipboardList },
   { text: "Supplier Lists", to: "/supplierlist", icon: faUsers },
   { text: "Finance Tracking", to: "/financetracking", icon: faChartLine },
