@@ -3,7 +3,7 @@ const pool = require('../config/database');  // Adjust the path if necessary
 
 const createAssetsTable = async () => {
   const query = `
-CREATE TABLE IF NOT EXISTS Assets (
+    CREATE TABLE IF NOT EXISTS Assets (
       asset_id VARCHAR(20) UNIQUE NOT NULL,
       "assetName" VARCHAR(255) NOT NULL,
       "assetDetails" TEXT,
@@ -32,7 +32,7 @@ const getNextAssetId = async () => {
       params: [],
     },
   ]);
-  
+
   if (result.length === 0 || !result[0].asset_id) {
     return 'OSA-ASSET-0001';
   }
@@ -64,24 +64,32 @@ const updateAsset = async (values, id) => {
   try {
     console.log('Updating asset with values:', JSON.stringify(values, null, 2));
     console.log('Asset ID:', id);
+
     const { lastUpdated, quantityForBorrowing, ...updateValues } = values;
     if (quantityForBorrowing !== undefined) {
       updateValues.quantity_for_borrowing = quantityForBorrowing;
     }
+
     const setString = Object.keys(updateValues)
       .map((key, i) => `"${key}" = $${i + 1}`)
       .join(", ");
+
     const query = `
       UPDATE Assets 
       SET ${setString}, "lastUpdated" = CURRENT_TIMESTAMP 
       WHERE asset_id = $${Object.keys(updateValues).length + 1} 
       RETURNING *
     `;
+
     const params = [...Object.values(updateValues), id];
+
     console.log('Update query:', query);
     console.log('Update params:', params);
+
     const result = await executeTransaction([{ query, params }]);
+
     console.log('Update result:', JSON.stringify(result, null, 2));
+
     return result;
   } catch (error) {
     console.error('Error in updateAsset:', error);
@@ -95,16 +103,13 @@ const deleteAsset = async (assetId) => {
   try {
     await client.query('BEGIN');
 
-    // Delete related asset activity logs
     const deleteActivityLogsQuery = 'DELETE FROM AssetActivityLogs WHERE asset_id = $1';
     await client.query(deleteActivityLogsQuery, [assetId]);
 
-    // Delete related borrow logs
     const deleteBorrowLogsQuery = 'DELETE FROM borrow_logs WHERE asset_id = $1';
     await client.query(deleteBorrowLogsQuery, [assetId]);
 
-    // Delete the asset
-    const deleteAssetQuery = 'DELETE FROM assets WHERE asset_id = $1 RETURNING *';
+    const deleteAssetQuery = 'DELETE FROM Assets WHERE asset_id = $1 RETURNING *';
     const result = await client.query(deleteAssetQuery, [assetId]);
 
     await client.query('COMMIT');
@@ -126,7 +131,7 @@ const deleteAsset = async (assetId) => {
 const updateAssetActiveStatus = async (assetId, isActive, quantityForBorrowing = 0) => {
   const getAssetQuery = 'SELECT quantity, quantity_for_borrowing FROM Assets WHERE asset_id = $1';
   const assetResult = await executeTransaction([{ query: getAssetQuery, params: [assetId] }]);
-  
+
   if (assetResult.length === 0) {
     throw new Error('Asset not found');
   }
@@ -135,7 +140,7 @@ const updateAssetActiveStatus = async (assetId, isActive, quantityForBorrowing =
 
   if (isActive) {
     const maxQuantityForBorrowing = Math.min(quantityForBorrowing, assetQuantity);
-    
+
     const query = `
       UPDATE Assets 
       SET is_active = $1, quantity_for_borrowing = $2, quantity = quantity - $2
@@ -192,7 +197,7 @@ const getActiveAssets = async () => {
 };
 
 const updateQuantity = async (assetId, newQuantity) => {
-  const query = 'UPDATE assets SET quantity = $1 WHERE asset_id = $2 RETURNING *';
+  const query = 'UPDATE Assets SET quantity = $1 WHERE asset_id = $2 RETURNING *';
   const values = [newQuantity, assetId];
   try {
     const result = await pool.query(query, values);
@@ -221,7 +226,6 @@ const readAsset = async (assetId) => {
   return result[0];
 };
 
-// Add this new function
 const getTotalAssetsForBorrowing = async () => {
   const query = "SELECT COUNT(*) as count FROM Assets WHERE is_active = true AND quantity_for_borrowing > 0";
   const result = await executeTransaction([{ query, params: [] }]);

@@ -7,7 +7,7 @@ const pool = new Pool({
   // port: process.env.DB_PORT,
   // password: process.env.DB_PASSWORD,
   // database: process.env.DB_NAME,
-  connectionString: `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?sslmode=require`,
+  // connectionString: `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}?sslmode=require`,
 });
 
 
