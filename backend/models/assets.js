@@ -90,33 +90,28 @@ const updateAsset = async (values, id) => {
   }
 };
 
-const deleteAsset = async (assetId) => {
+const deleteAsset = async (id) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-
-    // Delete related asset activity logs
-    const deleteActivityLogsQuery = 'DELETE FROM AssetActivityLogs WHERE asset_id = $1';
-    await client.query(deleteActivityLogsQuery, [assetId]);
-
+    
+    // Delete related maintenance records
+    await client.query('DELETE FROM maintenance_records WHERE asset_id = $1', [id]);
+    
     // Delete related borrow logs
-    const deleteBorrowLogsQuery = 'DELETE FROM borrow_logs WHERE asset_id = $1';
-    await client.query(deleteBorrowLogsQuery, [assetId]);
-
+    await client.query('DELETE FROM borrow_logs WHERE asset_id = $1', [id]);
+    
+    // Delete related activity logs
+    await client.query('DELETE FROM assetactivitylogs WHERE asset_id = $1', [id]);
+    
     // Delete the asset
-    const deleteAssetQuery = 'DELETE FROM assets WHERE asset_id = $1 RETURNING *';
-    const result = await client.query(deleteAssetQuery, [assetId]);
-
+    const query = 'DELETE FROM Assets WHERE asset_id = $1 RETURNING *';
+    const result = await client.query(query, [id]);
+    
     await client.query('COMMIT');
-
-    if (result.rows.length === 0) {
-      throw new Error('Asset not found');
-    }
-
     return result.rows[0];
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Error in deleteAsset:', error);
     throw error;
   } finally {
     client.release();

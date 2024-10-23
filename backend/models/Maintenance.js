@@ -12,6 +12,7 @@ const Maintenance = {
         cost DECIMAL(10, 2),
         performed_by VARCHAR(100),
         status VARCHAR(20) DEFAULT 'Pending',
+        fixed_date DATE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
@@ -46,9 +47,9 @@ const Maintenance = {
     return rows[0];
   },
 
-  completeMaintenanceRecord: async (id) => {
-    const query = 'UPDATE maintenance_records SET status = $1 WHERE id = $2 RETURNING *';
-    const values = ['Completed', id];
+  completeMaintenanceRecord: async (id, fixedDate) => {
+    const query = 'UPDATE maintenance_records SET status = $1, fixed_date = $2 WHERE id = $3 RETURNING *';
+    const values = ['Completed', fixedDate, id];
     const { rows } = await pool.query(query, values);
     return rows[0];
   },
@@ -58,6 +59,13 @@ const Maintenance = {
     const values = [id];
     const { rows } = await pool.query(query, values);
     return rows[0];
+  },
+
+  getMaintenanceRecordsByAsset: async (assetId) => {
+    const query = 'SELECT * FROM maintenance_records WHERE asset_id = $1 ORDER BY date DESC';
+    const values = [assetId];
+    const { rows } = await pool.query(query, values);
+    return rows;
   }
 };
 

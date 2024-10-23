@@ -30,7 +30,9 @@ const maintenanceController = {
 
   completeMaintenanceRecord: async (req, res) => {
     try {
-      const updatedRecord = await Maintenance.completeMaintenanceRecord(req.params.id);
+      const { id } = req.params;
+      const fixedDate = new Date();
+      const updatedRecord = await Maintenance.completeMaintenanceRecord(id, fixedDate);
       if (updatedRecord) {
         res.json(updatedRecord);
       } else {
@@ -52,6 +54,17 @@ const maintenanceController = {
       }
     } catch (error) {
       console.error('Error deleting maintenance record:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  getMaintenanceRecordsByAsset: async (req, res) => {
+    try {
+      const { assetId } = req.params;
+      const records = await Maintenance.getMaintenanceRecordsByAsset(assetId);
+      res.json(records);
+    } catch (error) {
+      console.error('Error fetching maintenance records for asset:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }

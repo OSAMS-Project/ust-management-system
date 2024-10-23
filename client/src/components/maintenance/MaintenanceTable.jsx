@@ -16,7 +16,7 @@ const MaintenanceTable = ({ maintenanceRecords, onCompleteRecord, onRemoveRecord
           </tr>
         </thead>
         <tbody>
-          {maintenanceRecords.map((record) => (
+          {maintenanceRecords.filter(record => record.status !== 'Completed').map((record) => (
             <tr key={record.id} className="border-b">
               <td className="px-4 py-2">{record.asset_id}</td>
               <td className="px-4 py-2">{record.maintenance_type}</td>

@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import moment from 'moment';
 import AssetActivityLogs from './assetactivitylogs';
 import BorrowLogs from './BorrowLogs';
-
+import MaintenanceLogs from '../maintenance/MaintenanceLogs';
 const AssetDetailsModal = ({ selectedAsset, onClose }) => {
   const [showActivityLogs, setShowActivityLogs] = useState(false);
   const [showBorrowLogs, setShowBorrowLogs] = useState(false);
+  const [showMaintenanceLogs, setShowMaintenanceLogs] = useState(false);
 
   if (!selectedAsset) return null;
 
@@ -63,6 +64,12 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
             >
               Borrow Logs
             </button>
+            <button
+              onClick={() => setShowMaintenanceLogs(true)}
+              className="flex-1 bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors duration-300"
+            >
+              Maintenance Logs
+            </button>
           </div>
         </div>
       </div>
@@ -76,6 +83,12 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
         <BorrowLogs
           assetId={selectedAsset.asset_id}
           onClose={() => setShowBorrowLogs(false)}
+        />
+      )}
+      {showMaintenanceLogs && (
+        <MaintenanceLogs
+          assetId={selectedAsset.asset_id}
+          onClose={() => setShowMaintenanceLogs(false)}
         />
       )}
     </div>
