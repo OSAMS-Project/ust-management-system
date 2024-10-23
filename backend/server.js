@@ -20,7 +20,7 @@ const borrowingRequestRoutes = require('./routes/borrowingrequestRoutes');
 const borrowLogsRoutes = require('./routes/borrowLogsRoutes');
 const incomingAssetRoutes = require('./routes/incomingAssetRoutes');
 const IncomingAsset = require('./models/incomingassets');
-const maintenanceRoutes = require('./routes/maintenanceRoutes');
+const maintenanceRoutes = require('./routes/MaintenanceRoutes');
 const Maintenance = require('./models/Maintenance');
 
 const { createEventsTable, createEventAssetsTable } = require('./models/events');
@@ -29,10 +29,7 @@ const app = express();
 const sse = new SSE();
 app.set('sse', sse);
 
-app.use(cors({
-  origin: 'http://localhost:3000', // Replace with your frontend URL
-  credentials: true
-}));
+app.use(cors());
 app.use(bodyParser.json()); // Use body-parser middleware to parse JSON requests
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

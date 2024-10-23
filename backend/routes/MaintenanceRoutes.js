@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const MaintenanceController = require('../controllers/maintenanceController');
+const MaintenanceController = require('../controllers/MaintenanceController');
 
 router.get('/read', MaintenanceController.getAllMaintenanceRecords);
 router.post('/create', MaintenanceController.createMaintenanceRecord);
