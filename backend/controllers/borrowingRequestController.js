@@ -1,5 +1,5 @@
 const BorrowingRequest = require('../models/borrowingrequest');
-const Asset = require('../models/asset');
+const Asset = require('../models/assets');
 const path = require('path');
 const fs = require('fs').promises;
 const multer = require('multer');
