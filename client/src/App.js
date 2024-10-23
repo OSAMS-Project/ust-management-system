@@ -4,7 +4,6 @@ import "./App.css";
 import Events from "./pages/eventslist";
 import AssetList from "./pages/assetlist";
 import UserManagement from "./pages/usermanagement";
-import FinanceTracking from "./pages/financetracking";
 import SupplierList from "./pages/supplierlist";
 import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/LoginPage";
@@ -77,7 +76,6 @@ function AppContent({ user, setUser }) {
           <Route path="/borrowingrequest" element={<PrivateRoute user={user}><BorrowingRequest /></PrivateRoute>} />
           <Route path="/users" element={<PrivateRoute user={user}><UserManagement /></PrivateRoute>} />
           <Route path="/profile" element={<PrivateRoute user={user}><ProfilePage user={user} /></PrivateRoute>} />
-          <Route path="/financetracking" element={<PrivateRoute user={user}><FinanceTracking /></PrivateRoute>} />
           <Route path="/supplierlist" element={<PrivateRoute user={user}><SupplierList /></PrivateRoute>} />
           <Route path="/roles" element={<PrivateRoute user={user}><RoleManagement /></PrivateRoute>} />
           <Route path="/qr" element={<PrivateRoute user={user}><QRPage /></PrivateRoute>} />

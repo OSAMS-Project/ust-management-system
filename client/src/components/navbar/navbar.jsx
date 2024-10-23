@@ -88,7 +88,6 @@ const MENU_LIST = [
   },
   { text: "Borrowing Request", to: "/borrowingrequest", icon: faClipboardList },
   { text: "Supplier Lists", to: "/supplierlist", icon: faUsers },
-  { text: "Finance Tracking", to: "/financetracking", icon: faChartLine },
   { text: "Events Management", to: "/events", icon: faCalendarAlt },
   { text: "User Management", to: "/users", icon: faUserCog },
   { text: "Role Management", to: "/roles", icon: faFontAwesomeFlag },
