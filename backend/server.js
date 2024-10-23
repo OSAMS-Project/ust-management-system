@@ -20,6 +20,8 @@ const borrowingRequestRoutes = require('./routes/borrowingrequestRoutes');
 const borrowLogsRoutes = require('./routes/borrowLogsRoutes');
 const incomingAssetRoutes = require('./routes/incomingAssetRoutes');
 const IncomingAsset = require('./models/incomingassets');
+const maintenanceRoutes = require('./routes/maintenanceRoutes');
+const Maintenance = require('./models/Maintenance');
 
 const { createEventsTable, createEventAssetsTable } = require('./models/events');
 
@@ -53,6 +55,7 @@ app.use('/api/dashboard', dashboardInfoCardsRoutes);
 app.use('/api/borrowing-requests', borrowingRequestRoutes);
 app.use('/api/borrow-logs', borrowLogsRoutes);
 app.use('/api/incoming-assets', incomingAssetRoutes);
+app.use('/api/Maintenance', maintenanceRoutes);
 
 // SSE endpoint
 app.get('/api/assets/sse', (req, res) => {
@@ -194,6 +197,8 @@ const initializeTables = async () => {
     console.log('Suppliers table initialized');
     await createEventAssetsTable();
     console.log('Event assets table initialized');
+    await Maintenance.createMaintenanceTable();
+    console.log('Maintenance table initialized');
     console.log('All tables initialized successfully');
   } catch (err) {
     console.error('Error initializing tables:', err);
@@ -299,3 +304,4 @@ app.delete('/api/Events/delete/:eventId', async (req, res) => {
 
 // Add this line to create the table when the server starts
 IncomingAsset.createIncomingAssetsTable();
+
