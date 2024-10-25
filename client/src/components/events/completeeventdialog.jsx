@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 
-const CompletedEventsDialog = ({ isOpen, onClose, completedEvents, onEventDeleted }) => {
-  if (!isOpen) return null;
+const CompletedEvents = ({ completedEvents, onEventDeleted }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const eventsPerPage = 4;
 
   const handleDeleteEvent = async (eventId) => {
     try {
@@ -16,19 +17,27 @@ const CompletedEventsDialog = ({ isOpen, onClose, completedEvents, onEventDelete
 
   const sortedEvents = [...completedEvents].sort((a, b) => new Date(b.event_date) - new Date(a.event_date));
 
+  const indexOfLastEvent = currentPage * eventsPerPage;
+  const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
+  const currentEvents = sortedEvents.slice(indexOfFirstEvent, indexOfLastEvent);
+
+  const totalPages = Math.ceil(sortedEvents.length / eventsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-4">Completed Events</h2>
-        {sortedEvents.length === 0 ? (
-          <p>No completed events to display.</p>
-        ) : (
-          <div className="space-y-6">
-            {sortedEvents.map(event => (
-              <div key={event.unique_id} className="bg-gray-100 p-4 rounded-lg">
-                <div className="flex justify-between items-center mb-2">
+    <div className="mt-8 mb-16">
+      <h2 className="text-2xl font-bold mb-4">Completed Events</h2>
+      {sortedEvents.length === 0 ? (
+        <p>No completed events to display.</p>
+      ) : (
+        <>
+          <div className="flex flex-wrap gap-4">
+            {currentEvents.map(event => (
+              <div key={event.unique_id} className="bg-gray-100 p-4 rounded-lg w-64">
+                <div className="flex flex-col mb-2">
                   <h3 className="text-lg font-semibold">{event.event_name}</h3>
-                  <span className="text-sm text-gray-600">Event Date:{new Date(event.event_date).toLocaleDateString()}</span>
+                  <span className="text-sm text-gray-600">Event Date: {new Date(event.event_date).toLocaleDateString()}</span>
                 </div>
                 <p className="text-sm text-gray-700 mb-2">Location: {event.event_location}</p>
                 <h4 className="font-medium mb-2">Assets Used:</h4>
@@ -52,16 +61,23 @@ const CompletedEventsDialog = ({ isOpen, onClose, completedEvents, onEventDelete
               </div>
             ))}
           </div>
-        )}
-        <button
-          onClick={onClose}
-          className="mt-6 w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Close
-        </button>
-      </div>
+          <div className="mt-4 flex justify-center">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => paginate(i + 1)}
+                className={`mx-1 px-3 py-1 rounded ${
+                  currentPage === i + 1 ? 'bg-yellow-500 text-white' : 'bg-gray-200'
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };
 
-export default CompletedEventsDialog;
+export default CompletedEvents;

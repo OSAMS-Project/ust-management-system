@@ -8,7 +8,7 @@ import EventCard from '../components/events/eventcard';
 import EditEventDialog from '../components/events/editeventdialog';
 import SearchEvent from '../components/events/searchevent';
 import axios from 'axios';  // Add this import
-import CompletedEventsDialog from '../components/events/completeeventdialog';
+import CompletedEvents from '../components/events/completeeventdialog';
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
@@ -402,16 +402,7 @@ function Events() {
           </div>
         </div>
 
-        <button
-          onClick={() => setShowCompletedEventsDialog(true)}
-          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded ml-4"
-        >
-          Show Completed Events
-        </button>
-
-        <CompletedEventsDialog
-          isOpen={showCompletedEventsDialog}
-          onClose={() => setShowCompletedEventsDialog(false)}
+        <CompletedEvents
           completedEvents={completedEvents}
           onEventDeleted={handleEventDeleted}
         />
