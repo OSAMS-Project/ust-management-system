@@ -75,7 +75,7 @@ const NavItem = ({ to, text, icon, isActive, subItems }) => {
 };
 
 const MENU_LIST = [
-  { text: "Home (Dashboard)", to: "/dashboard", icon: faHome },
+  { text: "Dashboard", to: "/dashboard", icon: faHome },
   { 
     text: "Asset Lists", 
     to: "/assets", 

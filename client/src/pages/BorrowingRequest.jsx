@@ -53,6 +53,22 @@ const BorrowingRequest = () => {
     }
   };
 
+  const handleInformUser = async (email) => {
+    try {
+      // Correct the API call by passing the required fields
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/send-email`, { 
+        to: email, 
+        subject: 'Notification from Our Service', 
+        message: 'This is a sample email message to inform you.' 
+      });
+      alert(response.data.message); // Inform the user about the success or failure
+    } catch (err) {
+      console.error('Error sending email:', err);
+      alert('Failed to send email');
+    }
+  };
+  
+
   if (loading) return <div className="text-center py-4">Loading...</div>;
   if (error) return <div className="text-center py-4 text-red-500">{error}</div>;
 
@@ -102,6 +118,8 @@ const BorrowingRequest = () => {
                       <>
                         <button onClick={() => handleStatusUpdate(request.id, 'Approved')} className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs hover:bg-green-600 transition duration-300">Approve</button>
                         <button onClick={() => handleStatusUpdate(request.id, 'Rejected')} className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300">Reject</button>
+                        {/* New Inform button */}
+                        <button onClick={() => handleInformUser(request.email)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition duration-300">Inform</button>
                       </>
                     ) : (
                       <button onClick={() => handleReturnAsset(request.id)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition duration-300">Returned</button>
@@ -127,7 +145,7 @@ const BorrowingRequest = () => {
       </div>
 
       <div id='recipients' className="p-4 mt-4 lg:mt-0 rounded shadow bg-white">
-      {renderTable("Accepted Requests", acceptedRequests, true)}
+        {renderTable("Accepted Requests", acceptedRequests, true)}
       </div>
     </div>
   );

@@ -84,7 +84,7 @@ const DashboardInfoCards = ({ formatTime }) => {
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.jpg')"}}>
+        <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.JPG')"}}>
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col items-center text-center">
             <h2 className="text-7xl font-bold text-yellow-400">
@@ -94,7 +94,7 @@ const DashboardInfoCards = ({ formatTime }) => {
           </div>
         </div>
 
-        <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.jpg')"}}>
+        <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.JPG')"}}>
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col items-center text-center">
             <h2 className="text-7xl font-bold text-yellow-400">
@@ -104,7 +104,7 @@ const DashboardInfoCards = ({ formatTime }) => {
           </div>
         </div>
 
-        <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.jpg')"}}>
+        <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.JPG')"}}>
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col items-center text-center">
             <h2 className="text-7xl font-bold text-yellow-400">
@@ -114,7 +114,7 @@ const DashboardInfoCards = ({ formatTime }) => {
           </div>
         </div>
 
-        {/* <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.jpg')"}}>
+        {/* <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.JPG')"}}>
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col items-center text-center">
             <h2 className="text-7xl font-bold text-yellow-400">
@@ -124,7 +124,7 @@ const DashboardInfoCards = ({ formatTime }) => {
           </div>
         </div>
 
-        <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.jpg')"}}>
+        <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.JPG')"}}>
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col items-center text-center">
             <h2 className="text-7xl font-bold text-yellow-400">
@@ -134,7 +134,7 @@ const DashboardInfoCards = ({ formatTime }) => {
           </div>
         </div>
 
-        <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.jpg')"}}>
+        <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.JPG')"}}>
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col items-center text-center">
             <h2 className="text-7xl font-bold text-yellow-400">

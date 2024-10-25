@@ -27,7 +27,7 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
       {/* Background image */}
       <div 
         className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
-        style={{ backgroundImage: `url(${item.image || '/ust-image.jpg'})` }}
+        style={{ backgroundImage: `url(${item.image || '/ust-image.JPG'})` }}
       ></div>
       
       {/* Overlay */}
