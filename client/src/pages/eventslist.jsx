@@ -10,6 +10,7 @@ import SearchEvent from '../components/events/searchevent';
 import axios from 'axios';  // Add this import
 import CompletedEvents from '../components/events/completeeventdialog';
 
+
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 const formatTime = (time) => {
@@ -40,6 +41,16 @@ function Events() {
   const [assets, setAssets] = useState([]);  // Add this line
   const [showCompletedEventsDialog, setShowCompletedEventsDialog] = useState(false);
   const [completedEvents, setCompletedEvents] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const eventsPerPage = 6;
+
+  const indexOfLastEvent = currentPage * eventsPerPage;
+  const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
+  const currentEvents = data.slice(indexOfFirstEvent, indexOfLastEvent);
+
+  const totalPages = Math.ceil(data.length / eventsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleEventDeleted = (deletedEventId) => {
     setCompletedEvents(prevEvents => prevEvents.filter(event => event.unique_id !== deletedEventId));
@@ -380,25 +391,31 @@ function Events() {
 
         <div className="w-82 mx-auto p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-            {filteredEvents.length > 0 ? (
-              filteredEvents.map((item) => (
-                <div key={item.unique_id} className="h-full">
-                  <EventCard
-                    item={item}
-                    handleExplore={handleExplore}
-                    handleComplete={handleCompleteEvent}
-                    handleEdit={handleEdit}
-                    cancelDelete={cancelDelete}
-                    formatTime={formatTime}
-                    handleAddAsset={handleAddAsset}
-                    assets={assets}
-                    setShowConfirmDialog={setShowConfirmDialog}
-                  />
-                </div>
-              ))
-            ) : (
-              <div className="col-span-full text-center text-gray-500">No events available</div>
-            )}
+            {currentEvents.map((item) => (
+              <EventCard
+                key={item.unique_id}
+                item={item}
+                handleExplore={handleExplore}
+                handleComplete={handleCompleteEvent}
+                handleEdit={handleEdit}
+                formatTime={formatTime}
+                handleAddAsset={handleAddAsset}
+                assets={assets}
+              />
+            ))}
+          </div>
+          <div className="mt-4 mb-8 flex justify-center">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => paginate(i + 1)}
+                className={`mx-1 px-3 py-1 rounded ${
+                  currentPage === i + 1 ? 'bg-yellow-500 text-white' : 'bg-gray-200'
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
           </div>
         </div>
 

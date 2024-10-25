@@ -32,7 +32,7 @@ const CompletedEvents = ({ completedEvents, onEventDeleted }) => {
         <p>No completed events to display.</p>
       ) : (
         <>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 mb-12">
             {currentEvents.map(event => (
               <div key={event.unique_id} className="bg-gray-100 p-4 rounded-lg w-64">
                 <div className="flex flex-col mb-2">
