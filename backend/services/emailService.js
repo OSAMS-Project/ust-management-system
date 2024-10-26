@@ -1,48 +1,57 @@
 const nodemailer = require('nodemailer');
-require('dotenv').config();  // Import dotenv to load environment variables
+require('dotenv').config();
 
-// Create the transporter
-const transporter = nodemailer.createTransport({
+// Function to create a transporter object for sending emails
+const createTransporter = () => {
+  return nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
+      user: 'osams.projects@gmail.com',
+      pass: 'rrxi ggbv hope slhy',
+    },
   });
-  
-  // Verify connection configuration
-  transporter.verify((error, success) => {
-    if (error) {
-      console.error('Email transporter error:', error);
-    } else {
-      console.log('Server is ready to take our messages');
-    }
-  });
-  const sendEmail = async (to, subject, message) => {
-    const html = `
-      <div style="font-family: Arial, sans-serif; color: #333;">
-        <h2 style="color: #4CAF50;">Welcome to Our Service!</h2>
-        <p>Hi there!</p>
-        <p>${message}</p>
-        <p>Best regards,<br>Your Company</p>
-      </div>
-    `;
-  
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to,
-      subject,
-      text: message,
-      html
-    };
-  
-    try {
-      return await transporter.sendMail(mailOptions);
-    } catch (error) {
-      console.error('Error in sendEmail service:', error);
-      throw error;
-    }
-  };
-  
+};
+// Function to send approval email
+const sendApprovalEmail = async (email, name) => {  
+  const transporter = createTransporter();
 
-module.exports = { sendEmail };
+  const mailOptions = {
+    from: `"Asset Management Team" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: 'Your Borrowing Request Has Been Approved',
+    text: `Dear ${name},\n\nYour borrowing request has been approved. Please check your account for more details.\n\nBest regards,\nAsset Management Team`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Approval email sent successfully:', info.messageId);
+  } catch (error) {
+    console.error('Error sending approval email:', error.message);
+    throw new Error('Failed to send approval email');
+  }
+};
+
+// Function to send rejection email
+const sendRejectionEmail = async (email, name) => {
+  const transporter = createTransporter();
+
+  const mailOptions = {
+    from: `"Asset Management Team" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: 'Your Borrowing Request Has Been Rejected',
+    text: `Dear ${name},\n\nWe regret to inform you that your borrowing request has been rejected. Please contact our support team for further details.\n\nBest regards,\nAsset Management Team`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Rejection email sent successfully:', info.messageId);
+  } catch (error) {
+    console.error('Error sending rejection email:', error.message);
+    throw new Error('Failed to send rejection email');
+  }
+};
+
+module.exports = {
+  sendApprovalEmail,
+  sendRejectionEmail,
+};

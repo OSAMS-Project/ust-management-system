@@ -5,6 +5,7 @@ const fs = require('fs').promises;
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 const BorrowLogs = require('../models/borrowLogs');
+const emailService = require('../services/emailService');
 
 exports.createBorrowingRequest = [
   upload.single('coverLetter'),
@@ -101,6 +102,11 @@ exports.updateBorrowingRequestStatus = async (req, res) => {
         });
       }
 
+      // Send approval email
+      if (status === 'Approved') {
+        await emailService.sendApprovalEmail(updatedRequest.email, updatedRequest.name);
+      }
+
       res.status(200).json(updatedRequest);
     } else {
       res.status(404).json({ message: 'Borrowing request not found' });
@@ -108,6 +114,31 @@ exports.updateBorrowingRequestStatus = async (req, res) => {
   } catch (error) {
     console.error('Error updating borrowing request status:', error);
     res.status(500).json({ message: 'Error updating borrowing request status', error: error.message });
+  }
+};
+
+exports.sendManualEmail = async (req, res) => {
+  const { email, name, status } = req.body;
+
+  // Validation check to ensure email, name, and status are provided
+  if (!email || !name || !status) {
+    return res.status(400).json({ message: 'Email, name, and status are required.' });
+  }
+
+  try {
+    // Send email based on the status
+    if (status === 'Approved') {
+      await emailService.sendApprovalEmail(email, name);
+    } else if (status === 'Rejected') {
+      await emailService.sendRejectionEmail(email, name);
+    } else {
+      return res.status(400).json({ message: 'Invalid status provided.' });
+    }
+
+    res.status(200).json({ message: `Email sent successfully for status: ${status}` });
+  } catch (error) {
+    console.error('Error sending manual email:', error);
+    res.status(500).json({ message: 'Error sending email', error: error.message });
   }
 };
 

@@ -7,6 +7,7 @@ const BorrowingRequest = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch all borrowing requests on component mount
   useEffect(() => {
     const fetchRequests = async () => {
       try {
@@ -22,6 +23,7 @@ const BorrowingRequest = () => {
     fetchRequests();
   }, []);
 
+  // Handle status update for borrowing requests
   const handleStatusUpdate = async (id, status) => {
     try {
       if (status === 'Rejected') {
@@ -37,13 +39,14 @@ const BorrowingRequest = () => {
     }
   };
 
+  // Handle return asset action
   const handleReturnAsset = async (id) => {
     try {
       await axios.put(`${process.env.REACT_APP_API_URL}/api/borrowing-requests/${id}/return`);
       // Log the return action
       await axios.post(`${process.env.REACT_APP_API_URL}/api/borrow-logs`, {
         requestId: id,
-        dateReturned: new Date()
+        dateReturned: new Date(),
       });
       // Refresh the data
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/borrowing-requests`);
@@ -53,18 +56,15 @@ const BorrowingRequest = () => {
     }
   };
 
-  const handleInformUser = async (email) => {
+  const handleSendEmail = async (email, name, status) => {
+    console.log('Button clicked, email:', email, 'name:', name, 'status:', status); // Add this log to confirm status
     try {
-      // Correct the API call by passing the required fields
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/send-email`, { 
-        to: email, 
-        subject: 'Notification from Our Service', 
-        message: 'This is a sample email message to inform you.' 
-      });
-      alert(response.data.message); // Inform the user about the success or failure
+      // Send email with status (either 'Approved' or 'Rejected')
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/borrowing-requests/send-email`, { email, name, status });
+      alert(`Email sent successfully for status: ${status}`);
     } catch (err) {
       console.error('Error sending email:', err);
-      alert('Failed to send email');
+      alert('Failed to send email. Please try again.');
     }
   };
   
@@ -75,6 +75,7 @@ const BorrowingRequest = () => {
   const pendingRequests = requests.filter(req => req.status === 'Pending');
   const acceptedRequests = requests.filter(req => req.status === 'Approved');
 
+  // Render table with requests
   const renderTable = (title, data, showActions) => (
     <div className="mb-8">
       <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
@@ -97,7 +98,9 @@ const BorrowingRequest = () => {
             {data.map((request) => (
               <tr key={request.id} className="hover:bg-gray-50 transition duration-150">
                 <td className="py-2 px-4 border-b text-center">{request.name}</td>
-                <td className="py-2 px-4 border-b text-center">{request.email}</td>
+                <td className="py-2 px-4 border-b text-center">
+                  {request.email}
+                </td>
                 <td className="py-2 px-4 border-b text-center">{request.department}</td>
                 <td className="py-2 px-4 border-b text-center">{request.purpose}</td>
                 <td className="py-2 px-4 border-b text-center">{request.borrowed_asset_names}</td>
@@ -116,13 +119,32 @@ const BorrowingRequest = () => {
                   <td className="py-2 px-4 border-b text-center">
                     {request.status === 'Pending' ? (
                       <>
-                        <button onClick={() => handleStatusUpdate(request.id, 'Approved')} className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs hover:bg-green-600 transition duration-300">Approve</button>
-                        <button onClick={() => handleStatusUpdate(request.id, 'Rejected')} className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300">Reject</button>
-                        {/* New Inform button */}
-                        <button onClick={() => handleInformUser(request.email)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition duration-300">Inform</button>
+                        <button 
+                          onClick={() => {
+                            handleStatusUpdate(request.id, 'Approved');
+                            handleSendEmail(request.email, request.name, 'Approved'); // Send Approved email
+                          }} 
+                          className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs hover:bg-green-600 transition duration-300"
+                        >
+                          Approve
+                        </button>
+                        <button 
+                          onClick={() => {
+                            handleStatusUpdate(request.id, 'Rejected');
+                            handleSendEmail(request.email, request.name, 'Rejected'); // Send Rejected email
+                          }} 
+                          className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300"
+                        >
+                          Reject
+                        </button>
                       </>
                     ) : (
-                      <button onClick={() => handleReturnAsset(request.id)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition duration-300">Returned</button>
+                      <button 
+                        onClick={() => handleReturnAsset(request.id)} 
+                        className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition duration-300"
+                      >
+                        Returned
+                      </button>
                     )}
                   </td>
                 )}
