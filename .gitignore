@@ -12,3 +12,5 @@ client/node_modules/.cache/.eslintcache
 .env
 .env
 .env
+.env
+client/.env
