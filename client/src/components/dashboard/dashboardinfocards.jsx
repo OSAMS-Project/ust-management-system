@@ -279,7 +279,7 @@ const DashboardInfoCards = ({ formatTime }) => {
       {recentAssets.slice(0, 3).map((asset, index) => (
         <div
           key={asset.asset_id}
-          className={`py-3 ${
+          className={`py-1 ${
             index < recentAssets.slice(0, 3).length - 1 ? "border-b" : ""
           } border-gray-200`}
         >
@@ -292,7 +292,7 @@ const DashboardInfoCards = ({ formatTime }) => {
                   {moment(asset.createdDate).format("MMMM D, YYYY, h:mmA")}
                 </p>
                 <p className="font-bold text-2xl">{asset.assetName}</p>
-                <p className="text-sm text-gray-500">{asset.assetDetails}</p>
+                <p className="text-sm text-gray-500 mb-1">{asset.assetDetails}</p>
               </div>
               <button
                 className="bg-black text-white px-3 py-1 rounded-full flex items-center"
