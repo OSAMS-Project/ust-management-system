@@ -15,6 +15,7 @@ import { CSVLink } from "react-csv";
 import ConfirmationModal from "./deleteconfirmationmodal";
 import QuantityForBorrowingModal from "./quantityforborrowing";
 import PaginationControls from "./PaginationControls";
+import NotificationPopup from "../NotificationsPopup";
 
 const ColumnVisibilityPopup = ({
 	visibleColumns,
@@ -69,6 +70,7 @@ const AssetTable = ({
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [assetToDelete, setAssetToDelete] = useState(null);
 	const [visibleColumns, setVisibleColumns] = useState({
+		
 		id: true,
 		dateCreated: true,
 		asset: true,
@@ -85,6 +87,7 @@ const AssetTable = ({
 	const [selectedAssetForBorrowing, setSelectedAssetForBorrowing] =
 		useState(null);
 	const [borrowingRequests, setBorrowingRequests] = useState([]);
+	const [notification, setNotification] = useState(null); // Add this state
 
 	const totalPages = Math.ceil(assets.length / itemsPerPage);
 
@@ -159,9 +162,17 @@ const AssetTable = ({
 						(a) => a.is_active
 					).length;
 					onBorrowingChange(newActiveCount);
+					setNotification({
+						type: 'success',
+						message: `${asset.assetName} has been deactivated for borrowing.`
+					});
 				}
 			} catch (error) {
 				console.error("Error updating asset active status:", error);
+				setNotification({
+					type: 'error',
+					message: `Failed to deactivate ${asset.assetName} for borrowing.`
+				});
 			}
 		} else {
 			// If the asset is inactive, open the quantity modal
@@ -322,9 +333,17 @@ const AssetTable = ({
 				setAssets(updatedAssets);
 				const newActiveCount = updatedAssets.filter((a) => a.is_active).length;
 				onBorrowingChange(newActiveCount);
+				setNotification({
+					type: 'success',
+					message: `${selectedAssetForBorrowing.assetName} has been activated for borrowing with quantity ${maxQuantity}.`
+				});
 			}
 		} catch (error) {
 			console.error("Error updating asset active status and quantity:", error);
+			setNotification({
+				type: 'error',
+				message: `Failed to activate ${selectedAssetForBorrowing.assetName} for borrowing.`
+			});
 		}
 		setIsQuantityModalOpen(false);
 		setSelectedAssetForBorrowing(null);
@@ -640,6 +659,11 @@ const AssetTable = ({
 				maxQuantity={
 					selectedAssetForBorrowing ? selectedAssetForBorrowing.quantity : 1
 				}
+			/>
+
+			<NotificationPopup
+				notification={notification}
+				onClose={() => setNotification(null)}
 			/>
 		</div>
 	);

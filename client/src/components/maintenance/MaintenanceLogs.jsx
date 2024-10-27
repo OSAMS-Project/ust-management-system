@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const MaintenanceLogs = ({ assetId, onClose }) => {
   const [logs, setLogs] = useState([]);
@@ -23,7 +25,14 @@ const MaintenanceLogs = ({ assetId, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+          aria-label="Close"
+        >
+          <FontAwesomeIcon icon={faTimes} className="text-xl" />
+        </button>
         <div className="p-6">
           <h2 className="text-2xl font-bold mb-4 text-gray-800">Maintenance Logs</h2>
           <table className="min-w-full bg-white">
@@ -50,12 +59,6 @@ const MaintenanceLogs = ({ assetId, onClose }) => {
               ))}
             </tbody>
           </table>
-          <button
-            onClick={onClose}
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-300"
-          >
-            Close
-          </button>
         </div>
       </div>
     </div>

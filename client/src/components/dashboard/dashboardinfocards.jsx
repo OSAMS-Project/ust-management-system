@@ -6,7 +6,6 @@ import EventDetailsModal from "../events/eventdetailsmodal";
 
 const DashboardInfoCards = ({ formatTime }) => {
   const [totalAssets, setTotalAssets] = useState(null);
-  const [totalUsers, setTotalUsers] = useState(null);
   const [totalEvents, setTotalEvents] = useState(null);
   const [totalAssetsForBorrowing, setTotalAssetsForBorrowing] = useState(null);
   const [totalPendingRequests, setTotalPendingRequests] = useState(null);
@@ -23,20 +22,19 @@ const DashboardInfoCards = ({ formatTime }) => {
         const assetsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-assets`);
         setTotalAssets(assetsResponse.data.totalAssets);
 
-        const usersResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-users`);
-        setTotalUsers(usersResponse.data.totalUsers);
+        
 
         const eventsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-events`);
         setTotalEvents(eventsResponse.data.totalEvents);
 
-        // const assetsForBorrowingResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-assets-for-borrowing`);
-        // setTotalAssetsForBorrowing(assetsForBorrowingResponse.data.totalAssetsForBorrowing);
+        const assetsForBorrowingResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-assets-for-borrowing`);
+        setTotalAssetsForBorrowing(assetsForBorrowingResponse.data.totalAssetsForBorrowing);
 
-        // const pendingRequestsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-pending-requests`);
-        // setTotalPendingRequests(pendingRequestsResponse.data.totalPendingRequests);
+        const pendingRequestsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-pending-requests`);
+        setTotalPendingRequests(pendingRequestsResponse.data.totalPendingRequests);
 
-        // const acceptedRequestsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-accepted-requests`);
-        // setTotalAcceptedRequests(acceptedRequestsResponse.data.totalAcceptedRequests);
+        const acceptedRequestsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-accepted-requests`);
+        setTotalAcceptedRequests(acceptedRequestsResponse.data.totalAcceptedRequests);
 
         const recentAssetsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/recent-assets`);
         setRecentAssets(recentAssetsResponse.data);
@@ -73,7 +71,6 @@ const DashboardInfoCards = ({ formatTime }) => {
     // You might want to open a modal or navigate to a details page here
   };
 
-  const now = moment();
   const upcomingEvents = recentEvents.filter(event => !event.is_completed);
   const sortedEvents = [...upcomingEvents].sort((a, b) => {
     const dateTimeA = moment(`${a.event_date} ${a.event_start_time}`, 'YYYY-MM-DD HH:mm');
@@ -94,15 +91,7 @@ const DashboardInfoCards = ({ formatTime }) => {
           </div>
         </div>
 
-        <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.JPG')"}}>
-          <div className="absolute inset-0 bg-black opacity-50"></div>
-          <div className="relative z-10 flex flex-col items-center text-center">
-            <h2 className="text-7xl font-bold text-yellow-400">
-              {error ? 'Error' : totalUsers === null ? 'Loading...' : totalUsers}
-            </h2>
-            <p className="text-2xl font-semibold text-white mt-2">Total Users</p>
-          </div>
-        </div>
+       
 
         <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.JPG')"}}>
           <div className="absolute inset-0 bg-black opacity-50"></div>
@@ -114,7 +103,7 @@ const DashboardInfoCards = ({ formatTime }) => {
           </div>
         </div>
 
-        {/* <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.JPG')"}}>
+        <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.JPG')"}}>
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col items-center text-center">
             <h2 className="text-7xl font-bold text-yellow-400">
@@ -142,7 +131,7 @@ const DashboardInfoCards = ({ formatTime }) => {
             </h2>
             <p className="text-2xl font-semibold text-white mt-2">Accepted Borrowing Requests</p>
           </div>
-        </div> */}
+        </div> 
       </div>
 
       {/* Recent Added Assets Section */}

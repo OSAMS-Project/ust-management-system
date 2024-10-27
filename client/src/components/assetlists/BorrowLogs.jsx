@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const BorrowLogs = ({ assetId, onClose }) => {
   const [logs, setLogs] = useState([]);
@@ -25,34 +27,55 @@ const BorrowLogs = ({ assetId, onClose }) => {
     fetchBorrowLogs();
   }, [assetId]);
 
+  const formatDateTime = (date) => {
+    return moment(date).format('MMMM D, YYYY - h:mm A');
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">Borrow Logs</h2>
-        {isLoading ? (
-          <p>Loading borrow logs...</p>
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : (
-          <div className="space-y-4">
-            {logs.map((log, index) => (
-              <div key={index} className="bg-gray-100 p-3 rounded-lg mb-2">
-                <p className="font-semibold">Borrowed on: {new Date(log.date_borrowed).toLocaleDateString()}</p>
-                <p>Borrower: {log.borrower_name}</p>
-                <p>Email: {log.borrower_email}</p>
-                <p>Department: {log.borrower_department}</p>
-                <p>Quantity Borrowed: {log.quantity_borrowed}</p>
-                <p>Returned: {log.date_returned ? new Date(log.date_returned).toLocaleDateString() : 'Not yet returned'}</p>
-              </div>
-            ))}
-          </div>
-        )}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto relative">
         <button
           onClick={onClose}
-          className="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+          aria-label="Close"
         >
-          Close
+          <FontAwesomeIcon icon={faTimes} className="text-xl" />
         </button>
+        <div className="p-6">
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">Borrow Logs</h2>
+          {isLoading ? (
+            <p>Loading borrow logs...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : (
+            <table className="min-w-full bg-white">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="px-4 py-2 text-left">Borrowed Date</th>
+                  <th className="px-4 py-2 text-left">Borrower</th>
+                  <th className="px-4 py-2 text-left">Email</th>
+                  <th className="px-4 py-2 text-left">Department</th>
+                  <th className="px-4 py-2 text-left">Quantity</th>
+                  <th className="px-4 py-2 text-left">Returned Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {logs.map((log, index) => (
+                  <tr key={index} className="border-b">
+                    <td className="px-4 py-2">{formatDateTime(log.date_borrowed)}</td>
+                    <td className="px-4 py-2">{log.borrower_name}</td>
+                    <td className="px-4 py-2">{log.borrower_email}</td>
+                    <td className="px-4 py-2">{log.borrower_department}</td>
+                    <td className="px-4 py-2">{log.quantity_borrowed}</td>
+                    <td className="px-4 py-2">
+                      {log.date_returned ? formatDateTime(log.date_returned) : 'Not yet returned'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );
