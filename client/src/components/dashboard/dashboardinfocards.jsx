@@ -5,7 +5,8 @@ import AssetDetailsModal from "../assetlists/assetdetailsmodal";
 import EventDetailsModal from "../events/eventdetailsmodal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
-import { faArrowRight, faBox } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faBox, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
+
 import { Link } from "react-router-dom";
 
 const DashboardInfoCards = ({ formatTime }) => {
@@ -270,78 +271,84 @@ const DashboardInfoCards = ({ formatTime }) => {
       
       {/* Recent Added Assets Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-2xl px-6 py-2 uppercase tracking-wide">
-            Recently Added Assets
-          </div>
-          <div className="p-4 rounded-lg">
-            {recentAssets.slice(0, 3).map((asset, index) => (
-              <div
-                key={asset.asset_id}
-                className={`py-3 ${
-                  index < recentAssets.slice(0, 3).length - 1 ? "border-b" : ""
-                } border-gray-200`}
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                 
-                    <p className="text-sm text-gray-400">
-                      {moment(asset.createdDate).format("MMMM D, YYYY, h:mmA")}
-                    </p>
-                    <p className="font-bold text-2xl">{asset.assetName}</p>
-                    <p className="text-sm text-gray-500">
-                      {asset.assetDetails}
-                    </p>
-                  </div>
-                  <button
-                    className="bg-black text-white px-3 py-1 rounded-full flex items-center"
-                    onClick={() => handleAssetDetailsClick(asset)}
-                  >
-                    <FontAwesomeIcon icon={faEye} className="mr-2" />
-                    View
-                  </button>
-                </div>
+  <div>
+    <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-2xl px-6 py-2 uppercase tracking-wide">
+      Recently Added Assets
+    </div>
+    <div className="p-4 rounded-lg">
+      {recentAssets.slice(0, 3).map((asset, index) => (
+        <div
+          key={asset.asset_id}
+          className={`py-3 ${
+            index < recentAssets.slice(0, 3).length - 1 ? "border-b" : ""
+          } border-gray-200`}
+        >
+          <div className="flex items-center space-x-4">
+            {/* Box Icon for the asset */}
+            <FontAwesomeIcon icon={faBox} className="text-black text-3xl" />
+            <div className="flex justify-between items-center w-full">
+              <div>
+                <p className="text-sm text-gray-400">
+                  {moment(asset.createdDate).format("MMMM D, YYYY, h:mmA")}
+                </p>
+                <p className="font-bold text-2xl">{asset.assetName}</p>
+                <p className="text-sm text-gray-500">{asset.assetDetails}</p>
               </div>
-            ))}
+              <button
+                className="bg-black text-white px-3 py-1 rounded-full flex items-center"
+                onClick={() => handleAssetDetailsClick(asset)}
+              >
+                <FontAwesomeIcon icon={faEye} className="mr-2" />
+                View
+              </button>
+            </div>
           </div>
         </div>
+      ))}
+    </div>
+  </div>
+
 
         {/* Recent Events */}
-        <div>
-        <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-2xl px-6 py-2 uppercase tracking-wide">
-            Upcoming Events
-          </div>
-          <div className="p-4 rounded-lg">
-            {sortedEvents.slice(0, 3).map((event, index) => (
-              <div
-                key={event.unique_id}
-                className={`py-4 ${
-                  index < sortedEvents.slice(0, 3).length - 1 ? "border-b" : ""
-                } border-gray-200`}
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                  <p className="text-sm text-gray-400">
-                      {moment(event.event_date).format("MMMM D, YYYY")}{" "}
-                      {formatTime(event.event_start_time)} -{" "}
-                      {formatTime(event.event_end_time)}
-                    </p>
-                    <p className="font-bold text-2xl">{event.event_name}</p>
-
-                    <p className="text-sm text-gray-500">{event.description}</p>
-                  </div>
-                  <button
-                    className="bg-black text-white px-3 py-1 rounded-full flex items-center"
-                    onClick={() => handleEventDetailsClick(event)}
-                  >
-                    <FontAwesomeIcon icon={faEye} className="mr-2" />
-                    View
-                  </button>
-                </div>
-              </div>
-            ))}
+       <div>
+  <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-2xl px-6 py-2 uppercase tracking-wide">
+    Upcoming Events
+  </div>
+  <div className="p-4 rounded-lg">
+    {sortedEvents.slice(0, 3).map((event, index) => (
+      <div
+        key={event.unique_id}
+        className={`py-4 ${
+          index < sortedEvents.slice(0, 3).length - 1 ? "border-b" : ""
+        } border-gray-200`}
+      >
+        <div className="flex items-center space-x-4">
+          {/* Calendar Icon for the event */}
+          <FontAwesomeIcon icon={faCalendarAlt} className="text-black text-3xl" />
+          <div className="flex justify-between items-center w-full">
+            <div>
+              <p className="text-sm text-gray-400">
+                {moment(event.event_date).format("MMMM D, YYYY")}{" "}
+                {formatTime(event.event_start_time)} -{" "}
+                {formatTime(event.event_end_time)}
+              </p>
+              <p className="font-bold text-2xl">{event.event_name}</p>
+              <p className="text-sm text-gray-500">{event.description}</p>
+            </div>
+            <button
+              className="bg-black text-white px-3 py-1 rounded-full flex items-center"
+              onClick={() => handleEventDetailsClick(event)}
+            >
+              <FontAwesomeIcon icon={faEye} className="mr-2" />
+              View
+            </button>
           </div>
         </div>
+      </div>
+    ))}
+  </div>
+</div>
+
       </div>
 
       {selectedAsset && (
