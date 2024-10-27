@@ -80,6 +80,11 @@ const DashboardInfoCards = ({ formatTime }) => {
 
   return (
     <div>
+
+<div className="inline-block bg-[#FEC00F] text-black rounded-full px-5 py-1 text-center uppercase tracking-wider mb-3">
+  SYSTEM SUMMARY
+</div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden" style={{backgroundImage: "url('ust-image.JPG')"}}>
           <div className="absolute inset-0 bg-black opacity-50"></div>
