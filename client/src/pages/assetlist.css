@@ -1,9 +1,7 @@
 body {
-  /* background-color: #FFF2B2; */
+  /* background-color: rgb(243 244 246); */
   margin: 0;
-  font-family: 'Roboto', sans-serif;
   color: #333;
-  line-height: 1.6;
 }
 
 .asset-list-container {

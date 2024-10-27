@@ -176,7 +176,7 @@ const getTotalAssets = async () => {
 };
 
 const getRecentlyAddedAssets = async (limit) => {
-  const query = 'SELECT asset_id, "assetName", "createdDate" FROM Assets ORDER BY "createdDate" DESC LIMIT $1';
+  const query = 'SELECT asset_id, "assetName", "assetDetails", "added_by", "createdDate" FROM Assets ORDER BY "createdDate" DESC LIMIT $1';
   const result = await executeTransaction([{ query, params: [limit] }]);
   return result;
 };

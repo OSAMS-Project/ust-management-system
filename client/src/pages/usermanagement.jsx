@@ -226,7 +226,7 @@ const UserManagement = () => {
             className={`px-6 py-2 rounded-lg focus:outline-none ${currentTab === 'WITHOUT_ACCESS' ? 'bg-[#FEC00F] text-black' : 'bg-gray-200 text-gray-600'}`}
             onClick={() => setCurrentTab('WITHOUT_ACCESS')}
           >
-            Without Access
+            Pending Access
           </button>
         </div>
 
