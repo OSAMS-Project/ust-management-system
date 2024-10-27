@@ -59,31 +59,44 @@ const RoleManagement = () => {
   }, []);
 
   return (
-    <div>
+    <div className="space-y-6">
       {/* Header Section */}
-      <div className="bg-[#FEC00F] py-4">
-        <h1 className="text-5xl font-extrabold text-black text-left px-4">
-          Role Management
-        </h1>
+      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
+        <h1 className="text-5xl font-extrabold text-black">Role Management</h1>
+        <FontAwesomeIcon
+          icon={faUsers}
+          className="text-black text-5xl transform"
+        />
       </div>
 
-      {/* Total Roles Display */}
       <div className="px-4">
-        <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500 transition-all duration-300 hover:shadow-lg">
-          <div className="flex items-center">
-            <div className="bg-blue-100 rounded-full p-3 mr-4">
-              <FontAwesomeIcon icon={faUsers} className="text-blue-500 text-xl" />
-            </div>
-            <div>
-              <h2 className="text-sm font-semibold text-gray-600">Total Roles</h2>
-              <p className="text-2xl font-bold text-gray-800 mt-1">{totalRoles}</p>
-            </div>
+        <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full px-5 py-1 text-center uppercase tracking-wider">
+          Roles Summary
+        </div>
+
+      {/* Total Roles Display */}
+      <div className="px-4 my-6">
+        <div
+          className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden"
+          style={{ backgroundImage: "url('ust-img-4.JPG')" }}
+        >
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className="relative z-10 flex flex-col items-center text-center">
+            <h2 className="text-7xl font-bold text-yellow-400">
+              {totalRoles}
+            </h2>
+            <p className="text-2xl font-semibold text-white mt-2">
+              Total Roles
+            </p>
           </div>
         </div>
       </div>
+      </div>
 
-      {/* Role Add Section */}
-      <div className="px-4 my-6">
+
+
+         {/* Role Add Section */}
+         <div className="px-4 my-6">
         <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500 transition-all duration-300 hover:shadow-lg">
           <h2 className="text-2xl font-semibold text-gray-600 mb-4">Add New Role</h2>
           <div className="flex items-center gap-4">
@@ -107,7 +120,7 @@ const RoleManagement = () => {
 
       {/* Roles Table */}
       <div className="px-4">
-        <div className="bg-white shadow-lg overflow-x-auto">
+        <div className="bg-white shadow-lg overflow-x-auto rounded-lg">
           {loading ? (
             <p className="text-center py-4">Loading roles...</p>
           ) : (
@@ -122,15 +135,15 @@ const RoleManagement = () => {
               <tbody>
                 {roles.map((role) => (
                   <tr key={role.role_name} className="hover:bg-gray-50 transition duration-150">
-                    <td className="py-2 px-4 border-b text-center">{role.role_name}</td>
-                    <td className="py-2 px-4 border-b text-center">
+                    <td className="py-4 px-6 border-b text-center">{role.role_name}</td>
+                    <td className="py-4 px-6 border-b text-center">
                       <img
-                        src="https://via.placeholder.com/40"
+                        src="https://via.placeholder.com/100"
                         alt="User"
-                        className="w-10 h-10 rounded-full mx-auto"
+                        className="w-16 h-16 rounded-full object-cover mx-auto"
                       />
                     </td>
-                    <td className="py-2 px-4 border-b text-center">
+                    <td className="py-4 px-6 border-b text-center">
                       <button
                         onClick={() => handleDeleteRole(role.role_name)}
                         className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300"
