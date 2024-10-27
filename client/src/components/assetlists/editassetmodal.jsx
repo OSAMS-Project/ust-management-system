@@ -131,98 +131,101 @@ const EditAssetModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-lg w-[400px] shadow-lg">
-        <h2 className="text-lg font-semibold mb-4">
-          Edit Asset
-        </h2>
-        {editedAsset && (
-          <>
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60">
+  <div className="bg-white p-8 rounded-xl w-[600px] max-w-3xl shadow-2xl">
+    <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+      Edit Asset
+    </h2>
+    {editedAsset && (
+      <>
+        <div className="grid grid-cols-1 gap-y-6 gap-x-8 md:grid-cols-2">
+          <InputField
+            label="Asset Name"
+            value={editedAsset.assetName}
+            onChange={(e) => handleChange('assetName', e.target.value)}
+          />
+          <InputField
+            label="Asset Details"
+            value={editedAsset.assetDetails}
+            onChange={(e) => handleChange('assetDetails', e.target.value)}
+          />
+          <SelectField
+            label="Asset Category"
+            value={editedAsset.category}
+            onChange={(e) => handleChange('category', e.target.value)}
+            options={categories}
+          />
+          <SelectField
+            label="Asset Location"
+            value={editedAsset.location}
+            onChange={(e) => handleChange('location', e.target.value)}
+            options={locations}
+          />
+          <SelectField
+            label="Asset Type"
+            value={editedAsset.type}
+            onChange={(e) => handleChange('type', e.target.value)}
+            options={['Consumable', 'Non-Consumable']}
+          />
+          <InputField
+            label="Quantity"
+            type="number"
+            value={editedAsset.quantity}
+            onChange={(e) => handleChange('quantity', Number(e.target.value))}
+          />
+          <InputField
+            label="Cost"
+            value={editedAsset.cost}
+            onChange={(e) => handleChange('cost', e.target.value.replace(/[^0-9.]/g, ""))}
+            prefix="₱"
+          />
+          <InputField
+            label="Total Cost"
+            value={totalCost}
+            prefix="₱"
+            readOnly
+          />
+          {editedAsset.is_active && (
             <InputField
-              label="Asset Name"
-              value={editedAsset.assetName}
-              onChange={(e) => handleChange('assetName', e.target.value)}
-            />
-            <InputField
-              label="Asset Details"
-              value={editedAsset.assetDetails}
-              onChange={(e) => handleChange('assetDetails', e.target.value)}
-            />
-            <SelectField
-              label="Asset Category"
-              value={editedAsset.category}
-              onChange={(e) => handleChange('category', e.target.value)}
-              options={categories}
-            />
-            <SelectField
-              label="Asset Location"
-              value={editedAsset.location}
-              onChange={(e) => handleChange('location', e.target.value)}
-              options={locations}
-            />
-            <SelectField
-              label="Asset Type"
-              value={editedAsset.type}
-              onChange={(e) => handleChange('type', e.target.value)}
-              options={['Consumable', 'Non-Consumable']}
-            />
-            <InputField
-              label="Quantity"
+              label="Quantity for Borrowing"
               type="number"
-              value={editedAsset.quantity}
-              onChange={(e) => handleChange('quantity', Number(e.target.value))}
+              value={quantityForBorrowing}
+              onChange={(e) => handleChange('quantityForBorrowing', Number(e.target.value))}
+              min="1"
             />
-            <InputField
-              label="Cost"
-              value={editedAsset.cost}
-              onChange={(e) => handleChange('cost', e.target.value.replace(/[^0-9.]/g, ""))}
-              prefix="₱"
-            />
-            <InputField
-              label="Total Cost"
-              value={totalCost}
-              prefix="₱"
-              readOnly
-            />
-            {editedAsset.is_active && (
-              <InputField
-                label="Quantity for Borrowing"
-                type="number"
-                value={quantityForBorrowing}
-                onChange={(e) => handleChange('quantityForBorrowing', Number(e.target.value))}
-                min="1" // Ensure the input cannot be less than 1
-              />
-            )}
+          )}
+        </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Asset Image</label>
-              {(newImage || editedAsset.image) && (
-                <img
-                  src={newImage || editedAsset.image}
-                  alt="Asset"
-                  className="w-full h-40 object-cover mb-2 rounded"
-                />
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="w-full"
-              />
-            </div>
+        <div className="my-6">
+          <label className="block text-sm font-medium mb-2 text-gray-700">Asset Image</label>
+          {(newImage || editedAsset.image) && (
+            <img
+              src={newImage || editedAsset.image}
+              alt="Asset"
+              className="w-full h-52 object-cover mb-4 rounded-lg"
+            />
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="w-full border rounded-lg px-4 py-2"
+          />
+        </div>
 
-            <div className="flex justify-end gap-4 mt-4">
-              <Button className="bg-gray-300" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button className="bg-blue-500 text-white" onClick={handleSaveAsset}>
-                Save Changes
-              </Button>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
+        <div className="flex justify-end gap-4 mt-8">
+          <Button className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-lg" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg" onClick={handleSaveAsset}>
+            Save Changes
+          </Button>
+        </div>
+      </>
+    )}
+  </div>
+</div>
+
   );
 };
 

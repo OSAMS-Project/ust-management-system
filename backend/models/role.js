@@ -1,5 +1,4 @@
 const { executeTransaction } = require('../utils/queryExecutor');
-const pool = require('../config/database');
 
 const createRoleTable = async () => {
   const query = `
@@ -8,22 +7,42 @@ const createRoleTable = async () => {
       role_name VARCHAR(255) UNIQUE NOT NULL
     )
   `;
-  return executeTransaction([{ query, params: [] }]);
+  try {
+    return await executeTransaction([{ query, params: [] }]);
+  } catch (err) {
+    console.error('Error creating Role table:', err);
+    throw err;
+  }
 };
 
 const getRoles = async () => {
   const query = "SELECT role_name FROM Role";
-  return executeTransaction([{ query, params: [] }]);
+  try {
+    return await executeTransaction([{ query, params: [] }]);
+  } catch (err) {
+    console.error('Error fetching roles:', err);
+    throw err;
+  }
 };
 
 const addRole = async (roleName) => {
   const query = "INSERT INTO Role (role_name) VALUES ($1) RETURNING role_name";
-  return executeTransaction([{ query, params: [roleName] }]);
+  try {
+    return await executeTransaction([{ query, params: [roleName] }]);
+  } catch (err) {
+    console.error('Error adding role:', err);
+    throw err;
+  }
 };
 
 const deleteRole = async (roleName) => {
   const query = "DELETE FROM Role WHERE role_name = $1 RETURNING role_name";
-  return executeTransaction([{ query, params: [roleName] }]);
+  try {
+    return await executeTransaction([{ query, params: [roleName] }]);
+  } catch (err) {
+    console.error('Error deleting role:', err);
+    throw err;
+  }
 };
 
 module.exports = {
@@ -32,4 +51,3 @@ module.exports = {
   createRoleTable,
   deleteRole
 };
-    

@@ -148,106 +148,107 @@ const Modal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
-        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">Add Asset</h2>
-        </div>
-        <div className="px-6 py-4 max-h-[calc(100vh-200px)] overflow-y-auto">
-          <form className="space-y-4">
-            <InputField
-              label="Asset Name"
-              value={assetName}
-              onChange={(e) => setAssetName(e.target.value)}
-              shake={shakeFields.includes("assetName")}
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-6 z-50">
+    <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden">
+      <div className="bg-gradient-to-r from-gray-100 to-gray-200 px-8 py-5 border-b border-gray-300">
+        <h2 className="text-2xl font-bold text-gray-800">Add Asset</h2>
+      </div>
+      <div className="px-8 py-6 max-h-[calc(100vh-150px)] overflow-y-auto">
+        <form className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <InputField
+            label="Asset Name"
+            value={assetName}
+            onChange={(e) => setAssetName(e.target.value)}
+            shake={shakeFields.includes("assetName")}
+          />
+          <InputField
+            label="Asset Details"
+            value={assetDetails}
+            onChange={(e) => setAssetDetails(e.target.value)}
+            shake={shakeFields.includes("assetDetails")}
+          />
+          <SelectField
+            label="Asset Category"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            options={categories}
+            shake={shakeFields.includes("selectedCategory")}
+          />
+          <SelectField
+            label="Asset Location"
+            value={selectedLocation}
+            onChange={(e) => setSelectedLocation(e.target.value)}
+            options={locations}
+            shake={shakeFields.includes("selectedLocation")}
+          />
+          <SelectField
+            label="Asset Type"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            options={['Consumable', 'Non-Consumable']}
+            shake={shakeFields.includes("type")}
+          />
+          <InputField
+            label="Cost per Unit"
+            value={cost}
+            onChange={handleCostChange}
+            prefix="₱"
+            shake={shakeFields.includes("cost")}
+          />
+          <InputField
+            label="Quantity"
+            type="number"
+            value={quantity}
+            onChange={handleQuantityChange}
+            shake={shakeFields.includes("quantity")}
+          />
+          <InputField
+            label="Total Cost"
+            value={totalCost}
+            prefix="₱"
+            readOnly
+          />
+          <div className="col-span-2 space-y-3">
+            <label className="block text-sm font-medium text-gray-700">Upload Image</label>
+            <input 
+              type="file" 
+              onChange={handleImageUpload}
+              className="block w-full text-sm text-gray-600
+                file:mr-4 file:py-3 file:px-5
+                file:rounded-md file:border-0
+                file:text-sm file:font-medium
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
             />
-            <InputField
-              label="Asset Details"
-              value={assetDetails}
-              onChange={(e) => setAssetDetails(e.target.value)}
-              shake={shakeFields.includes("assetDetails")}
-            />
-            <SelectField
-              label="Asset Category"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              options={categories}
-              shake={shakeFields.includes("selectedCategory")}
-            />
-            <SelectField
-              label="Asset Location"
-              value={selectedLocation}
-              onChange={(e) => setSelectedLocation(e.target.value)}
-              options={locations}
-              shake={shakeFields.includes("selectedLocation")}
-            />
-            <SelectField
-              label="Asset Type"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              options={['Consumable', 'Non-Consumable']}
-              shake={shakeFields.includes("type")}
-            />
-            <InputField
-              label="Cost per Unit"
-              value={cost}
-              onChange={handleCostChange}
-              prefix="₱"
-              shake={shakeFields.includes("cost")}
-            />
-            <InputField
-              label="Quantity"
-              type="number"
-              value={quantity}
-              onChange={handleQuantityChange}
-              shake={shakeFields.includes("quantity")}
-            />
-            <InputField
-              label="Total Cost"
-              value={totalCost}
-              prefix="₱"
-              readOnly
-            />
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Upload Image</label>
-              <input 
-                type="file" 
-                onChange={handleImageUpload}
-                className="block w-full text-sm text-gray-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-full file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-blue-50 file:text-blue-700
-                  hover:file:bg-blue-100"
-              />
-              {image && (
-                <div className="mt-2">
-                  <img
-                    src={image}
-                    alt="Uploaded Asset"
-                    className="h-20 w-20 object-cover rounded"
-                  />
-                </div>
-              )}
-            </div>
-          </form>
-        </div>
-        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-          <Button 
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleSaveAsset}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-          >
-            Add Asset
-          </Button>
-        </div>
+            {image && (
+              <div className="mt-3">
+                <img
+                  src={image}
+                  alt="Uploaded Asset"
+                  className="h-24 w-24 object-cover rounded-md border border-gray-300"
+                />
+              </div>
+            )}
+          </div>
+        </form>
+      </div>
+      <div className="bg-gray-100 px-8 py-5 border-t border-gray-300 flex justify-end gap-4">
+        <Button 
+          onClick={onClose}
+          className="px-6 py-3 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition-colors"
+        >
+          Cancel
+        </Button>
+        <Button 
+          onClick={handleSaveAsset}
+          className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        >
+          Add Asset
+        </Button>
       </div>
     </div>
+  </div>
+  
   );
 };
 
