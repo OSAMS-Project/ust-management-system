@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 
 const PaginationControls = ({
   itemsPerPage,
@@ -43,7 +43,7 @@ const PaginationControls = ({
             className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
           >
             <span className="sr-only">Previous</span>
-            <FontAwesomeIcon icon={faChevronLeft} className="h-5 w-5" aria-hidden="true" />
+            <FontAwesomeIcon icon={faCaretLeft} className="h-5 w-5" aria-hidden="true" />
           </button>
           {renderPageNumbers()}
           <button
@@ -52,7 +52,7 @@ const PaginationControls = ({
             className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
           >
             <span className="sr-only">Next</span>
-            <FontAwesomeIcon icon={faChevronRight} className="h-5 w-5" aria-hidden="true" />
+            <FontAwesomeIcon icon={faCaretRight} className="h-5 w-5" aria-hidden="true" />
           </button>
         </nav>
       </div>

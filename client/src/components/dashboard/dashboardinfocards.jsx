@@ -285,7 +285,7 @@ const DashboardInfoCards = ({ formatTime }) => {
         >
           <div className="flex items-center space-x-4">
             {/* Box Icon for the asset */}
-            <FontAwesomeIcon icon={faBox} className="text-black text-3xl" />
+            <FontAwesomeIcon icon={faBox} className="text-black text-2xl" />
             <div className="flex justify-between items-center w-full">
               <div>
                 <p className="text-sm text-gray-400">
@@ -318,13 +318,13 @@ const DashboardInfoCards = ({ formatTime }) => {
     {sortedEvents.slice(0, 3).map((event, index) => (
       <div
         key={event.unique_id}
-        className={`py-4 ${
+        className={`py-1 ${
           index < sortedEvents.slice(0, 3).length - 1 ? "border-b" : ""
         } border-gray-200`}
       >
         <div className="flex items-center space-x-4">
           {/* Calendar Icon for the event */}
-          <FontAwesomeIcon icon={faCalendarAlt} className="text-black text-3xl" />
+          <FontAwesomeIcon icon={faCalendarAlt} className="text-black text-2xl" />
           <div className="flex justify-between items-center w-full">
             <div>
               <p className="text-sm text-gray-400">
@@ -333,7 +333,7 @@ const DashboardInfoCards = ({ formatTime }) => {
                 {formatTime(event.event_end_time)}
               </p>
               <p className="font-bold text-2xl">{event.event_name}</p>
-              <p className="text-sm text-gray-500">{event.description}</p>
+              <p className="text-sm text-gray-500 mb-1">{event.description}</p>
             </div>
             <button
               className="bg-black text-white px-3 py-1 rounded-full flex items-center"

@@ -93,8 +93,6 @@ const RoleManagement = () => {
       </div>
       </div>
 
-
-
          {/* Role Add Section */}
          <div className="px-4 my-6">
         <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500 transition-all duration-300 hover:shadow-lg">

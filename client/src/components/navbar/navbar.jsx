@@ -116,12 +116,17 @@ const Sidebar = ({ user, onLogout }) => {
         </div>
         
         <Link to="/profile" className="flex items-center p-4 border-b border-gray-700">
-          <img src={user?.picture || "https://via.placeholder.com/50"} alt="Profile" className="w-12 h-12 rounded-full object-cover" />
-          <div className="ml-3">
-            <span className="block font-semibold text-[#FEC00F] uppercase whitespace-nowrap overflow-hidden overflow-ellipsis">{user?.name ?? "ROLE"}</span>
-            <span className="block text-sm text-gray-400">{user?.role || "Admin"}</span>
-          </div>
-        </Link>
+  <img src={user?.picture || "https://via.placeholder.com/50"} alt="Profile" className="w-12 h-12 rounded-full object-cover" />
+  <div className="ml-3 flex-1 min-w-0">
+    <span className="block font-semibold text-[#FEC00F] uppercase whitespace-nowrap overflow-hidden text-ellipsis">
+      {user?.name ?? "ROLE"}
+    </span>
+    <span className="block text-sm text-gray-400 whitespace-nowrap overflow-hidden text-ellipsis">
+      {user?.role || "Admin"}
+    </span>
+  </div>
+</Link>
+
 
         <nav className="flex-1 p-4 space-y-2">
           {MENU_LIST.map((menu) => (
