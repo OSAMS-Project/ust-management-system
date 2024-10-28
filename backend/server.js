@@ -23,6 +23,7 @@ const IncomingAsset = require('./models/incomingassets');
 const maintenanceRoutes = require('./routes/MaintenanceRoutes');
 const Maintenance = require('./models/Maintenance');
 const roleRoutes = require('./routes/roleRoutes');
+const AssetIssue = require('./models/assetissue');
 
 const { createEventsTable, createEventAssetsTable } = require('./models/events');
 
@@ -199,6 +200,8 @@ const initializeTables = async () => {
     console.log('Event assets table initialized');
     await Maintenance.createMaintenanceTable();
     console.log('Maintenance table initialized');
+    await AssetIssue.createIssuesTable();
+    console.log('Asset issues table initialized');
     console.log('All tables initialized successfully');
   } catch (err) {
     console.error('Error initializing tables:', err);
@@ -304,4 +307,5 @@ app.delete('/api/Events/delete/:eventId', async (req, res) => {
 
 // Add this line to create the table when the server starts
 IncomingAsset.createIncomingAssetsTable();
-
+const assetIssueRoutes = require('./routes/assetissueRoutes');
+app.use('/api/asset-issues', assetIssueRoutes);
