@@ -18,7 +18,6 @@ import QRPage from "./pages/QRPage";
 import IncomingAssets from './pages/incomingassests';
 import AssetMaintenance from "./pages/AssetMaintenance";
 import AssetIssue from "./pages/AssetIssue";
-import FinanceManagement from "./pages/FinanceManagement";
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -75,7 +74,6 @@ function AppContent({ user, setUser }) {
           <Route path="/asset-maintenance" element={<PrivateRoute user={user}><AssetMaintenance /></PrivateRoute>} />
           <Route path="/asset-issue" element={<PrivateRoute user={user}><AssetIssue user={user} /></PrivateRoute>} />
           <Route path="/borrowingrequest" element={<PrivateRoute user={user}><BorrowingRequest /></PrivateRoute>} />
-          <Route path="/finance" element={<PrivateRoute user={user}><FinanceManagement /></PrivateRoute>} />
           <Route path="/users" element={<PrivateRoute user={user}><UserManagement /></PrivateRoute>} />
           <Route path="/profile" element={<PrivateRoute user={user}><ProfilePage user={user} /></PrivateRoute>} />
           <Route path="/supplierlist" element={<PrivateRoute user={user}><SupplierList /></PrivateRoute>} />

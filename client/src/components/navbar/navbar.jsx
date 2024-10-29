@@ -122,7 +122,6 @@ const MENU_LIST = [
   { text: "Borrowing Request", to: "/borrowingrequest", icon: faClipboardList },
   { text: "Supplier Lists", to: "/supplierlist", icon: faUsers },
   { text: "Events Management", to: "/events", icon: faCalendarAlt },
-  { text: "Finance Management", to: "/finance", icon: faChartLine },
   { text: "User Management", to: "/users", icon: faUserCog },
   { text: "Role Management", to: "/roles", icon: faFontAwesomeFlag },
   { text: "Generate QR", to: "/qr", icon: faQrcode },
