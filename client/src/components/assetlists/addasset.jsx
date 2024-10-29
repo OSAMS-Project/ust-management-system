@@ -16,10 +16,10 @@ const AddAsset = ({
     <>
       <Button
         onClick={onOpenModal}
-        className="px-3 py-2 text-black bg-[#FEC00D] border-[#FEC00F] rounded-md hover:bg-[#ffd24c] duration-300"
+        className="px-3 py-2 border border-black text-black bg-[#FEC000] border-[#FEC00F] rounded-md hover:bg-[#ffda6a] duration-300"
       >
         <FontAwesomeIcon icon={faPlus} className="text-black" />
-        <span className="text-black">New Asset</span>
+        <span className="text-black"> New Asset</span>
       </Button>
       {isModalOpen && (
         <Modal

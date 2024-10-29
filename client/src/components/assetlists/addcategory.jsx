@@ -1,16 +1,25 @@
-import React, { useState, useCallback } from 'react';
-import Button from './button';
-import axios from 'axios';
+import React, { useState, useCallback } from "react";
+import Button from "./button";
+import axios from "axios";
 
-const Modal = ({ isOpen, onClose, onSaveCategory, categories, onDeleteCategory }) => {
-  const [category, setCategory] = useState('');
+const Modal = ({
+  isOpen,
+  onClose,
+  onSaveCategory,
+  categories,
+  onDeleteCategory,
+}) => {
+  const [category, setCategory] = useState("");
 
   const handleSaveCategory = async () => {
     if (!category.trim()) return;
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/categories`, { categoryName: category });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/categories`,
+        { categoryName: category }
+      );
       onSaveCategory(response.data.category_name);
-      setCategory('');
+      setCategory("");
       onClose();
     } catch (error) {
       console.error("Error adding category:", error);
@@ -19,7 +28,11 @@ const Modal = ({ isOpen, onClose, onSaveCategory, categories, onDeleteCategory }
 
   const handleDeleteCategory = async (cat) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/categories/${encodeURIComponent(cat)}`);
+      await axios.delete(
+        `${process.env.REACT_APP_API_URL}/api/categories/${encodeURIComponent(
+          cat
+        )}`
+      );
       onDeleteCategory(cat);
     } catch (error) {
       console.error("Error deleting category:", error);
@@ -36,7 +49,9 @@ const Modal = ({ isOpen, onClose, onSaveCategory, categories, onDeleteCategory }
         </div>
         <div className="p-6">
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">New Category</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              New Category
+            </label>
             <input
               type="text"
               value={category}
@@ -46,10 +61,15 @@ const Modal = ({ isOpen, onClose, onSaveCategory, categories, onDeleteCategory }
             />
           </div>
           <div className="mb-4">
-            <h3 className="text-lg font-semibold mb-2 text-gray-700">Existing Categories</h3>
+            <h3 className="text-lg font-semibold mb-2 text-gray-700">
+              Existing Categories
+            </h3>
             <ul className="space-y-2">
               {categories.map((cat, index) => (
-                <li key={index} className="flex justify-between items-center bg-gray-50 p-2 rounded">
+                <li
+                  key={index}
+                  className="flex justify-between items-center bg-gray-50 p-2 rounded"
+                >
                   <span className="text-gray-800">{cat}</span>
                   <Button
                     className="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded transition-colors duration-300"
@@ -63,13 +83,13 @@ const Modal = ({ isOpen, onClose, onSaveCategory, categories, onDeleteCategory }
           </div>
         </div>
         <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-          <Button 
+          <Button
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors duration-300"
             onClick={onClose}
           >
             Cancel
           </Button>
-          <Button 
+          <Button
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-300"
             onClick={handleSaveCategory}
           >
@@ -89,8 +109,11 @@ const AssetCategory = ({ onSaveCategory, onDeleteCategory, categories }) => {
 
   return (
     <div className="group-button">
-      <Button onClick={handleOpenModal} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-300">
-        Add Category
+      <Button
+        onClick={handleOpenModal}
+        className="bg-green-400 border border-black text-black px-4 py-2 rounded hover:bg-green-300 transition-colors duration-300"
+      >
+        <span className="text-black">Add Category </span>
       </Button>
       <Modal
         isOpen={isModalOpen}

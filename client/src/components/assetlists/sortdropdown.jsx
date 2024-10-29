@@ -3,7 +3,7 @@ import React from 'react';
 const SortDropdown = ({ onSort }) => {
   return (
     <select 
-      className="w-[200px] h-[44px] rounded-md border border-[#9A93B3] bg-[#FEFEFE] text-[#787486] font-inter text-[14px] font-normal leading-normal px-2.5 appearance-none cursor-pointer"
+      className="w-[200px] h-[44px] rounded-md border border-black bg-[#FEFEFE] text-[#787486] font-inter text-[14px] font-normal leading-normal px-2.5 appearance-none cursor-pointer"
       onChange={(e) => onSort(e.target.value)}
     >
       <option value="">Sort by...</option>

@@ -466,7 +466,8 @@ const AssetTable = ({
                 key={asset.asset_id}
                 className={`${
                   index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
-                } hover:bg-gray-100 transition-all duration-150 text-lg`}
+                } hover:bg-gray-100 transition-all duration-150 text-lg cursor-pointer`}
+                onClick={() => handleAssetDetailsClick(asset)}
               >
                 {visibleColumns.id && (
                   <td className="text-center align-middle py-3" data-label="ID">
@@ -533,7 +534,10 @@ const AssetTable = ({
                           ? "bg-emerald-500 text-white hover:bg-emerald-600 active:bg-emerald-700"
                           : "bg-red-500 text-white hover:bg-red-600 active:bg-red-700"
                       }`}
-                      onClick={() => handleBorrowClick(asset.asset_id)}
+                      onClick={(event) => {
+                        event.stopPropagation(); // Prevent row click when "Borrow" button is clicked
+                        handleBorrowClick(asset.asset_id);
+                      }}
                       aria-label={`Toggle borrow status for ${asset.assetName}`}
                     >
                       {asset.is_active ? "Active" : "Inactive"}
@@ -570,19 +574,19 @@ const AssetTable = ({
                     <div className="inline-flex items-center justify-center space-x-2">
                       <button
                         className="asset-action-btn text-blue-600 hover:text-blue-800"
-                        onClick={() => handleAssetDetailsClick(asset)}
-                      >
-                        <FontAwesomeIcon icon={faEye} />
-                      </button>
-                      <button
-                        className="asset-action-btn text-blue-600 hover:text-blue-800"
-                        onClick={() => handleEditClick(asset)}
+                        onClick={(event) => {
+                          event.stopPropagation(); // Prevent row click when "Edit" button is clicked
+                          handleEditClick(asset);
+                        }}
                       >
                         <FontAwesomeIcon icon={faEdit} />
                       </button>
                       <button
                         className="asset-action-btn text-red-600 hover:text-red-800"
-                        onClick={() => handleDeleteClick(asset)}
+                        onClick={(event) => {
+                          event.stopPropagation(); // Prevent row click when "Delete" button is clicked
+                          handleDeleteClick(asset);
+                        }}
                       >
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
