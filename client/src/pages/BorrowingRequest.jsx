@@ -39,18 +39,20 @@ const BorrowingRequest = () => {
     }
   };
 
-  // Handle return asset action
+  // Modified handleReturnAsset function
   const handleReturnAsset = async (id) => {
     try {
+      // First update the borrowing request status
       await axios.put(`${process.env.REACT_APP_API_URL}/api/borrowing-requests/${id}/return`);
-      // Log the return action
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/borrow-logs`, {
-        requestId: id,
-        dateReturned: new Date(),
+      
+      // Update the existing borrow log
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/borrow-logs/${id}/return`, {
+        dateReturned: new Date()
       });
-      // Refresh the data
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/borrowing-requests`);
-      setRequests(response.data);
+
+      // Immediately update the UI by removing the returned request
+      setRequests(prevRequests => prevRequests.filter(request => request.id !== id));
+      
     } catch (err) {
       console.error('Error returning asset:', err);
     }

@@ -54,11 +54,12 @@ class BorrowLogs {
       UPDATE borrow_logs
       SET date_returned = $1
       WHERE borrowing_request_id = $2
+        AND date_returned IS NULL
       RETURNING *
     `;
 		return executeTransaction([
 			{ query, params: [dateReturned, borrowingRequestId] },
-		]);
+			]);
 	}
 }
 

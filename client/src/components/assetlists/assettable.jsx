@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTrash,
   faEdit,
-  faEye,
   faColumns,
   faFileExport,
 } from "@fortawesome/free-solid-svg-icons";
@@ -36,7 +35,16 @@ const ColumnVisibilityPopup = ({
               className="mr-2"
             />
             <label htmlFor={columnName} className="cursor-pointer">
-              {columnName.replace(/([A-Z])/g, " $1").trim()}
+              {columnName === 'id' ? '#' : 
+               columnName === 'dateCreated' ? 'Date Created' :
+               columnName === 'asset' ? 'Asset' :
+               columnName === 'costPerUnit' ? 'Cost per Unit' :
+               columnName === 'quantity' ? 'Available Quantity' :
+               columnName === 'totalCost' ? 'Total Cost' :
+               columnName === 'borrow' ? 'Borrow' :
+               columnName === 'quantityForBorrowing' ? 'Borrowing Quantity' :
+               columnName === 'lastUpdated' ? 'Last Updated' :
+               columnName.replace(/([A-Z])/g, " $1").trim()}
             </label>
           </div>
         ))}
@@ -78,8 +86,8 @@ const AssetTable = ({
     totalCost: true,
     borrow: true,
     lastUpdated: true,
-    actions: true,
     quantityForBorrowing: true,
+	Actions: true,
   });
   const [isColumnPopupOpen, setIsColumnPopupOpen] = useState(false);
   const [isQuantityModalOpen, setIsQuantityModalOpen] = useState(false);
@@ -427,37 +435,16 @@ const AssetTable = ({
         <table className="asset-table w-full min-w-[750px]">
           <thead>
             <tr className="bg-black text-[#FEC00F] text-lg">
-              {visibleColumns.id && (
-                <th className="text-center py-2 px-4">#</th>
-              )}
-              {visibleColumns.dateCreated && (
-                <th className="text-center py-2 px-4">Date Created</th>
-              )}
-              {visibleColumns.asset && (
-                <th className="text-center py-2 px-4">Asset</th>
-              )}
-              {visibleColumns.costPerUnit && (
-                <th className="text-center py-2 px-4">Cost per Unit</th>
-              )}
-              {visibleColumns.quantity && (
-                <th className="text-center py-2 px-4">Available Quantity</th> // Updated label
-              )}
-              {visibleColumns.totalCost && (
-                <th className="text-center py-2 px-4">Total Cost</th>
-              )}
-              {visibleColumns.borrow && (
-                <th className="text-center py-2 px-4">Borrow</th>
-              )}
-
-              {visibleColumns.quantityForBorrowing && (
-                <th className="text-center py-2 px-4">Borrowing Quantity</th>
-              )}
-              {visibleColumns.lastUpdated && (
-                <th className="text-center py-2 px-4">Last Updated</th>
-              )}
-              {visibleColumns.actions && (
-                <th className="text-center px-2 py-3">Actions</th>
-              )}
+              {visibleColumns.id && <th className="text-center py-2 px-4">#</th>}
+              {visibleColumns.dateCreated && <th className="text-center py-2 px-4">Date Created</th>}
+              {visibleColumns.asset && <th className="text-center py-2 px-4">Asset</th>}
+              {visibleColumns.costPerUnit && <th className="text-center py-2 px-4">Cost per Unit</th>}
+              {visibleColumns.quantity && <th className="text-center py-2 px-4">Available Quantity</th>}
+              {visibleColumns.totalCost && <th className="text-center py-2 px-4">Total Cost</th>}
+              {visibleColumns.borrow && <th className="text-center py-2 px-4">Borrow</th>}
+              {visibleColumns.quantityForBorrowing && <th className="text-center py-2 px-4">Borrowing Quantity</th>}
+              {visibleColumns.lastUpdated && <th className="text-center py-2 px-4">Last Updated</th>}
+              {visibleColumns.Actions && <th className="text-center px-2 py-3">Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -566,7 +553,7 @@ const AssetTable = ({
                       : "N/A"}
                   </td>
                 )}
-                {visibleColumns.actions && (
+                {visibleColumns.Actions && (
                   <td
                     className="text-center align-middle px-2 py-3"
                     data-label="Actions"
