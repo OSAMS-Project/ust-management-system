@@ -7,6 +7,20 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const fieldNameMapping = {
+    assetName: "Asset",
+    cost: "Cost per Unit",
+    quantity: "Available Quantity",
+    totalCost: "Total Cost",
+    is_active: "Borrow",
+    quantity_for_borrowing: "Borrowing Quantity",
+    lastUpdated: "Last Updated",
+    category: "Category",
+    location: "Location",
+    type: "Type",
+    assetDetails: "Details"
+  };
+
   useEffect(() => {
     const fetchLogs = async () => {
       try {
@@ -48,7 +62,7 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
                 <p className="font-semibold text-sm text-gray-700 mb-2">Update on {timestamp}</p>
                 {logGroup.map((log, index) => (
                   <p key={index} className="text-sm text-gray-600 mb-1">
-                    {log.field_name} changed from "{log.old_value || '(empty)'}" to "{log.new_value}"
+                    <strong className="text-black">{fieldNameMapping[log.field_name] || log.field_name}</strong>: "<strong className="text-blue-600">{log.old_value || '(empty)'}</strong>" → "<strong className="text-green-600">{log.new_value}</strong>"
                   </p>
                 ))}
               </div>
