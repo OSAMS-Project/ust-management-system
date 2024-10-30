@@ -140,6 +140,11 @@ const EditAssetModal = ({
       <>
         <div className="grid grid-cols-1 gap-y-6 gap-x-8 md:grid-cols-2">
           <InputField
+            label="Product Code"
+            value={editedAsset.productCode}
+            onChange={(e) => handleChange('productCode', e.target.value)}
+          />
+          <InputField
             label="Asset Name"
             value={editedAsset.assetName}
             onChange={(e) => handleChange('assetName', e.target.value)}

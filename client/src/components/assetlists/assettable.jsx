@@ -23,6 +23,7 @@ const getInitialVisibleColumns = () => {
   }
   return {
     id: true,
+    productCode: true,
     dateCreated: true,
     asset: true,
     costPerUnit: true,
@@ -276,6 +277,7 @@ const AssetTable = ({
   const prepareCSVData = () => {
     const headers = [
       "ID",
+      "Product Code",
       "Date Created",
       "Asset Name",
       "Cost per Unit",
@@ -291,6 +293,7 @@ const AssetTable = ({
 
     const csvData = assets.map((asset) => [
       asset.asset_id,
+      asset.productCode,
       moment(asset.createdDate).format("MM/DD/YYYY"),
       asset.assetName,
       parseFloat(asset.cost).toFixed(2),
@@ -446,6 +449,7 @@ const AssetTable = ({
           <thead>
             <tr className="bg-black text-[#FEC00F] text-lg">
               {visibleColumns.id && <th className="text-center py-2 px-4">#</th>}
+              {visibleColumns.productCode && <th className="text-center py-2 px-4">Product Code</th>}
               {visibleColumns.dateCreated && <th className="text-center py-2 px-4">Date Created</th>}
               {visibleColumns.asset && <th className="text-center py-2 px-4">Asset</th>}
               {visibleColumns.costPerUnit && <th className="text-center py-2 px-4">Cost per Unit</th>}
@@ -469,6 +473,11 @@ const AssetTable = ({
                 {visibleColumns.id && (
                   <td className="text-center align-middle py-3" data-label="ID">
                     {asset.asset_id}
+                  </td>
+                )}
+                {visibleColumns.productCode && (
+                  <td className="text-center align-middle py-3" data-label="Product Code">
+                    {asset.productCode}
                   </td>
                 )}
                 {visibleColumns.dateCreated && (
@@ -559,7 +568,7 @@ const AssetTable = ({
                     data-label="Last Updated"
                   >
                     {asset.lastUpdated
-                      ? moment(asset.lastUpdated).format("DD/MM/YYYY")
+                      ? moment(asset.lastUpdated).format("MM/DD/YYYY")
                       : "N/A"}
                   </td>
                 )}

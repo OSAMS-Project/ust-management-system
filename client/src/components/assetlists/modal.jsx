@@ -51,6 +51,7 @@ const Modal = ({
   const [image, setImage] = useState(null);
   const [type, setType] = useState("");
   const [shakeFields, setShakeFields] = useState([]);
+  const [productCode, setProductCode] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -64,6 +65,7 @@ const Modal = ({
       setCreatedDate(moment());
       setImage(null);
       setType("");
+      setProductCode("");
     }
   }, [isOpen]);
 
@@ -91,6 +93,7 @@ const Modal = ({
     if (!cost) newShakeFields.push("cost");
     if (!quantity) newShakeFields.push("quantity");
     if (!type) newShakeFields.push("type");
+    if (!productCode) newShakeFields.push("productCode");
     setShakeFields(newShakeFields);
     return newShakeFields.length === 0;
   };
@@ -122,6 +125,7 @@ const Modal = ({
     }
 
     const newAsset = {
+      productCode,
       assetName,
       assetDetails,
       quantity: parseInt(quantity),
@@ -155,6 +159,12 @@ const Modal = ({
       </div>
       <div className="px-8 py-6 max-h-[calc(100vh-150px)] overflow-y-auto">
         <form className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <InputField
+            label="Product Code"
+            value={productCode}
+            onChange={(e) => setProductCode(e.target.value)}
+            shake={shakeFields.includes("productCode")}
+          />
           <InputField
             label="Asset Name"
             value={assetName}

@@ -5,6 +5,7 @@ const createAssetsTable = async () => {
   const query = `
 CREATE TABLE IF NOT EXISTS Assets (
       asset_id VARCHAR(20) UNIQUE NOT NULL,
+      "productCode" VARCHAR(50),
       "assetName" VARCHAR(255) NOT NULL,
       "assetDetails" TEXT,
       category VARCHAR(255),

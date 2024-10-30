@@ -8,6 +8,7 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
   const [error, setError] = useState(null);
 
   const fieldNameMapping = {
+    productCode: "Product Code",
     assetName: "Asset",
     cost: "Cost per Unit",
     quantity: "Available Quantity",
