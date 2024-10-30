@@ -16,6 +16,25 @@ import QuantityForBorrowingModal from "./quantityforborrowing";
 import PaginationControls from "./PaginationControls";
 import NotificationPopup from "../NotificationsPopup";
 
+const getInitialVisibleColumns = () => {
+  const savedColumns = localStorage.getItem('visibleColumns');
+  if (savedColumns) {
+    return JSON.parse(savedColumns);
+  }
+  return {
+    id: true,
+    dateCreated: true,
+    asset: true,
+    costPerUnit: true,
+    quantity: true,
+    totalCost: true,
+    borrow: true,
+    lastUpdated: true,
+    quantityForBorrowing: true,
+    Actions: true,
+  };
+};
+
 const ColumnVisibilityPopup = ({
   visibleColumns,
   toggleColumnVisibility,
@@ -77,18 +96,7 @@ const AssetTable = ({
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [assetToDelete, setAssetToDelete] = useState(null);
-  const [visibleColumns, setVisibleColumns] = useState({
-    id: true,
-    dateCreated: true,
-    asset: true,
-    costPerUnit: true,
-    quantity: true,
-    totalCost: true,
-    borrow: true,
-    lastUpdated: true,
-    quantityForBorrowing: true,
-	Actions: true,
-  });
+  const [visibleColumns, setVisibleColumns] = useState(getInitialVisibleColumns());
   const [isColumnPopupOpen, setIsColumnPopupOpen] = useState(false);
   const [isQuantityModalOpen, setIsQuantityModalOpen] = useState(false);
   const [selectedAssetForBorrowing, setSelectedAssetForBorrowing] =
@@ -302,10 +310,12 @@ const AssetTable = ({
   };
 
   const toggleColumnVisibility = (columnName) => {
-    setVisibleColumns((prev) => ({
-      ...prev,
-      [columnName]: !prev[columnName],
-    }));
+    const updatedColumns = {
+      ...visibleColumns,
+      [columnName]: !visibleColumns[columnName],
+    };
+    setVisibleColumns(updatedColumns);
+    localStorage.setItem('visibleColumns', JSON.stringify(updatedColumns));
   };
 
   const handleQuantityConfirm = async (quantity) => {
