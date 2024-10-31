@@ -24,6 +24,7 @@ const maintenanceRoutes = require('./routes/MaintenanceRoutes');
 const Maintenance = require('./models/Maintenance');
 const roleRoutes = require('./routes/roleRoutes');
 const AssetIssue = require('./models/assetissue');
+const supplierActivityLogRoutes = require('./routes/supplieractivitylogRoutes');
 
 const { createEventsTable, createEventAssetsTable } = require('./models/events');
 
@@ -56,6 +57,7 @@ app.use('/api/borrow-logs', borrowLogsRoutes);
 app.use('/api/incoming-assets', incomingAssetRoutes);
 app.use('/api/Maintenance', maintenanceRoutes);
 app.use('/api/roles', roleRoutes);
+app.use('/api/supplier-activity-logs', supplierActivityLogRoutes);
 
 
 // SSE endpoint
@@ -309,3 +311,4 @@ app.delete('/api/Events/delete/:eventId', async (req, res) => {
 IncomingAsset.createIncomingAssetsTable();
 const assetIssueRoutes = require('./routes/assetissueRoutes');
 app.use('/api/asset-issues', assetIssueRoutes);
+

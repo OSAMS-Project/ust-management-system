@@ -40,10 +40,25 @@ class Supplier {
   }
 
   static async deleteSupplier(supplier_id) {
-    const query = 'DELETE FROM suppliers WHERE supplier_id = $1 RETURNING *';
-    const params = [supplier_id];
-    const result = await executeTransaction([{ query, params }]);
-    return result[0];
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      
+      // First delete associated activity logs
+      await client.query('DELETE FROM SupplierActivityLogs WHERE supplier_id = $1', [supplier_id]);
+      
+      // Then delete the supplier
+      const query = 'DELETE FROM suppliers WHERE supplier_id = $1 RETURNING *';
+      const result = await client.query(query, [supplier_id]);
+      
+      await client.query('COMMIT');
+      return result.rows[0];
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
   static async getNextSupplierId() {
@@ -58,6 +73,12 @@ class Supplier {
     const lastNumber = parseInt(lastSupplierId.split('-')[2], 10);
     const nextNumber = lastNumber + 1;
     return `OSA-SUPPLIER-${nextNumber.toString().padStart(4, '0')}`;
+  }
+
+  static async getSupplierById(supplierId) {
+    const query = 'SELECT * FROM suppliers WHERE supplier_id = $1';
+    const result = await executeTransaction([{ query, params: [supplierId] }]);
+    return result[0];
   }
 }
 

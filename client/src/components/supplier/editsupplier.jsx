@@ -30,11 +30,33 @@ const EditSupplier = ({ supplier, onSupplierUpdated, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('Updating supplier with ID:', supplier.supplier_id);
+      console.log('Update data:', formData);
+      
+      // First update the supplier
       const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/suppliers/${supplier.supplier_id}`, formData);
+      
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/supplier-activity-logs`, {
+        supplier_id: supplier.supplier_id,
+        action: 'update',
+        changes: {
+          name: { oldValue: supplier.name, newValue: formData.name },
+          product: { oldValue: supplier.product, newValue: formData.product },
+          streetaddress: { oldValue: supplier.streetaddress, newValue: formData.streetAddress },
+          city: { oldValue: supplier.city, newValue: formData.city },
+          contactno: { oldValue: supplier.contactno, newValue: formData.contactNo }
+        }
+      });
+
+      console.log('Update response:', response.data);
       onSupplierUpdated(response.data);
       onClose();
     } catch (error) {
-      console.error('Error updating supplier:', error);
+      console.error('Error updating supplier:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
     }
   };
 
