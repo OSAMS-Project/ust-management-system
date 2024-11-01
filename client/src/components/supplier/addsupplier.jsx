@@ -8,7 +8,8 @@ const AddSupplier = ({ onSupplierAdded }) => {
     product: '',
     streetAddress: '',
     city: '',
-    contactNo: ''
+    contactNo: '',
+    email: ''
   });
 
   const handleInputChange = (e) => {
@@ -22,7 +23,7 @@ const AddSupplier = ({ onSupplierAdded }) => {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/suppliers`, formData);
       onSupplierAdded(response.data);
       setIsModalOpen(false);
-      setFormData({ name: '', product: '', streetAddress: '', city: '', contactNo: '' });
+      setFormData({ name: '', product: '', streetAddress: '', city: '', contactNo: '', email: '' });
     } catch (error) {
       console.error('Error adding supplier:', error);
     }
@@ -89,6 +90,19 @@ const AddSupplier = ({ onSupplierAdded }) => {
                   type="text"
                   name="city"
                   value={formData.city}
+                  onChange={handleInputChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
                   onChange={handleInputChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required

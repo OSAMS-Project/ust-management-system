@@ -7,7 +7,8 @@ const EditSupplier = ({ supplier, onSupplierUpdated, onClose }) => {
     product: '',
     streetAddress: '',
     city: '',
-    contactNo: ''
+    contactNo: '',
+    email: ''
   });
 
   useEffect(() => {
@@ -17,7 +18,8 @@ const EditSupplier = ({ supplier, onSupplierUpdated, onClose }) => {
         product: supplier.product,
         streetAddress: supplier.streetaddress,
         city: supplier.city,
-        contactNo: supplier.contactno
+        contactNo: supplier.contactno,
+        email: supplier.email
       });
     }
   }, [supplier]);
@@ -44,6 +46,7 @@ const EditSupplier = ({ supplier, onSupplierUpdated, onClose }) => {
           product: { oldValue: supplier.product, newValue: formData.product },
           streetaddress: { oldValue: supplier.streetaddress, newValue: formData.streetAddress },
           city: { oldValue: supplier.city, newValue: formData.city },
+          email: {oldValue: supplier.email, newValue: formData.email},
           contactno: { oldValue: supplier.contactno, newValue: formData.contactNo }
         }
       });
@@ -125,6 +128,19 @@ const EditSupplier = ({ supplier, onSupplierUpdated, onClose }) => {
               type="text"
               name="contactNo"
               value={formData.contactNo}
+              onChange={handleInputChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
               onChange={handleInputChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required

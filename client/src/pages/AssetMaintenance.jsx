@@ -7,9 +7,11 @@ import MaintenanceTable from '../components/maintenance/MaintenanceTable';
 function AssetMaintenance() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [maintenanceRecords, setMaintenanceRecords] = useState([]);
+  const [assets, setAssets] = useState([]);
 
   useEffect(() => {
     fetchMaintenanceRecords();
+    fetchAssets();
   }, []);
 
   const fetchMaintenanceRecords = async () => {
@@ -18,6 +20,16 @@ function AssetMaintenance() {
       setMaintenanceRecords(response.data);
     } catch (error) {
       console.error('Error fetching maintenance records:', error);
+    }
+  };
+
+  const fetchAssets = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/Assets/read`);
+      setAssets(response.data);
+    } catch (error) {
+      console.error('Error fetching assets:', error);
+      setAssets([]);
     }
   };
 
@@ -79,6 +91,7 @@ function AssetMaintenance() {
       <div className="mt-6">
         <MaintenanceTable 
           maintenanceRecords={maintenanceRecords}
+          assets={assets}
           onCompleteRecord={handleCompleteRecord}
           onRemoveRecord={handleRemoveRecord}
         />

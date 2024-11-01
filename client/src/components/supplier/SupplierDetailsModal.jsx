@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
-import moment from 'moment';
 import SupplierActivityLogs from './SupplierActivityLogs';
 
 const SupplierDetailsModal = ({ selectedSupplier, onClose }) => {
@@ -28,11 +27,8 @@ const SupplierDetailsModal = ({ selectedSupplier, onClose }) => {
             <DetailItem label="Product" value={selectedSupplier.product} />
             <DetailItem label="Street Address" value={selectedSupplier.streetaddress} />
             <DetailItem label="City" value={selectedSupplier.city} />
+            <DetailItem label="Email" value={selectedSupplier.email} />
             <DetailItem label="Contact No" value={selectedSupplier.contactno} />
-            <DetailItem 
-              label="Date Added" 
-              value={selectedSupplier.created_at ? moment(selectedSupplier.created_at).format('MM/DD/YYYY') : 'N/A'} 
-            />
           </div>
 
           <div className="flex justify-center mt-8">

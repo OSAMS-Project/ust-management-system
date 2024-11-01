@@ -142,7 +142,7 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance }) => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="cost">
-              Cost
+              Maintenance Cost
             </label>
             <input
               type="number"

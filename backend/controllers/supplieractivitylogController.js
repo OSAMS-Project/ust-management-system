@@ -18,6 +18,7 @@ const updateSupplier = async (req, res) => {
       }
     });
 
+
     if (Object.keys(changes).length > 0) {
       await createSupplierActivityLog({
         body: {

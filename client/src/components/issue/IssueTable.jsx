@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
+import AssetDetailsModal from '../assetlists/assetdetailsmodal';
 
 const IssueTable = ({ issues, assets, loading }) => {
+  const [selectedAsset, setSelectedAsset] = useState(null);
+
   const getPriorityColor = (priority) => {
     switch (priority.toLowerCase()) {
       case 'critical':
@@ -27,6 +30,13 @@ const IssueTable = ({ issues, assets, loading }) => {
         return 'bg-green-100 text-green-800';
       default:
         return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const handleRowClick = (assetId) => {
+    const asset = assets.find(a => a.asset_id === assetId);
+    if (asset) {
+      setSelectedAsset(asset);
     }
   };
 
@@ -66,7 +76,11 @@ const IssueTable = ({ issues, assets, loading }) => {
           {issues.map((issue) => {
             const asset = assets.find(a => a.asset_id === issue.asset_id);
             return (
-              <tr key={issue.id} className="hover:bg-gray-50">
+              <tr 
+                key={issue.id} 
+                className="hover:bg-gray-50 cursor-pointer"
+                onClick={() => handleRowClick(issue.asset_id)}
+              >
                 <td className="px-6 py-4 whitespace-nowrap">
                   {asset?.assetName || 'Unknown Asset'}
                 </td>
@@ -110,6 +124,13 @@ const IssueTable = ({ issues, assets, loading }) => {
         <div className="text-center py-4 text-gray-500">
           No issues reported yet.
         </div>
+      )}
+
+      {selectedAsset && (
+        <AssetDetailsModal
+          selectedAsset={selectedAsset}
+          onClose={() => setSelectedAsset(null)}
+        />
       )}
     </div>
   );

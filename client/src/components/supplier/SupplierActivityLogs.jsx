@@ -13,6 +13,7 @@ const SupplierActivityLogs = ({ supplierId, onClose }) => {
     streetaddress: "Street Address",
     city: "City",
     contactno: "Contact Number",
+    email: "Email",
     lastUpdated: "Last Updated",
     created_at: "Date Added"
   };

@@ -10,6 +10,7 @@ class Supplier {
         product VARCHAR(255) NOT NULL,
         streetAddress VARCHAR(255) NOT NULL,
         city VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
         contactNo VARCHAR(20) NOT NULL
       )
     `;
@@ -17,24 +18,31 @@ class Supplier {
   }
 
   static async createSupplier(supplierData) {
-    const { name, product, streetAddress, city, contactNo } = supplierData;
+    const { name, product, streetAddress, city, email, contactNo } = supplierData;
     const supplier_id = await this.getNextSupplierId();
-    const query = 'INSERT INTO suppliers (supplier_id, name, product, streetAddress, city, contactNo) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
-    const params = [supplier_id, name, product, streetAddress, city, contactNo];
+    const query = `
+      INSERT INTO suppliers (
+        supplier_id, name, product, streetAddress, 
+        city, email, contactNo
+      ) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7) 
+      RETURNING *
+    `;
+    const params = [supplier_id, name, product, streetAddress, city, email, contactNo];
     const result = await executeTransaction([{ query, params }]);
     return result[0];
   }
 
   static async getAllSuppliers() {
-    const query = 'SELECT supplier_id, name, product, streetAddress, city, contactNo FROM suppliers';
+    const query = 'SELECT supplier_id, name, product, streetAddress, city, email, contactNo FROM suppliers';
     const result = await executeTransaction([{ query }]);
     return result;
   }
 
   static async updateSupplier(supplier_id, supplierData) {
-    const { name, product, streetAddress, city, contactNo } = supplierData;
-    const query = 'UPDATE suppliers SET name = $1, product = $2, streetAddress = $3, city = $4, contactNo = $5 WHERE supplier_id = $6 RETURNING *';
-    const params = [name, product, streetAddress, city, contactNo, supplier_id];
+    const { name, product, streetAddress, city, email, contactNo } = supplierData;
+    const query = 'UPDATE suppliers SET name = $1, product = $2, streetAddress = $3, city = $4, email = $5, contactNo = $6 WHERE supplier_id = $7 RETURNING *';
+    const params = [name, product, streetAddress, city, email, contactNo, supplier_id];
     const result = await executeTransaction([{ query, params }]);
     return result[0];
   }
