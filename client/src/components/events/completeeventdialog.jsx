@@ -32,35 +32,47 @@ const CompletedEvents = ({ completedEvents, onEventDeleted }) => {
         <p>No completed events to display.</p>
       ) : (
         <>
-          <div className="flex flex-wrap gap-4 mb-12">
-            {currentEvents.map(event => (
-              <div key={event.unique_id} className="bg-gray-100 p-4 rounded-lg w-64">
-                <div className="flex flex-col mb-2">
-                  <h3 className="text-lg font-semibold">{event.event_name}</h3>
-                  <span className="text-sm text-gray-600">Event Date: {new Date(event.event_date).toLocaleDateString()}</span>
-                </div>
-                <p className="text-sm text-gray-700 mb-2">Location: {event.event_location}</p>
-                <h4 className="font-medium mb-2">Assets Used:</h4>
-                {event.assets && event.assets.length > 0 ? (
-                  <ul className="list-disc pl-5">
-                    {event.assets.map((asset, index) => (
-                      <li key={index} className="text-sm">
-                        {asset.assetName}: {asset.quantity}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-sm text-gray-500">No assets used for this event.</p>
-                )}
-                <button
-                  onClick={() => handleDeleteEvent(event.unique_id)}
-                  className="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs"
-                >
-                  Delete Event
-                </button>
-              </div>
-            ))}
-          </div>
+          <table className="min-w-full bg-white border border-gray-300">
+            <thead className="bg-yellow-500">
+              <tr>
+                <th className="py-2 px-4 border-b text-white text-center">Event Name</th>
+                <th className="py-2 px-4 border-b text-white text-center">Event Date</th>
+                <th className="py-2 px-4 border-b text-white text-center">Location</th>
+                <th className="py-2 px-4 border-b text-white text-center">Assets Used</th>
+                <th className="py-2 px-4 border-b text-white text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentEvents.map((event, index) => (
+                <tr key={event.unique_id} className={index % 2 === 0 ? "bg-white" : "bg-gray-100"}>
+                  <td className="py-2 px-4 border-b text-center">{event.event_name}</td>
+                  <td className="py-2 px-4 border-b text-center">{new Date(event.event_date).toLocaleDateString()}</td>
+                  <td className="py-2 px-4 border-b text-center">{event.event_location}</td>
+                  <td className="py-2 px-4 border-b text-center">
+                    {event.assets && event.assets.length > 0 ? (
+                      <ul className="list-none space-y-1">
+                        {event.assets.map((asset, idx) => (
+                          <li key={idx} className="text-sm">
+                            {asset.assetName}: {asset.quantity}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span className="text-gray-500">No assets used</span>
+                    )}
+                  </td>
+                  <td className="py-2 px-4 border-b text-center">
+                    <button
+                      onClick={() => handleDeleteEvent(event.unique_id)}
+                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
           <div className="mt-4 flex justify-center">
             {Array.from({ length: totalPages }, (_, i) => (
               <button

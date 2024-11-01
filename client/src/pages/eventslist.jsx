@@ -1,23 +1,23 @@
 import { useEffect, useState, useCallback } from "react";
 import { gapi } from "gapi-script";
-import './eventlist1.css';
-import AddEventButton from '../components/events/addeventbutton';
-import EventDialog from '../components/events/eventdialog';
-import ExploreModal from '../components/events/exploreevent';
-import EventCard from '../components/events/eventcard';
-import EditEventDialog from '../components/events/editeventdialog';
-import SearchEvent from '../components/events/searchevent';
-import axios from 'axios';  // Add this import
-import CompletedEvents from '../components/events/completeeventdialog';
-
+import AddEventButton from "../components/events/addeventbutton";
+import EventDialog from "../components/events/eventdialog";
+import ExploreModal from "../components/events/exploreevent";
+import EventCard from "../components/events/eventcard";
+import EditEventDialog from "../components/events/editeventdialog";
+import SearchEvent from "../components/events/searchevent";
+import axios from "axios";
+import CompletedEvents from "../components/events/completeeventdialog";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUsers } from "@fortawesome/free-solid-svg-icons";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 const formatTime = (time) => {
-  if (!time) return '';
-  const [hours, minutes] = time.split(':');
+  if (!time) return "";
+  const [hours, minutes] = time.split(":");
   const date = new Date(2000, 0, 1, hours, minutes);
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 
 function Events() {
@@ -38,8 +38,9 @@ function Events() {
   const [editingEvent, setEditingEvent] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [assets, setAssets] = useState([]);  // Add this line
-  const [showCompletedEventsDialog, setShowCompletedEventsDialog] = useState(false);
+  const [assets, setAssets] = useState([]); // Add this line
+  const [showCompletedEventsDialog, setShowCompletedEventsDialog] =
+    useState(false);
   const [completedEvents, setCompletedEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 6;
@@ -53,26 +54,34 @@ function Events() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleEventDeleted = (deletedEventId) => {
-    setCompletedEvents(prevEvents => prevEvents.filter(event => event.unique_id !== deletedEventId));
+    setCompletedEvents((prevEvents) =>
+      prevEvents.filter((event) => event.unique_id !== deletedEventId)
+    );
   };
 
   const fetchCompletedEvents = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/completed`);
-      console.log('Raw response data:', response.data);
-      if (typeof response.data === 'string') {
-        console.error('Received string instead of JSON:', response.data);
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/events/completed`
+      );
+      console.log("Raw response data:", response.data);
+      if (typeof response.data === "string") {
+        console.error("Received string instead of JSON:", response.data);
         setCompletedEvents([]);
       } else {
-        setCompletedEvents(response.data.map(event => ({
-          ...event,
-          assets: Array.isArray(event.completed_assets) ? event.completed_assets : JSON.parse(event.completed_assets || '[]')
-        })));
+        setCompletedEvents(
+          response.data.map((event) => ({
+            ...event,
+            assets: Array.isArray(event.completed_assets)
+              ? event.completed_assets
+              : JSON.parse(event.completed_assets || "[]"),
+          }))
+        );
       }
     } catch (error) {
-      console.error('Error fetching completed events:', error);
+      console.error("Error fetching completed events:", error);
       if (error instanceof SyntaxError) {
-        console.error('Invalid JSON received:', error.message);
+        console.error("Invalid JSON received:", error.message);
       }
       setCompletedEvents([]);
     }
@@ -90,7 +99,9 @@ function Events() {
 
     const fetchData = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/Events/read`);
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/Events/read`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch events");
         }
@@ -105,7 +116,9 @@ function Events() {
 
     const fetchAssets = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/Assets/read`);
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/Assets/read`
+        );
         setAssets(response.data);
       } catch (error) {
         console.error("Error fetching assets:", error);
@@ -133,27 +146,30 @@ function Events() {
     setShowEditDialog(true);
   };
 
-  const filteredEvents = data.filter(event =>
+  const filteredEvents = data.filter((event) =>
     event.event_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/Events/update/${editingEvent.unique_id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/Events/update/${editingEvent.unique_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to update event");
       }
 
       const updatedEvent = await response.json();
-      
+
       setData((prevData) =>
         prevData.map((event) =>
           event.unique_id === editingEvent.unique_id ? updatedEvent : event
@@ -171,11 +187,9 @@ function Events() {
   const handleChange = (e, eventId = null) => {
     const { name, value } = e.target;
     if (eventId) {
-      setData(prevData =>
-        prevData.map(event =>
-          event.unique_id === eventId
-            ? { ...event, [name]: value }
-            : event
+      setData((prevData) =>
+        prevData.map((event) =>
+          event.unique_id === eventId ? { ...event, [name]: value } : event
         )
       );
     } else {
@@ -186,13 +200,16 @@ function Events() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/Events/create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/Events/create`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -211,22 +228,31 @@ function Events() {
 
   const handleCompleteEvent = async (uniqueId) => {
     try {
-      const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/events/${uniqueId}/complete`);
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/events/${uniqueId}/complete`
+      );
       if (response.status === 200) {
         const completedEvent = response.data.updatedEvent;
-        
+
         // Remove the completed event from the main list
-        setData(prevData => prevData.filter(event => event.unique_id !== uniqueId));
-        
+        setData((prevData) =>
+          prevData.filter((event) => event.unique_id !== uniqueId)
+        );
+
         // Immediately add the completed event to the completedEvents list
-        setCompletedEvents(prevCompletedEvents => [...prevCompletedEvents, completedEvent]);
-        
+        setCompletedEvents((prevCompletedEvents) => [
+          ...prevCompletedEvents,
+          completedEvent,
+        ]);
+
         console.log(`Event with ID ${uniqueId} marked as completed`);
-        
+
         // Fetch updated asset list
-        const assetResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/Assets/read`);
+        const assetResponse = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/Assets/read`
+        );
         setAssets(assetResponse.data);
-        
+
         // Fetch all completed events to ensure consistency
         fetchCompletedEvents();
       }
@@ -236,18 +262,34 @@ function Events() {
     }
   };
 
+  const handleDeleteEvent = async (eventId) => {
+    try {
+      await axios.delete(
+        `${process.env.REACT_APP_API_URL}/api/Events/delete/${eventId}`
+      );
+      // Update local state after successful deletion
+      setData((prevData) =>
+        prevData.filter((event) => event.unique_id !== eventId)
+      );
+    } catch (error) {
+      console.error("Error deleting event:", error);
+    }
+  };
+
   const handleExplore = async (event) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/${event.unique_id}`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/events/${event.unique_id}`
+      );
       if (response.data) {
         setSelectedEvent(response.data);
         setShowExploreModal(true);
       } else {
-        console.error('No event data received');
+        console.error("No event data received");
         // You might want to show an error message to the user here
       }
     } catch (error) {
-      console.error('Error fetching event details:', error);
+      console.error("Error fetching event details:", error);
       // You might want to show an error message to the user here
     }
   };
@@ -255,7 +297,6 @@ function Events() {
   const cancelDelete = () => {
     setShowConfirmDialog(false);
   };
-
 
   const cancelEdit = () => {
     setShowEditDialog(false);
@@ -270,32 +311,40 @@ function Events() {
   const handleAddAsset = async (event, selectedAssets) => {
     try {
       console.log(`Adding assets to event ${event.unique_id}:`, selectedAssets);
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/events/${event.unique_id}/addAssets`, {
-        assets: selectedAssets
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/events/${event.unique_id}/addAssets`,
+        {
+          assets: selectedAssets,
+        }
+      );
 
       if (response.data.success) {
         // Update the local state
-        setData(prevData => prevData.map(e => {
-          if (e.unique_id === event.unique_id) {
-            const updatedAssets = e.assets ? [...e.assets] : [];
-            selectedAssets.forEach(newAsset => {
-              const existingAssetIndex = updatedAssets.findIndex(a => a.asset_id === newAsset.asset_id);
-              if (existingAssetIndex !== -1) {
-                // Asset already exists, update its quantity
-                updatedAssets[existingAssetIndex].quantity += newAsset.selectedQuantity;
-              } else {
-                // Asset doesn't exist, add it to the list
-                updatedAssets.push({
-                  ...newAsset,
-                  quantity: newAsset.selectedQuantity
-                });
-              }
-            });
-            return { ...e, assets: updatedAssets };
-          }
-          return e;
-        }));
+        setData((prevData) =>
+          prevData.map((e) => {
+            if (e.unique_id === event.unique_id) {
+              const updatedAssets = e.assets ? [...e.assets] : [];
+              selectedAssets.forEach((newAsset) => {
+                const existingAssetIndex = updatedAssets.findIndex(
+                  (a) => a.asset_id === newAsset.asset_id
+                );
+                if (existingAssetIndex !== -1) {
+                  // Asset already exists, update its quantity
+                  updatedAssets[existingAssetIndex].quantity +=
+                    newAsset.selectedQuantity;
+                } else {
+                  // Asset doesn't exist, add it to the list
+                  updatedAssets.push({
+                    ...newAsset,
+                    quantity: newAsset.selectedQuantity,
+                  });
+                }
+              });
+              return { ...e, assets: updatedAssets };
+            }
+            return e;
+          })
+        );
         console.log(`Assets successfully added to event ${event.event_name}`);
       }
     } catch (error) {
@@ -309,29 +358,48 @@ function Events() {
   };
 
   const updateEventAssets = (eventId, updatedAssets) => {
-    setData(prevData => prevData.map(event => 
-      event.unique_id === eventId ? { ...event, assets: updatedAssets } : event
-    ));
-    setSelectedEvent(prevEvent =>
-      prevEvent && prevEvent.unique_id === eventId ? { ...prevEvent, assets: updatedAssets } : prevEvent
+    setData((prevData) =>
+      prevData.map((event) =>
+        event.unique_id === eventId
+          ? { ...event, assets: updatedAssets }
+          : event
+      )
+    );
+    setSelectedEvent((prevEvent) =>
+      prevEvent && prevEvent.unique_id === eventId
+        ? { ...prevEvent, assets: updatedAssets }
+        : prevEvent
     );
   };
 
   const updateAssetQuantity = useCallback(async (assetId, newQuantity) => {
     try {
-      const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/Assets/updateQuantity/${assetId}`, {
-        quantity: newQuantity
-      });
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/Assets/updateQuantity/${assetId}`,
+        {
+          quantity: newQuantity,
+        }
+      );
       if (response.data.success) {
-        setAssets(prevAssets => prevAssets.map(asset => 
-          asset.asset_id === assetId ? { ...asset, quantity: newQuantity } : asset
-        ));
+        setAssets((prevAssets) =>
+          prevAssets.map((asset) =>
+            asset.asset_id === assetId
+              ? { ...asset, quantity: newQuantity }
+              : asset
+          )
+        );
       } else {
-        throw new Error(response.data.message || 'Failed to update asset quantity');
+        throw new Error(
+          response.data.message || "Failed to update asset quantity"
+        );
       }
     } catch (error) {
       console.error("Error updating asset quantity:", error);
-      alert(`Error updating asset quantity: ${error.response?.data?.message || error.message}`);
+      alert(
+        `Error updating asset quantity: ${
+          error.response?.data?.message || error.message
+        }`
+      );
     }
   }, []);
 
@@ -349,16 +417,20 @@ function Events() {
   };
 
   return (
-    <main className="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-col items-center justify-center min-h-screen" style={{ backgroundColor: '#FFF2B2' }}>
-        <header className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Events</h1>
-          <p className="text-lg text-gray-600 mb-8">Manage your events here!</p>
-        </header>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
+        <h1 className="text-5xl font-extrabold text-black">
+          Events Management
+        </h1>
+        <FontAwesomeIcon
+          icon={faUsers}
+          className="text-black text-5xl transform"
+        />
+      </div>
 
+      <div className="flex flex-col items-center justify-center">
         <SearchEvent searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-
-        <AddEventButton onAddEvent={handleAddEvent} />
 
         <EventDialog
           showDialog={showDialog}
@@ -369,7 +441,7 @@ function Events() {
           isEditing={!!editingEvent}
           cancelCreate={cancelCreate}
         />
-        
+
         <ExploreModal
           showExploreModal={showExploreModal}
           selectedEvent={selectedEvent}
@@ -387,10 +459,11 @@ function Events() {
           handleSubmit={handleEditSubmit}
           setShowDialog={setShowEditDialog}
           cancelEdit={cancelEdit}
+          handleDelete={handleDeleteEvent}
         />
 
         <div className="w-82 mx-auto p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
             {currentEvents.map((item) => (
               <EventCard
                 key={item.unique_id}
@@ -403,6 +476,7 @@ function Events() {
                 assets={assets}
               />
             ))}
+            <AddEventButton onAddEvent={handleAddEvent} /> {/* Add Button */}
           </div>
           <div className="mt-4 mb-8 flex justify-center">
             {Array.from({ length: totalPages }, (_, i) => (
@@ -410,7 +484,9 @@ function Events() {
                 key={i}
                 onClick={() => paginate(i + 1)}
                 className={`mx-1 px-3 py-1 rounded ${
-                  currentPage === i + 1 ? 'bg-yellow-500 text-white' : 'bg-gray-200'
+                  currentPage === i + 1
+                    ? "bg-yellow-500 text-white"
+                    : "bg-gray-200"
                 }`}
               >
                 {i + 1}
@@ -424,7 +500,7 @@ function Events() {
           onEventDeleted={handleEventDeleted}
         />
       </div>
-    </main>
+    </div>
   );
 }
 

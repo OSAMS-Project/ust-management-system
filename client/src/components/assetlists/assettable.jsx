@@ -535,7 +535,7 @@ const AssetTable = ({
                     data-label="Borrow"
                   >
                     <button
-                      className={`w-20 h-8 rounded-full font-semibold text-xs transition-all duration-300 shadow-md ${
+                      className={`w-20 h-8 rounded-full font-semibold text-xs transition-all duration-300 ${
                         asset.is_active
                           ? "bg-emerald-500 text-white hover:bg-emerald-600 active:bg-emerald-700"
                           : "bg-red-500 text-white hover:bg-red-600 active:bg-red-700"

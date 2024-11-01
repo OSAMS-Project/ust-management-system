@@ -7,7 +7,6 @@ const BorrowingRequest = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch all borrowing requests on component mount
   useEffect(() => {
     const fetchRequests = async () => {
       try {
@@ -19,11 +18,9 @@ const BorrowingRequest = () => {
         setLoading(false);
       }
     };
-
     fetchRequests();
   }, []);
 
-  // Handle status update for borrowing requests
   const handleStatusUpdate = async (id, status) => {
     try {
       if (status === 'Rejected') {
@@ -31,7 +28,6 @@ const BorrowingRequest = () => {
       } else {
         await axios.put(`${process.env.REACT_APP_API_URL}/api/borrowing-requests/${id}/status`, { status: 'Approved' });
       }
-      // Refresh the data
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/borrowing-requests`);
       setRequests(response.data);
     } catch (err) {
@@ -39,29 +35,18 @@ const BorrowingRequest = () => {
     }
   };
 
-  // Modified handleReturnAsset function
   const handleReturnAsset = async (id) => {
     try {
-      // First update the borrowing request status
       await axios.put(`${process.env.REACT_APP_API_URL}/api/borrowing-requests/${id}/return`);
-      
-      // Update the existing borrow log
-      await axios.put(`${process.env.REACT_APP_API_URL}/api/borrow-logs/${id}/return`, {
-        dateReturned: new Date()
-      });
-
-      // Immediately update the UI by removing the returned request
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/borrow-logs/${id}/return`, { dateReturned: new Date() });
       setRequests(prevRequests => prevRequests.filter(request => request.id !== id));
-      
     } catch (err) {
       console.error('Error returning asset:', err);
     }
   };
 
   const handleSendEmail = async (email, name, status) => {
-    console.log('Button clicked, email:', email, 'name:', name, 'status:', status); // Add this log to confirm status
     try {
-      // Send email with status (either 'Approved' or 'Rejected')
       await axios.post(`${process.env.REACT_APP_API_URL}/api/borrowing-requests/send-email`, { email, name, status });
       alert(`Email sent successfully for status: ${status}`);
     } catch (err) {
@@ -69,7 +54,6 @@ const BorrowingRequest = () => {
       alert('Failed to send email. Please try again.');
     }
   };
-  
 
   if (loading) return <div className="text-center py-4">Loading...</div>;
   if (error) return <div className="text-center py-4 text-red-500">{error}</div>;
@@ -77,7 +61,6 @@ const BorrowingRequest = () => {
   const pendingRequests = requests.filter(req => req.status === 'Pending');
   const acceptedRequests = requests.filter(req => req.status === 'Approved');
 
-  // Render table with requests
   const renderTable = (title, data, showActions) => (
     <div className="mb-8">
       <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
@@ -97,12 +80,10 @@ const BorrowingRequest = () => {
             </tr>
           </thead>
           <tbody>
-            {data.map((request) => (
-              <tr key={request.id} className="hover:bg-gray-50 transition duration-150">
+            {data.map((request, index) => (
+              <tr key={request.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-[#E8E8E8]'} hover:bg-gray-50 transition duration-150`}>
                 <td className="py-2 px-4 border-b text-center">{request.name}</td>
-                <td className="py-2 px-4 border-b text-center">
-                  {request.email}
-                </td>
+                <td className="py-2 px-4 border-b text-center">{request.email}</td>
                 <td className="py-2 px-4 border-b text-center">{request.department}</td>
                 <td className="py-2 px-4 border-b text-center">{request.purpose}</td>
                 <td className="py-2 px-4 border-b text-center">{request.borrowed_asset_names}</td>
@@ -124,7 +105,7 @@ const BorrowingRequest = () => {
                         <button 
                           onClick={() => {
                             handleStatusUpdate(request.id, 'Approved');
-                            handleSendEmail(request.email, request.name, 'Approved'); // Send Approved email
+                            handleSendEmail(request.email, request.name, 'Approved');
                           }} 
                           className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs hover:bg-green-600 transition duration-300"
                         >
@@ -133,7 +114,7 @@ const BorrowingRequest = () => {
                         <button 
                           onClick={() => {
                             handleStatusUpdate(request.id, 'Rejected');
-                            handleSendEmail(request.email, request.name, 'Rejected'); // Send Rejected email
+                            handleSendEmail(request.email, request.name, 'Rejected');
                           }} 
                           className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300"
                         >
