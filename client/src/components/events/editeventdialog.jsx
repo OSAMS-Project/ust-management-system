@@ -24,6 +24,7 @@ function EditEventDialog({
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (showDialog && formData && formData.event_location) {
@@ -250,10 +251,7 @@ function EditEventDialog({
             </button>
             <button
               type="button"
-              onClick={() => {
-                handleDelete(formData.unique_id);
-                setShowDialog(false);
-              }}
+              onClick={() => setShowDeleteConfirm(true)}
               className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
             >
               Delete Event
@@ -267,6 +265,38 @@ function EditEventDialog({
           </div>
         </form>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-[60]" 
+            onClick={() => setShowDeleteConfirm(false)}
+          />
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 max-w-sm w-full mx-auto z-[60]">
+            <h2 className="text-lg font-bold mb-2 text-gray-800">Confirm Deletion</h2>
+            <p className="mb-4 text-sm text-gray-600">Are you sure you want to delete this event? This action cannot be undone.</p>
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 text-sm transition"
+                onClick={() => setShowDeleteConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm transition"
+                onClick={() => {
+                  handleDelete(formData.unique_id);
+                  setShowDeleteConfirm(false);
+                  setShowDialog(false);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
