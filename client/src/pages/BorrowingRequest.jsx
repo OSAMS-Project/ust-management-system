@@ -37,11 +37,28 @@ const BorrowingRequest = () => {
 
   const handleReturnAsset = async (id) => {
     try {
+      // First update the borrowing request status
       await axios.put(`${process.env.REACT_APP_API_URL}/api/borrowing-requests/${id}/return`);
-      await axios.put(`${process.env.REACT_APP_API_URL}/api/borrow-logs/${id}/return`, { dateReturned: new Date() });
-      setRequests(prevRequests => prevRequests.filter(request => request.id !== id));
+      
+      // Update the existing borrow log with the correct endpoint
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/borrow-logs/return`, {
+        requestId: id,
+        dateReturned: new Date()
+      });
+
+      // Update the requests state to reflect the change
+      setRequests(prevRequests => {
+        const updatedRequests = prevRequests.map(request => 
+          request.id === id 
+            ? { ...request, status: 'Returned' }
+            : request
+        );
+        return updatedRequests.filter(request => request.status !== 'Returned');
+      });
+      
     } catch (err) {
       console.error('Error returning asset:', err);
+      alert('Failed to return asset. Please try again.');
     }
   };
 
