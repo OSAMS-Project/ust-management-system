@@ -17,6 +17,16 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
     e.preventDefault();
     if (currentAsset && quantityInput) {
       const selectedQuantity = parseInt(quantityInput);
+      const availableQuantity = previewQuantities[currentAsset.asset_id] !== undefined 
+        ? previewQuantities[currentAsset.asset_id] 
+        : currentAsset.quantity;
+
+      // Validate if enough quantity is available
+      if (selectedQuantity > availableQuantity) {
+        alert('Selected quantity exceeds available assets');
+        return;
+      }
+
       const existingAssetIndex = selectedAssets.findIndex(asset => asset.asset_id === currentAsset.asset_id);
       if (existingAssetIndex !== -1) {
         const updatedAssets = [...selectedAssets];
@@ -25,10 +35,13 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
       } else {
         setSelectedAssets([...selectedAssets, { ...currentAsset, selectedQuantity }]);
       }
+
+      // Update preview quantities
       setPreviewQuantities(prev => ({
         ...prev,
-        [currentAsset.asset_id]: (prev[currentAsset.asset_id] || currentAsset.quantity) - selectedQuantity
+        [currentAsset.asset_id]: availableQuantity - selectedQuantity
       }));
+      
       setCurrentAsset(null);
       setQuantityInput('');
     }
@@ -60,7 +73,7 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
             >
               <span>{asset.assetName}</span>
               <span className="text-sm text-gray-500">
-                Available Assets: {previewQuantities[asset.asset_id] !== undefined ? previewQuantities[asset.asset_id] : asset.quantity}
+                Available Quantity: {previewQuantities[asset.asset_id] !== undefined ? previewQuantities[asset.asset_id] : asset.quantity}
               </span>
             </div>
           ))}

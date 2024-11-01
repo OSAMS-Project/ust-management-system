@@ -4,7 +4,7 @@ const createSupplierActivityLogsTable = async () => {
   const query = `
     CREATE TABLE IF NOT EXISTS SupplierActivityLogs (
       id SERIAL PRIMARY KEY,
-      supplier_id INTEGER REFERENCES Suppliers(supplier_id),
+      supplier_id VARCHAR(20) REFERENCES Suppliers(supplier_id),
       action VARCHAR(50) NOT NULL,
       field_name VARCHAR(50),
       old_value TEXT,
