@@ -266,19 +266,24 @@ const completeEvent = async (uniqueId) => {
   try {
     await client.query('BEGIN');
 
-    // Get the current assets for the event with asset names
+    // Get the current assets for the event with asset names, types and quantities
     const getAssetsQuery = `
-      SELECT ea.*, a."assetName", a.quantity as total_quantity
+      SELECT ea.*, a."assetName", a.quantity as total_quantity, a.type
       FROM event_assets ea
       JOIN assets a ON ea.asset_id = a.asset_id
       WHERE ea.event_id = $1
     `;
     const assetsResult = await client.query(getAssetsQuery, [uniqueId]);
+    
+    // Log assets for debugging
+    console.log('Assets before completion:', assetsResult.rows);
+
     const completedAssets = assetsResult.rows.map(asset => ({
       asset_id: asset.asset_id,
       assetName: asset.assetName,
       quantity: asset.quantity,
-      total_quantity: asset.total_quantity
+      total_quantity: asset.total_quantity,
+      type: asset.type
     }));
 
     // Mark the event as completed and store the completed assets
@@ -286,15 +291,17 @@ const completeEvent = async (uniqueId) => {
     const updatedEvent = await client.query(updateEventQuery, [JSON.stringify(completedAssets), uniqueId]);
     console.log('Event marked as completed:', updatedEvent.rows[0]);
 
-    // Return assets to the asset list
+    // Return only non-consumable assets to the asset list
     const returnAssetsQuery = `
       UPDATE assets a
       SET quantity = a.quantity + ea.quantity
       FROM event_assets ea
-      WHERE ea.event_id = $1 AND ea.asset_id = a.asset_id
+      WHERE ea.event_id = $1 
+      AND ea.asset_id = a.asset_id
+      AND LOWER(a.type) = 'non-consumable'
     `;
     const returnAssetsResult = await client.query(returnAssetsQuery, [uniqueId]);
-    console.log('Assets returned:', returnAssetsResult.rowCount);
+    console.log('Non-consumable assets returned:', returnAssetsResult.rowCount);
 
     // Remove assets from event_assets table
     const deleteEventAssetsQuery = "DELETE FROM event_assets WHERE event_id = $1";
