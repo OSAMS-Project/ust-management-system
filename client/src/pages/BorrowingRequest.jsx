@@ -38,8 +38,15 @@ const BorrowingRequest = () => {
   const handleReturnAsset = async (id) => {
     try {
       await axios.put(`${process.env.REACT_APP_API_URL}/api/borrowing-requests/${id}/return`);
-      await axios.put(`${process.env.REACT_APP_API_URL}/api/borrow-logs/${id}/return`, { dateReturned: new Date() });
+      
+      // Update the existing borrow log
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/borrow-logs/${id}/return`, {
+        dateReturned: new Date()
+      });
+
+      // Immediately update the UI by removing the returned request
       setRequests(prevRequests => prevRequests.filter(request => request.id !== id));
+      
     } catch (err) {
       console.error('Error returning asset:', err);
     }
