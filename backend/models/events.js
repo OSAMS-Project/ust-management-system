@@ -151,6 +151,11 @@ const addAssetsToEvent = async (eventId, assets) => {
   try {
     await client.query('BEGIN');
     for (const asset of assets) {
+      // Get the current asset details including cost
+      const assetDetailsQuery = 'SELECT cost FROM assets WHERE asset_id = $1';
+      const assetDetails = await client.query(assetDetailsQuery, [asset.asset_id]);
+      const assetCost = assetDetails.rows[0]?.cost || 0;
+
       console.log(`Processing asset ${asset.asset_id} for event ${eventId} with quantity ${asset.selectedQuantity}`);
       
       // Check if the asset already exists for this event
@@ -158,30 +163,20 @@ const addAssetsToEvent = async (eventId, assets) => {
       const existingAssetResult = await client.query(existingAssetQuery, [eventId, asset.asset_id]);
       
       if (existingAssetResult.rows.length > 0) {
-        // Asset already exists, update its quantity
+        // Asset already exists, update its quantity and cost
         const currentQuantity = existingAssetResult.rows[0].quantity;
         const newQuantity = currentQuantity + asset.selectedQuantity;
         await client.query(
-          'UPDATE event_assets SET quantity = $1 WHERE event_id = $2 AND asset_id = $3',
-          [newQuantity, eventId, asset.asset_id]
+          'UPDATE event_assets SET quantity = $1, cost = $2 WHERE event_id = $3 AND asset_id = $4',
+          [newQuantity, assetCost, eventId, asset.asset_id]
         );
-        console.log(`Updated existing asset ${asset.asset_id} quantity from ${currentQuantity} to ${newQuantity}`);
       } else {
-        // Asset doesn't exist, insert it
+        // Asset doesn't exist, insert it with cost
         await client.query(
-          'INSERT INTO event_assets (event_id, asset_id, quantity) VALUES ($1, $2, $3)',
-          [eventId, asset.asset_id, asset.selectedQuantity]
+          'INSERT INTO event_assets (event_id, asset_id, quantity, cost) VALUES ($1, $2, $3, $4)',
+          [eventId, asset.asset_id, asset.selectedQuantity, assetCost]
         );
-        console.log(`Added new asset ${asset.asset_id} with quantity ${asset.selectedQuantity}`);
       }
-      
-      // Update asset quantity_for_borrowing
-      console.log(`Updating asset ${asset.asset_id} quantity. Current: ${asset.quantity}, Deducting: ${asset.selectedQuantity}`);
-      const newQuantity = asset.quantity - asset.selectedQuantity;
-      await client.query(
-        'UPDATE assets SET quantity = $1 WHERE asset_id = $2',
-        [newQuantity, asset.asset_id]
-      );
     }
     await client.query('COMMIT');
     console.log(`Assets successfully processed for event ${eventId}`);
@@ -201,59 +196,58 @@ const createEventAssetsTable = async () => {
       event_id VARCHAR(20) REFERENCES Events(unique_id),
       asset_id VARCHAR(20) REFERENCES assets(asset_id),
       quantity INTEGER NOT NULL,
+      cost DECIMAL(10,2),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `;
-  try {
-    await pool.query(query);
-    console.log('event_assets table created successfully');
-  } catch (error) {
-    console.error('Error creating event_assets table:', error);
-    throw error;
-  }
+  await pool.query(query);
 };
 
 const getEventAssets = async (eventId) => {
   const query = `
-    SELECT ea.asset_id, ea.quantity, a.assetName
+    SELECT 
+      ea.asset_id, 
+      ea.quantity,
+      ea.cost as cost,
+      a."assetName"
     FROM event_assets ea
     JOIN assets a ON ea.asset_id = a.asset_id
     WHERE ea.event_id = $1
   `;
-  const result = await pool.query(query, [eventId]);
-  return result.rows;
+  
+  try {
+    const result = await pool.query(query, [eventId]);
+    console.log('Fetched event assets:', result.rows);
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching event assets:', error);
+    throw error;
+  }
 };
 
-const getEventById = async (eventId) => {
+const getEventById = async (uniqueId) => {
   const client = await pool.connect();
   try {
-    await client.query('BEGIN');
-    
-    // Fetch event details
-    const eventQuery = 'SELECT * FROM Events WHERE unique_id = $1';
-    const eventResult = await client.query(eventQuery, [eventId]);
-    
-    if (eventResult.rows.length === 0) {
-      return null;
-    }
+    const eventQuery = `
+      SELECT e.*, 
+        COALESCE(json_agg(
+          json_build_object(
+            'asset_id', ea.asset_id,
+            'quantity', ea.quantity,
+            'cost', ea.cost,
+            'assetName', a."assetName"
+          )
+        ) FILTER (WHERE ea.asset_id IS NOT NULL), '[]'::json) as assets
+      FROM events e
+      LEFT JOIN event_assets ea ON e.unique_id = ea.event_id
+      LEFT JOIN assets a ON ea.asset_id = a.asset_id
+      WHERE e.unique_id = $1
+      GROUP BY e.unique_id`;
 
-    const event = eventResult.rows[0];
-
-    // Fetch associated assets
-    const assetsQuery = `
-      SELECT a.asset_id, a."assetName", ea.quantity
-      FROM event_assets ea
-      JOIN assets a ON ea.asset_id = a.asset_id
-      WHERE ea.event_id = $1
-    `;
-    const assetsResult = await client.query(assetsQuery, [eventId]);
-
-    event.assets = assetsResult.rows;
-
-    await client.query('COMMIT');
-    return event;
+    const result = await client.query(eventQuery, [uniqueId]);
+    console.log('Event details fetched:', result.rows[0]); // Debug log
+    return result.rows[0];
   } catch (error) {
-    await client.query('ROLLBACK');
     console.error('Error in getEventById:', error);
     throw error;
   } finally {
@@ -268,11 +262,11 @@ const completeEvent = async (uniqueId) => {
 
     // Get the current assets for the event with asset names, types and quantities
     const getAssetsQuery = `
-      SELECT ea.*, a."assetName", a.quantity as total_quantity, a.type
-      FROM event_assets ea
-      JOIN assets a ON ea.asset_id = a.asset_id
-      WHERE ea.event_id = $1
-    `;
+    SELECT ea.*, a."assetName", a.quantity as total_quantity, a.type, a.cost
+    FROM event_assets ea
+    JOIN assets a ON ea.asset_id = a.asset_id
+    WHERE ea.event_id = $1
+  `;
     const assetsResult = await client.query(getAssetsQuery, [uniqueId]);
     
     // Log assets for debugging

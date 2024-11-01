@@ -329,7 +329,6 @@ function Events() {
       );
 
       if (response.data.success) {
-        // Update the local state
         setData((prevData) =>
           prevData.map((e) => {
             if (e.unique_id === event.unique_id) {
@@ -339,14 +338,17 @@ function Events() {
                   (a) => a.asset_id === newAsset.asset_id
                 );
                 if (existingAssetIndex !== -1) {
-                  // Asset already exists, update its quantity
-                  updatedAssets[existingAssetIndex].quantity +=
-                    newAsset.selectedQuantity;
+                  updatedAssets[existingAssetIndex] = {
+                    ...updatedAssets[existingAssetIndex],
+                    quantity: updatedAssets[existingAssetIndex].quantity + newAsset.selectedQuantity,
+                    cost: parseFloat(newAsset.cost)
+                  };
                 } else {
-                  // Asset doesn't exist, add it to the list
                   updatedAssets.push({
-                    ...newAsset,
+                    asset_id: newAsset.asset_id,
+                    assetName: newAsset.assetName,
                     quantity: newAsset.selectedQuantity,
+                    cost: parseFloat(newAsset.cost)
                   });
                 }
               });
@@ -355,15 +357,9 @@ function Events() {
             return e;
           })
         );
-        console.log(`Assets successfully added to event ${event.event_name}`);
       }
     } catch (error) {
       console.error("Error adding assets to event:", error);
-      if (error.response) {
-        console.error("Error response data:", error.response.data);
-        console.error("Error response status:", error.response.status);
-        console.error("Error response headers:", error.response.headers);
-      }
     }
   };
 

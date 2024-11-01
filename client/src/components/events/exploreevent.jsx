@@ -6,10 +6,28 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
   const [editingAsset, setEditingAsset] = useState(null);
   const [editQuantity, setEditQuantity] = useState('');
   const [localAssets, setLocalAssets] = useState([]);
+  const [totalCost, setTotalCost] = useState(0);
 
   useEffect(() => {
     if (selectedEvent) {
+      console.log('Selected Event Assets:', selectedEvent.assets);
       setLocalAssets(selectedEvent.assets || []);
+      const total = (selectedEvent.assets || []).reduce((sum, asset) => {
+        console.log('Raw asset cost:', asset.cost);
+        const assetCost = parseFloat(asset.cost) || 0;
+        const quantity = parseInt(asset.quantity) || 0;
+        const subtotal = assetCost * quantity;
+        console.log('Asset calculation:', {
+          name: asset.assetName,
+          rawCost: asset.cost,
+          parsedCost: assetCost,
+          quantity: quantity,
+          subtotal: subtotal
+        });
+        return sum + subtotal;
+      }, 0);
+      console.log('Final total:', total);
+      setTotalCost(total);
     }
   }, [selectedEvent]);
 
@@ -86,41 +104,55 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
   const memoizedAssetList = useMemo(() => (
     localAssets && localAssets.length > 0 ? (
       <ul className="list-disc pl-5">
-        {localAssets.map((asset) => (
-          <li key={asset.asset_id} className="mb-2 flex items-center justify-between">
-            <span>
-              <strong>{asset.assetName}</strong> - Quantity: {
-                editingAsset && editingAsset.asset_id === asset.asset_id ? (
-                  <input 
-                    type="number" 
-                    value={editQuantity} 
-                    onChange={(e) => setEditQuantity(e.target.value)}
-                    className="w-16 px-1 border rounded"
-                  />
-                ) : asset.quantity
-              }
-            </span>
-            <div>
-              <button
-                onClick={() => handleEditAsset(asset)}
-                className="bg-blue-500 text-white px-2 py-1 rounded mr-2 text-sm"
-              >
-                {editingAsset && editingAsset.asset_id === asset.asset_id ? 'Save' : 'Edit'}
-              </button>
-              <button
-                onClick={() => handleRemoveAsset(asset)}
-                className="bg-red-500 text-white px-2 py-1 rounded text-sm"
-              >
-                Remove
-              </button>
-            </div>
-          </li>
-        ))}
+        {localAssets.map((asset) => {
+          const assetCost = asset.cost ? parseFloat(asset.cost) : 0;
+          
+          return (
+            <li key={asset.asset_id} className="mb-2 flex items-center justify-between">
+              <span>
+                <strong>{asset.assetName}</strong> - Quantity: {
+                  editingAsset && editingAsset.asset_id === asset.asset_id ? (
+                    <input 
+                      type="number" 
+                      value={editQuantity} 
+                      onChange={(e) => setEditQuantity(e.target.value)}
+                      className="w-16 px-1 border rounded"
+                    />
+                  ) : asset.quantity
+                } - {' '}
+                Cost per unit: ₱{assetCost.toFixed(2)}
+              </span>
+              <div>
+                <button
+                  onClick={() => handleEditAsset(asset)}
+                  className="bg-blue-500 text-white px-2 py-1 rounded mr-2 text-sm"
+                >
+                  {editingAsset && editingAsset.asset_id === asset.asset_id ? 'Save' : 'Edit'}
+                </button>
+                <button
+                  onClick={() => handleRemoveAsset(asset)}
+                  className="bg-red-500 text-white px-2 py-1 rounded text-sm"
+                >
+                  Remove
+                </button>
+              </div>
+            </li>
+          );
+        })}
       </ul>
     ) : (
-      <p>No assets selected for this event.</p>
+      <p>No assets added to this event.</p>
     )
   ), [localAssets, editingAsset, editQuantity]);
+
+  const memoizedTotalCost = useMemo(() => {
+    return (
+      <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+        <h3 className="text-xl font-semibold">Total Cost:</h3>
+        <p className="text-2xl text-green-600">₱{totalCost.toLocaleString()}</p>
+      </div>
+    );
+  }, [totalCost]);
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
@@ -159,6 +191,13 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
       yPosition += lineHeight;
     });
 
+    doc.setFontSize(14);
+    doc.text('Total Cost:', 20, yPosition);
+    yPosition += lineHeight;
+    doc.setFontSize(12);
+    doc.text(`₱${totalCost.toLocaleString()}`, 30, yPosition);
+    yPosition += lineHeight * 2;
+
     doc.save(`${selectedEvent.event_name}_details.pdf`);
   };
 
@@ -180,6 +219,8 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
         
         <h3 className="text-xl mt-4 mb-2">Event Assets:</h3>
         {memoizedAssetList}
+        
+        {memoizedTotalCost}
         
         <div className="flex justify-between mt-4">
           <button
