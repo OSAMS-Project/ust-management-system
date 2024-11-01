@@ -73,7 +73,7 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
             >
               <span>{asset.assetName}</span>
               <span className="text-sm text-gray-500">
-                Available Assets: {previewQuantities[asset.asset_id] !== undefined ? previewQuantities[asset.asset_id] : asset.quantity}
+                Available Quantity: {previewQuantities[asset.asset_id] !== undefined ? previewQuantities[asset.asset_id] : asset.quantity}
               </span>
             </div>
           ))}
