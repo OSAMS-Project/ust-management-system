@@ -142,11 +142,11 @@ function Events() {
       unique_id: event.unique_id,
       event_name: event.event_name,
       description: event.description,
-      event_date: event.event_date,
+      event_date: event.event_date.split('T')[0],
       event_location: event.event_location,
       event_start_time: event.event_start_time,
       event_end_time: event.event_end_time,
-      image: event.image
+      image: event.image || '/ust-image.JPG'
     });
     setShowEditDialog(true);
   };
@@ -158,6 +158,12 @@ function Events() {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
+      const updatedFormData = { ...formData };
+      
+      if (updatedFormData.image === '/ust-image.JPG') {
+        delete updatedFormData.image;
+      }
+
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/Events/update/${editingEvent.unique_id}`,
         {
@@ -165,7 +171,7 @@ function Events() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(updatedFormData),
         }
       );
 
@@ -181,7 +187,6 @@ function Events() {
         )
       );
 
-      setFormData({ event_name: "", description: "", event_date: "" });
       setShowEditDialog(false);
       setEditingEvent(null);
     } catch (err) {

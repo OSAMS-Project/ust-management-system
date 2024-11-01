@@ -4,7 +4,7 @@ const AddEventButton = ({ onAddEvent }) => {
   return (
     <button
       onClick={onAddEvent}
-      className="relative overflow-hidden rounded-lg shadow-lg w-80 h-[32rem] flex flex-col items-center justify-center bg-gray-200 bg-opacity-40 hover:bg-opacity-90 transition duration-300"
+      className="relative overflow-hidden rounded-lg shadow-lg w-80 h-[32rem] flex flex-col items-center justify-center bg-gray-300 bg-opacity-100 hover:bg-opacity-90 transition duration-300"
     >
       {/* Icon Container */}
       <div className="flex items-center justify-center w-12 h-12 bg-gray-700 text-white rounded-full mb-4">
