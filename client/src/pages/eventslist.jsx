@@ -139,9 +139,14 @@ function Events() {
   const handleEdit = (event) => {
     setEditingEvent(event);
     setFormData({
+      unique_id: event.unique_id,
       event_name: event.event_name,
       description: event.description,
       event_date: event.event_date,
+      event_location: event.event_location,
+      event_start_time: event.event_start_time,
+      event_end_time: event.event_end_time,
+      image: event.image
     });
     setShowEditDialog(true);
   };
@@ -458,7 +463,6 @@ function Events() {
           handleChange={handleChange}
           handleSubmit={handleEditSubmit}
           setShowDialog={setShowEditDialog}
-          cancelEdit={cancelEdit}
           handleDelete={handleDeleteEvent}
         />
 

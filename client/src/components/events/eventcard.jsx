@@ -70,7 +70,10 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
           {/* Complete Button */}
           <button 
             className="flex items-center gap-2 px-3 py-2 bg-green-500 text-white rounded-lg transition-all duration-300 w-10 hover:w-32"
-            onClick={() => setShowConfirmDialog(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowConfirmDialog(true);
+            }}
           >
             <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
             <span className="ml-2 overflow-hidden transition-all duration-300 whitespace-nowrap">Complete</span>
@@ -81,20 +84,27 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
       {/* Confirmation Dialog */}
       {showConfirmDialog && (
         <>
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowConfirmDialog(false)}></div>
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm mx-auto z-50">
-            <h2 className="text-lg font-bold mb-2">Confirm Completion</h2>
-            <p className="mb-4 text-sm">Are you sure you want to mark this event as completed?</p>
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-50" 
+            onClick={() => setShowConfirmDialog(false)}
+          />
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 max-w-sm w-full mx-auto z-50">
+            <h2 className="text-lg font-bold mb-2 text-gray-800">Confirm Completion</h2>
+            <p className="mb-4 text-sm text-gray-600">Are you sure you want to mark this event as completed?</p>
             <div className="flex justify-end gap-2">
               <button
                 className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 text-sm transition"
-                onClick={() => setShowConfirmDialog(false)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowConfirmDialog(false);
+                }}
               >
                 Cancel
               </button>
               <button
                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-sm transition"
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   handleComplete(item.unique_id);
                   setShowConfirmDialog(false);
                 }}
