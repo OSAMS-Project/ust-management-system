@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AddAssetIssue from '../components/issue/AddAssetIssue';
 import IssueTable from '../components/issue/IssueTable';
+import NotificationPopup from '../components/NotificationsPopup';
 import axios from 'axios';
 
 function AssetIssue({ user }) {
@@ -8,6 +9,7 @@ function AssetIssue({ user }) {
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     fetchIssues();
@@ -22,6 +24,10 @@ function AssetIssue({ user }) {
     } catch (error) {
       console.error('Error fetching issues:', error);
       setLoading(false);
+      setNotification({
+        type: 'error',
+        message: 'Failed to fetch issues. Please try again.'
+      });
     }
   };
 
@@ -31,12 +37,15 @@ function AssetIssue({ user }) {
       setAssets(response.data);
     } catch (error) {
       console.error('Error fetching assets:', error);
+      setNotification({
+        type: 'error',
+        message: 'Failed to fetch assets. Please try again.'
+      });
     }
   };
 
   const handleAddIssue = async (issueData) => {
     try {
-      // Make sure to include the user information when creating the issue
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/asset-issues`, {
         ...issueData,
         reported_by: user?.name,
@@ -44,8 +53,16 @@ function AssetIssue({ user }) {
       });
       setIssues([response.data, ...issues]);
       setIsModalOpen(false);
+      setNotification({
+        type: 'success',
+        message: 'Issue reported successfully!'
+      });
     } catch (error) {
       console.error('Error adding issue:', error);
+      setNotification({
+        type: 'error',
+        message: error.response?.data?.error || 'Failed to report issue. Please try again.'
+      });
     }
   };
 
@@ -77,6 +94,10 @@ function AssetIssue({ user }) {
         issues={issues}
         assets={assets}
         loading={loading}
+      />
+      <NotificationPopup 
+        notification={notification}
+        onClose={() => setNotification(null)}
       />
     </div>
   );
