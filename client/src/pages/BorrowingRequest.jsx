@@ -56,14 +56,11 @@ const BorrowingRequest = () => {
           dateReturned: new Date(),
         }
       );
-      setRequests((prevRequests) => {
-        const updatedRequests = prevRequests.map((request) =>
+      setRequests((prevRequests) =>
+        prevRequests.map((request) =>
           request.id === id ? { ...request, status: "Returned" } : request
-        );
-        return updatedRequests.filter(
-          (request) => request.status !== "Returned"
-        );
-      });
+        )
+      );
     } catch (err) {
       console.error("Error returning asset:", err);
       alert("Failed to return asset. Please try again.");
@@ -104,8 +101,11 @@ const BorrowingRequest = () => {
   if (error)
     return <div className="text-center py-4 text-red-500">{error}</div>;
 
+  // Filter requests by status
   const pendingRequests = requests.filter((req) => req.status === "Pending");
-  const acceptedRequests = requests.filter((req) => req.status === "Approved");
+  const acceptedRequests = requests.filter(
+    (req) => req.status === "Approved" || req.status === "Returned"
+  );
 
   const renderTable = (title, data, showActions) => (
     <div className="mb-8">
@@ -125,9 +125,7 @@ const BorrowingRequest = () => {
               <th className="py-3 px-4 border-b text-center">
                 Expected Return Date
               </th>
-              {showActions && (
-                <th className="py-3 px-4 border-b text-center">Actions</th>
-              )}
+              {showActions && <th className="py-3 px-4 border-b text-center">Actions</th>}
               <th className="py-3 px-4 border-b text-center">Notify</th>
             </tr>
           </thead>
@@ -181,40 +179,34 @@ const BorrowingRequest = () => {
                   <td className="py-2 px-4 border-b text-center">
                     {request.status === "Pending" ? (
                       <>
-                        <button
+                        <button 
                           onClick={() => {
                             handleStatusUpdate(request.id, "Approved");
-                            handleSendEmail(
-                              request.email,
-                              request.name,
-                              "Approved"
-                            );
-                          }}
+                            handleSendEmail(request.email, request.name, "Approved");
+                          }} 
                           className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs hover:bg-green-600 transition duration-300"
                         >
                           Approve
                         </button>
-                        <button
+                        <button 
                           onClick={() => {
                             handleStatusUpdate(request.id, "Rejected");
-                            handleSendEmail(
-                              request.email,
-                              request.name,
-                              "Rejected"
-                            );
-                          }}
+                            handleSendEmail(request.email, request.name, "Rejected");
+                          }} 
                           className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300"
                         >
                           Reject
                         </button>
                       </>
                     ) : (
-                      <button
-                        onClick={() => handleReturnAsset(request.id)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition duration-300"
-                      >
-                        Returned
-                      </button>
+                      request.status === "Approved" && (
+                        <button 
+                          onClick={() => handleReturnAsset(request.id)} 
+                          className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition duration-300"
+                        >
+                          Mark as Returned
+                        </button>
+                      )
                     )}
                   </td>
                 )}
@@ -248,7 +240,7 @@ const BorrowingRequest = () => {
         Borrowing Request Page
       </h1>
       {renderTable("Pending Requests", pendingRequests, true)}
-      {renderTable("Accepted Requests", acceptedRequests, false)}
+      {renderTable("Accepted Requests", acceptedRequests, true)}
     </div>
   );
 };
