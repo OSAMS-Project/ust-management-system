@@ -10,6 +10,7 @@ router.get('/:id/cover-letter', borrowingRequestController.getCoverLetter);
 // Route for returning assets
 router.put('/:id/return', borrowingRequestController.returnBorrowingRequest);
 router.post('/send-email', borrowingRequestController.sendManualEmail);
+router.post('/notify-sms', borrowingRequestController.sendSMSReminder);
 
 // Error handling middleware
 router.use((err, req, res, next) => {
