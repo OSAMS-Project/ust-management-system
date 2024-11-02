@@ -6,7 +6,6 @@ const client = require("twilio")(accountSid, authToken);
 
 const sendSMS = async (contact_no, name, expectedReturnDate) => {
   let msgOptions = {
-    from: "+12139886793",
     to: "+639157424059",
     body: `Hello ${name}, this is a reminder that your expected return date is on ${expectedReturnDate}. Please ensure timely return.`,
   };
