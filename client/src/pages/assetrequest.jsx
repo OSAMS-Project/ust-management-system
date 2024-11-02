@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const IncomingAssets = ({ user }) => {
+const AssetRequest = ({ user }) => {
   const [incomingAssets, setIncomingAssets] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newAsset, setNewAsset] = useState({
@@ -54,13 +54,13 @@ const IncomingAssets = ({ user }) => {
       fetchIncomingAssets();
       setNewAsset({ assetName: '', quantity: '', expectedArrival: '' });
     } catch (error) {
-      console.error('Error adding incoming asset:', error.response ? error.response.data : error.message);
+      console.error('Error adding incoming asset:', error.response?.data || error.message);
     }
   };
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Incoming Assets</h1>
+      <h1 className="text-2xl font-bold mb-4">Asset Request</h1>
       <div className="flex items-center mb-4">
         <img src={user?.picture || "https://via.placeholder.com/40"} alt="Profile" className="w-10 h-10 rounded-full object-cover mr-2" />
         <p className="text-lg">Logged in as: {user?.name || "User"}</p>
@@ -155,4 +155,4 @@ const IncomingAssets = ({ user }) => {
   );
 };
 
-export default IncomingAssets;
+export default AssetRequest;

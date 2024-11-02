@@ -116,7 +116,7 @@ const MENU_LIST = [
     subItems: [
       { text: "Asset Maintenance", to: "/asset-maintenance", icon: faTools },
       { text: "Asset Issue", to: "/asset-issue", icon: faExclamationTriangle },
-      { text: "Incoming Assets", to: "/incoming-assets", icon: faBoxOpen },
+      { text: "Asset Request", to: "/asset-request", icon: faBoxOpen },
     ],
   },
   { text: "Borrowing Request", to: "/borrowingrequest", icon: faClipboardList },

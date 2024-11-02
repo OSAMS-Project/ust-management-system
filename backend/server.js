@@ -32,7 +32,18 @@ const app = express();
 const sse = new SSE();
 app.set('sse', sse);
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000', // Your frontend URL
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
 app.use(bodyParser.json()); // Use body-parser middleware to parse JSON requests
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

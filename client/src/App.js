@@ -15,7 +15,7 @@ import ProfilePage from "./pages/Profile";
 import BorrowingRequest from "./pages/BorrowingRequest";
 import RoleManagement from "./pages/RoleManagement";
 import QRPage from "./pages/QRPage";
-import IncomingAssets from './pages/incomingassests';
+import AssetRequest from "./pages/assetrequest";
 import AssetMaintenance from "./pages/AssetMaintenance";
 import AssetIssue from "./pages/AssetIssue";
 
@@ -79,7 +79,7 @@ function AppContent({ user, setUser }) {
           <Route path="/supplierlist" element={<PrivateRoute user={user}><SupplierList /></PrivateRoute>} />
           <Route path="/roles" element={<PrivateRoute user={user}><RoleManagement /></PrivateRoute>} />
           <Route path="/qr" element={<PrivateRoute user={user}><QRPage /></PrivateRoute>} />
-          <Route path="/incoming-assets" element={<PrivateRoute user={user}> <IncomingAssets user={user} /></PrivateRoute>
+          <Route path="/asset-request" element={<PrivateRoute user={user}> <AssetRequest user={user} /></PrivateRoute>
             } 
           />
         </Routes>
