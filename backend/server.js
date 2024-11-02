@@ -18,8 +18,8 @@ const assetActivityLogRoutes = require('./routes/assetactivitylogRoutes');
 const dashboardInfoCardsRoutes = require('./routes/dashboardinfocardsRoutes');
 const borrowingRequestRoutes = require('./routes/borrowingrequestRoutes');
 const borrowLogsRoutes = require('./routes/borrowLogsRoutes');
-const incomingAssetRoutes = require('./routes/incomingAssetRoutes');
-const IncomingAsset = require('./models/incomingassets');
+const assetRequestRoutes = require('./routes/assetRequestRoutes');
+const AssetRequest = require('./models/assetrequest');
 const maintenanceRoutes = require('./routes/MaintenanceRoutes');
 const Maintenance = require('./models/Maintenance');
 const roleRoutes = require('./routes/roleRoutes');
@@ -65,7 +65,7 @@ app.use('/api/asset-activity-logs', assetActivityLogRoutes);
 app.use('/api/dashboard', dashboardInfoCardsRoutes);
 app.use('/api/borrowing-requests', borrowingRequestRoutes);
 app.use('/api/borrow-logs', borrowLogsRoutes);
-app.use('/api/incoming-assets', incomingAssetRoutes);
+app.use('/api/asset-request', assetRequestRoutes);
 app.use('/api/Maintenance', maintenanceRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/supplier-activity-logs', supplierActivityLogRoutes);
@@ -319,7 +319,7 @@ app.delete('/api/Events/delete/:eventId', async (req, res) => {
 });
 
 // Add this line to create the table when the server starts
-IncomingAsset.createIncomingAssetsTable();
+AssetRequest.createAssetRequestTable();
 const assetIssueRoutes = require('./routes/assetissueRoutes');
 app.use('/api/asset-issues', assetIssueRoutes);
 
