@@ -104,7 +104,7 @@ const BorrowingRequest = () => {
   // Filter requests by status
   const pendingRequests = requests.filter((req) => req.status === "Pending");
   const acceptedRequests = requests.filter(
-    (req) => req.status === "Approved" || req.status === "Returned"
+    (req) => req.status === "Approved"
   );
 
   const renderTable = (title, data, showActions) => (
@@ -125,11 +125,7 @@ const BorrowingRequest = () => {
               <th className="py-3 px-4 border-b text-center">
                 Expected Return Date
               </th>
-<<<<<<< Updated upstream
-              {showActions && <th className="py-3 px-4 border-b text-center">Actions</th>}
-=======
               <th className="py-3 px-4 border-b text-center">Actions</th>
->>>>>>> Stashed changes
               <th className="py-3 px-4 border-b text-center">Notify</th>
             </tr>
           </thead>
@@ -179,43 +175,6 @@ const BorrowingRequest = () => {
                 <td className="py-2 px-4 border-b text-center">
                   {moment(request.expectedReturnDate).format("MMMM Do YYYY")}
                 </td>
-<<<<<<< Updated upstream
-                {showActions && (
-                  <td className="py-2 px-4 border-b text-center">
-                    {request.status === "Pending" ? (
-                      <>
-                        <button 
-                          onClick={() => {
-                            handleStatusUpdate(request.id, "Approved");
-                            handleSendEmail(request.email, request.name, "Approved");
-                          }} 
-                          className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs hover:bg-green-600 transition duration-300"
-                        >
-                          Approve
-                        </button>
-                        <button 
-                          onClick={() => {
-                            handleStatusUpdate(request.id, "Rejected");
-                            handleSendEmail(request.email, request.name, "Rejected");
-                          }} 
-                          className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300"
-                        >
-                          Reject
-                        </button>
-                      </>
-                    ) : (
-                      request.status === "Approved" && (
-                        <button 
-                          onClick={() => handleReturnAsset(request.id)} 
-                          className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition duration-300"
-                        >
-                          Mark as Returned
-                        </button>
-                      )
-                    )}
-                  </td>
-                )}
-=======
                 <td className="py-2 px-4 border-b text-center">
                   {request.status === "Pending" ? (
                     <>
@@ -255,7 +214,6 @@ const BorrowingRequest = () => {
                     </button>
                   )}
                 </td>
->>>>>>> Stashed changes
                 <td className="py-2 px-4 border-b text-center">
                   <button
                     onClick={() =>
