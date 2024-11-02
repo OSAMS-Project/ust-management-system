@@ -8,6 +8,7 @@ import {
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import EditUser from "../components/users/EditUser";
+import DeleteUserDialog from '../components/users/DeleteUserDialog';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -19,6 +20,8 @@ const UserManagement = () => {
   const [totalUsersWithoutAccess, setTotalUsersWithoutAccess] = useState(0);
   const [searchQuery, setSearchQuery] = useState(""); // Search input state
   const [selectedRole, setSelectedRole] = useState(""); // Role filter state
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -62,12 +65,19 @@ const UserManagement = () => {
     return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
-  const handleDeleteUser = async (userId) => {
+  const handleDeleteUser = (user) => {
+    setUserToDelete(user);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
     try {
       await axios.delete(
-        `${process.env.REACT_APP_API_URL}/api/users/${userId}`
+        `${process.env.REACT_APP_API_URL}/api/users/${userToDelete.id}`
       );
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userToDelete.id));
+      setIsDeleteDialogOpen(false);
+      setUserToDelete(null);
     } catch (error) {
       console.error("Error deleting user:", error);
     }
@@ -179,8 +189,11 @@ const UserManagement = () => {
               <FontAwesomeIcon icon={faEdit} />
             </button>
             <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteUser(user);
+              }}
               className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-300"
-              onClick={() => handleDeleteUser(user.id)}
             >
               <FontAwesomeIcon icon={faTrash} />
             </button>
@@ -358,6 +371,15 @@ const UserManagement = () => {
             handleEditUser(editingUser);
           }}
           onCancel={() => setEditingUser(null)}
+        />
+      )}
+
+      {userToDelete && (
+        <DeleteUserDialog
+          isOpen={isDeleteDialogOpen}
+          onClose={() => setIsDeleteDialogOpen(false)}
+          onConfirm={handleDeleteConfirm}
+          userName={userToDelete.name}
         />
       )}
     </div>
