@@ -5,6 +5,7 @@ import SupplierTable from '../components/supplier/suppliertable';
 import AddSupplier from '../components/supplier/addsupplier';
 import EditSupplier from '../components/supplier/editsupplier';
 import SupplierSearch from '../components/supplier/suppliersearch';
+import NotificationPopup from '../components/NotificationsPopup';
 
 const SupplierList = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -12,6 +13,7 @@ const SupplierList = () => {
   const [filteredSuppliers, setFilteredSuppliers] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [totalSuppliers, setTotalSuppliers] = useState(0);
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     fetchSuppliers();
@@ -29,14 +31,26 @@ const SupplierList = () => {
 
   const handleSupplierAdded = (newSupplier) => {
     setSuppliers([...suppliers, newSupplier]);
+    setNotification({
+      type: 'success',
+      message: 'Supplier added successfully!'
+    });
   };
 
   const handleDelete = async (supplier_id) => {
     try {
       await axios.delete(`${process.env.REACT_APP_API_URL}/api/suppliers/${supplier_id}`);
       setSuppliers(suppliers.filter(supplier => supplier.supplier_id !== supplier_id));
+      setNotification({
+        type: 'success',
+        message: 'Supplier deleted successfully!'
+      });
     } catch (error) {
       console.error('Error deleting supplier:', error);
+      setNotification({
+        type: 'error',
+        message: 'Failed to delete supplier. Please try again.'
+      });
     }
   };
 
@@ -51,6 +65,10 @@ const SupplierList = () => {
     ));
     setSupplierToEdit(null);
     setIsEditModalOpen(false);
+    setNotification({
+      type: 'success',
+      message: 'Supplier updated successfully!'
+    });
   };
 
   const handleSearch = (searchTerm) => {
@@ -83,6 +101,10 @@ const SupplierList = () => {
           onClose={() => setIsEditModalOpen(false)}
         />
       )}
+      <NotificationPopup 
+        notification={notification} 
+        onClose={() => setNotification(null)} 
+      />
     </div>
   );
 };

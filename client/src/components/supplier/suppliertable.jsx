@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
-import SupplierDetailsModal from "./SupplierDetailsModal";
+import SupplierDetailsModal from "./supplierdetailsmodal";
 
 const SupplierTable = ({ suppliers, onDelete, onEdit }) => {
   const [selectedSupplier, setSelectedSupplier] = useState(null);

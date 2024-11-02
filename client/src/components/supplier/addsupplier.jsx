@@ -26,6 +26,7 @@ const AddSupplier = ({ onSupplierAdded }) => {
       setFormData({ name: '', product: '', streetAddress: '', city: '', contactNo: '', email: '' });
     } catch (error) {
       console.error('Error adding supplier:', error);
+      onSupplierAdded(null, new Error('Failed to add supplier. Please try again.'));
     }
   };
 

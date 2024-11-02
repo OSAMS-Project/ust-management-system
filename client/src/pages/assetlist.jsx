@@ -9,12 +9,6 @@ import SortDropdown from "../components/assetlists/sortdropdown";
 import axios from "axios";
 import Modal from "../components/assetlists/modal";
 import NotificationPopup from "../components/NotificationsPopup";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faUsers,
-  faDollarSign,
-  faBoxOpen,
-} from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 
 const AssetList = () => {

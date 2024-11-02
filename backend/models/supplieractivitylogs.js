@@ -9,19 +9,18 @@ const createSupplierActivityLogsTable = async () => {
       field_name VARCHAR(50),
       old_value TEXT,
       new_value TEXT,
-      timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      user_id INTEGER
+      timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `;
   return executeTransaction([{ query, params: [] }]);
 };
 
-const logSupplierActivity = async (supplierId, action, fieldName, oldValue, newValue, userId) => {
+const logSupplierActivity = async (supplierId, action, fieldName, oldValue, newValue) => {
   const query = `
-    INSERT INTO SupplierActivityLogs (supplier_id, action, field_name, old_value, new_value, user_id)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO SupplierActivityLogs (supplier_id, action, field_name, old_value, new_value)
+    VALUES ($1, $2, $3, $4, $5)
   `;
-  const values = [supplierId, action, fieldName, oldValue, newValue, userId];
+  const values = [supplierId, action, fieldName, oldValue, newValue];
   return executeTransaction([{ query, params: values }]);
 };
 
