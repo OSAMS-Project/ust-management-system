@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import AssetRequestTable from '../components/assetrequest/AssetRequestTable';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBoxOpen } from "@fortawesome/free-solid-svg-icons";
 
 const AssetRequest = ({ user }) => {
   const [assetRequests, setAssetRequests] = useState([]);
@@ -58,49 +61,32 @@ const AssetRequest = ({ user }) => {
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Asset Request</h1>
-      <div className="flex items-center mb-4">
+    <div className="space-y-6">
+      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
+        <h1 className="text-5xl font-extrabold text-black">
+          Asset Request
+        </h1>
+        <FontAwesomeIcon
+          icon={faBoxOpen}
+          className="text-black text-5xl transform"
+        />
+      </div>
+
+      <div className="flex items-center mb-4 px-2">
         <img src={user?.picture || "https://via.placeholder.com/40"} alt="Profile" className="w-10 h-10 rounded-full object-cover mr-2" />
         <p className="text-lg">Logged in as: {user?.name || "User"}</p>
       </div>
+
       <button 
         onClick={() => setIsModalOpen(true)}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 ml-2"
       >
         Add Asset Request
       </button>
-      
-      {/* Table for displaying asset requests */}
-      <table className="w-full border-collapse">
-        <thead>
-          <tr>
-            <th className="border p-2">Asset Name</th>
-            <th className="border p-2">Quantity</th>
-            <th className="border p-2">Date Created</th>
-            <th className="border p-2">Created By</th>
-          </tr>
-        </thead>
-        <tbody>
-          {assetRequests.map((asset, index) => (
-            <tr key={index}>
-              <td className="border p-2">{asset.asset_name}</td>
-              <td className="border p-2">{asset.quantity}</td>
-              <td className="border p-2">{new Date(asset.created_at).toLocaleDateString()}</td>
-              <td className="border p-2">
-                <div className="flex items-center">
-                  <img 
-                    src={asset.user_picture || "https://via.placeholder.com/30"} 
-                    alt={asset.created_by} 
-                    className="w-8 h-8 rounded-full mr-2"
-                  />
-                  {asset.created_by}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+
+      <div id='recipients' className="p-4 mt-4 lg:mt-0 rounded shadow bg-white">
+        <AssetRequestTable assetRequests={assetRequests} />
+      </div>
 
       {/* Modal */}
       {isModalOpen && (
