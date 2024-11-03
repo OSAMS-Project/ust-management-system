@@ -4,7 +4,6 @@ import {
   faHome,
   faList,
   faUsers,
-  faChartLine,
   faCalendarAlt,
   faUserCog,
   faCog,

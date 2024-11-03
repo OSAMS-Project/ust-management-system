@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AssetDetailsModal from '../assetlists/assetdetailsmodal';
+import AssetDetailsModal from '../assetlists/AssetDetailsModal';
 
 const MaintenanceTable = ({ maintenanceRecords, assets = [], onCompleteRecord, onRemoveRecord }) => {
   const [selectedAsset, setSelectedAsset] = useState(null);

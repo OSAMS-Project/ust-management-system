@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AddAssetIssue from '../components/issue/AddAssetIssue';
 import IssueTable from '../components/issue/IssueTable';
-import NotificationPopup from '../components/NotificationsPopup';
+import NotificationPopup from '../components/utils/NotificationsPopup';
 import axios from 'axios';
 
 function AssetIssue({ user }) {

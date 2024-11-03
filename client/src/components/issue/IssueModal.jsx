@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState,} from 'react';
 
 const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user }) => {
   const [issueData, setIssueData] = useState({

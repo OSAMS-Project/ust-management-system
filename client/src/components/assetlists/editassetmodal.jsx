@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import InputField from './inputfield';
-import SelectField from './selectfield';
-import Button from './button';
+import InputField from './InputField';
+import SelectField from './SelectField';
+import Button from './Button';
 import axios from 'axios';
 
 const EditAssetModal = ({

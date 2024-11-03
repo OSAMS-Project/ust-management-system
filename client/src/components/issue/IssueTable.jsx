@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import moment from 'moment';
-import AssetDetailsModal from '../assetlists/assetdetailsmodal';
+import AssetDetailsModal from '../assetlists/AssetDetailsModal';
 
 const IssueTable = ({ issues, assets, loading }) => {
   const [selectedAsset, setSelectedAsset] = useState(null);

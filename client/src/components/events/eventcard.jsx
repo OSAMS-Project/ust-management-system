@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faPlus, faCheck } from '@fortawesome/free-solid-svg-icons';
-import AssetSelectionDialog from './assetselectiondialog';
+import AssetSelectionDialog from './AssetSelectionDialog';
 
 function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime, handleAddAsset, assets }) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);

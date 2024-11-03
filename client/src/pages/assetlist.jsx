@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import "./assetlist.css";
-import AssetSearchbar from "../components/assetlists/assetsearchbar";
-import AssetTable from "../components/assetlists/assettable";
-import AddAsset from "../components/assetlists/addasset";
-import AssetCategory from "../components/assetlists/addcategory";
-import AssetLocation from "../components/assetlists/addlocation";
-import SortDropdown from "../components/assetlists/sortdropdown";
+import "./AssetList.css";
+import AssetSearchbar from "../components/assetlists/AssetSearchBar";
+import AssetTable from "../components/assetlists/AssetTable";
+import AddAsset from "../components/assetlists/AddAsset";
+import AssetCategory from "../components/assetlists/AddCategory";
+import AssetLocation from "../components/assetlists/AddLocation";
+import SortDropdown from "../components/assetlists/SortDropdown";
 import axios from "axios";
-import Modal from "../components/assetlists/modal";
-import NotificationPopup from "../components/NotificationsPopup";
+import NotificationPopup from "../components/utils/NotificationsPopup";
 import moment from "moment";
 
 const AssetList = () => {
@@ -465,13 +464,6 @@ const AssetList = () => {
         </div>
       </div>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        categories={categories}
-        locations={locations}
-        onAddAsset={handleAddAsset}
-      />
 
       <AssetTable
         assets={filteredAndSortedAssets}

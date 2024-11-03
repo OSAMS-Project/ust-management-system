@@ -5,7 +5,7 @@ import SupplierTable from '../components/supplier/suppliertable';
 import AddSupplier from '../components/supplier/addsupplier';
 import EditSupplier from '../components/supplier/editsupplier';
 import SupplierSearch from '../components/supplier/suppliersearch';
-import NotificationPopup from '../components/NotificationsPopup';
+import NotificationPopup from '../components/utils/NotificationsPopup';
 
 const SupplierList = () => {
   const [suppliers, setSuppliers] = useState([]);

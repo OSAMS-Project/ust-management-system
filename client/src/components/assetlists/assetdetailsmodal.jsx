@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import moment from 'moment';
-import AssetActivityLogs from './assetactivitylogs';
+import AssetActivityLogs from './AssetActivityLogs';
 import BorrowLogs from './BorrowLogs';
 import MaintenanceLogs from '../maintenance/MaintenanceLogs';
 import QRCodeModal from './QRCodeModal';

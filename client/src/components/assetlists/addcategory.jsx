@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import Button from "./button";
+import Button from "./Button";
 import axios from "axios";
 
 const Modal = ({

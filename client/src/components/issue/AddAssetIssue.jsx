@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from '../assetlists/button';
+import Button from '../assetlists/Button';
 import IssueModal from './IssueModal';
 
 const AddAssetIssue = ({ onAddIssue, assets, isModalOpen, onCloseModal, onOpenModal, user }) => {

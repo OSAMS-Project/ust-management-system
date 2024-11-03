@@ -1,13 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { gapi } from "gapi-script";
-import AddEventButton from "../components/events/addeventbutton";
-import EventDialog from "../components/events/eventdialog";
-import ExploreModal from "../components/events/exploreevent";
-import EventCard from "../components/events/eventcard";
-import EditEventDialog from "../components/events/editeventdialog";
-import SearchEvent from "../components/events/searchevent";
+import AddEventButton from "../components/events/AddEventButton";
+import EventDialog from "../components/events/EventDialog";
+import ExploreModal from "../components/events/ExploreEvent";
+import EventCard from "../components/events/EventCard";
+import EditEventDialog from "../components/events/EditEventDialog";
+import SearchEvent from "../components/events/SearchEvent";
 import axios from "axios";
-import CompletedEvents from "../components/events/completeeventdialog";
+import CompletedEvents from "../components/events/CompleteEventDialog";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 

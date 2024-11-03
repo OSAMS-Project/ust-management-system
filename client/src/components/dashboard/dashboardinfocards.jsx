@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import moment from "moment";
-import AssetDetailsModal from "../assetlists/assetdetailsmodal";
-import EventDetailsModal from "../events/eventdetailsmodal";
+import AssetDetailsModal from "../assetlists/AssetDetailsModal";
+import EventDetailsModal from "../events/EventDetailsModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight, faBox, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";

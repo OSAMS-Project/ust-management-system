@@ -6,15 +6,15 @@ import {
   faColumns,
   faFileExport,
 } from "@fortawesome/free-solid-svg-icons";
-import AssetDetailsModal from "./assetdetailsmodal";
-import EditAssetModal from "./editassetmodal";
+import AssetDetailsModal from "./AssetDetailsModal";
+import EditAssetModal from "./EditAssetModal";
 import axios from "axios";
 import moment from "moment";
 import { CSVLink } from "react-csv";
-import ConfirmationModal from "./deleteconfirmationmodal";
-import QuantityForBorrowingModal from "./quantityforborrowing";
+import ConfirmationModal from "../utils/DeleteConfirmationModal";
+import QuantityForBorrowingModal from "./QuantityForBorrowing";
 import PaginationControls from "./PaginationControls";
-import NotificationPopup from "../NotificationsPopup";
+import NotificationPopup from "../utils/NotificationsPopup";
 
 const getInitialVisibleColumns = () => {
   const savedColumns = localStorage.getItem('visibleColumns');

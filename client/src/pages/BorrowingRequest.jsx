@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import moment from "moment";
+import NotificationPopup from '../components/utils/NotificationsPopup';
 
 const BorrowingRequest = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -61,9 +63,10 @@ const BorrowingRequest = () => {
           request.id === id ? { ...request, status: "Returned" } : request
         )
       );
+      setNotification({ type: 'success', message: 'Asset returned successfully!' });
     } catch (err) {
       console.error("Error returning asset:", err);
-      alert("Failed to return asset. Please try again.");
+      setNotification({ type: 'error', message: 'Failed to return asset. Please try again.' });
     }
   };
 
@@ -95,6 +98,10 @@ const BorrowingRequest = () => {
       console.error("Error sending SMS notification:", err);
       alert("Failed to send SMS notification.");
     }
+  };
+
+  const handleCloseNotification = () => {
+    setNotification(null);
   };
 
   if (loading) return <div className="text-center py-4">Loading...</div>;
@@ -245,6 +252,10 @@ const BorrowingRequest = () => {
       </h1>
       {renderTable("Pending Requests", pendingRequests, true)}
       {renderTable("Accepted Requests", acceptedRequests, true)}
+      <NotificationPopup 
+        notification={notification} 
+        onClose={handleCloseNotification}
+      />
     </div>
   );
 };
