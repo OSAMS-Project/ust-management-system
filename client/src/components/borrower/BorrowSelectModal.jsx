@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function BorroSelectModal({ isOpen, onClose, activeAssets, onSelectMaterials }) {
+function BorrowSelectModal({ isOpen, onClose, activeAssets, onSelectMaterials }) {
   const [selectedAssets, setSelectedAssets] = useState({});
 
   if (!isOpen) return null;
@@ -90,4 +90,4 @@ function BorroSelectModal({ isOpen, onClose, activeAssets, onSelectMaterials }) 
   );
 }
 
-export default BorroSelectModal;
+export default BorrowSelectModal;

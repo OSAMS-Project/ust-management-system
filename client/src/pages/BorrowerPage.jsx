@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from 'axios';
-import BorroSelectModal from '../components/borrower/borroselectmodal';
+import BorrowSelectModal from '../components/borrower/BorrowSelectModal';
 
 function BorrowerForm() {
   const [email, setEmail] = useState("");
@@ -300,7 +300,7 @@ function BorrowerForm() {
       </Link>
   
       {/* Modal */}
-      <BorroSelectModal
+      <BorrowSelectModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         activeAssets={activeAssets}

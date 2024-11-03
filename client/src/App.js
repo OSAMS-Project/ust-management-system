@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from "react-router-dom";
 import "./App.css";
-import Events from "./pages/eventslist";
+import Events from "./pages/EventsList";
 import AssetList from "./pages/AssetList";
 import UserManagement from "./pages/usermanagement";
-import SupplierList from "./pages/supplierlist";
+import SupplierList from "./pages/SupplierList";
 import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/LoginPage";
-import Sidebar from "./components/navbar/Navbar";
+import Sidebar from "./pages/Sidebar";
 import AdminForm from "./pages/AdminLogin";
 import EmailRequestForm from "./pages/RequestPage";
 import BorrowerForm from "./pages/BorrowerPage";

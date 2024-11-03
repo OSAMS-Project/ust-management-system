@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import SupplierInfoCard from '../components/supplier/supplierinfocard';
-import SupplierTable from '../components/supplier/suppliertable';
-import AddSupplier from '../components/supplier/addsupplier';
-import EditSupplier from '../components/supplier/editsupplier';
-import SupplierSearch from '../components/supplier/suppliersearch';
+import SupplierInfoCard from '../components/supplier/SupplierInfoCard';
+import SupplierTable from '../components/supplier/SupplierTable';
+import AddSupplier from '../components/supplier/AddSupplier';
+import EditSupplier from '../components/supplier/EditSupplier';
+import SupplierSearch from '../components/supplier/SupplierSearch';
 import NotificationPopup from '../components/utils/NotificationsPopup';
 
 const SupplierList = () => {
