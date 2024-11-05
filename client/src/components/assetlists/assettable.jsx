@@ -56,6 +56,7 @@ const ColumnVisibilityPopup = ({
             />
             <label htmlFor={columnName} className="cursor-pointer">
               {columnName === 'id' ? '#' : 
+              columnName === 'productCode' ? 'Product Code' :
                columnName === 'dateCreated' ? 'Date Created' :
                columnName === 'asset' ? 'Asset' :
                columnName === 'costPerUnit' ? 'Cost per Unit' :
