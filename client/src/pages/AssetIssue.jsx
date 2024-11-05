@@ -34,7 +34,8 @@ function AssetIssue({ user }) {
   const fetchAssets = async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/Assets/read`);
-      setAssets(response.data);
+      const nonConsumableAssets = response.data.filter(asset => asset.type === 'Non-Consumable');
+      setAssets(nonConsumableAssets);
     } catch (error) {
       console.error('Error fetching assets:', error);
       setNotification({
