@@ -13,6 +13,15 @@ const MaintenanceTable = ({ maintenanceRecords, assets = [], onCompleteRecord, o
     }
   };
 
+  const handleComplete = async (record) => {
+    try {
+      await onCompleteRecord(record.id);
+      // Asset will automatically return to asset list through the backend updates
+    } catch (error) {
+      console.error('Error completing maintenance record:', error);
+    }
+  };
+
   if (!maintenanceRecords) return null;
 
   return (
@@ -49,10 +58,7 @@ const MaintenanceTable = ({ maintenanceRecords, assets = [], onCompleteRecord, o
                   <td className="px-4 py-2">{record.performed_by}</td>
                   <td className="px-4 py-2">
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent row click when clicking buttons
-                        onCompleteRecord(record.id);
-                      }}
+                      onClick={() => handleComplete(record)}
                       className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-2 rounded mr-2"
                     >
                       Complete

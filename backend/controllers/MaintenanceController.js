@@ -1,4 +1,5 @@
 const Maintenance = require('../models/Maintenance');
+const Asset = require('../models/assets');
 
 const maintenanceController = {
   getAllMaintenanceRecords: async (req, res) => {
@@ -20,7 +21,17 @@ const maintenanceController = {
       if (req.body.cost && isNaN(parseFloat(req.body.cost))) {
         return res.status(400).json({ error: 'Cost must be a number' });
       }
+
+      // First deactivate borrowing if asset is active
+      const asset = await Asset.readAsset(req.body.asset_id);
+      if (asset.is_active) {
+        await Asset.updateAssetActiveStatus(req.body.asset_id, false);
+      }
+      
+      // Then create maintenance record and update maintenance status
       const newRecord = await Maintenance.createMaintenanceRecord(req.body);
+      await Asset.updateMaintenanceStatus(req.body.asset_id, true);
+      
       res.status(201).json(newRecord);
     } catch (error) {
       console.error('Error creating maintenance record:', error);
@@ -30,14 +41,14 @@ const maintenanceController = {
 
   completeMaintenanceRecord: async (req, res) => {
     try {
-      const { id } = req.params;
-      const fixedDate = new Date();
-      const updatedRecord = await Maintenance.completeMaintenanceRecord(id, fixedDate);
-      if (updatedRecord) {
-        res.json(updatedRecord);
-      } else {
-        res.status(404).json({ error: 'Maintenance record not found' });
+      const record = await Maintenance.completeMaintenanceRecord(req.params.id, new Date());
+      
+      // Restore asset from maintenance
+      if (record) {
+        await Asset.updateMaintenanceStatus(record.asset_id, false);
       }
+      
+      res.json(record);
     } catch (error) {
       console.error('Error completing maintenance record:', error);
       res.status(500).json({ error: 'Internal server error' });

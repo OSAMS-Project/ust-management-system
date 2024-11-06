@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTrash,
@@ -105,12 +105,31 @@ const AssetTable = ({
     useState(null);
   const [borrowingRequests, setBorrowingRequests] = useState([]);
   const [notification, setNotification] = useState(null); // Add this state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortCriteria, setSortCriteria] = useState({ field: 'assetName', direction: 'asc' });
 
-  const totalPages = Math.ceil(assets.length / itemsPerPage);
+  const filteredAndSortedAssets = useMemo(() => {
+    return assets
+      .filter((asset) => {
+        if (asset.under_maintenance) {
+          return false;
+        }
+        return asset.assetName.toLowerCase().includes(searchQuery.toLowerCase());
+      })
+      .sort((a, b) => {
+        const direction = sortCriteria.direction === 'asc' ? 1 : -1;
+        if (sortCriteria.field === 'assetName') {
+          return direction * a.assetName.localeCompare(b.assetName);
+        }
+        return 0;
+      });
+  }, [assets, searchQuery, sortCriteria]);
+
+  const totalPages = Math.ceil(filteredAndSortedAssets.length / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentAssets = assets.slice(startIndex, endIndex);
+  const currentAssets = filteredAndSortedAssets.slice(startIndex, endIndex);
 
   const fetchAssets = async () => {
     try {
@@ -156,13 +175,43 @@ const AssetTable = ({
 
   const handleBorrowClick = async (assetID) => {
     const asset = assets.find((a) => a.asset_id === assetID);
+    
+    if (asset.under_maintenance) {
+      setNotification({
+        type: "error",
+        message: `${asset.assetName} is currently under maintenance and cannot be borrowed.`
+      });
+      return;
+    }
+
     if (asset.is_active) {
-      // If the asset is already active, deactivate it
       try {
+        // First check if there are any pending borrowing requests for this asset
+        const pendingRequests = borrowingRequests.filter(request => 
+          request.status === "Pending" && 
+          request.selected_assets.some(selectedAsset => 
+            selectedAsset.asset_id === assetID
+          )
+        );
+
+        // Delete all pending requests for this asset
+        for (const request of pendingRequests) {
+          try {
+            await axios.delete(
+              `${process.env.REACT_APP_API_URL}/api/borrowing-requests/${request.id}`
+            );
+          } catch (deleteError) {
+            console.error(`Error deleting request ${request.id}:`, deleteError);
+            // Continue with other deletions even if one fails
+          }
+        }
+
+        // Then deactivate the asset
         const response = await axios.put(
           `${process.env.REACT_APP_API_URL}/api/assets/${assetID}/active`,
           { isActive: false }
         );
+
         if (response.data) {
           const updatedAssets = assets.map((a) =>
             a.asset_id === assetID
@@ -171,7 +220,7 @@ const AssetTable = ({
                   is_active: false,
                   quantity_for_borrowing: 0,
                   quantity: a.quantity + a.quantity_for_borrowing,
-                } // Return the quantity for borrowing
+                }
               : a
           );
           setAssets(updatedAssets);
@@ -179,16 +228,24 @@ const AssetTable = ({
             (a) => a.is_active
           ).length;
           onBorrowingChange(newActiveCount);
+
+          // Update borrowingRequests state to remove deleted requests
+          setBorrowingRequests(prevRequests => 
+            prevRequests.filter(request => 
+              !pendingRequests.some(pendingReq => pendingReq.id === request.id)
+            )
+          );
+
           setNotification({
             type: "success",
-            message: `${asset.assetName} has been deactivated for borrowing.`,
+            message: `${asset.assetName} has been deactivated for borrowing${pendingRequests.length > 0 ? ' and pending requests have been removed' : ''}.`,
           });
         }
       } catch (error) {
         console.error("Error updating asset active status:", error);
         setNotification({
           type: "error",
-          message: `Failed to deactivate ${asset.assetName} for borrowing.`,
+          message: `Failed to deactivate ${asset.assetName} for borrowing. ${error.response?.data?.message || error.message}`,
         });
       }
     } else {
@@ -370,12 +427,6 @@ const AssetTable = ({
     setSelectedAssetForBorrowing(null);
   };
 
-  // Remove these lines as they're already defined earlier in your code
-  // const totalResults = assets.length;
-  // const startIndex = (currentPage - 1) * itemsPerPage;
-  // const endIndex = Math.min(startIndex + itemsPerPage, totalResults);
-
-  // Add these functions to calculate startIndex and endIndex
   const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
   const calculateEndIndex = () =>
     Math.min(calculateStartIndex() + itemsPerPage - 1, assets.length);

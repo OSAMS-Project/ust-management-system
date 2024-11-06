@@ -1,7 +1,6 @@
 const BorrowingRequest = require("../models/borrowingrequest");
 const Asset = require("../models/assets");
 const path = require("path");
-const fs = require("fs").promises;
 const fsSync = require("fs");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
@@ -253,5 +252,32 @@ exports.returnBorrowingRequest = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error returning assets", error: error.message });
+  }
+};
+
+exports.deleteBorrowingRequest = async (req, res) => {
+  try {
+    const requestId = req.params.id;
+    const deletedRequest = await BorrowingRequest.deleteBorrowingRequest(requestId);
+    
+    if (deletedRequest) {
+      res.status(200).json({
+        success: true,
+        message: "Borrowing request deleted successfully",
+        data: deletedRequest
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: "Borrowing request not found"
+      });
+    }
+  } catch (error) {
+    console.error('Error deleting borrowing request:', error);
+    res.status(500).json({
+      success: false,
+      message: "Error deleting borrowing request",
+      error: error.message
+    });
   }
 };

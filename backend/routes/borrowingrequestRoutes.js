@@ -12,6 +12,9 @@ router.put('/:id/return', borrowingRequestController.returnBorrowingRequest);
 router.post('/send-email', borrowingRequestController.sendManualEmail);
 router.post('/notify-sms', borrowingRequestController.sendSMSReminder);
 
+// Add this route if it doesn't exist
+router.delete('/:id', borrowingRequestController.deleteBorrowingRequest);
+
 // Error handling middleware
 router.use((err, req, res, next) => {
   console.error('Error in borrowing request routes:', err);
