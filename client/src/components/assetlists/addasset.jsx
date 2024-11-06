@@ -92,7 +92,6 @@ const AddAsset = ({
     if (!cost) newShakeFields.push("cost");
     if (!quantity) newShakeFields.push("quantity");
     if (!type) newShakeFields.push("type");
-    if (!productCode) newShakeFields.push("productCode");
     setShakeFields(newShakeFields);
     return newShakeFields.length === 0;
   };
@@ -124,7 +123,7 @@ const AddAsset = ({
     }
 
     const newAsset = {
-      productCode,
+      productCode: productCode || "N/A",
       assetName,
       assetDetails,
       quantity: parseInt(quantity),
@@ -168,16 +167,16 @@ const AddAsset = ({
             <div className="px-8 py-6 max-h-[calc(100vh-150px)] overflow-y-auto">
               <form className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <InputField
-                  label="Product Code"
-                  value={productCode}
-                  onChange={(e) => setProductCode(e.target.value)}
-                  shake={shakeFields.includes("productCode")}
-                />
-                <InputField
                   label="Asset Name"
                   value={assetName}
                   onChange={(e) => setAssetName(e.target.value)}
                   shake={shakeFields.includes("assetName")}
+                />
+                  <InputField
+                  label="Product Code"
+                  value={productCode}
+                  onChange={(e) => setProductCode(e.target.value)}
+                  shake={shakeFields.includes("productCode")}
                 />
                 <InputField
                   label="Asset Details"

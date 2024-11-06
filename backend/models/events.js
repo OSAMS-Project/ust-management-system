@@ -407,7 +407,6 @@ module.exports = {
   getTotalEvents,
   getRecentEvents,
   addAssetsToEvent,
-  createEventAssetsTable,
   getEventAssets,
   getEventById,
   completeEvent,

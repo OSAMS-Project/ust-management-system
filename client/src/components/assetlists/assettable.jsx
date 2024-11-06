@@ -44,7 +44,7 @@ const ColumnVisibilityPopup = ({
   return (
     <div className="absolute right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-20 p-4">
       <h3 className="text-lg font-semibold mb-2">Toggle Columns</h3>
-      <div className="space-y-2">
+      <div className="space-y-2 max-h-[300px] overflow-y-auto">
         {Object.entries(visibleColumns).map(([columnName, isVisible]) => (
           <div key={columnName} className="flex items-center">
             <input
@@ -450,9 +450,9 @@ const AssetTable = ({
           <thead>
             <tr className="bg-black text-[#FEC00F] text-lg">
               {visibleColumns.id && <th className="text-center py-2 px-4">#</th>}
-              {visibleColumns.productCode && <th className="text-center py-2 px-4">Product Code</th>}
               {visibleColumns.dateCreated && <th className="text-center py-2 px-4">Date Created</th>}
               {visibleColumns.asset && <th className="text-center py-2 px-4">Asset</th>}
+              {visibleColumns.productCode && <th className="text-center py-2 px-4">Product Code</th>}
               {visibleColumns.costPerUnit && <th className="text-center py-2 px-4">Cost per Unit</th>}
               {visibleColumns.quantity && <th className="text-center py-2 px-4">Available Quantity</th>}
               {visibleColumns.totalCost && <th className="text-center py-2 px-4">Total Cost</th>}
@@ -474,11 +474,6 @@ const AssetTable = ({
                 {visibleColumns.id && (
                   <td className="text-center align-middle py-3" data-label="ID">
                     {asset.asset_id}
-                  </td>
-                )}
-                {visibleColumns.productCode && (
-                  <td className="text-center align-middle py-3" data-label="Product Code">
-                    {asset.productCode}
                   </td>
                 )}
                 {visibleColumns.dateCreated && (
@@ -504,6 +499,11 @@ const AssetTable = ({
                       )}
                       <span>{asset.assetName}</span>
                     </div>
+                  </td>
+                )}
+                 {visibleColumns.productCode && (
+                  <td className="text-center align-middle py-3" data-label="Product Code">
+                    {asset.productCode}
                   </td>
                 )}
                 {visibleColumns.costPerUnit && (

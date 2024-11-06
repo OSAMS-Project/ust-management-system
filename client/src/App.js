@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from "r
 import "./App.css";
 import Events from "./pages/EventsList";
 import AssetList from "./pages/AssetList";
-import UserManagement from "./pages/usermanagement";
+import UserManagement from "./pages/UserManagement";
 import SupplierList from "./pages/SupplierList";
 import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/LoginPage";
@@ -15,7 +15,7 @@ import ProfilePage from "./pages/Profile";
 import BorrowingRequest from "./pages/BorrowingRequest";
 import RoleManagement from "./pages/RoleManagement";
 import QRPage from "./pages/QRPage";
-import AssetRequest from "./pages/assetrequest";
+import AssetRequest from "./pages/AssetRequest";
 import AssetMaintenance from "./pages/AssetMaintenance";
 import AssetIssue from "./pages/AssetIssue";
 
