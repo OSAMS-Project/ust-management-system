@@ -106,7 +106,7 @@ const AssetTable = ({
   const [borrowingRequests, setBorrowingRequests] = useState([]);
   const [notification, setNotification] = useState(null); // Add this state
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortCriteria, setSortCriteria] = useState({ field: 'assetName', direction: 'asc' });
+  const [sortCriteria, setSortCriteria] = useState('');
 
   const filteredAndSortedAssets = useMemo(() => {
     return assets
