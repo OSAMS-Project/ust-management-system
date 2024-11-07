@@ -69,7 +69,6 @@ const DashboardInfoCards = ({ formatTime }) => {
         setError("Failed to fetch dashboard data");
       }
     };
-
     fetchData();
   }, []);
 
