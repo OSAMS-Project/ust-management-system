@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
-import CompletedEventsDialog from "../components/events/CompleteEventDialog";
+import CompletedEventsDialog from "../components/events/CompletedEventDialog";
 
 function CompletedEvents() {
   const [completedEvents, setCompletedEvents] = useState([]);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from "react-router-dom";
 import "./App.css";
-import Events from "./pages/EventsList";
+import Events from "./pages/EventList";
 import AssetList from "./pages/AssetList";
 import UserManagement from "./pages/UserManagement";
 import SupplierList from "./pages/SupplierList";
