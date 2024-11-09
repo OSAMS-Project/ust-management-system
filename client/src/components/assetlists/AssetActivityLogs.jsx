@@ -56,6 +56,8 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
           <p>Loading activity logs...</p>
         ) : error ? (
           <p className="text-red-500">{error}</p>
+        ) : logs.length === 0 ? (
+          <p>No activity logs found for this asset.</p>
         ) : (
           <div className="space-y-4">
             {Object.entries(groupedLogs).map(([timestamp, logGroup]) => (
