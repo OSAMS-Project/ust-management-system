@@ -8,6 +8,7 @@ import AssetLocation from "../components/assetlists/AddLocation";
 import axios from "axios";
 import NotificationPopup from "../components/utils/NotificationsPopup";
 import moment from "moment";
+import AssetTypeFilter from "../components/assetlists/AssetTypeFilter";
 
 const AssetList = () => {
   const [assets, setAssets] = useState([]);
@@ -29,6 +30,7 @@ const AssetList = () => {
     percent: 0,
   });
   const [notification, setNotification] = useState(null);
+  const [assetTypeFilter, setAssetTypeFilter] = useState('all');
 
   const checkServerConnection = async () => {
     try {
@@ -340,9 +342,15 @@ const AssetList = () => {
 
   const filteredAndSortedAssets = useMemo(() => {
     return assets
-      .filter((asset) =>
-        asset.assetName.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      .filter((asset) => {
+        const matchesSearch = asset.assetName.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        if (assetTypeFilter === 'all') return matchesSearch;
+        if (assetTypeFilter === 'consumable') return matchesSearch && asset.is_consumable;
+        if (assetTypeFilter === 'non-consumable') return matchesSearch && !asset.is_consumable;
+        
+        return matchesSearch;
+      })
       .sort((a, b) => {
         switch (sortCriteria) {
           case "dateAsc":
@@ -365,7 +373,7 @@ const AssetList = () => {
             return 0;
         }
       });
-  }, [assets, searchQuery, sortCriteria]);
+  }, [assets, searchQuery, sortCriteria, assetTypeFilter]);
 
   const showNotification = (message, type = "success") => {
     setNotification({ message, type });
@@ -456,11 +464,15 @@ const AssetList = () => {
           <div className="w-full md:w-auto flex-shrink-0">
             <AssetSearchbar handleSearch={handleSearch} />
           </div>
-          <div className="w-full md:w-auto flex-shrink-0">
-          </div>
         </div>
       </div>
 
+      <div className="mt-4">
+        <AssetTypeFilter
+          selectedFilter={assetTypeFilter}
+          onFilterChange={setAssetTypeFilter}
+        />
+      </div>
 
       <AssetTable
         assets={filteredAndSortedAssets}
