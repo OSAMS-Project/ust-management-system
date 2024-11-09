@@ -20,7 +20,7 @@ const DeclinedRequestTable = ({ declinedRequests, onArchive }) => {
             <th className="py-2 px-4 border-b text-center">Quantity</th>
             <th className="py-2 px-4 border-b text-center">Date Created</th>
             <th className="py-2 px-4 border-b text-center">Date Declined</th>
-            <th className="py-2 px-4 border-b text-center">Created By</th>
+            <th className="py-2 px-4 border-b text-center">Requested By</th>
             <th className="py-2 px-4 border-b text-center">Status</th>
             <th className="py-2 px-4 border-b text-center">Actions</th>
           </tr>
