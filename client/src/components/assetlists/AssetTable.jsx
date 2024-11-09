@@ -113,6 +113,14 @@ const AssetTable = ({
   const handleBorrowClick = async (assetID) => {
     const asset = assets.find((a) => a.asset_id === assetID);
     
+    if (asset.type === 'Consumable') {
+      setNotification({
+        type: "error",
+        message: "Consumable assets cannot be borrowed."
+      });
+      return;
+    }
+
     if (asset.under_maintenance) {
       setNotification({
         type: "error",

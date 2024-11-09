@@ -150,7 +150,7 @@ exports.updateBorrowingRequestStatus = async (req, res) => {
 };
 
 exports.sendManualEmail = async (req, res) => {
-  const { email, name, status } = req.body;
+  const { email, name, status, rejectionReason } = req.body;
 
   if (!email || !name || !status) {
     return res
@@ -162,7 +162,7 @@ exports.sendManualEmail = async (req, res) => {
     if (status === "Approved") {
       await emailService.sendApprovalEmail(email, name);
     } else if (status === "Rejected") {
-      await emailService.sendRejectionEmail(email, name);
+      await emailService.sendRejectionEmail(email, name, rejectionReason);
     } else {
       return res.status(400).json({ message: "Invalid status provided." });
     }

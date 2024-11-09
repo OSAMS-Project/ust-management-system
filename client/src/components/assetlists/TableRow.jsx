@@ -67,17 +67,22 @@ const TableRow = ({
         <td className="text-center align-middle py-3" data-label="Borrow">
           <button
             className={`w-20 h-8 rounded-full font-semibold text-xs transition-all duration-300 ${
-              asset.is_active
+              asset.type === 'Consumable' 
+                ? "bg-gray-400 cursor-not-allowed"
+                : asset.is_active
                 ? "bg-emerald-500 text-white hover:bg-emerald-600 active:bg-emerald-700"
                 : "bg-red-500 text-white hover:bg-red-600 active:bg-red-700"
             }`}
             onClick={(event) => {
               event.stopPropagation();
-              handleBorrowClick(asset.asset_id);
+              if (asset.type !== 'Consumable') {
+                handleBorrowClick(asset.asset_id);
+              }
             }}
+            disabled={asset.type === 'Consumable'}
             aria-label={`Toggle borrow status for ${asset.assetName}`}
           >
-            {asset.is_active ? "Active" : "Inactive"}
+            {asset.type === 'Consumable' ? "N/A" : asset.is_active ? "Active" : "Inactive"}
           </button>
         </td>
       )}

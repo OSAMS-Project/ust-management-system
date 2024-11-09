@@ -2,12 +2,15 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import moment from "moment";
 import NotificationPopup from '../components/utils/NotificationsPopup';
+import RejectionReasonModal from '../components/borrower/RejectionReasonModal';
 
 const BorrowingRequest = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -70,16 +73,22 @@ const BorrowingRequest = () => {
     }
   };
 
-  const handleSendEmail = async (email, name, status) => {
+  const handleSendEmail = async (email, name, status, rejectionReason = '') => {
     try {
       await axios.post(
         `${process.env.REACT_APP_API_URL}/api/borrowing-requests/send-email`,
-        { email, name, status }
+        { email, name, status, rejectionReason }
       );
-      alert(`Email sent successfully for status: ${status}`);
+      setNotification({ 
+        type: 'success', 
+        message: `Email sent successfully for status: ${status}` 
+      });
     } catch (err) {
       console.error("Error sending email:", err);
-      alert("Failed to send email. Please try again.");
+      setNotification({ 
+        type: 'error', 
+        message: "Failed to send email. Please try again." 
+      });
     }
   };
 
@@ -102,6 +111,35 @@ const BorrowingRequest = () => {
 
   const handleCloseNotification = () => {
     setNotification(null);
+  };
+
+  const handleReject = (request) => {
+    setSelectedRequest(request);
+    setIsRejectionModalOpen(true);
+  };
+
+  const handleRejectSubmit = async (reason) => {
+    try {
+      await handleStatusUpdate(selectedRequest.id, "Rejected");
+      await handleSendEmail(
+        selectedRequest.email,
+        selectedRequest.name,
+        "Rejected",
+        reason
+      );
+      setIsRejectionModalOpen(false);
+      setSelectedRequest(null);
+      setNotification({ 
+        type: 'success', 
+        message: 'Request rejected successfully' 
+      });
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      setNotification({ 
+        type: 'error', 
+        message: 'Failed to reject request' 
+      });
+    }
   };
 
   if (loading) return <div className="text-center py-4">Loading...</div>;
@@ -199,14 +237,7 @@ const BorrowingRequest = () => {
                         Approve
                       </button>
                       <button
-                        onClick={() => {
-                          handleStatusUpdate(request.id, "Rejected");
-                          handleSendEmail(
-                            request.email,
-                            request.name,
-                            "Rejected"
-                          );
-                        }}
+                        onClick={() => handleReject(request)}
                         className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300"
                       >
                         Reject
@@ -255,6 +286,14 @@ const BorrowingRequest = () => {
       <NotificationPopup 
         notification={notification} 
         onClose={handleCloseNotification}
+      />
+      <RejectionReasonModal
+        isOpen={isRejectionModalOpen}
+        onClose={() => {
+          setIsRejectionModalOpen(false);
+          setSelectedRequest(null);
+        }}
+        onSubmit={handleRejectSubmit}
       />
     </div>
   );
