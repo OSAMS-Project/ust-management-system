@@ -1,23 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faTrash,
-  faEdit,
-  faColumns,
-  faFileExport,
-  faSort,
-  faSortUp,
-  faSortDown,
-} from "@fortawesome/free-solid-svg-icons";
-import AssetDetailsModal from "./AssetDetailsModal";
-import EditAssetModal from "./EditAssetModal";
+import TableControls from './TableControls';
+import TableHeader from './TableHeader';
+import TableRow from './TableRow';
+import ColumnVisibilityPopup from './ColumnVisibilityPopup';
+import PaginationControls from './PaginationControls';
+import AssetModals from './AssetModals';
 import axios from "axios";
 import moment from "moment";
-import { CSVLink } from "react-csv";
-import ConfirmationModal from "../utils/DeleteConfirmationModal";
-import QuantityForBorrowingModal from "./QuantityForBorrowing";
-import PaginationControls from "./PaginationControls";
-import NotificationPopup from "../utils/NotificationsPopup";
 
 const getInitialVisibleColumns = () => {
   const savedColumns = localStorage.getItem('visibleColumns');
@@ -39,50 +28,6 @@ const getInitialVisibleColumns = () => {
   };
 };
 
-const ColumnVisibilityPopup = ({
-  visibleColumns,
-  toggleColumnVisibility,
-  onClose,
-}) => {
-  return (
-    <div className="absolute right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-20 p-4">
-      <h3 className="text-lg font-semibold mb-2">Toggle Columns</h3>
-      <div className="space-y-2 max-h-[300px] overflow-y-auto">
-        {Object.entries(visibleColumns).map(([columnName, isVisible]) => (
-          <div key={columnName} className="flex items-center">
-            <input
-              type="checkbox"
-              id={columnName}
-              checked={isVisible}
-              onChange={() => toggleColumnVisibility(columnName)}
-              className="mr-2"
-            />
-            <label htmlFor={columnName} className="cursor-pointer">
-              {columnName === 'id' ? '#' : 
-              columnName === 'productCode' ? 'Product Code' :
-               columnName === 'dateCreated' ? 'Date Created' :
-               columnName === 'asset' ? 'Asset' :
-               columnName === 'costPerUnit' ? 'Cost per Unit' :
-               columnName === 'quantity' ? 'Available Quantity' :
-               columnName === 'totalCost' ? 'Total Cost' :
-               columnName === 'borrow' ? 'Borrow' :
-               columnName === 'quantityForBorrowing' ? 'Borrowing Quantity' :
-               columnName === 'lastUpdated' ? 'Last Updated' :
-               columnName.replace(/([A-Z])/g, " $1").trim()}
-            </label>
-          </div>
-        ))}
-      </div>
-      <button
-        onClick={onClose}
-        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-300"
-      >
-        Close
-      </button>
-    </div>
-  );
-};
-
 const AssetTable = ({
   assets,
   setAssets,
@@ -93,8 +38,8 @@ const AssetTable = ({
   onBorrowingChange,
   updateAssetQuantity,
 }) => {
+  // State declarations
   const [selectedImage, setSelectedImage] = useState(null);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [editingAsset, setEditingAsset] = useState(null);
@@ -104,187 +49,15 @@ const AssetTable = ({
   const [visibleColumns, setVisibleColumns] = useState(getInitialVisibleColumns());
   const [isColumnPopupOpen, setIsColumnPopupOpen] = useState(false);
   const [isQuantityModalOpen, setIsQuantityModalOpen] = useState(false);
-  const [selectedAssetForBorrowing, setSelectedAssetForBorrowing] =
-    useState(null);
+  const [selectedAssetForBorrowing, setSelectedAssetForBorrowing] = useState(null);
   const [borrowingRequests, setBorrowingRequests] = useState([]);
-  const [notification, setNotification] = useState(null); // Add this state
+  const [notification, setNotification] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortCriteria, setSortCriteria] = useState('');
+  const [sortCriteria, setSortCriteria] = useState({ field: '', direction: 'asc' });
 
-  const filteredAndSortedAssets = useMemo(() => {
-    return assets
-      .filter((asset) => {
-        if (asset.under_maintenance) {
-          return false;
-        }
-        return asset.assetName.toLowerCase().includes(searchQuery.toLowerCase());
-      })
-      .sort((a, b) => {
-        if (!sortCriteria.field) return 0;
-        
-        const direction = sortCriteria.direction === 'asc' ? 1 : -1;
-        
-        switch (sortCriteria.field) {
-          case 'asset_id':
-            return direction * (a.asset_id - b.asset_id);
-          case 'productCode':
-            return direction * a.productCode.localeCompare(b.productCode);
-          case 'createdDate':
-            return direction * (new Date(a.createdDate) - new Date(b.createdDate));
-          case 'assetName':
-            return direction * a.assetName.localeCompare(b.assetName);
-          case 'cost':
-            return direction * (parseFloat(a.cost) - parseFloat(b.cost));
-          case 'quantity':
-            return direction * (a.quantity - b.quantity);
-          case 'totalCost':
-            return direction * ((a.cost * a.quantity) - (b.cost * b.quantity));
-          case 'lastUpdated':
-            if (!a.lastUpdated) return direction;
-            if (!b.lastUpdated) return -direction;
-            return direction * (new Date(a.lastUpdated) - new Date(b.lastUpdated));
-          default:
-            return 0;
-        }
-      });
-  }, [assets, searchQuery, sortCriteria]);
-
-  const totalPages = Math.ceil(filteredAndSortedAssets.length / itemsPerPage);
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentAssets = filteredAndSortedAssets.slice(startIndex, endIndex);
-
-  const fetchAssets = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/Assets/read`
-      );
-      console.log("Fetched assets:", response.data);
-      const updatedAssets = response.data.map((asset) => ({
-        ...asset,
-        lastUpdated: asset.lastUpdated ? moment(asset.lastUpdated) : null,
-      }));
-      setAssets(updatedAssets);
-      const activeCount = updatedAssets.filter(
-        (asset) => asset.is_active
-      ).length;
-      onBorrowingChange(activeCount);
-    } catch (error) {
-      if (error.response && error.response.status === 404) {
-        console.log("No assets found or error in fetching assets");
-        setAssets([]);
-        onBorrowingChange(0);
-      } else {
-        console.error("Error fetching assets:", error);
-      }
-    }
-  };
-
-  const fetchBorrowingRequests = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/borrowing-requests`
-      );
-      setBorrowingRequests(response.data);
-    } catch (error) {
-      console.error("Error fetching borrowing requests:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchAssets();
-    fetchBorrowingRequests();
-  }, []);
-
-  const handleBorrowClick = async (assetID) => {
-    const asset = assets.find((a) => a.asset_id === assetID);
-    
-    if (asset.under_maintenance) {
-      setNotification({
-        type: "error",
-        message: `${asset.assetName} is currently under maintenance and cannot be borrowed.`
-      });
-      return;
-    }
-
-    if (asset.is_active) {
-      try {
-        // First check if there are any pending borrowing requests for this asset
-        const pendingRequests = borrowingRequests.filter(request => 
-          request.status === "Pending" && 
-          request.selected_assets.some(selectedAsset => 
-            selectedAsset.asset_id === assetID
-          )
-        );
-
-        // Delete all pending requests for this asset
-        for (const request of pendingRequests) {
-          try {
-            await axios.delete(
-              `${process.env.REACT_APP_API_URL}/api/borrowing-requests/${request.id}`
-            );
-          } catch (deleteError) {
-            console.error(`Error deleting request ${request.id}:`, deleteError);
-            // Continue with other deletions even if one fails
-          }
-        }
-
-        // Then deactivate the asset
-        const response = await axios.put(
-          `${process.env.REACT_APP_API_URL}/api/assets/${assetID}/active`,
-          { isActive: false }
-        );
-
-        if (response.data) {
-          const updatedAssets = assets.map((a) =>
-            a.asset_id === assetID
-              ? {
-                  ...a,
-                  is_active: false,
-                  quantity_for_borrowing: 0,
-                  quantity: a.quantity + a.quantity_for_borrowing,
-                }
-              : a
-          );
-          setAssets(updatedAssets);
-          const newActiveCount = updatedAssets.filter(
-            (a) => a.is_active
-          ).length;
-          onBorrowingChange(newActiveCount);
-
-          // Update borrowingRequests state to remove deleted requests
-          setBorrowingRequests(prevRequests => 
-            prevRequests.filter(request => 
-              !pendingRequests.some(pendingReq => pendingReq.id === request.id)
-            )
-          );
-
-          setNotification({
-            type: "success",
-            message: `${asset.assetName} has been deactivated for borrowing${pendingRequests.length > 0 ? ' and pending requests have been removed' : ''}.`,
-          });
-        }
-      } catch (error) {
-        console.error("Error updating asset active status:", error);
-        setNotification({
-          type: "error",
-          message: `Failed to deactivate ${asset.assetName} for borrowing. ${error.response?.data?.message || error.message}`,
-        });
-      }
-    } else {
-      // If the asset is inactive, open the quantity modal
-      setSelectedAssetForBorrowing(asset);
-      setIsQuantityModalOpen(true);
-    }
-  };
-
+  // Handlers
   const handleCloseImageModal = () => {
     setSelectedImage(null);
-  };
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
   };
 
   const handleAssetDetailsClick = (asset) => {
@@ -293,6 +66,11 @@ const AssetTable = ({
 
   const handleEditClick = (asset) => {
     setEditingAsset(asset);
+  };
+
+  const handleDeleteClick = (asset) => {
+    setAssetToDelete(asset);
+    setIsDeleteModalOpen(true);
   };
 
   const handleEditAsset = async (editedAsset) => {
@@ -317,44 +95,205 @@ const AssetTable = ({
     }
   };
 
-  const handleDeleteClick = (asset) => {
-    setAssetToDelete(asset);
-    setIsDeleteModalOpen(true);
-  };
-
   const handleDeleteConfirm = async () => {
     if (assetToDelete) {
       try {
         await onDeleteAsset(assetToDelete.asset_id);
         setAssets((prevAssets) =>
-          prevAssets.filter(
-            (asset) => asset.asset_id !== assetToDelete.asset_id
-          )
+          prevAssets.filter((asset) => asset.asset_id !== assetToDelete.asset_id)
         );
-        const updatedAssets = assets.filter(
-          (asset) => asset.asset_id !== assetToDelete.asset_id
-        );
-        const activeCount = updatedAssets.filter(
-          (asset) => asset.is_active
-        ).length;
-        onBorrowingChange(activeCount);
         setIsDeleteModalOpen(false);
         setAssetToDelete(null);
       } catch (error) {
         console.error("Error deleting asset:", error);
-        if (error.response && error.response.status === 404) {
-          // If the asset is not found, remove it from the local state anyway
-          setAssets((prevAssets) =>
-            prevAssets.filter(
-              (asset) => asset.asset_id !== assetToDelete.asset_id
-            )
-          );
-          setIsDeleteModalOpen(false);
-          setAssetToDelete(null);
-        }
       }
     }
   };
+
+  const handleBorrowClick = async (assetID) => {
+    const asset = assets.find((a) => a.asset_id === assetID);
+    
+    if (asset.under_maintenance) {
+      setNotification({
+        type: "error",
+        message: `${asset.assetName} is currently under maintenance and cannot be borrowed.`
+      });
+      return;
+    }
+
+    if (asset.is_active) {
+      try {
+        const pendingRequests = borrowingRequests.filter(request => 
+          request.status === "Pending" && 
+          request.selected_assets.some(selectedAsset => 
+            selectedAsset.asset_id === assetID
+          )
+        );
+
+        for (const request of pendingRequests) {
+          try {
+            await axios.delete(
+              `${process.env.REACT_APP_API_URL}/api/borrowing-requests/${request.id}`
+            );
+          } catch (deleteError) {
+            console.error(`Error deleting request ${request.id}:`, deleteError);
+          }
+        }
+
+        const response = await axios.put(
+          `${process.env.REACT_APP_API_URL}/api/assets/${assetID}/active`,
+          { isActive: false }
+        );
+
+        if (response.data) {
+          const updatedAssets = assets.map((a) =>
+            a.asset_id === assetID
+              ? {
+                  ...a,
+                  is_active: false,
+                  quantity_for_borrowing: 0,
+                  quantity: a.quantity + a.quantity_for_borrowing,
+                }
+              : a
+          );
+          setAssets(updatedAssets);
+          const newActiveCount = updatedAssets.filter((a) => a.is_active).length;
+          onBorrowingChange(newActiveCount);
+
+          setBorrowingRequests(prevRequests => 
+            prevRequests.filter(request => 
+              !pendingRequests.some(pendingReq => pendingReq.id === request.id)
+            )
+          );
+
+          setNotification({
+            type: "success",
+            message: `${asset.assetName} has been deactivated for borrowing${pendingRequests.length > 0 ? ' and pending requests have been removed' : ''}.`,
+          });
+        }
+      } catch (error) {
+        console.error("Error updating asset active status:", error);
+        setNotification({
+          type: "error",
+          message: `Failed to deactivate ${asset.assetName} for borrowing. ${error.response?.data?.message || error.message}`,
+        });
+      }
+    } else {
+      setSelectedAssetForBorrowing(asset);
+      setIsQuantityModalOpen(true);
+    }
+  };
+
+  const handleQuantityConfirm = async (quantity) => {
+    try {
+      const maxQuantity = Math.min(
+        quantity,
+        selectedAssetForBorrowing.quantity
+      );
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/assets/${selectedAssetForBorrowing.asset_id}/active`,
+        {
+          isActive: true,
+          quantityForBorrowing: maxQuantity,
+        }
+      );
+
+      if (response.data) {
+        const updatedAssets = assets.map((a) =>
+          a.asset_id === selectedAssetForBorrowing.asset_id
+            ? {
+                ...a,
+                is_active: true,
+                quantity_for_borrowing: maxQuantity,
+                quantity: a.quantity - maxQuantity,
+              }
+            : a
+        );
+        setAssets(updatedAssets);
+        const newActiveCount = updatedAssets.filter((a) => a.is_active).length;
+        onBorrowingChange(newActiveCount);
+        setNotification({
+          type: "success",
+          message: `${selectedAssetForBorrowing.assetName} has been activated for borrowing with quantity ${maxQuantity}.`,
+        });
+      }
+    } catch (error) {
+      console.error("Error updating asset active status and quantity:", error);
+      setNotification({
+        type: "error",
+        message: `Failed to activate ${selectedAssetForBorrowing.assetName} for borrowing.`,
+      });
+    }
+    setIsQuantityModalOpen(false);
+    setSelectedAssetForBorrowing(null);
+  };
+
+  const handleSort = (field) => {
+    setSortCriteria(prev => ({
+      field,
+      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
+
+  const toggleColumnVisibility = (columnName) => {
+    const updatedColumns = {
+      ...visibleColumns,
+      [columnName]: !visibleColumns[columnName],
+    };
+    setVisibleColumns(updatedColumns);
+    localStorage.setItem('visibleColumns', JSON.stringify(updatedColumns));
+  };
+
+  // Calculations
+  const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
+  const calculateEndIndex = () => Math.min(calculateStartIndex() + itemsPerPage - 1, assets.length);
+  const totalPages = Math.ceil(assets.length / itemsPerPage);
+
+  // Filtered and sorted assets
+  const currentAssets = useMemo(() => {
+    return assets
+      .filter((asset) => {
+        if (asset.under_maintenance) return false;
+        return asset.assetName.toLowerCase().includes(searchQuery.toLowerCase());
+      })
+      .sort((a, b) => {
+        if (!sortCriteria.field) return 0;
+        const direction = sortCriteria.direction === 'asc' ? 1 : -1;
+        
+        switch (sortCriteria.field) {
+          case 'asset_id':
+            return direction * (a.asset_id - b.asset_id);
+          case 'productCode':
+            return direction * a.productCode.localeCompare(b.productCode);
+          case 'createdDate':
+            return direction * (new Date(a.createdDate) - new Date(b.createdDate));
+          case 'assetName':
+            return direction * a.assetName.localeCompare(b.assetName);
+          case 'cost':
+            return direction * (parseFloat(a.cost) - parseFloat(b.cost));
+          case 'quantity':
+            return direction * (a.quantity - b.quantity);
+          case 'totalCost':
+            return direction * ((a.cost * a.quantity) - (b.cost * b.quantity));
+          case 'lastUpdated':
+            if (!a.lastUpdated) return direction;
+            if (!b.lastUpdated) return -direction;
+            return direction * (new Date(a.lastUpdated) - new Date(b.lastUpdated));
+          default:
+            return 0;
+        }
+      })
+      .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  }, [assets, searchQuery, sortCriteria, currentPage, itemsPerPage]);
 
   const prepareCSVData = () => {
     const headers = [
@@ -394,67 +333,6 @@ const AssetTable = ({
     return [headers, ...csvData];
   };
 
-  const toggleColumnVisibility = (columnName) => {
-    const updatedColumns = {
-      ...visibleColumns,
-      [columnName]: !visibleColumns[columnName],
-    };
-    setVisibleColumns(updatedColumns);
-    localStorage.setItem('visibleColumns', JSON.stringify(updatedColumns));
-  };
-
-  const handleQuantityConfirm = async (quantity) => {
-    console.log(
-      "Before update - selectedAssetForBorrowing:",
-      selectedAssetForBorrowing
-    );
-    try {
-      const maxQuantity = Math.min(
-        quantity,
-        selectedAssetForBorrowing.quantity
-      );
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/assets/${selectedAssetForBorrowing.asset_id}/active`,
-        {
-          isActive: true,
-          quantityForBorrowing: maxQuantity,
-        }
-      );
-      console.log("Update active status response:", response.data);
-      if (response.data) {
-        const updatedAssets = assets.map((a) =>
-          a.asset_id === selectedAssetForBorrowing.asset_id
-            ? {
-                ...a,
-                is_active: true,
-                quantity_for_borrowing: maxQuantity,
-                quantity: a.quantity - maxQuantity,
-              }
-            : a
-        );
-        setAssets(updatedAssets);
-        const newActiveCount = updatedAssets.filter((a) => a.is_active).length;
-        onBorrowingChange(newActiveCount);
-        setNotification({
-          type: "success",
-          message: `${selectedAssetForBorrowing.assetName} has been activated for borrowing with quantity ${maxQuantity}.`,
-        });
-      }
-    } catch (error) {
-      console.error("Error updating asset active status and quantity:", error);
-      setNotification({
-        type: "error",
-        message: `Failed to activate ${selectedAssetForBorrowing.assetName} for borrowing.`,
-      });
-    }
-    setIsQuantityModalOpen(false);
-    setSelectedAssetForBorrowing(null);
-  };
-
-  const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
-  const calculateEndIndex = () =>
-    Math.min(calculateStartIndex() + itemsPerPage - 1, assets.length);
-
   const renderPageNumbers = () => {
     const pageNumbers = [];
     const maxVisiblePages = 5;
@@ -489,37 +367,14 @@ const AssetTable = ({
     return pageNumbers;
   };
 
-  const handleItemsPerPageChange = (e) => {
-    setItemsPerPage(Number(e.target.value));
-    setCurrentPage(1); // Reset to first page when changing items per page
-  };
-
-  const handleSort = (field) => {
-    setSortCriteria(prev => ({
-      field,
-      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
-    }));
-  };
-
+  // Component render
   return (
     <div className="relative p-3 w-full text-[20px]">
-      <div className="mb-4 flex justify-end space-x-2">
-        <button
-          onClick={() => setIsColumnPopupOpen(!isColumnPopupOpen)}
-          className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300 shadow-md flex items-center justify-center"
-          title="Toggle column visibility"
-        >
-          <FontAwesomeIcon icon={faColumns} className="text-lg" />
-        </button>
-        <CSVLink
-          data={prepareCSVData()}
-          filename={"asset_data.csv"}
-          className="p-2 rounded-full bg-green-500 text-white hover:bg-green-600 transition-all duration-300 shadow-md flex items-center justify-center"
-          title="Export to CSV"
-        >
-          <FontAwesomeIcon icon={faFileExport} className="text-lg" />
-        </CSVLink>
-      </div>
+      <TableControls 
+        onToggleColumns={() => setIsColumnPopupOpen(!isColumnPopupOpen)}
+        prepareCSVData={prepareCSVData}
+      />
+
       {isColumnPopupOpen && (
         <ColumnVisibilityPopup
           visibleColumns={visibleColumns}
@@ -527,294 +382,33 @@ const AssetTable = ({
           onClose={() => setIsColumnPopupOpen(false)}
         />
       )}
+
       <div className="overflow-x-auto">
         <table className="asset-table w-full min-w-[750px]">
           <thead>
-            <tr className="bg-black text-[#FEC00F] text-lg">
-              {visibleColumns.id && (
-                <th 
-                  className="text-center py-2 px-4 cursor-pointer"
-                  onClick={() => handleSort('asset_id')}
-                >
-                  <div className="flex items-center justify-center">
-                    #
-                    <FontAwesomeIcon 
-                      icon={sortCriteria.field === 'asset_id' 
-                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
-                        : faSort} 
-                      className="ml-2"
-                    />
-                  </div>
-                </th>
-              )}
-              {visibleColumns.productCode && (
-                <th 
-                  className="text-center py-2 px-4 cursor-pointer"
-                  onClick={() => handleSort('productCode')}
-                >
-                  <div className="flex items-center justify-center">
-                    Product Code
-                    <FontAwesomeIcon 
-                      icon={sortCriteria.field === 'productCode' 
-                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
-                        : faSort} 
-                      className="ml-2"
-                    />
-                  </div>
-                </th>
-              )}
-              {visibleColumns.dateCreated && (
-                <th 
-                  className="text-center py-2 px-4 cursor-pointer"
-                  onClick={() => handleSort('createdDate')}
-                >
-                  <div className="flex items-center justify-center">
-                    Date Created
-                    <FontAwesomeIcon 
-                      icon={sortCriteria.field === 'createdDate' 
-                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
-                        : faSort} 
-                      className="ml-2"
-                    />
-                  </div>
-                </th>
-              )}
-              {visibleColumns.asset && (
-                <th 
-                  className="text-center py-2 px-4 cursor-pointer"
-                  onClick={() => handleSort('assetName')}
-                >
-                  <div className="flex items-center justify-center">
-                    Asset
-                    <FontAwesomeIcon 
-                      icon={sortCriteria.field === 'assetName' 
-                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
-                        : faSort} 
-                      className="ml-2"
-                    />
-                  </div>
-                </th>
-              )}
-              {visibleColumns.costPerUnit && (
-                <th 
-                  className="text-center py-2 px-4 cursor-pointer"
-                  onClick={() => handleSort('cost')}
-                >
-                  <div className="flex items-center justify-center">
-                    Cost per Unit
-                    <FontAwesomeIcon 
-                      icon={sortCriteria.field === 'cost' 
-                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
-                        : faSort} 
-                      className="ml-2"
-                    />
-                  </div>
-                </th>
-              )}
-              {visibleColumns.quantity && (
-                <th 
-                  className="text-center py-2 px-4 cursor-pointer"
-                  onClick={() => handleSort('quantity')}
-                >
-                  <div className="flex items-center justify-center">
-                    Available Quantity
-                    <FontAwesomeIcon 
-                      icon={sortCriteria.field === 'quantity' 
-                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
-                        : faSort} 
-                      className="ml-2"
-                    />
-                  </div>
-                </th>
-              )}
-              {visibleColumns.totalCost && (
-                <th 
-                  className="text-center py-2 px-4 cursor-pointer"
-                  onClick={() => handleSort('totalCost')}
-                >
-                  <div className="flex items-center justify-center">
-                    Total Cost
-                    <FontAwesomeIcon 
-                      icon={sortCriteria.field === 'totalCost' 
-                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
-                        : faSort} 
-                      className="ml-2"
-                    />
-                  </div>
-                </th>
-              )}
-              {visibleColumns.borrow && (
-                <th className="text-center py-2 px-4">Borrow</th>
-              )}
-              {visibleColumns.quantityForBorrowing && (
-                <th className="text-center py-2 px-4">Borrowing Quantity</th>
-              )}
-              {visibleColumns.lastUpdated && (
-                <th 
-                  className="text-center py-2 px-4 cursor-pointer"
-                  onClick={() => handleSort('lastUpdated')}
-                >
-                  <div className="flex items-center justify-center">
-                    Last Updated
-                    <FontAwesomeIcon 
-                      icon={sortCriteria.field === 'lastUpdated' 
-                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
-                        : faSort} 
-                      className="ml-2"
-                    />
-                  </div>
-                </th>
-              )}
-              {visibleColumns.Actions && (
-                <th className="text-center px-2 py-3">Actions</th>
-              )}
-            </tr>
+            <TableHeader 
+              visibleColumns={visibleColumns}
+              sortCriteria={sortCriteria}
+              handleSort={handleSort}
+            />
           </thead>
           <tbody>
             {currentAssets.map((asset, index) => (
-              <tr
+              <TableRow
                 key={asset.asset_id}
-                className={`${
-                  index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
-                } hover:bg-gray-100 transition-all duration-150 text-lg cursor-pointer`}
-                onClick={() => handleAssetDetailsClick(asset)}
-              >
-                {visibleColumns.id && (
-                  <td className="text-center align-middle py-3" data-label="ID">
-                    {asset.asset_id}
-                  </td>
-                )}
-                {visibleColumns.dateCreated && (
-                  <td
-                    className="text-center align-middle py-3"
-                    data-label="Date Created"
-                  >
-                    {moment(asset.createdDate).format("MM/DD/YYYY")}
-                  </td>
-                )}
-                {visibleColumns.asset && (
-                  <td
-                    className="text-center align-middle py-3"
-                    data-label="Asset"
-                  >
-                    <div className="inline-flex items-center justify-center">
-                      {asset.image && (
-                        <img
-                          src={asset.image}
-                          alt={asset.assetName}
-                          className="asset-image mr-2 h-8 w-8 rounded-full border"
-                        />
-                      )}
-                      <span>{asset.assetName}</span>
-                    </div>
-                  </td>
-                )}
-                 {visibleColumns.productCode && (
-                  <td className="text-center align-middle py-3" data-label="Product Code">
-                    {asset.productCode}
-                  </td>
-                )}
-                {visibleColumns.costPerUnit && (
-                  <td
-                    className="text-center align-middle py-3"
-                    data-label="Cost per Unit"
-                  >
-                    ₱{parseFloat(asset.cost).toFixed(2)}
-                  </td>
-                )}
-                {visibleColumns.quantity && (
-                  <td
-                    className="text-center align-middle py-3"
-                    data-label="Available Quantity"
-                  >
-                    {asset.quantity}
-                  </td>
-                )}
-                {visibleColumns.totalCost && (
-                  <td
-                    className="text-center align-middle py-3"
-                    data-label="Total Cost"
-                  >
-                    ₱{(parseFloat(asset.cost) * asset.quantity).toFixed(2)}
-                  </td>
-                )}
-                {visibleColumns.borrow && (
-                  <td
-                    className="text-center align-middle py-3"
-                    data-label="Borrow"
-                  >
-                    <button
-                      className={`w-20 h-8 rounded-full font-semibold text-xs transition-all duration-300 ${
-                        asset.is_active
-                          ? "bg-emerald-500 text-white hover:bg-emerald-600 active:bg-emerald-700"
-                          : "bg-red-500 text-white hover:bg-red-600 active:bg-red-700"
-                      }`}
-                      onClick={(event) => {
-                        event.stopPropagation(); // Prevent row click when "Borrow" button is clicked
-                        handleBorrowClick(asset.asset_id);
-                      }}
-                      aria-label={`Toggle borrow status for ${asset.assetName}`}
-                    >
-                      {asset.is_active ? "Active" : "Inactive"}
-                    </button>
-                  </td>
-                )}
-                {visibleColumns.quantityForBorrowing && (
-                  <td
-                    className="text-center align-middle py-3"
-                    data-label="Borrowing Quantity"
-                  >
-                    {asset.is_active
-                      ? asset.quantity_for_borrowing !== undefined
-                        ? asset.quantity_for_borrowing
-                        : "Not set"
-                      : "N/A"}
-                  </td>
-                )}
-                {visibleColumns.lastUpdated && (
-                  <td
-                    className="text-center align-middle py-3"
-                    data-label="Last Updated"
-                  >
-                    {asset.lastUpdated
-                      ? moment(asset.lastUpdated).format("MM/DD/YYYY")
-                      : "N/A"}
-                  </td>
-                )}
-                {visibleColumns.Actions && (
-                  <td
-                    className="text-center align-middle px-2 py-3"
-                    data-label="Actions"
-                  >
-                    <div className="inline-flex items-center justify-center space-x-2">
-                      <button
-                        className="asset-action-btn text-blue-600 hover:text-blue-800"
-                        onClick={(event) => {
-                          event.stopPropagation(); // Prevent row click when "Edit" button is clicked
-                          handleEditClick(asset);
-                        }}
-                      >
-                        <FontAwesomeIcon icon={faEdit} />
-                      </button>
-                      <button
-                        className="asset-action-btn text-red-600 hover:text-red-800"
-                        onClick={(event) => {
-                          event.stopPropagation(); // Prevent row click when "Delete" button is clicked
-                          handleDeleteClick(asset);
-                        }}
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
-                    </div>
-                  </td>
-                )}
-              </tr>
+                asset={asset}
+                index={index}
+                visibleColumns={visibleColumns}
+                handleAssetDetailsClick={handleAssetDetailsClick}
+                handleBorrowClick={handleBorrowClick}
+                handleEditClick={handleEditClick}
+                handleDeleteClick={handleDeleteClick}
+              />
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Updated Pagination Controls with Rows per Page */}
       <PaginationControls
         itemsPerPage={itemsPerPage}
         handleItemsPerPageChange={handleItemsPerPageChange}
@@ -827,60 +421,26 @@ const AssetTable = ({
         renderPageNumbers={renderPageNumbers}
       />
 
-      {/* Modal for enlarged image */}
-      {selectedImage && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <img
-              src={selectedImage}
-              alt="Enlarged Asset"
-              className="h-96 w-96 object-cover"
-            />
-            <button className="modal-close-btn" onClick={handleCloseImageModal}>
-              &times;
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Asset Details Modal */}
-      {selectedAsset && (
-        <AssetDetailsModal
-          selectedAsset={selectedAsset}
-          onClose={() => setSelectedAsset(null)}
-        />
-      )}
-
-      {/* Edit Asset Modal */}
-      <EditAssetModal
-        isOpen={editingAsset !== null}
-        onClose={() => setEditingAsset(null)}
-        asset={editingAsset}
+      <AssetModals
+        selectedImage={selectedImage}
+        selectedAsset={selectedAsset}
+        editingAsset={editingAsset}
+        isDeleteModalOpen={isDeleteModalOpen}
+        assetToDelete={assetToDelete}
+        isQuantityModalOpen={isQuantityModalOpen}
+        selectedAssetForBorrowing={selectedAssetForBorrowing}
+        notification={notification}
+        handleCloseImageModal={handleCloseImageModal}
+        setSelectedAsset={setSelectedAsset}
+        handleEditAsset={handleEditAsset}
+        setEditingAsset={setEditingAsset}
+        handleDeleteConfirm={handleDeleteConfirm}
+        setIsDeleteModalOpen={setIsDeleteModalOpen}
+        handleQuantityConfirm={handleQuantityConfirm}
+        setIsQuantityModalOpen={setIsQuantityModalOpen}
+        setNotification={setNotification}
         categories={categories}
         locations={locations}
-        onEditAsset={handleEditAsset}
-      />
-
-      {/* Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteConfirm}
-        message={`Are you sure you want to delete the asset "${assetToDelete?.assetName}"? This action cannot be undone.`}
-      />
-
-      <QuantityForBorrowingModal
-        isOpen={isQuantityModalOpen}
-        onClose={() => setIsQuantityModalOpen(false)}
-        onConfirm={handleQuantityConfirm}
-        maxQuantity={
-          selectedAssetForBorrowing ? selectedAssetForBorrowing.quantity : 1
-        }
-      />
-
-      <NotificationPopup
-        notification={notification}
-        onClose={() => setNotification(null)}
       />
     </div>
   );
