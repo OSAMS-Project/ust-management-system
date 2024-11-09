@@ -324,3 +324,19 @@ AssetRequest.createAssetRequestTable();
 const assetIssueRoutes = require('./routes/assetissueRoutes');
 app.use('/api/asset-issues', assetIssueRoutes);
 
+app.post('/api/asset-request', async (req, res) => {
+  try {
+    const { assetName, quantity, comments, created_by, user_picture } = req.body;
+    
+    const result = await pool.query(
+      'INSERT INTO asset_requests (asset_name, quantity, comments, created_by, user_picture) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [assetName, quantity, comments, created_by, user_picture]
+    );
+    
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error creating asset request:', error);
+    res.status(500).json({ error: 'Failed to create asset request' });
+  }
+});
+

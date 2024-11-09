@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import moment from 'moment';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
+import ViewRequestModal from './ViewRequestModal';
 
 const DeclinedRequestTable = ({ declinedRequests, onArchive }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const itemsPerPage = 5;
 
   const totalPages = Math.ceil(declinedRequests.length / itemsPerPage);
@@ -18,7 +23,7 @@ const DeclinedRequestTable = ({ declinedRequests, onArchive }) => {
           <tr>
             <th className="py-2 px-4 border-b text-center">Asset Name</th>
             <th className="py-2 px-4 border-b text-center">Quantity</th>
-            <th className="py-2 px-4 border-b text-center">Date Created</th>
+            <th className="py-2 px-4 border-b text-center">Date Requested</th>
             <th className="py-2 px-4 border-b text-center">Date Declined</th>
             <th className="py-2 px-4 border-b text-center">Requested By</th>
             <th className="py-2 px-4 border-b text-center">Status</th>
@@ -58,6 +63,15 @@ const DeclinedRequestTable = ({ declinedRequests, onArchive }) => {
               </td>
               <td className="py-2 px-4 border-b text-center">
                 <button
+                  onClick={() => {
+                    setSelectedRequest(asset);
+                    setIsViewModalOpen(true);
+                  }}
+                  className="bg-blue-500 text-white px-2 py-1 rounded mr-2 text-xs hover:bg-blue-600 transition duration-300"
+                >
+                  <FontAwesomeIcon icon={faEye} />
+                </button>
+                <button
                   onClick={() => onArchive(asset.id)}
                   className="bg-gray-500 text-white px-3 py-1 rounded text-xs hover:bg-gray-600 transition duration-300"
                 >
@@ -84,6 +98,11 @@ const DeclinedRequestTable = ({ declinedRequests, onArchive }) => {
           </button>
         ))}
       </div>
+      <ViewRequestModal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        request={selectedRequest}
+      />
     </div>
   );
 };

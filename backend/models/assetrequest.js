@@ -49,14 +49,14 @@ const AssetRequest = {
 
   addAssetRequest: async (assetData) => {
     console.log('Adding asset request:', assetData);
-    const { assetName, quantity, created_by, user_picture } = assetData;
+    const { assetName, quantity, comments, created_by, user_picture } = assetData;
     console.log('Created by:', created_by);
     const query = `
-      INSERT INTO asset_request (asset_name, quantity, created_by, user_picture)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO asset_request (asset_name, quantity, comments, created_by, user_picture)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
     `;
-    const values = [assetName, quantity, created_by, user_picture];
+    const values = [assetName, quantity, comments, created_by, user_picture];
     const { rows } = await pool.query(query, values);
     return rows[0];
   },

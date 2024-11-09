@@ -5,6 +5,7 @@ import ApprovedRequestTable from '../components/assetrequest/ApprovedRequestTabl
 import DeclinedRequestTable from '../components/assetrequest/DeclinedRequestTable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBoxOpen } from "@fortawesome/free-solid-svg-icons";
+import AssetRequestModal from '../components/assetrequest/AssetRequestModal';
 
 const AssetRequest = ({ user }) => {
   const [assetRequests, setAssetRequests] = useState([]);
@@ -13,7 +14,8 @@ const AssetRequest = ({ user }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newAsset, setNewAsset] = useState({
     assetName: '',
-    quantity: ''
+    quantity: '',
+    comments: ''
   });
 
   console.log('User in AssetRequests:', user);
@@ -66,7 +68,7 @@ const AssetRequest = ({ user }) => {
       console.log('Response:', response.data);
       setIsModalOpen(false);
       fetchAllRequests();
-      setNewAsset({ assetName: '', quantity: '' });
+      setNewAsset({ assetName: '', quantity: '', comments: '' });
     } catch (error) {
       console.error('Error adding asset request:', error.response?.data || error.message);
     }
@@ -139,47 +141,13 @@ const AssetRequest = ({ user }) => {
         />
       </div>
 
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4">Add Asset Request</h2>
-            <form onSubmit={handleSubmit}>
-              <input
-                type="text"
-                name="assetName"
-                value={newAsset.assetName}
-                onChange={handleInputChange}
-                placeholder="Asset Name"
-                className="w-full p-2 mb-2 border rounded"
-              />
-              <input
-                type="number"
-                name="quantity"
-                value={newAsset.quantity}
-                onChange={handleInputChange}
-                placeholder="Quantity"
-                className="w-full p-2 mb-2 border rounded"
-              />
-              <div className="flex justify-end">
-                <button 
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded mr-2"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  Add Asset
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <AssetRequestModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        newAsset={newAsset}
+        onInputChange={handleInputChange}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 };

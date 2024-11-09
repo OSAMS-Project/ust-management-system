@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import moment from 'moment';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
+import ViewRequestModal from './ViewRequestModal';
 
 const ArchivedRequestTable = ({ archivedRequests, onRestore, onDelete }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const itemsPerPage = 5;
 
   const totalPages = Math.ceil(archivedRequests.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -11,14 +16,14 @@ const ArchivedRequestTable = ({ archivedRequests, onRestore, onDelete }) => {
   const currentRequests = archivedRequests.slice(startIndex, endIndex);
 
   return (
-    <div className="mt-8 mb-8">
+    <div className="mt-8">
       <h2 className="text-2xl font-bold mb-4">Archived Requests</h2>
       <table className="min-w-full bg-white border-collapse">
         <thead className="bg-black text-[#FEC00F]">
           <tr>
             <th className="py-2 px-4 border-b text-center">Asset Name</th>
             <th className="py-2 px-4 border-b text-center">Quantity</th>
-            <th className="py-2 px-4 border-b text-center">Date Created</th>
+            <th className="py-2 px-4 border-b text-center">Date Requested</th>
             <th className="py-2 px-4 border-b text-center">Date Archived</th>
             <th className="py-2 px-4 border-b text-center">Requested By</th>
             <th className="py-2 px-4 border-b text-center">Original Status</th>
@@ -62,14 +67,23 @@ const ArchivedRequestTable = ({ archivedRequests, onRestore, onDelete }) => {
               </td>
               <td className="py-2 px-4 border-b text-center">
                 <button
+                  onClick={() => {
+                    setSelectedRequest(asset);
+                    setIsViewModalOpen(true);
+                  }}
+                  className="bg-blue-500 text-white px-2 py-1 rounded mr-2 text-xs hover:bg-blue-600 transition duration-300"
+                >
+                  <FontAwesomeIcon icon={faEye} />
+                </button>
+                <button
                   onClick={() => onRestore(asset.id)}
-                  className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition duration-300 mr-2"
+                  className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs hover:bg-green-600 transition duration-300"
                 >
                   Restore
                 </button>
                 <button
                   onClick={() => onDelete(asset.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300 ml-2"
+                  className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300"
                 >
                   Delete
                 </button>
@@ -94,6 +108,11 @@ const ArchivedRequestTable = ({ archivedRequests, onRestore, onDelete }) => {
           </button>
         ))}
       </div>
+      <ViewRequestModal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        request={selectedRequest}
+      />
     </div>
   );
 };
