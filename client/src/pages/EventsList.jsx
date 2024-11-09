@@ -7,7 +7,7 @@ import EventCard from "../components/events/EventCard";
 import EditEventDialog from "../components/events/EditEventDialog";
 import SearchEvent from "../components/events/SearchEvent";
 import axios from "axios";
-import CompletedEvents from "../components/events/CompletedEventDialog";
+import CompletedEvents from "../components/events/CompleteEventDialog";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
