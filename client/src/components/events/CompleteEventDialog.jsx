@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const CompletedEvents = ({ completedEvents, onEventDeleted }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const eventsPerPage = 4;
+  const eventsPerPage = 15;
 
   const handleDeleteEvent = async (eventId) => {
     try {
