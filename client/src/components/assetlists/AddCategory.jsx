@@ -127,3 +127,4 @@ const AssetCategory = ({ onSaveCategory, onDeleteCategory, categories }) => {
 };
 
 export default AssetCategory;
+
