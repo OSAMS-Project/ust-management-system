@@ -1,32 +1,37 @@
 import React from 'react';
 import moment from 'moment';
 
-const AssetRequestTable = ({ assetRequests, onApprove, onDecline }) => {
+const ArchivedRequestTable = ({ archivedRequests, onRestore, onDelete }) => {
   return (
-    <div className="mt-2">
-      <h2 className="text-2xl font-bold mb-4">Pending Requests</h2>
+    <div className="mt-8 mb-8">
+      <h2 className="text-2xl font-bold mb-4">Archived Requests</h2>
       <table className="min-w-full bg-white border-collapse">
         <thead className="bg-black text-[#FEC00F]">
           <tr>
             <th className="py-2 px-4 border-b text-center">Asset Name</th>
             <th className="py-2 px-4 border-b text-center">Quantity</th>
             <th className="py-2 px-4 border-b text-center">Date Created</th>
+            <th className="py-2 px-4 border-b text-center">Date Archived</th>
             <th className="py-2 px-4 border-b text-center">Created By</th>
+            <th className="py-2 px-4 border-b text-center">Original Status</th>
             <th className="py-2 px-4 border-b text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {assetRequests.map((asset, index) => (
+          {archivedRequests.map((asset, index) => (
             <tr
               key={index}
               className={`${
                 index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
-              } cursor-pointer hover:bg-gray-50`}
+              } hover:bg-gray-50`}
             >
               <td className="py-2 px-4 border-b text-center">{asset.asset_name}</td>
               <td className="py-2 px-4 border-b text-center">{asset.quantity}</td>
               <td className="py-2 px-4 border-b text-center">
                 {moment(asset.created_at).format("MM/DD/YYYY")}
+              </td>
+              <td className="py-2 px-4 border-b text-center">
+                {moment(asset.archived_at).format("MM/DD/YYYY")}
               </td>
               <td className="py-2 px-4 border-b text-center">
                 <div className="flex items-center justify-center">
@@ -39,17 +44,26 @@ const AssetRequestTable = ({ assetRequests, onApprove, onDecline }) => {
                 </div>
               </td>
               <td className="py-2 px-4 border-b text-center">
+                <span className={`px-2 py-1 rounded ${
+                  asset.original_status === 'approved' 
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  {asset.original_status.charAt(0).toUpperCase() + asset.original_status.slice(1)}
+                </span>
+              </td>
+              <td className="py-2 px-4 border-b text-center">
                 <button
-                  onClick={() => onApprove(asset.id)}
-                  className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs hover:bg-green-600 transition duration-300"
+                  onClick={() => onRestore(asset.id)}
+                  className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition duration-300 mr-2"
                 >
-                  Approve
+                  Restore
                 </button>
                 <button
-                  onClick={() => onDecline(asset.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300"
+                  onClick={() => onDelete(asset.id)}
+                  className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300 ml-2"
                 >
-                  Decline
+                  Delete
                 </button>
               </td>
             </tr>
@@ -60,4 +74,4 @@ const AssetRequestTable = ({ assetRequests, onApprove, onDecline }) => {
   );
 };
 
-export default AssetRequestTable;
+export default ArchivedRequestTable;
