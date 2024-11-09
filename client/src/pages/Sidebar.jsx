@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faHome,
@@ -139,6 +139,42 @@ const MENU_LIST = [
 const Sidebar = ({ user, onLogout }) => {
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTimeoutModalOpen, setIsTimeoutModalOpen] = useState(false);
+
+  useEffect(() => {
+    let timeoutId;
+    let warningTimeoutId;
+
+    const resetTimeout = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (warningTimeoutId) clearTimeout(warningTimeoutId);
+      
+      // Show warning 30 seconds before timeout (9.5 minutes)
+      warningTimeoutId = setTimeout(() => {
+        setIsTimeoutModalOpen(true);
+      }, 570000); // 9.5 minutes
+
+      // Actual timeout (10 minutes)
+      timeoutId = setTimeout(() => {
+        handleConfirmLogout();
+      }, 600000); // 10 minutes
+    };
+
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    events.forEach(event => {
+      document.addEventListener(event, resetTimeout);
+    });
+
+    resetTimeout();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (warningTimeoutId) clearTimeout(warningTimeoutId);
+      events.forEach(event => {
+        document.removeEventListener(event, resetTimeout);
+      });
+    };
+  }, []);
 
   const handleLogoutClick = () => {
     setIsModalOpen(true);
@@ -203,6 +239,33 @@ const Sidebar = ({ user, onLogout }) => {
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmLogout}
       />
+
+      {isTimeoutModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+            <h2 className="text-xl font-bold mb-4 text-red-600">Session Timeout Warning</h2>
+            <p className="mb-6 text-gray-700">
+              Your session will expire in a few seconds due to inactivity. Please click continue to stay logged in.
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => {
+                  setIsTimeoutModalOpen(false);
+                }}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Continue Session
+              </button>
+              <button
+                onClick={handleConfirmLogout}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
