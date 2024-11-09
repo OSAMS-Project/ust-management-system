@@ -1,7 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 
 const AssetRequestTable = ({ assetRequests, onApprove, onDecline }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  
+  const totalPages = Math.ceil(assetRequests.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentRequests = assetRequests.slice(startIndex, endIndex);
+
   return (
     <div className="mt-2">
       <h2 className="text-2xl font-bold mb-4">Pending Requests</h2>
@@ -16,7 +24,7 @@ const AssetRequestTable = ({ assetRequests, onApprove, onDecline }) => {
           </tr>
         </thead>
         <tbody>
-          {assetRequests.map((asset, index) => (
+          {currentRequests.map((asset, index) => (
             <tr
               key={index}
               className={`${
@@ -56,6 +64,21 @@ const AssetRequestTable = ({ assetRequests, onApprove, onDecline }) => {
           ))}
         </tbody>
       </table>
+      <div className="mt-4 mb-8 flex justify-center">
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentPage(i + 1)}
+            className={`mx-1 px-3 py-1 rounded ${
+              currentPage === i + 1
+                ? "bg-yellow-500 text-white"
+                : "bg-gray-200"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

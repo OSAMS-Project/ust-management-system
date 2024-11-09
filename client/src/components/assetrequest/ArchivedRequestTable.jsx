@@ -1,7 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 
 const ArchivedRequestTable = ({ archivedRequests, onRestore, onDelete }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const totalPages = Math.ceil(archivedRequests.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentRequests = archivedRequests.slice(startIndex, endIndex);
+
   return (
     <div className="mt-8 mb-8">
       <h2 className="text-2xl font-bold mb-4">Archived Requests</h2>
@@ -18,7 +26,7 @@ const ArchivedRequestTable = ({ archivedRequests, onRestore, onDelete }) => {
           </tr>
         </thead>
         <tbody>
-          {archivedRequests.map((asset, index) => (
+          {currentRequests.map((asset, index) => (
             <tr
               key={index}
               className={`${
@@ -70,6 +78,22 @@ const ArchivedRequestTable = ({ archivedRequests, onRestore, onDelete }) => {
           ))}
         </tbody>
       </table>
+      
+      <div className="mt-4 mb-8 flex justify-center">
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentPage(i + 1)}
+            className={`mx-1 px-3 py-1 rounded ${
+              currentPage === i + 1
+                ? "bg-yellow-500 text-white"
+                : "bg-gray-200"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

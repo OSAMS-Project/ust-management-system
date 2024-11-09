@@ -1,7 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 
 const ApprovedRequestTable = ({ approvedRequests, onArchive }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const totalPages = Math.ceil(approvedRequests.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentRequests = approvedRequests.slice(startIndex, endIndex);
+
   return (
     <div className="mt-8">
       <h2 className="text-2xl font-bold mb-4">Approved Requests</h2>
@@ -18,7 +26,7 @@ const ApprovedRequestTable = ({ approvedRequests, onArchive }) => {
           </tr>
         </thead>
         <tbody>
-          {approvedRequests.map((asset, index) => (
+          {currentRequests.map((asset, index) => (
             <tr
               key={index}
               className={`${
@@ -60,6 +68,22 @@ const ApprovedRequestTable = ({ approvedRequests, onArchive }) => {
           ))}
         </tbody>
       </table>
+      
+      <div className="mt-4 mb-8 flex justify-center">
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentPage(i + 1)}
+            className={`mx-1 px-3 py-1 rounded ${
+              currentPage === i + 1
+                ? "bg-yellow-500 text-white"
+                : "bg-gray-200"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
