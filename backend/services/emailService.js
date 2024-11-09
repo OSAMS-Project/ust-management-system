@@ -32,14 +32,14 @@ const sendApprovalEmail = async (email, name) => {
 };
 
 // Function to send rejection email
-const sendRejectionEmail = async (email, name) => {
+const sendRejectionEmail = async (email, name, rejectionReason) => {
   const transporter = createTransporter();
 
   const mailOptions = {
     from: `"Asset Management Team" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Your Borrowing Request Has Been Rejected',
-    text: `Dear ${name},\n\nWe regret to inform you that your borrowing request has been rejected. Please contact our support team for further details.\n\nBest regards,\nAsset Management Team`,
+    text: `Dear ${name},\n\nWe regret to inform you that your borrowing request has been rejected.\n\nReason for rejection: ${rejectionReason}\n\nIf you have any questions about this decision, please contact the OSA office.\n\nBest regards,\nAsset Management Team`,
   };
 
   try {
