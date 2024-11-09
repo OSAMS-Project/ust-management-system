@@ -346,8 +346,8 @@ const AssetList = () => {
         const matchesSearch = asset.assetName.toLowerCase().includes(searchQuery.toLowerCase());
         
         if (assetTypeFilter === 'all') return matchesSearch;
-        if (assetTypeFilter === 'consumable') return matchesSearch && asset.is_consumable;
-        if (assetTypeFilter === 'non-consumable') return matchesSearch && !asset.is_consumable;
+        if (assetTypeFilter === 'consumable') return matchesSearch && asset.type === 'Consumable';
+        if (assetTypeFilter === 'non-consumable') return matchesSearch && asset.type === 'Non-Consumable';
         
         return matchesSearch;
       })
