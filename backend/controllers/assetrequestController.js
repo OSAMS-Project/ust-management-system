@@ -57,6 +57,91 @@ const assetrequestController = {
       console.error('Error deleting asset request:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
+  },
+
+  approveAssetRequest: async (req, res) => {
+    try {
+      console.log('Approving asset request with ID:', req.params.id);
+      const updatedAsset = await AssetRequest.updateAssetRequest(req.params.id, { 
+        status: 'approved' 
+      });
+      console.log('Updated asset:', updatedAsset);
+      
+      if (updatedAsset) {
+        res.json(updatedAsset);
+      } else {
+        res.status(404).json({ error: 'Asset request not found' });
+      }
+    } catch (error) {
+      console.error('Error approving asset request:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  declineAssetRequest: async (req, res) => {
+    try {
+      const updatedAsset = await AssetRequest.updateAssetRequest(req.params.id, { status: 'declined' });
+      if (updatedAsset) {
+        res.json(updatedAsset);
+      } else {
+        res.status(404).json({ error: 'Asset request not found' });
+      }
+    } catch (error) {
+      console.error('Error declining asset request:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  getApprovedRequests: async (req, res) => {
+    try {
+      const approvedRequests = await AssetRequest.getApprovedRequests();
+      res.json(approvedRequests);
+    } catch (error) {
+      console.error('Error getting approved requests:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  getDeclinedRequests: async (req, res) => {
+    try {
+      const declinedRequests = await AssetRequest.getDeclinedRequests();
+      res.json(declinedRequests);
+    } catch (error) {
+      console.error('Error getting declined requests:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  getArchivedRequests: async (req, res) => {
+    try {
+      const archivedRequests = await AssetRequest.getArchivedRequests();
+      res.json(archivedRequests);
+    } catch (error) {
+      console.error('Error in getArchivedRequests:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  archiveRequest: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const archivedRequest = await AssetRequest.archiveRequest(id);
+      res.json(archivedRequest);
+    } catch (error) {
+      console.error('Error in archiveRequest:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  restoreRequest: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const restoredRequest = await AssetRequest.restoreRequest(id);
+      res.json(restoredRequest);
+    } catch (error) {
+      console.error('Error in restoreRequest:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 };
 

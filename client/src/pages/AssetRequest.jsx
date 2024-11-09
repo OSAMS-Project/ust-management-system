@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import AssetRequestTable from '../components/assetrequest/AssetRequestTable';
+import ApprovedRequestTable from '../components/assetrequest/ApprovedRequestTable';
+import DeclinedRequestTable from '../components/assetrequest/DeclinedRequestTable';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBoxOpen } from "@fortawesome/free-solid-svg-icons";
 
 const AssetRequest = ({ user }) => {
   const [assetRequests, setAssetRequests] = useState([]);
+  const [approvedRequests, setApprovedRequests] = useState([]);
+  const [declinedRequests, setDeclinedRequests] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newAsset, setNewAsset] = useState({
     assetName: '',
@@ -14,19 +18,27 @@ const AssetRequest = ({ user }) => {
 
   console.log('User in AssetRequests:', user);
 
-  useEffect(() => {
-    fetchAssetRequests();
-  }, []);
-
-  const fetchAssetRequests = async () => {
+  const fetchAllRequests = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/asset-request`);
-      console.log('Fetched asset requests:', response.data);
-      setAssetRequests(response.data);
+      // Fetch pending requests
+      const pendingResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/asset-request`);
+      setAssetRequests(pendingResponse.data);
+
+      // Fetch approved requests
+      const approvedResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/asset-request/approved`);
+      setApprovedRequests(approvedResponse.data);
+
+      // Fetch declined requests
+      const declinedResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/asset-request/declined`);
+      setDeclinedRequests(declinedResponse.data);
     } catch (error) {
-      console.error('Error fetching asset requests:', error);
+      console.error('Error fetching requests:', error);
     }
   };
+
+  useEffect(() => {
+    fetchAllRequests();
+  }, []);
 
   const handleInputChange = (e) => {
     setNewAsset({ ...newAsset, [e.target.name]: e.target.value });
@@ -53,10 +65,37 @@ const AssetRequest = ({ user }) => {
       });
       console.log('Response:', response.data);
       setIsModalOpen(false);
-      fetchAssetRequests();
+      fetchAllRequests();
       setNewAsset({ assetName: '', quantity: '' });
     } catch (error) {
       console.error('Error adding asset request:', error.response?.data || error.message);
+    }
+  };
+
+  const handleApprove = async (id) => {
+    try {
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/asset-request/${id}/approve`);
+      fetchAllRequests(); // Fetch all requests again after approval
+    } catch (error) {
+      console.error('Error approving request:', error);
+    }
+  };
+
+  const handleDecline = async (id) => {
+    try {
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/asset-request/${id}/decline`);
+      fetchAllRequests(); // Fetch all requests again after declining
+    } catch (error) {
+      console.error('Error declining request:', error);
+    }
+  };
+
+  const handleArchive = async (id) => {
+    try {
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/asset-request/${id}/archive`);
+      fetchAllRequests(); // Refresh all requests after archiving
+    } catch (error) {
+      console.error('Error archiving request:', error);
     }
   };
 
@@ -85,7 +124,19 @@ const AssetRequest = ({ user }) => {
       </button>
 
       <div id='recipients' className="p-4 mt-4 lg:mt-0 rounded shadow bg-white">
-        <AssetRequestTable assetRequests={assetRequests} />
+        <AssetRequestTable 
+          assetRequests={assetRequests} 
+          onApprove={handleApprove}
+          onDecline={handleDecline}
+        />
+        <ApprovedRequestTable 
+          approvedRequests={approvedRequests} 
+          onArchive={handleArchive}
+        />
+        <DeclinedRequestTable 
+          declinedRequests={declinedRequests} 
+          onArchive={handleArchive}
+        />
       </div>
 
       {/* Modal */}

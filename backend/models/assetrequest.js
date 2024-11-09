@@ -3,12 +3,46 @@ const pool = require('../config/database');
 const AssetRequest = {
   getAssetRequest: async () => {
     try {
-      const query = 'SELECT * FROM asset_request ORDER BY created_at DESC';
+      const query = `
+        SELECT * FROM asset_request 
+        WHERE status = 'pending' 
+        ORDER BY created_at DESC
+      `;
       const { rows } = await pool.query(query);
       console.log('Database rows:', rows);
       return rows;
     } catch (error) {
       console.error('Error in getAssetRequest:', error);
+      throw error;
+    }
+  },
+
+  getApprovedRequests: async () => {
+    try {
+      const query = `
+        SELECT * FROM asset_request 
+        WHERE status = 'approved' 
+        ORDER BY created_at DESC
+      `;
+      const { rows } = await pool.query(query);
+      return rows;
+    } catch (error) {
+      console.error('Error in getApprovedRequests:', error);
+      throw error;
+    }
+  },
+
+  getDeclinedRequests: async () => {
+    try {
+      const query = `
+        SELECT * FROM asset_request 
+        WHERE status = 'declined' 
+        ORDER BY created_at DESC
+      `;
+      const { rows } = await pool.query(query);
+      return rows;
+    } catch (error) {
+      console.error('Error in getDeclinedRequests:', error);
       throw error;
     }
   },
@@ -28,16 +62,38 @@ const AssetRequest = {
   },
 
   updateAssetRequest: async (id, assetData) => {
-    const { asset_name, quantity, expected_arrival, supplier_id } = assetData;
-    const query = `
-      UPDATE asset_request
-      SET asset_name = $1, quantity = $2, expected_arrival = $3, supplier_id = $4
-      WHERE id = $5
-      RETURNING *
-    `;
-    const values = [asset_name, quantity, expected_arrival, supplier_id, id];
-    const { rows } = await pool.query(query, values);
-    return rows[0];
+    try {
+      const setClause = [];
+      const values = [];
+      let paramCount = 1;
+
+      if (assetData.status === 'approved') {
+        setClause.push(`approved_at = CURRENT_TIMESTAMP`);
+      } else if (assetData.status === 'declined') {
+        setClause.push(`declined_at = CURRENT_TIMESTAMP`);
+      }
+      
+      if (assetData.status !== undefined) {
+        setClause.push(`status = $${paramCount}`);
+        values.push(assetData.status);
+        paramCount++;
+      }
+
+      values.push(id);
+
+      const query = `
+        UPDATE asset_request
+        SET ${setClause.join(', ')}
+        WHERE id = $${paramCount}
+        RETURNING *
+      `;
+
+      const { rows } = await pool.query(query, values);
+      return rows[0];
+    } catch (error) {
+      console.error('Error in updateAssetRequest:', error);
+      throw error;
+    }
   },
 
   deleteAssetRequest: async (id) => {
@@ -52,10 +108,12 @@ const AssetRequest = {
         id SERIAL PRIMARY KEY,
         asset_name VARCHAR(255) NOT NULL,
         quantity INTEGER NOT NULL,
-        supplier_id VARCHAR(255),
         created_by VARCHAR(255),
         user_picture TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        approved_at TIMESTAMP,
+        declined_at TIMESTAMP
       )
     `;
     try {
@@ -66,6 +124,56 @@ const AssetRequest = {
       throw error;
     }
   },
+
+  getArchivedRequests: async () => {
+    try {
+      const query = `
+        SELECT * FROM asset_request 
+        WHERE status = 'archived' 
+        ORDER BY archived_at DESC
+      `;
+      const { rows } = await pool.query(query);
+      return rows;
+    } catch (error) {
+      console.error('Error in getArchivedRequests:', error);
+      throw error;
+    }
+  },
+
+  archiveRequest: async (id) => {
+    try {
+      const query = `
+        UPDATE asset_request
+        SET status = 'archived',
+            archived_at = CURRENT_TIMESTAMP,
+            original_status = status
+        WHERE id = $1
+        RETURNING *
+      `;
+      const { rows } = await pool.query(query, [id]);
+      return rows[0];
+    } catch (error) {
+      console.error('Error in archiveRequest:', error);
+      throw error;
+    }
+  },
+
+  restoreRequest: async (id) => {
+    try {
+      const query = `
+        UPDATE asset_request
+        SET status = original_status,
+            archived_at = NULL
+        WHERE id = $1
+        RETURNING *
+      `;
+      const { rows } = await pool.query(query, [id]);
+      return rows[0];
+    } catch (error) {
+      console.error('Error in restoreRequest:', error);
+      throw error;
+    }
+  }
 };
 
 module.exports = AssetRequest;

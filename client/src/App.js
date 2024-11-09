@@ -19,6 +19,7 @@ import AssetRequest from "./pages/AssetRequest";
 import AssetMaintenance from "./pages/AssetMaintenance";
 import AssetIssue from "./pages/AssetIssue";
 import CompletedEvents from "./pages/CompletedEvents";
+import ArchivedRequests from "./pages/ArchivedRequests";
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -81,9 +82,8 @@ function AppContent({ user, setUser }) {
           <Route path="/supplierlist" element={<PrivateRoute user={user}><SupplierList /></PrivateRoute>} />
           <Route path="/roles" element={<PrivateRoute user={user}><RoleManagement /></PrivateRoute>} />
           <Route path="/qr" element={<PrivateRoute user={user}><QRPage /></PrivateRoute>} />
-          <Route path="/asset-request" element={<PrivateRoute user={user}> <AssetRequest user={user} /></PrivateRoute>
-            } 
-          />
+          <Route path="/asset-request" element={<PrivateRoute user={user}><AssetRequest user={user} /></PrivateRoute>} />
+          <Route path="/archived-requests" element={<PrivateRoute user={user}><ArchivedRequests user={user} /></PrivateRoute>} />
         </Routes>
       </div>
     </div>

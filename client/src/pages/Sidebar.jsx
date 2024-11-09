@@ -116,6 +116,7 @@ const MENU_LIST = [
       { text: "Asset Maintenance", to: "/asset-maintenance", icon: faTools },
       { text: "Asset Issue", to: "/asset-issue", icon: faExclamationTriangle },
       { text: "Asset Request", to: "/asset-request", icon: faBoxOpen },
+      { text: "Archived Requests", to: "/archived-requests", icon: faClipboardList },
     ],
   },
   { text: "Borrowing Request", to: "/borrowingrequest", icon: faClipboardList },
