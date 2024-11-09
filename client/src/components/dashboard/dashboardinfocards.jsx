@@ -20,6 +20,7 @@ const DashboardInfoCards = ({ formatTime }) => {
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [recentEvents, setRecentEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  
 
   useEffect(() => {
     const fetchData = async () => {

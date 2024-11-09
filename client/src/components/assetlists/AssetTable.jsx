@@ -5,6 +5,9 @@ import {
   faEdit,
   faColumns,
   faFileExport,
+  faSort,
+  faSortUp,
+  faSortDown,
 } from "@fortawesome/free-solid-svg-icons";
 import AssetDetailsModal from "./AssetDetailsModal";
 import EditAssetModal from "./EditAssetModal";
@@ -30,8 +33,8 @@ const getInitialVisibleColumns = () => {
     quantity: true,
     totalCost: true,
     borrow: true,
-    lastUpdated: true,
     quantityForBorrowing: true,
+    lastUpdated: true,
     Actions: true,
   };
 };
@@ -117,11 +120,32 @@ const AssetTable = ({
         return asset.assetName.toLowerCase().includes(searchQuery.toLowerCase());
       })
       .sort((a, b) => {
+        if (!sortCriteria.field) return 0;
+        
         const direction = sortCriteria.direction === 'asc' ? 1 : -1;
-        if (sortCriteria.field === 'assetName') {
-          return direction * a.assetName.localeCompare(b.assetName);
+        
+        switch (sortCriteria.field) {
+          case 'asset_id':
+            return direction * (a.asset_id - b.asset_id);
+          case 'productCode':
+            return direction * a.productCode.localeCompare(b.productCode);
+          case 'createdDate':
+            return direction * (new Date(a.createdDate) - new Date(b.createdDate));
+          case 'assetName':
+            return direction * a.assetName.localeCompare(b.assetName);
+          case 'cost':
+            return direction * (parseFloat(a.cost) - parseFloat(b.cost));
+          case 'quantity':
+            return direction * (a.quantity - b.quantity);
+          case 'totalCost':
+            return direction * ((a.cost * a.quantity) - (b.cost * b.quantity));
+          case 'lastUpdated':
+            if (!a.lastUpdated) return direction;
+            if (!b.lastUpdated) return -direction;
+            return direction * (new Date(a.lastUpdated) - new Date(b.lastUpdated));
+          default:
+            return 0;
         }
-        return 0;
       });
   }, [assets, searchQuery, sortCriteria]);
 
@@ -470,6 +494,13 @@ const AssetTable = ({
     setCurrentPage(1); // Reset to first page when changing items per page
   };
 
+  const handleSort = (field) => {
+    setSortCriteria(prev => ({
+      field,
+      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
   return (
     <div className="relative p-3 w-full text-[20px]">
       <div className="mb-4 flex justify-end space-x-2">
@@ -500,17 +531,143 @@ const AssetTable = ({
         <table className="asset-table w-full min-w-[750px]">
           <thead>
             <tr className="bg-black text-[#FEC00F] text-lg">
-              {visibleColumns.id && <th className="text-center py-2 px-4">#</th>}
-              {visibleColumns.dateCreated && <th className="text-center py-2 px-4">Date Created</th>}
-              {visibleColumns.asset && <th className="text-center py-2 px-4">Asset</th>}
-              {visibleColumns.productCode && <th className="text-center py-2 px-4">Product Code</th>}
-              {visibleColumns.costPerUnit && <th className="text-center py-2 px-4">Cost per Unit</th>}
-              {visibleColumns.quantity && <th className="text-center py-2 px-4">Available Quantity</th>}
-              {visibleColumns.totalCost && <th className="text-center py-2 px-4">Total Cost</th>}
-              {visibleColumns.borrow && <th className="text-center py-2 px-4">Borrow</th>}
-              {visibleColumns.quantityForBorrowing && <th className="text-center py-2 px-4">Borrowing Quantity</th>}
-              {visibleColumns.lastUpdated && <th className="text-center py-2 px-4">Last Updated</th>}
-              {visibleColumns.Actions && <th className="text-center px-2 py-3">Actions</th>}
+              {visibleColumns.id && (
+                <th 
+                  className="text-center py-2 px-4 cursor-pointer"
+                  onClick={() => handleSort('asset_id')}
+                >
+                  <div className="flex items-center justify-center">
+                    #
+                    <FontAwesomeIcon 
+                      icon={sortCriteria.field === 'asset_id' 
+                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
+                        : faSort} 
+                      className="ml-2"
+                    />
+                  </div>
+                </th>
+              )}
+              {visibleColumns.productCode && (
+                <th 
+                  className="text-center py-2 px-4 cursor-pointer"
+                  onClick={() => handleSort('productCode')}
+                >
+                  <div className="flex items-center justify-center">
+                    Product Code
+                    <FontAwesomeIcon 
+                      icon={sortCriteria.field === 'productCode' 
+                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
+                        : faSort} 
+                      className="ml-2"
+                    />
+                  </div>
+                </th>
+              )}
+              {visibleColumns.dateCreated && (
+                <th 
+                  className="text-center py-2 px-4 cursor-pointer"
+                  onClick={() => handleSort('createdDate')}
+                >
+                  <div className="flex items-center justify-center">
+                    Date Created
+                    <FontAwesomeIcon 
+                      icon={sortCriteria.field === 'createdDate' 
+                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
+                        : faSort} 
+                      className="ml-2"
+                    />
+                  </div>
+                </th>
+              )}
+              {visibleColumns.asset && (
+                <th 
+                  className="text-center py-2 px-4 cursor-pointer"
+                  onClick={() => handleSort('assetName')}
+                >
+                  <div className="flex items-center justify-center">
+                    Asset
+                    <FontAwesomeIcon 
+                      icon={sortCriteria.field === 'assetName' 
+                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
+                        : faSort} 
+                      className="ml-2"
+                    />
+                  </div>
+                </th>
+              )}
+              {visibleColumns.costPerUnit && (
+                <th 
+                  className="text-center py-2 px-4 cursor-pointer"
+                  onClick={() => handleSort('cost')}
+                >
+                  <div className="flex items-center justify-center">
+                    Cost per Unit
+                    <FontAwesomeIcon 
+                      icon={sortCriteria.field === 'cost' 
+                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
+                        : faSort} 
+                      className="ml-2"
+                    />
+                  </div>
+                </th>
+              )}
+              {visibleColumns.quantity && (
+                <th 
+                  className="text-center py-2 px-4 cursor-pointer"
+                  onClick={() => handleSort('quantity')}
+                >
+                  <div className="flex items-center justify-center">
+                    Available Quantity
+                    <FontAwesomeIcon 
+                      icon={sortCriteria.field === 'quantity' 
+                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
+                        : faSort} 
+                      className="ml-2"
+                    />
+                  </div>
+                </th>
+              )}
+              {visibleColumns.totalCost && (
+                <th 
+                  className="text-center py-2 px-4 cursor-pointer"
+                  onClick={() => handleSort('totalCost')}
+                >
+                  <div className="flex items-center justify-center">
+                    Total Cost
+                    <FontAwesomeIcon 
+                      icon={sortCriteria.field === 'totalCost' 
+                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
+                        : faSort} 
+                      className="ml-2"
+                    />
+                  </div>
+                </th>
+              )}
+              {visibleColumns.borrow && (
+                <th className="text-center py-2 px-4">Borrow</th>
+              )}
+              {visibleColumns.quantityForBorrowing && (
+                <th className="text-center py-2 px-4">Borrowing Quantity</th>
+              )}
+              {visibleColumns.lastUpdated && (
+                <th 
+                  className="text-center py-2 px-4 cursor-pointer"
+                  onClick={() => handleSort('lastUpdated')}
+                >
+                  <div className="flex items-center justify-center">
+                    Last Updated
+                    <FontAwesomeIcon 
+                      icon={sortCriteria.field === 'lastUpdated' 
+                        ? sortCriteria.direction === 'asc' ? faSortUp : faSortDown 
+                        : faSort} 
+                      className="ml-2"
+                    />
+                  </div>
+                </th>
+              )}
+              {visibleColumns.Actions && (
+                <th className="text-center px-2 py-3">Actions</th>
+              )}
             </tr>
           </thead>
           <tbody>

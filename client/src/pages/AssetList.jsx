@@ -5,7 +5,6 @@ import AssetTable from "../components/assetlists/AssetTable";
 import AddAsset from "../components/assetlists/AddAsset";
 import AssetCategory from "../components/assetlists/AddCategory";
 import AssetLocation from "../components/assetlists/AddLocation";
-import SortDropdown from "../components/assetlists/SortDropdown";
 import axios from "axios";
 import NotificationPopup from "../components/utils/NotificationsPopup";
 import moment from "moment";
@@ -16,7 +15,7 @@ const AssetList = () => {
   const [locations, setLocations] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortCriteria, setSortCriteria] = useState("");
+  const [sortCriteria,] = useState("");
   const [totalAssets, setTotalAssets] = useState(0);
   const [totalAssetsChange, setTotalAssetsChange] = useState(0);
   const [stockPrice, setStockPrice] = useState(0);
@@ -263,7 +262,6 @@ const AssetList = () => {
   const handleOpenModal = useCallback(() => setIsModalOpen(true), []);
   const handleCloseModal = useCallback(() => setIsModalOpen(false), []);
   const handleSearch = useCallback((query) => setSearchQuery(query), []);
-  const handleSort = useCallback((criteria) => setSortCriteria(criteria), []);
 
   const handleBorrowingChange = useCallback((newCount) => {
     setAssetsForBorrowing(newCount);
@@ -459,7 +457,6 @@ const AssetList = () => {
             <AssetSearchbar handleSearch={handleSearch} />
           </div>
           <div className="w-full md:w-auto flex-shrink-0">
-            <SortDropdown onSort={handleSort} />
           </div>
         </div>
       </div>

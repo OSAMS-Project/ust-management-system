@@ -96,25 +96,24 @@ const AddAsset = ({
     return newShakeFields.length === 0;
   };
 
-  const calculateTotalCost = (newQuantity) => {
-    if (cost && newQuantity) {
-      const calculatedTotalCost = parseFloat(cost) * newQuantity;
-      setTotalCost(calculatedTotalCost.toFixed(2));
-    } else {
-      setTotalCost("");
-    }
-  };
-
   const handleQuantityChange = (e) => {
     const newQuantity = Number(e.target.value);
     setQuantity(newQuantity);
-    calculateTotalCost(newQuantity);
+    if (cost) {
+      const calculatedTotalCost = parseFloat(cost) * newQuantity;
+      setTotalCost(calculatedTotalCost.toString());
+    }
   };
 
   const handleCostChange = (e) => {
     const newCost = e.target.value.replace(/[^0-9.]/g, "");
     setCost(newCost);
-    calculateTotalCost(quantity);
+    if (newCost && quantity) {
+      const calculatedTotalCost = parseFloat(newCost) * quantity;
+      setTotalCost(calculatedTotalCost.toString());
+    } else {
+      setTotalCost("");
+    }
   };
 
   const handleSaveAsset = async () => {
@@ -224,6 +223,7 @@ const AddAsset = ({
                   value={totalCost}
                   prefix="₱"
                   readOnly
+                  onChange={() => {}}
                 />
                 <div className="col-span-2 space-y-3">
                   <label className="block text-sm font-medium text-gray-700">Upload Image</label>

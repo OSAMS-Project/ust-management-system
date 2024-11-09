@@ -4,9 +4,9 @@ const Button = ({ className, onClick, children, variant = 'primary', size = 'med
   const baseStyles = "font-semibold rounded-md transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1";
   
   const variants = {
-    primary: "bg-blue-500 hover:bg-blue-600 text-white focus:ring-blue-500",
+    primary: "bg-blue-500 hover:bg-blue-600 text-black focus:ring-blue-500",
     secondary: "bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-500",
-    success: "bg-green-500 hover:bg-green-600 text-white focus:ring-green-500",
+    success: "bg-green-500 hover:bg-green-600 text-black focus:ring-green-500",
     danger: "bg-red-500 hover:bg-red-600 text-white focus:ring-red-500",
     warning: "bg-yellow-500 hover:bg-yellow-600 text-white focus:ring-yellow-500",
   };
