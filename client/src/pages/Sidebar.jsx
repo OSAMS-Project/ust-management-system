@@ -120,7 +120,15 @@ const MENU_LIST = [
   },
   { text: "Borrowing Request", to: "/borrowingrequest", icon: faClipboardList },
   { text: "Supplier Lists", to: "/supplierlist", icon: faUsers },
-  { text: "Events Management", to: "/events", icon: faCalendarAlt },
+  {
+    text: "Events Management",
+    to: "/events",
+    icon: faCalendarAlt,
+    subItems: [
+      { text: "Active Events", to: "/events", icon: faCalendarAlt },
+      { text: "Completed Events", to: "/completed-events", icon: faClipboardList },
+    ],
+  },
   { text: "User Management", to: "/users", icon: faUserCog },
   { text: "Role Management", to: "/roles", icon: faFontAwesomeFlag },
   { text: "Generate QR", to: "/qr", icon: faQrcode },

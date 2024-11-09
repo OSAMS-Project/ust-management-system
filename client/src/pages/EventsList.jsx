@@ -10,16 +10,13 @@ import axios from "axios";
 import CompletedEvents from "../components/events/CompleteEventDialog";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
-
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-
 const formatTime = (time) => {
   if (!time) return "";
   const [hours, minutes] = time.split(":");
   const date = new Date(2000, 0, 1, hours, minutes);
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
-
 function Events() {
   const [data, setData] = useState([]);
   const [formData, setFormData] = useState({
@@ -44,21 +41,16 @@ function Events() {
   const [completedEvents, setCompletedEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 6;
-
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
   const currentEvents = data.slice(indexOfFirstEvent, indexOfLastEvent);
-
   const totalPages = Math.ceil(data.length / eventsPerPage);
-
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   const handleEventDeleted = (deletedEventId) => {
     setCompletedEvents((prevEvents) =>
       prevEvents.filter((event) => event.unique_id !== deletedEventId)
     );
   };
-
   const fetchCompletedEvents = async () => {
     try {
       const response = await axios.get(
@@ -86,7 +78,6 @@ function Events() {
       setCompletedEvents([]);
     }
   };
-
   useEffect(() => {
     function start() {
       gapi.client.init({
@@ -94,9 +85,7 @@ function Events() {
         scope: "",
       });
     }
-
     gapi.load("client:auth2", start);
-
     const fetchData = async () => {
       try {
         const response = await fetch(
@@ -113,7 +102,6 @@ function Events() {
         setLoading(false);
       }
     };
-
     const fetchAssets = async () => {
       try {
         const response = await axios.get(
@@ -124,18 +112,15 @@ function Events() {
         console.error("Error fetching assets:", error);
       }
     };
-
     fetchData();
     fetchAssets();
     fetchCompletedEvents();
   }, []);
-
   useEffect(() => {
     if (showCompletedEventsDialog) {
       fetchCompletedEvents();
     }
   }, [showCompletedEventsDialog]);
-
   const handleEdit = (event) => {
     setEditingEvent(event);
     setFormData({
@@ -150,11 +135,9 @@ function Events() {
     });
     setShowEditDialog(true);
   };
-
   const filteredEvents = data.filter((event) =>
     event.event_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -163,7 +146,6 @@ function Events() {
       if (updatedFormData.image === '/ust-image.JPG') {
         delete updatedFormData.image;
       }
-
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/Events/update/${editingEvent.unique_id}`,
         {
@@ -174,26 +156,21 @@ function Events() {
           body: JSON.stringify(updatedFormData),
         }
       );
-
       if (!response.ok) {
         throw new Error("Failed to update event");
       }
-
       const updatedEvent = await response.json();
-
       setData((prevData) =>
         prevData.map((event) =>
           event.unique_id === editingEvent.unique_id ? updatedEvent : event
         )
       );
-
       setShowEditDialog(false);
       setEditingEvent(null);
     } catch (err) {
       console.error("Error updating event:", err);
     }
   };
-
   const handleChange = (e, eventId = null) => {
     const { name, value } = e.target;
     if (eventId) {
@@ -206,7 +183,6 @@ function Events() {
       setFormData({ ...formData, [name]: value });
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -220,12 +196,10 @@ function Events() {
           body: JSON.stringify(formData),
         }
       );
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to create event");
       }
-
       const newEvent = await response.json();
       setData((prevData) => [...prevData, newEvent]);
       setFormData({ event_name: "", description: "", event_date: "" });
@@ -235,7 +209,6 @@ function Events() {
       alert(`Error creating event: ${err.message}`);
     }
   };
-
   const handleCompleteEvent = async (uniqueId) => {
     try {
       const response = await axios.put(
@@ -243,27 +216,18 @@ function Events() {
       );
       if (response.status === 200) {
         const completedEvent = response.data.updatedEvent;
-
-        // Remove the completed event from the main list
         setData((prevData) =>
           prevData.filter((event) => event.unique_id !== uniqueId)
         );
-
-        // Immediately add the completed event to the completedEvents list
         setCompletedEvents((prevCompletedEvents) => [
           ...prevCompletedEvents,
           completedEvent,
         ]);
-
         console.log(`Event with ID ${uniqueId} marked as completed`);
-
-        // Fetch updated asset list
         const assetResponse = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/Assets/read`
         );
         setAssets(assetResponse.data);
-
-        // Fetch all completed events to ensure consistency
         fetchCompletedEvents();
       }
     } catch (err) {
@@ -271,13 +235,11 @@ function Events() {
       alert(`Error completing event: ${err.message}`);
     }
   };
-
   const handleDeleteEvent = async (eventId) => {
     try {
       await axios.delete(
         `${process.env.REACT_APP_API_URL}/api/Events/delete/${eventId}`
       );
-      // Update local state after successful deletion
       setData((prevData) =>
         prevData.filter((event) => event.unique_id !== eventId)
       );
@@ -285,7 +247,6 @@ function Events() {
       console.error("Error deleting event:", error);
     }
   };
-
   const handleExplore = async (event) => {
     try {
       const response = await axios.get(
@@ -303,21 +264,17 @@ function Events() {
       // You might want to show an error message to the user here
     }
   };
-
   const cancelDelete = () => {
     setShowConfirmDialog(false);
   };
-
   const cancelEdit = () => {
     setShowEditDialog(false);
     setFormData({ event_name: "", description: "", event_date: "" });
   };
-
   const cancelCreate = () => {
     setShowDialog(false);
     setFormData({ event_name: "", description: "", event_date: "" });
   };
-
   const handleAddAsset = async (event, selectedAssets) => {
     try {
       console.log(`Adding assets to event ${event.unique_id}:`, selectedAssets);
@@ -327,7 +284,6 @@ function Events() {
           assets: selectedAssets,
         }
       );
-
       if (response.data.success) {
         setData((prevData) =>
           prevData.map((e) => {
@@ -362,7 +318,6 @@ function Events() {
       console.error("Error adding assets to event:", error);
     }
   };
-
   const updateEventAssets = (eventId, updatedAssets) => {
     setData((prevData) =>
       prevData.map((event) =>
@@ -377,7 +332,6 @@ function Events() {
         : prevEvent
     );
   };
-
   const updateAssetQuantity = useCallback(async (assetId, newQuantity) => {
     try {
       const response = await axios.put(
@@ -408,20 +362,16 @@ function Events() {
       );
     }
   }, []);
-
   if (loading) {
     return <div className="text-center">Loading...</div>;
   }
-
   if (error) {
     return <div className="text-center text-red-600">{error}</div>;
   }
-
   const handleAddEvent = () => {
     setFormData({ event_name: "", description: "", event_date: "" });
     setShowDialog(true);
   };
-
   return (
     <div className="space-y-6">
       {/* Header Section */}
@@ -434,10 +384,8 @@ function Events() {
           className="text-black text-5xl transform"
         />
       </div>
-
       <div className="flex flex-col items-center justify-center">
         <SearchEvent searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-
         <EventDialog
           showDialog={showDialog}
           formData={formData}
@@ -447,7 +395,6 @@ function Events() {
           isEditing={!!editingEvent}
           cancelCreate={cancelCreate}
         />
-
         <ExploreModal
           showExploreModal={showExploreModal}
           selectedEvent={selectedEvent}
@@ -457,7 +404,6 @@ function Events() {
           updateAssetQuantity={updateAssetQuantity}
           setSelectedEvent={setSelectedEvent}
         />
-
         <EditEventDialog
           showDialog={showEditDialog}
           formData={formData}
@@ -466,7 +412,6 @@ function Events() {
           setShowDialog={setShowEditDialog}
           handleDelete={handleDeleteEvent}
         />
-
         <div className="w-82 mx-auto p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
             {currentEvents.map((item) => (
@@ -499,14 +444,8 @@ function Events() {
             ))}
           </div>
         </div>
-
-        <CompletedEvents
-          completedEvents={completedEvents}
-          onEventDeleted={handleEventDeleted}
-        />
       </div>
     </div>
   );
 }
-
 export default Events;
