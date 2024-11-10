@@ -340,3 +340,51 @@ app.post('/api/asset-request', async (req, res) => {
   }
 });
 
+// Add this near your other route definitions
+app.get('/api/Events/asset-cost/:eventId/:assetId', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { eventId, assetId } = req.params;
+    console.log('Fetching cost for:', { eventId, assetId });
+    
+    const query = `
+      SELECT a.cost, a."assetName"
+      FROM assets a 
+      WHERE a.asset_id = $1
+    `;
+    
+    console.log('About to execute query:', { query, assetId });
+    const result = await client.query(query, [assetId]);
+    console.log('Query result:', result.rows);
+
+    if (result.rows.length === 0) {
+      console.log('No cost found for asset:', assetId);
+      return res.status(404).json({ message: 'Asset cost not found' });
+    }
+
+    // Convert the numeric cost to a number and ensure it's not null
+    const cost = parseFloat(result.rows[0].cost) || 0;
+    const assetName = result.rows[0].assetName;
+    
+    console.log('Sending response:', { assetName, cost });
+    res.json({ 
+      cost,
+      assetName 
+    });
+  } catch (error) {
+    console.error('Detailed error:', {
+      message: error.message,
+      stack: error.stack,
+      params: { eventId, assetId },
+      query: error.query
+    });
+    res.status(500).json({ 
+      message: 'Error fetching asset cost', 
+      error: error.message,
+      details: error.stack 
+    });
+  } finally {
+    client.release();
+  }
+});
+
