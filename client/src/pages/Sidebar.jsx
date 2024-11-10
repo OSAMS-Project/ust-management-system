@@ -16,6 +16,7 @@ import {
   faExclamationTriangle,
   faChevronDown,
   faChevronUp,
+  faTruckFast,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useLocation } from "react-router-dom";
 
@@ -117,7 +118,7 @@ const MENU_LIST = [
       { text: "Asset Issue", to: "/asset-issue", icon: faExclamationTriangle },
       { text: "Asset Request", to: "/asset-request", icon: faBoxOpen },
       { text: "Archived Requests", to: "/archived-requests", icon: faClipboardList },
-      { text: "Incoming Assets", to: "/incoming-assets", icon: faBoxOpen },
+      { text: "Incoming Assets", to: "/incoming-assets", icon: faTruckFast },
     ],
   },
   { text: "Borrowing Request", to: "/borrowingrequest", icon: faClipboardList },
