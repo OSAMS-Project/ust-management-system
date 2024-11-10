@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import moment from 'moment';
+import NotificationPopup from '../components/utils/NotificationsPopup';
 
 const IncomingAssets = () => {
   const [assets, setAssets] = useState([]);
@@ -25,6 +24,7 @@ const IncomingAssets = () => {
   const [categories, setCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     fetchIncomingAssets();
@@ -38,7 +38,7 @@ const IncomingAssets = () => {
       setAssets(response.data);
     } catch (error) {
       console.error('Error fetching incoming assets:', error);
-      toast.error('Failed to fetch incoming assets');
+      setNotification({ type: 'error', message: 'Failed to fetch incoming assets' });
     }
   };
 
@@ -48,7 +48,7 @@ const IncomingAssets = () => {
       setCategories(response.data.map(cat => cat.category_name));
     } catch (error) {
       console.error('Error fetching categories:', error);
-      toast.error('Failed to fetch categories');
+      setNotification({ type: 'error', message: 'Failed to fetch categories' });
     }
   };
 
@@ -58,7 +58,7 @@ const IncomingAssets = () => {
       setLocations(response.data.map(loc => loc.location_name));
     } catch (error) {
       console.error('Error fetching locations:', error);
-      toast.error('Failed to fetch locations');
+      setNotification({ type: 'error', message: 'Failed to fetch locations' });
     }
   };
 
@@ -86,7 +86,7 @@ const IncomingAssets = () => {
     e.preventDefault();
     try {
       await axios.post(`${process.env.REACT_APP_API_URL}/api/incoming-assets`, formData);
-      toast.success('Incoming asset added successfully');
+      setNotification({ type: 'success', message: 'Incoming asset added successfully' });
       setShowForm(false);
       setFormData({
         assetName: '',
@@ -102,7 +102,7 @@ const IncomingAssets = () => {
       fetchIncomingAssets();
     } catch (error) {
       console.error('Error creating incoming asset:', error);
-      toast.error('Failed to create incoming asset');
+      setNotification({ type: 'error', message: 'Failed to create incoming asset' });
     }
   };
 
@@ -139,7 +139,7 @@ const IncomingAssets = () => {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/Assets/create`, newAssetData);
       console.log('Asset created:', response.data);
 
-      toast.success('Asset received and added to inventory');
+      setNotification({ type: 'success', message: 'Asset received and added to inventory' });
       setShowLocationDialog(false);
       setSelectedLocation('');
       fetchIncomingAssets();
@@ -147,9 +147,15 @@ const IncomingAssets = () => {
       console.error('Error processing asset:', error);
       if (error.response) {
         console.error('Error details:', error.response.data);
-        toast.error(`Failed to process asset: ${error.response.data.error || error.message}`);
+        setNotification({ 
+          type: 'error', 
+          message: `Failed to process asset: ${error.response.data.error || error.message}` 
+        });
       } else {
-        toast.error(`Failed to process asset: ${error.message}`);
+        setNotification({ 
+          type: 'error', 
+          message: `Failed to process asset: ${error.message}` 
+        });
       }
     }
   };
@@ -179,7 +185,10 @@ const IncomingAssets = () => {
 
   return (
     <div className="p-6">
-      <ToastContainer />
+      <NotificationPopup 
+        notification={notification} 
+        onClose={() => setNotification(null)} 
+      />
 
       {/* Controls Section */}
       <div className="flex justify-between items-center mb-4">
