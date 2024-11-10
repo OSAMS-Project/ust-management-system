@@ -2,12 +2,9 @@ const Asset = require('../models/assets');
 
 const createAsset = async (req, res) => {
   try {
-    if (!req.body.productCode) {
-      return res.status(400).json({ error: "Product Code is required" });
-    }
-
     const assetData = { 
       ...req.body, 
+      productCode: req.body.productCode || '',
       added_by: req.user ? req.user.name : 'Unknown User'
     };
     const result = await Asset.createAsset(assetData);

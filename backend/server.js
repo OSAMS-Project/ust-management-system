@@ -25,6 +25,8 @@ const Maintenance = require('./models/Maintenance');
 const roleRoutes = require('./routes/roleRoutes');
 const AssetIssue = require('./models/assetissue');
 const supplierActivityLogRoutes = require('./routes/supplieractivitylogRoutes');
+const incomingAssetsRouter = require('./routes/incomingAssetsRoutes');
+const IncomingAssets = require('./models/incomingassets');
 
 const { createEventsTable, createEventAssetsTable } = require('./models/events');
 
@@ -35,7 +37,7 @@ app.set('sse', sse);
 app.use(cors({
   origin: 'http://localhost:3000', // Your frontend URL
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -70,6 +72,7 @@ app.use('/api/asset-request', assetRequestRoutes);
 app.use('/api/Maintenance', maintenanceRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/supplier-activity-logs', supplierActivityLogRoutes);
+app.use('/api/incoming-assets', incomingAssetsRouter);
 
 
 // SSE endpoint
@@ -192,6 +195,11 @@ app.listen(port, () => {
   console.log('  - POST   /api/events/:eventId/removeAsset');
   console.log('  - POST   /api/events/:eventId/updateAssetQuantity');
   console.log('  - DELETE /api/Events/delete/:eventId');
+  console.log('  - GET    /api/incoming-assets');
+  console.log('  - POST   /api/incoming-assets');
+  console.log('  - PUT    /api/incoming-assets/:id');
+  console.log('  - PATCH  /api/incoming-assets/:id/status');
+  console.log('  - DELETE /api/incoming-assets/:id');
   initializeTables();
 });
 
@@ -216,6 +224,8 @@ const initializeTables = async () => {
     console.log('Maintenance table initialized');
     await AssetIssue.createIssuesTable();
     console.log('Asset issues table initialized');
+    await IncomingAssets.createIncomingAssetsTable();
+    console.log('Incoming assets table initialized');
     console.log('All tables initialized successfully');
   } catch (err) {
     console.error('Error initializing tables:', err);
