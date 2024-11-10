@@ -26,6 +26,7 @@ function EditEventDialog({
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const today = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     if (showDialog && formData && formData.event_location) {
@@ -139,6 +140,7 @@ function EditEventDialog({
               id="event_date"
               value={formData.event_date || ""}
               onChange={handleChange}
+              min={today}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               required
             />

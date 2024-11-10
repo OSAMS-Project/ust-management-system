@@ -47,6 +47,8 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
 
+  const today = new Date().toISOString().split('T')[0];
+
   useEffect(() => {
     if (formData.event_location) {
       setFilteredLocations(
@@ -126,11 +128,13 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
             />
           </div>
           <div>
+            <label className="block text-sm font-medium text-gray-700">Event Date</label>
             <input
               type="date"
               name="event_date"
               value={formData.event_date}
               onChange={handleChange}
+              min={today}
               className="border px-4 py-2 w-full"
               required
             />
