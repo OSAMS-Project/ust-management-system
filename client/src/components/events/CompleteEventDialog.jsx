@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import CompletedExploreModal from './CompletedExploreEvent';
 
 const CompletedEvents = ({ completedEvents, onEventDeleted }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const eventsPerPage = 15;
+  const [showExploreModal, setShowExploreModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const handleDeleteEvent = async (eventId) => {
     try {
@@ -38,7 +41,6 @@ const CompletedEvents = ({ completedEvents, onEventDeleted }) => {
                 <th className="py-2 px-4 border-b text-white text-center">Event Name</th>
                 <th className="py-2 px-4 border-b text-white text-center">Event Date</th>
                 <th className="py-2 px-4 border-b text-white text-center">Location</th>
-                <th className="py-2 px-4 border-b text-white text-center">Assets Used</th>
                 <th className="py-2 px-4 border-b text-white text-center">Actions</th>
               </tr>
             </thead>
@@ -49,25 +51,25 @@ const CompletedEvents = ({ completedEvents, onEventDeleted }) => {
                   <td className="py-2 px-4 border-b text-center">{new Date(event.event_date).toLocaleDateString()}</td>
                   <td className="py-2 px-4 border-b text-center">{event.event_location}</td>
                   <td className="py-2 px-4 border-b text-center">
-                    {event.assets && event.assets.length > 0 ? (
-                      <ul className="list-none space-y-1">
-                        {event.assets.map((asset, idx) => (
-                          <li key={idx} className="text-sm">
-                            {asset.assetName}: {asset.quantity}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <span className="text-gray-500">No assets used</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b text-center">
-                    <button
-                      onClick={() => handleDeleteEvent(event.unique_id)}
-                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex justify-center space-x-2">
+                      <button
+                        onClick={() => {
+                          console.log('Opening modal with event:', event);
+                          console.log('Completed assets:', event.completed_assets);
+                          setSelectedEvent(event);
+                          setShowExploreModal(true);
+                        }}
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded text-xs"
+                      >
+                        👁️ View
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEvent(event.unique_id)}
+                        className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -88,6 +90,11 @@ const CompletedEvents = ({ completedEvents, onEventDeleted }) => {
           </div>
         </>
       )}
+      <CompletedExploreModal
+        showExploreModal={showExploreModal}
+        selectedEvent={selectedEvent}
+        setShowExploreModal={setShowExploreModal}
+      />
     </div>
   );
 };

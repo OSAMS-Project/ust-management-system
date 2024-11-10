@@ -3,6 +3,7 @@ const router = express.Router();
 const Event = require('../models/events');
 const { getEventById, updateAssetQuantity } = require('../models/events');
 const eventController = require('../controllers/eventsController');
+const pool = require('../config/database');
 
 router.post('/create', eventController.createEvent);
 router.get('/read', eventController.readEvents);
@@ -26,5 +27,40 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/:eventId/updateAssetQuantity', eventController.updateAssetQuantity);
+
+router.get('/asset-cost/:eventId/:assetId', async (req, res) => {
+  try {
+    const { eventId, assetId } = req.params;
+    console.log('Fetching cost for:', { eventId, assetId });
+    
+    // Simplified query - we only need the asset cost
+    const query = `
+      SELECT cost, "assetName"
+      FROM assets
+      WHERE asset_id = $1
+    `;
+    
+    console.log('Executing query:', { query, assetId });
+    const result = await pool.query(query, [assetId]);
+    console.log('Query result:', result.rows);
+
+    if (result.rows.length === 0) {
+      console.log('No cost found for asset:', assetId);
+      return res.status(404).json({ message: 'Asset cost not found' });
+    }
+
+    const cost = parseFloat(result.rows[0].cost) || 0;
+    const assetName = result.rows[0].assetName;
+    
+    console.log('Found cost:', { assetName, cost });
+    res.json({ cost, assetName });
+  } catch (error) {
+    console.error('Error fetching asset cost:', error);
+    res.status(500).json({ 
+      message: 'Error fetching asset cost', 
+      error: error.message 
+    });
+  }
+});
 
 module.exports = router;
