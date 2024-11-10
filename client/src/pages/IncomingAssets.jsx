@@ -7,6 +7,10 @@ import IncomingAssetsTable from '../components/incomingassets/IncomingAssetsTabl
 
 const IncomingAssets = () => {
   const [assets, setAssets] = useState([]);
+  const [receivedAssets, setReceivedAssets] = useState([]);
+  const [currentReceivedAssets, setCurrentReceivedAssets] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
   const [showForm, setShowForm] = useState(false);
   const [showLocationDialog, setShowLocationDialog] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState(null);
@@ -24,23 +28,29 @@ const IncomingAssets = () => {
     notes: ''
   });
   const [categories, setCategories] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
   const [notification, setNotification] = useState(null);
+  const [currentPendingAssets, setCurrentPendingAssets] = useState([]);
 
   useEffect(() => {
-    fetchIncomingAssets();
+    fetchAssets();
     fetchCategories();
     fetchLocations();
   }, []);
 
-  const fetchIncomingAssets = async () => {
+  const fetchAssets = async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/incoming-assets`);
-      setAssets(response.data);
+      const allAssets = response.data;
+      
+      const pending = allAssets.filter(asset => asset.status !== 'received');
+      const received = allAssets.filter(asset => asset.status === 'received');
+      
+      setAssets(allAssets);
+      setCurrentPendingAssets(pending.slice(0, itemsPerPage));
+      setReceivedAssets(received);
+      setCurrentReceivedAssets(received.slice(0, itemsPerPage));
     } catch (error) {
-      console.error('Error fetching incoming assets:', error);
-      setNotification({ type: 'error', message: 'Failed to fetch incoming assets' });
+      console.error('Error fetching assets:', error);
     }
   };
 
@@ -101,7 +111,7 @@ const IncomingAssets = () => {
         expected_date: '',
         notes: ''
       });
-      fetchIncomingAssets();
+      fetchAssets();
     } catch (error) {
       console.error('Error creating incoming asset:', error);
       setNotification({ type: 'error', message: 'Failed to create incoming asset' });
@@ -145,7 +155,7 @@ const IncomingAssets = () => {
       setNotification({ type: 'success', message: 'Asset received and added to inventory' });
       setShowLocationDialog(false);
       setSelectedLocation('');
-      fetchIncomingAssets();
+      fetchAssets();
     } catch (error) {
       console.error('Error processing asset:', error);
       if (error.response) {
@@ -165,6 +175,20 @@ const IncomingAssets = () => {
 
   const today = new Date().toISOString().split('T')[0];
 
+  const resetFormData = () => {
+    setFormData({
+      assetName: '',
+      description: '',
+      type: 'Consumable',
+      category: '',
+      cost: '',
+      quantity: '',
+      total_cost: '',
+      expected_date: '',
+      notes: ''
+    });
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6 flex justify-between items-center">
@@ -180,7 +204,11 @@ const IncomingAssets = () => {
         assets={assets}
         handleStatusUpdate={handleStatusUpdate}
         currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
         itemsPerPage={itemsPerPage}
+        receivedAssets={receivedAssets}
+        currentReceivedAssets={currentReceivedAssets}
+        currentPendingAssets={currentPendingAssets}
       />
 
       {showForm && (
@@ -191,6 +219,8 @@ const IncomingAssets = () => {
           setShowForm={setShowForm}
           categories={categories}
           today={today}
+          setNotification={setNotification}
+          resetFormData={resetFormData}
         />
       )}
 
