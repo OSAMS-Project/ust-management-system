@@ -161,13 +161,12 @@ const IncomingAssets = () => {
     }
   };
 
+  const today = new Date().toISOString().split('T')[0];
+
+
   // Separate assets by status first, then apply pagination
   const pendingAssets = assets.filter(asset => asset.status === 'pending');
   const receivedAssets = assets.filter(asset => asset.status === 'received');
-
-  // Calculate pagination for each table separately
-  const totalPendingPages = Math.ceil(pendingAssets.length / itemsPerPage);
-  const totalReceivedPages = Math.ceil(receivedAssets.length / itemsPerPage);
 
   // Get current page items for each table
   const currentPendingAssets = pendingAssets.slice(
@@ -184,6 +183,25 @@ const IncomingAssets = () => {
   console.log('Received assets:', receivedAssets);
   console.log('Current received assets:', currentReceivedAssets);
 
+  const resetFormData = () => {
+    setFormData({
+      assetName: '',
+      description: '',
+      type: 'Consumable',
+      category: '',
+      cost: '',
+      quantity: '',
+      total_cost: '',
+      expected_date: '',
+      notes: ''
+    });
+  };
+
+  const handleShowForm = () => {
+    resetFormData();
+    setShowForm(true);
+  };
+
   return (
     <div className="p-6">
       <NotificationPopup 
@@ -194,7 +212,7 @@ const IncomingAssets = () => {
       {/* Controls Section */}
       <div className="flex justify-between items-center mb-4">
         <button
-          onClick={() => setShowForm(true)}
+          onClick={handleShowForm}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -398,11 +416,9 @@ const IncomingAssets = () => {
                   type="number"
                   name="total_cost"
                   value={formData.total_cost}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  min="0"
-                  step="0.01"
-                  required
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-100"
+                  readOnly
+                  disabled
                 />
               </div>
 
@@ -412,7 +428,22 @@ const IncomingAssets = () => {
                   type="datetime-local"
                   name="expected_date"
                   value={formData.expected_date}
-                  onChange={handleInputChange}
+                  min={today + 'T00:00'}
+                  onChange={(e) => {
+                    const selectedDate = new Date(e.target.value);
+                    const now = new Date();
+                    
+                    // If selected date is before current date-time, don't update
+                    if (selectedDate < now) {
+                      setNotification({
+                        type: 'error',
+                        message: 'Cannot select a past date and time'
+                      });
+                      return;
+                    }
+                    
+                    handleInputChange(e);
+                  }}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   required
                 />
@@ -443,7 +474,10 @@ const IncomingAssets = () => {
               <div className="col-span-2 flex justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowForm(false)}
+                  onClick={() => {
+                    setShowForm(false);
+                    resetFormData();
+                  }}
                   className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
                 >
                   Cancel
