@@ -2,12 +2,29 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
 import SupplierDetailsModal from "./SupplierDetailsModal";
+import DeleteConfirmationModal from "../utils/DeleteConfirmationModal";
 
 const SupplierTable = ({ suppliers, onDelete, onEdit }) => {
   const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [supplierToDelete, setSupplierToDelete] = useState(null);
 
   const handleRowClick = (supplier) => {
     setSelectedSupplier(supplier);
+  };
+
+  const handleDeleteClick = (e, supplierId, supplierName) => {
+    e.stopPropagation();
+    setSupplierToDelete({ id: supplierId, name: supplierName });
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (supplierToDelete) {
+      onDelete(supplierToDelete.id);
+      setDeleteModalOpen(false);
+      setSupplierToDelete(null);
+    }
   };
 
   return (
@@ -62,10 +79,7 @@ const SupplierTable = ({ suppliers, onDelete, onEdit }) => {
                   <FontAwesomeIcon icon={faEdit} />
                 </button>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(supplier.supplier_id);
-                  }}
+                  onClick={(e) => handleDeleteClick(e, supplier.supplier_id, supplier.name)}
                   className="text-red-500"
                 >
                   <FontAwesomeIcon icon={faTrash} />
@@ -82,6 +96,16 @@ const SupplierTable = ({ suppliers, onDelete, onEdit }) => {
           onClose={() => setSelectedSupplier(null)}
         />
       )}
+
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSupplierToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        message={supplierToDelete ? `Are you sure you want to delete supplier "${supplierToDelete.name}"?` : ''}
+      />
     </>
   );
 };
