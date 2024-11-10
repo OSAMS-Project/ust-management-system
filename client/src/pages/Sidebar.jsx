@@ -127,7 +127,7 @@ const MENU_LIST = [
     to: "/events",
     icon: faCalendarAlt,
     subItems: [
-      { text: "Active Events", to: "/events", icon: faCalendarAlt },
+      { text: "Upcoming Events", to: "/events", icon: faCalendarAlt },
       { text: "Completed Events", to: "/completed-events", icon: faClipboardList },
     ],
   },
