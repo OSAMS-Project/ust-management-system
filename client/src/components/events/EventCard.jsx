@@ -2,12 +2,32 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faPlus, faCheck } from '@fortawesome/free-solid-svg-icons';
 import AssetSelectionDialog from './AssetSelectionDialog';
+import axios from 'axios';
 
 function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime, handleAddAsset, assets }) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showAssetDialog, setShowAssetDialog] = useState(false);
+  const [refreshedAssets, setRefreshedAssets] = useState(assets);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const openAssetDialog = () => setShowAssetDialog(true);
+  const fetchLatestAssets = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/assets`);
+      console.log('Fetched assets:', response.data);
+      setRefreshedAssets(response.data);
+    } catch (error) {
+      console.error('Error fetching assets:', error);
+      setRefreshedAssets(assets);
+    }
+  };
+
+  const openAssetDialog = async () => {
+    setIsLoading(true);
+    await fetchLatestAssets();
+    setIsLoading(false);
+    setShowAssetDialog(true);
+  };
+
   const closeAssetDialog = () => setShowAssetDialog(false);
 
   const handleConfirmSelection = (selectedAssets) => {
@@ -120,9 +140,10 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
       <AssetSelectionDialog
         isOpen={showAssetDialog}
         onClose={closeAssetDialog}
-        assets={assets}
+        assets={refreshedAssets.length > 0 ? refreshedAssets : assets}
         onConfirmSelection={handleConfirmSelection}
         eventName={item.event_name}
+        isLoading={isLoading}
       />
     </div>
   );
