@@ -1,77 +1,106 @@
-import React, { useState, useEffect } from "react";
-import Button from "./Button";
-import InputField from './InputField';
-import SelectField from './SelectField';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { Upload } from 'lucide-react';
 import axios from 'axios';
 import moment from 'moment';
 
-// Styles
-const shakeAnimation = `
-  @keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-    100% { transform: translateX(0); }
-  }
+// Utility function for input fields
+const InputField = ({ label, id, type = "text", value, onChange, placeholder, prefix, readOnly, multiline, className, shake }) => (
+  <div className={`space-y-1 ${shake ? 'animate-shake' : ''}`}>
+    <label htmlFor={id} className="block text-sm font-medium text-gray-700">{label}</label>
+    {multiline ? (
+      <textarea
+        id={id}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
+        readOnly={readOnly}
+      />
+    ) : (
+      <div className="relative">
+        {prefix && (
+          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+            {prefix}
+          </span>
+        )}
+        <input
+          type={type}
+          id={id}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${prefix ? 'pl-7' : ''} ${className}`}
+          readOnly={readOnly}
+        />
+      </div>
+    )}
+  </div>
+);
 
-  .shake {
-    animation: shake 0.5s;
-  }
-`;
+// Utility function for select fields
+const SelectField = ({ label, id, value, onChange, options, placeholder, shake }) => (
+  <div className={`space-y-1 ${shake ? 'animate-shake' : ''}`}>
+    <label htmlFor={id} className="block text-sm font-medium text-gray-700">{label}</label>
+    <select
+      id={id}
+      value={value}
+      onChange={onChange}
+      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
+      <option value="">{placeholder}</option>
+      {options.map((option, index) => (
+        <option key={index} value={typeof option === 'string' ? option : option.value}>
+          {typeof option === 'string' ? option : option.label}
+        </option>
+      ))}
+    </select>
+  </div>
+);
 
-// Initial form state
-const initialFormState = {
-  assetName: "",
-  assetDetails: "",
-  cost: "",
-  quantity: 1,
-  totalCost: "",
-  selectedCategory: "",
-  selectedLocation: "",
-  createdDate: moment(),
-  image: null,
-  type: "",
-  productCode: "",
-};
+const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal, onOpenModal }) => {
+  const [formData, setFormData] = useState({
+    assetName: "",
+    assetDetails: "",
+    cost: "",
+    quantity: 1,
+    totalCost: "",
+    selectedCategory: "",
+    selectedLocation: "",
+    createdDate: moment(),
+    image: null,
+    type: "",
+    productCode: "",
+  });
 
-const AddAsset = ({
-  onAddAsset,
-  categories,
-  locations,
-  isModalOpen,
-  onCloseModal,
-  onOpenModal,
-}) => {
-  const [formData, setFormData] = useState(initialFormState);
   const [shakeFields, setShakeFields] = useState([]);
 
-  // Add shake animation style on component mount
-  useEffect(() => {
-    const styleElement = document.createElement("style");
-    styleElement.innerHTML = shakeAnimation;
-    document.head.appendChild(styleElement);
-    return () => styleElement.remove();
-  }, []);
-
-  // Reset form when modal opens
   useEffect(() => {
     if (isModalOpen) {
-      setFormData(initialFormState);
+      setFormData({
+        assetName: "",
+        assetDetails: "",
+        cost: "",
+        quantity: 1,
+        totalCost: "",
+        selectedCategory: "",
+        selectedLocation: "",
+        createdDate: moment(),
+        image: null,
+        type: "",
+        productCode: "",
+      });
       setShakeFields([]);
     }
   }, [isModalOpen]);
 
-  // Form handlers
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
 
-    // Update total cost if cost or quantity changes
     if (field === 'cost' || field === 'quantity') {
       const newCost = field === 'cost' ? value : formData.cost;
       const newQuantity = field === 'quantity' ? value : formData.quantity;
@@ -79,7 +108,7 @@ const AddAsset = ({
         const calculatedTotalCost = parseFloat(newCost) * parseInt(newQuantity);
         setFormData(prev => ({
           ...prev,
-          totalCost: calculatedTotalCost.toString()
+          totalCost: calculatedTotalCost.toFixed(2)
         }));
       }
     }
@@ -130,7 +159,7 @@ const AddAsset = ({
       createdDate: formData.createdDate.format('YYYY-MM-DD'),
       image: formData.image,
       type: formData.type,
-      under_maintenance: false // Add default maintenance status
+      under_maintenance: false
     };
 
     try {
@@ -145,127 +174,156 @@ const AddAsset = ({
     }
   };
 
-  // Render form fields
-  const renderFormFields = () => (
-    <form className="grid grid-cols-1 gap-6 md:grid-cols-2">
-      <InputField
-        label="Asset Name"
-        value={formData.assetName}
-        onChange={(e) => handleInputChange('assetName', e.target.value)}
-        shake={shakeFields.includes("assetName")}
-      />
-      <InputField
-        label="Product Code"
-        value={formData.productCode}
-        onChange={(e) => handleInputChange('productCode', e.target.value)}
-      />
-      <InputField
-        label="Asset Details"
-        value={formData.assetDetails}
-        onChange={(e) => handleInputChange('assetDetails', e.target.value)}
-        shake={shakeFields.includes("assetDetails")}
-      />
-      <SelectField
-        label="Asset Category"
-        value={formData.selectedCategory}
-        onChange={(e) => handleInputChange('selectedCategory', e.target.value)}
-        options={categories}
-        shake={shakeFields.includes("selectedCategory")}
-      />
-      <SelectField
-        label="Asset Location"
-        value={formData.selectedLocation}
-        onChange={(e) => handleInputChange('selectedLocation', e.target.value)}
-        options={locations}
-        shake={shakeFields.includes("selectedLocation")}
-      />
-      <SelectField
-        label="Asset Type"
-        value={formData.type}
-        onChange={(e) => handleInputChange('type', e.target.value)}
-        options={['Consumable', 'Non-Consumable']}
-        shake={shakeFields.includes("type")}
-      />
-      <InputField
-        label="Cost per Unit"
-        value={formData.cost}
-        onChange={(e) => handleInputChange('cost', e.target.value.replace(/[^0-9.]/g, ""))}
-        prefix="₱"
-        shake={shakeFields.includes("cost")}
-      />
-      <InputField
-        label="Quantity"
-        type="number"
-        value={formData.quantity}
-        onChange={(e) => handleInputChange('quantity', Number(e.target.value))}
-        shake={shakeFields.includes("quantity")}
-      />
-      <InputField
-        label="Total Cost"
-        value={formData.totalCost}
-        prefix="₱"
-        readOnly
-      />
-      {/* Image upload field */}
-      <div className="col-span-2 space-y-3">
-        <label className="block text-sm font-medium text-gray-700">Upload Image</label>
-        <input 
-          type="file" 
-          onChange={handleImageUpload}
-          className="block w-full text-sm text-gray-600
-            file:mr-4 file:py-3 file:px-5
-            file:rounded-md file:border-0
-            file:text-sm file:font-medium
-            file:bg-blue-50 file:text-blue-700
-            hover:file:bg-blue-100"
-        />
-        {formData.image && (
-          <div className="mt-3">
-            <img
-              src={formData.image}
-              alt="Uploaded Asset"
-              className="h-24 w-24 object-cover rounded-md border border-gray-300"
-            />
-          </div>
-        )}
-      </div>
-    </form>
-  );
-
   return (
     <>
-      <Button
+      <button
         onClick={onOpenModal}
-        className="px-3 py-2 border border-[#FEC00F] text-black bg-[#FEC000] rounded-md hover:bg-[#ffda6a] duration-300"
+        className="px-4 py-2 border-2 border-black text-black bg-[#FEC000] rounded-lg hover:bg-[#ffda6a] duration-300 flex items-center gap-2"
       >
         <FontAwesomeIcon icon={faPlus} className="text-black" />
-        <span className="text-black"> New Asset</span>
-      </Button>
+        <span>New Asset</span>
+      </button>
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-6 z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-gray-100 to-gray-200 px-8 py-5 border-b border-gray-300">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
+            <div className="px-8 py-5 border-b">
               <h2 className="text-2xl font-bold text-gray-800">Add Asset</h2>
             </div>
             
             <div className="px-8 py-6 max-h-[calc(100vh-150px)] overflow-y-auto">
-              {renderFormFields()}
+              <form className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <InputField
+                    label="Asset Name"
+                    id="assetName"
+                    value={formData.assetName}
+                    onChange={(e) => handleInputChange('assetName', e.target.value)}
+                    placeholder="Enter asset name"
+                    shake={shakeFields.includes("assetName")}
+                  />
+                  <InputField
+                    label="Product Code"
+                    id="productCode"
+                    value={formData.productCode}
+                    onChange={(e) => handleInputChange('productCode', e.target.value)}
+                    placeholder="Enter product code"
+                  />
+                </div>
+
+                <InputField
+                  label="Asset Details"
+                  id="assetDetails"
+                  value={formData.assetDetails}
+                  onChange={(e) => handleInputChange('assetDetails', e.target.value)}
+                  placeholder="Enter asset details"
+                  multiline
+                  className="min-h-[100px]"
+                  shake={shakeFields.includes("assetDetails")}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <SelectField
+                    label="Asset Category"
+                    id="assetCategory"
+                    value={formData.selectedCategory}
+                    onChange={(e) => handleInputChange('selectedCategory', e.target.value)}
+                    options={categories}
+                    placeholder="Select Asset Category"
+                    shake={shakeFields.includes("selectedCategory")}
+                  />
+                  <SelectField
+                    label="Asset Type"
+                    id="assetType"
+                    value={formData.type}
+                    onChange={(e) => handleInputChange('type', e.target.value)}
+                    options={['Consumable', 'Non-Consumable']}
+                    placeholder="Select Asset Type"
+                    shake={shakeFields.includes("type")}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <InputField
+                    label="Cost per Unit"
+                    id="cost"
+                    value={formData.cost}
+                    onChange={(e) => handleInputChange('cost', e.target.value.replace(/[^0-9.]/g, ""))}
+                    prefix="₱"
+                    shake={shakeFields.includes("cost")}
+                  />
+                  <InputField
+                    label="Quantity"
+                    id="quantity"
+                    type="number"
+                    value={formData.quantity}
+                    onChange={(e) => handleInputChange('quantity', Number(e.target.value))}
+                    shake={shakeFields.includes("quantity")}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <InputField
+                    label="Total Cost"
+                    id="totalCost"
+                    value={formData.totalCost}
+                    prefix="₱"
+                    readOnly
+                  />
+                  <SelectField
+                    label="Asset Location"
+                    id="assetLocation"
+                    value={formData.selectedLocation}
+                    onChange={(e) => handleInputChange('selectedLocation', e.target.value)}
+                    options={locations}
+                    shake={shakeFields.includes("selectedLocation")}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Upload Image</label>
+                  <div className="flex items-center gap-4">
+                    <input 
+                      type="file" 
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="assetImage"
+                    />
+                    <button
+                      type="button"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center justify-center"
+                      onClick={() => document.getElementById('assetImage')?.click()}
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Choose File
+                    </button>
+                  </div>
+                  {formData.image && (
+                    <div className="mt-3">
+                      <img
+                        src={formData.image}
+                        alt="Uploaded Asset"
+                        className="h-24 w-24 object-cover rounded-md border border-gray-300"
+                      />
+                    </div>
+                  )}
+                </div>
+              </form>
             </div>
 
-            <div className="bg-gray-100 px-8 py-5 border-t border-gray-300 flex justify-end gap-4">
-              <Button 
+            <div className="px-8 py-5 border-t flex justify-end gap-4">
+              <button 
                 onClick={onCloseModal}
-                className="px-6 py-3 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition-colors"
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Cancel
-              </Button>
-              <Button 
+              </button>
+              <button 
                 onClick={handleSaveAsset}
-                className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Add Asset
-              </Button>
+              </button>
             </div>
           </div>
         </div>

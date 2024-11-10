@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from "react";
 import Button from "./Button";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
 
 // Modal Component
 const Modal = ({
@@ -36,12 +38,14 @@ const Modal = ({
 
   const handleDeleteLocation = async (loc) => {
     try {
-      await axios.delete(
-        `${process.env.REACT_APP_API_URL}/api/locations/${encodeURIComponent(
-          loc
-        )}`
-      );
-      onDeleteLocation(loc);
+      if (window.confirm(`Are you sure you want to delete "${loc}"?`)) {
+        await axios.delete(
+          `${process.env.REACT_APP_API_URL}/api/locations/${encodeURIComponent(
+            loc
+          )}`
+        );
+        onDeleteLocation(loc);
+      }
     } catch (error) {
       console.error("Error deleting location:", error);
     }
@@ -51,55 +55,56 @@ const Modal = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
-        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">Add Location</h2>
+      <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-xl">
+        <div className="px-6 py-4 border-b">
+          <h2 className="text-xl font-semibold">Add Location</h2>
         </div>
-        <div className="p-6">
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              New Location
-            </label>
+        <div className="p-6 space-y-4">
+          <div className="space-y-2">
             <input
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter location name"
             />
           </div>
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold mb-2 text-gray-700">
-              Existing Locations
-            </h3>
-            <ul className="space-y-2">
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-gray-600">Existing Locations</h3>
+            <div className="space-y-2">
               {locations.map((loc, index) => (
-                <li
+                <div
                   key={index}
-                  className="flex justify-between items-center bg-gray-50 p-2 rounded"
+                  className="flex items-center justify-between p-2 rounded-lg border bg-card text-card-foreground transition-colors hover:bg-muted/50"
                 >
-                  <span className="text-gray-800">{loc}</span>
-                  <Button
-                    className="bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded transition-colors duration-300"
-                    onClick={() => handleDeleteLocation(loc)}
-                  >
-                    Delete
-                  </Button>
-                </li>
+                  <span className="text-sm">{loc}</span>
+                  <div className="flex items-center">
+                    <Button
+                      variant="ghost"
+                      className="h-8 w-8 text-gray-500 hover:text-red-500 flex items-center justify-center"
+                      onClick={() => handleDeleteLocation(loc)}
+                    >
+                      <FontAwesomeIcon icon={faTrashAlt} className="h-4 w-4" />
+                      <span className="sr-only">Delete location</span>
+                    </Button>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
-        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+        <div className="px-6 py-4 border-t flex justify-end gap-2">
           <Button
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors duration-300"
+            variant="outline"
             onClick={onClose}
+            className="px-4 py-2"
           >
             Cancel
           </Button>
           <Button
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-300"
+            variant="primary"
             onClick={handleSaveLocation}
+            className="px-4 py-2"
           >
             Save Location
           </Button>
@@ -119,9 +124,9 @@ const AssetLocation = ({ onSaveLocation, onDeleteLocation, locations }) => {
     <div className="group-button">
       <Button
         onClick={handleOpenModal}
-        className="bg-blue-400 border border-black text-black px-4 py-2 rounded hover:bg-blue-300 transition-colors duration-300"
+        className="px-3 py-2 border-2 border-black text-black bg-blue-400 rounded-md hover:bg-blue-300 duration-300"
       >
-        <span className="text-black">Add Location</span>
+        Add Location
       </Button>
       <Modal
         isOpen={isModalOpen}

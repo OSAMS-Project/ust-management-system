@@ -1,21 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import InputField from './InputField';
-import SelectField from './SelectField';
-import Button from './Button';
+import { Upload } from 'lucide-react';
 import axios from 'axios';
 
-const EditAssetModal = ({
-  isOpen,
-  onClose,
-  asset,
-  categories = [],
-  locations = [],
-  onEditAsset,
-}) => {
+// Copy the same utility components from AddAsset.jsx
+const InputField = ({ label, id, type = "text", value, onChange, placeholder, prefix, readOnly, multiline, className, shake }) => (
+  <div className={`space-y-1 ${shake ? 'animate-shake' : ''}`}>
+    <label htmlFor={id} className="block text-sm font-medium text-gray-700">{label}</label>
+    {multiline ? (
+      <textarea
+        id={id}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
+        readOnly={readOnly}
+      />
+    ) : (
+      <div className="relative">
+        {prefix && (
+          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+            {prefix}
+          </span>
+        )}
+        <input
+          type={type}
+          id={id}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${prefix ? 'pl-7' : ''} ${className}`}
+          readOnly={readOnly}
+        />
+      </div>
+    )}
+  </div>
+);
+
+const SelectField = ({ label, id, value, onChange, options, placeholder, shake }) => (
+  <div className={`space-y-1 ${shake ? 'animate-shake' : ''}`}>
+    <label htmlFor={id} className="block text-sm font-medium text-gray-700">{label}</label>
+    <select
+      id={id}
+      value={value}
+      onChange={onChange}
+      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
+      <option value="">{placeholder}</option>
+      {options.map((option, index) => (
+        <option key={index} value={typeof option === 'string' ? option : option.value}>
+          {typeof option === 'string' ? option : option.label}
+        </option>
+      ))}
+    </select>
+  </div>
+);
+
+const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [], onEditAsset }) => {
   const [editedAsset, setEditedAsset] = useState(null);
   const [newImage, setNewImage] = useState(null);
   const [totalCost, setTotalCost] = useState("");
   const [quantityForBorrowing, setQuantityForBorrowing] = useState(0);
+  const [shakeFields, setShakeFields] = useState([]);
 
   useEffect(() => {
     if (asset) {
@@ -23,6 +68,7 @@ const EditAssetModal = ({
       setNewImage(null);
       calculateTotalCost(asset.quantity, asset.cost);
       setQuantityForBorrowing(asset.quantity_for_borrowing);
+      setShakeFields([]);
     }
   }, [asset]);
 
@@ -34,22 +80,12 @@ const EditAssetModal = ({
         field === 'cost' ? value : editedAsset.cost
       );
     }
-    if (field === 'quantityForBorrowing') {
-      // Prevent setting quantity for borrowing to zero
-      if (value < 1) {
-        setQuantityForBorrowing(1); // Reset to 1 if the user tries to set it to zero
-      } else {
-        setQuantityForBorrowing(value);
-      }
-    }
   };
 
   const calculateTotalCost = (quantity, cost) => {
     if (quantity && cost) {
-      const calculatedTotalCost = parseFloat(cost) * quantity;
+      const calculatedTotalCost = parseFloat(cost) * parseInt(quantity);
       setTotalCost(calculatedTotalCost.toFixed(2));
-    } else {
-      setTotalCost("");
     }
   };
 
@@ -64,7 +100,25 @@ const EditAssetModal = ({
     }
   };
 
+  const validateForm = () => {
+    const requiredFields = [
+      'assetName',
+      'assetDetails',
+      'category',
+      'location',
+      'cost',
+      'quantity',
+      'type'
+    ];
+
+    const emptyFields = requiredFields.filter(field => !editedAsset?.[field]);
+    setShakeFields(emptyFields);
+    return emptyFields.length === 0;
+  };
+
   const handleSaveAsset = async () => {
+    if (!validateForm()) return;
+    
     if (editedAsset) {
       try {
         if (quantityForBorrowing > editedAsset.quantity) {
@@ -131,106 +185,161 @@ const EditAssetModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60">
-  <div className="bg-white p-8 rounded-xl w-[600px] max-w-3xl shadow-2xl">
-    <h2 className="text-2xl font-semibold mb-6 text-gray-800">
-      Edit Asset
-    </h2>
-    {editedAsset && (
-      <>
-        <div className="grid grid-cols-1 gap-y-6 gap-x-8 md:grid-cols-2">
-          <InputField
-            label="Product Code"
-            value={editedAsset.productCode}
-            onChange={(e) => handleChange('productCode', e.target.value)}
-          />
-          <InputField
-            label="Asset Name"
-            value={editedAsset.assetName}
-            onChange={(e) => handleChange('assetName', e.target.value)}
-          />
-          <InputField
-            label="Asset Details"
-            value={editedAsset.assetDetails}
-            onChange={(e) => handleChange('assetDetails', e.target.value)}
-          />
-          <SelectField
-            label="Asset Category"
-            value={editedAsset.category}
-            onChange={(e) => handleChange('category', e.target.value)}
-            options={categories}
-          />
-          <SelectField
-            label="Asset Location"
-            value={editedAsset.location}
-            onChange={(e) => handleChange('location', e.target.value)}
-            options={locations}
-          />
-          <SelectField
-            label="Asset Type"
-            value={editedAsset.type}
-            onChange={(e) => handleChange('type', e.target.value)}
-            options={['Consumable', 'Non-Consumable']}
-          />
-          <InputField
-            label="Quantity"
-            type="number"
-            value={editedAsset.quantity}
-            onChange={(e) => handleChange('quantity', Number(e.target.value))}
-          />
-          <InputField
-            label="Cost"
-            value={editedAsset.cost}
-            onChange={(e) => handleChange('cost', e.target.value.replace(/[^0-9.]/g, ""))}
-            prefix="₱"
-          />
-          <InputField
-            label="Total Cost"
-            value={totalCost}
-            prefix="₱"
-            readOnly
-          />
-          {editedAsset.is_active && (
-            <InputField
-              label="Quantity for Borrowing"
-              type="number"
-              value={quantityForBorrowing}
-              onChange={(e) => handleChange('quantityForBorrowing', Number(e.target.value))}
-              min="1"
-            />
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-6 z-50">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
+        <div className="px-8 py-5 border-b">
+          <h2 className="text-2xl font-bold text-gray-800">Edit Asset</h2>
+        </div>
+        
+        <div className="px-8 py-6 max-h-[calc(100vh-150px)] overflow-y-auto">
+          {editedAsset && (
+            <form className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <InputField
+                  label="Asset Name"
+                  id="assetName"
+                  value={editedAsset.assetName}
+                  onChange={(e) => handleChange('assetName', e.target.value)}
+                  placeholder="Enter asset name"
+                  shake={shakeFields.includes('assetName')}
+                />
+                <InputField
+                  label="Product Code"
+                  id="productCode"
+                  value={editedAsset.productCode}
+                  onChange={(e) => handleChange('productCode', e.target.value)}
+                  placeholder="Enter product code"
+                />
+              </div>
+
+              <InputField
+                label="Asset Details"
+                id="assetDetails"
+                value={editedAsset.assetDetails}
+                onChange={(e) => handleChange('assetDetails', e.target.value)}
+                placeholder="Enter asset details"
+                multiline
+                className="min-h-[100px]"
+                shake={shakeFields.includes('assetDetails')}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <SelectField
+                  label="Asset Category"
+                  id="category"
+                  value={editedAsset.category}
+                  onChange={(e) => handleChange('category', e.target.value)}
+                  options={categories}
+                  placeholder="Select Asset Category"
+                  shake={shakeFields.includes('category')}
+                />
+                <SelectField
+                  label="Asset Type"
+                  id="type"
+                  value={editedAsset.type}
+                  onChange={(e) => handleChange('type', e.target.value)}
+                  options={['Consumable', 'Non-Consumable']}
+                  placeholder="Select Asset Type"
+                  shake={shakeFields.includes('type')}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <InputField
+                  label="Cost per Unit"
+                  id="cost"
+                  value={editedAsset.cost}
+                  onChange={(e) => handleChange('cost', e.target.value.replace(/[^0-9.]/g, ""))}
+                  prefix="₱"
+                  shake={shakeFields.includes('cost')}
+                />
+                <InputField
+                  label="Quantity"
+                  id="quantity"
+                  type="number"
+                  value={editedAsset.quantity}
+                  onChange={(e) => handleChange('quantity', Number(e.target.value))}
+                  shake={shakeFields.includes('quantity')}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <InputField
+                  label="Total Cost"
+                  id="totalCost"
+                  value={totalCost}
+                  prefix="₱"
+                  readOnly
+                />
+                <SelectField
+                  label="Asset Location"
+                  id="location"
+                  value={editedAsset.location}
+                  onChange={(e) => handleChange('location', e.target.value)}
+                  options={locations}
+                  shake={shakeFields.includes('location')}
+                />
+              </div>
+
+              {editedAsset.is_active && (
+                <InputField
+                  label="Quantity for Borrowing"
+                  id="quantityForBorrowing"
+                  type="number"
+                  value={quantityForBorrowing}
+                  onChange={(e) => handleChange('quantityForBorrowing', Number(e.target.value))}
+                  min="1"
+                />
+              )}
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Upload Image</label>
+                <div className="flex items-center gap-4">
+                  <input 
+                    type="file" 
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    id="assetImage"
+                  />
+                  <button
+                    type="button"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center justify-center"
+                    onClick={() => document.getElementById('assetImage')?.click()}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Choose File
+                  </button>
+                </div>
+                {(newImage || editedAsset.image) && (
+                  <div className="mt-3">
+                    <img
+                      src={newImage || editedAsset.image}
+                      alt="Asset"
+                      className="h-24 w-24 object-cover rounded-md border border-gray-300"
+                    />
+                  </div>
+                )}
+              </div>
+            </form>
           )}
         </div>
 
-        <div className="my-6">
-          <label className="block text-sm font-medium mb-2 text-gray-700">Asset Image</label>
-          {(newImage || editedAsset.image) && (
-            <img
-              src={newImage || editedAsset.image}
-              alt="Asset"
-              className="w-full h-52 object-cover mb-4 rounded-lg"
-            />
-          )}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="w-full border rounded-lg px-4 py-2"
-          />
-        </div>
-
-        <div className="flex justify-end gap-4 mt-8">
-          <Button className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-lg" onClick={onClose}>
+        <div className="px-8 py-5 border-t flex justify-end gap-4">
+          <button 
+            onClick={onClose}
+            className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
             Cancel
-          </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg" onClick={handleSaveAsset}>
+          </button>
+          <button 
+            onClick={handleSaveAsset}
+            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
             Save Changes
-          </Button>
+          </button>
         </div>
-      </>
-    )}
-  </div>
-</div>
-
+      </div>
+    </div>
   );
 };
 
