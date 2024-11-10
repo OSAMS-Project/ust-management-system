@@ -20,7 +20,8 @@ const DashboardInfoCards = ({ formatTime }) => {
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [recentEvents, setRecentEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  
+  const [events, setEvents] = useState([]);
+  const [totalOngoingEvents, setTotalOngoingEvents] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,6 +72,20 @@ const DashboardInfoCards = ({ formatTime }) => {
       }
     };
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-events`);
+        setTotalOngoingEvents(response.data.totalEvents);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        setError(true);
+      }
+    };
+
+    fetchEvents();
   }, []);
 
   const handleAssetDetailsClick = async (asset) => {
@@ -158,12 +173,12 @@ const DashboardInfoCards = ({ formatTime }) => {
               <h2 className="text-7xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error
                   ? "Error"
-                  : totalEvents === null
+                  : totalOngoingEvents === null
                   ? "Loading..."
-                  : totalEvents}
+                  : totalOngoingEvents}
               </h2>
               <p className="text-[1.25rem] font-semibold text-white drop-shadow-md">
-                Total Events
+                Ongoing Events
               </p>
             </div>
           </div>

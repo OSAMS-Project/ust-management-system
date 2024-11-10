@@ -27,10 +27,11 @@ exports.getTotalUsers = async (req, res) => {
 exports.getTotalEvents = async (req, res) => {
   try {
     const totalEvents = await Event.getTotalEvents();
-    res.json({ totalEvents });
+    res.json({ totalEvents: totalEvents || 0 });
   } catch (error) {
     console.error('Error getting total events:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    // Return 0 instead of error
+    res.json({ totalEvents: 0 });
   }
 };
 

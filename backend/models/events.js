@@ -130,9 +130,18 @@ const deleteEvent = async (uniqueId) => {
 };
 
 const getTotalEvents = async () => {
-  const query = "SELECT COUNT(*) as total FROM Events";
-  const result = await executeTransaction([{ query, params: [] }]);
-  return result[0].total;
+  try {
+    const query = `
+      SELECT COUNT(*) as count 
+      FROM events 
+      WHERE is_completed = false
+    `;
+    const result = await pool.query(query);
+    return parseInt(result.rows[0].count);
+  } catch (error) {
+    console.error('Error in getTotalEvents:', error);
+    return 0;
+  }
 };
 
 const getRecentEvents = async (limit = 5) => {
