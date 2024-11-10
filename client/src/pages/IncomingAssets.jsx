@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import moment from 'moment';
 
 const IncomingAssets = () => {
   const [assets, setAssets] = useState([]);
@@ -22,6 +23,8 @@ const IncomingAssets = () => {
     notes: ''
   });
   const [categories, setCategories] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     fetchIncomingAssets();
@@ -151,30 +154,162 @@ const IncomingAssets = () => {
     }
   };
 
-  // Add this to separate pending and received assets
+  // Separate assets by status first, then apply pagination
   const pendingAssets = assets.filter(asset => asset.status === 'pending');
   const receivedAssets = assets.filter(asset => asset.status === 'received');
+
+  // Calculate pagination for each table separately
+  const totalPendingPages = Math.ceil(pendingAssets.length / itemsPerPage);
+  const totalReceivedPages = Math.ceil(receivedAssets.length / itemsPerPage);
+
+  // Get current page items for each table
+  const currentPendingAssets = pendingAssets.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  const currentReceivedAssets = receivedAssets.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Add console logs to debug
+  console.log('All assets:', assets);
+  console.log('Received assets:', receivedAssets);
+  console.log('Current received assets:', currentReceivedAssets);
 
   return (
     <div className="p-6">
       <ToastContainer />
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Incoming Assets</h1>
-          <p className="text-gray-600">Manage and track incoming asset deliveries</p>
-        </div>
+
+      {/* Controls Section */}
+      <div className="flex justify-between items-center mb-4">
         <button
           onClick={() => setShowForm(true)}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center"
         >
-          Add New Asset
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+          </svg>
+          Add New Incoming Asset
         </button>
       </div>
 
+      {/* Pending Assets Table */}
+      <div className="mt-2">
+        <h2 className="text-2xl font-bold mb-4">Pending Assets ({pendingAssets.length})</h2>
+        <table className="min-w-full bg-white border-collapse">
+          <thead className="bg-black text-[#FEC00F]">
+            <tr>
+              <th className="py-2 px-4 border-b text-center">Asset Name</th>
+              <th className="py-2 px-4 border-b text-center">Type</th>
+              <th className="py-2 px-4 border-b text-center">Category</th>
+              <th className="py-2 px-4 border-b text-center">Quantity</th>
+              <th className="py-2 px-4 border-b text-center">Total Cost</th>
+              <th className="py-2 px-4 border-b text-center">Expected Date</th>
+              <th className="py-2 px-4 border-b text-center">Status</th>
+              <th className="py-2 px-4 border-b text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentPendingAssets.map((asset, index) => (
+              <tr
+                key={asset.id}
+                className={`${
+                  index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
+                } cursor-pointer hover:bg-gray-50`}
+              >
+                <td className="py-2 px-4 border-b text-center">{asset.assetName}</td>
+                <td className="py-2 px-4 border-b text-center">{asset.type}</td>
+                <td className="py-2 px-4 border-b text-center">{asset.category}</td>
+                <td className="py-2 px-4 border-b text-center">{asset.quantity}</td>
+                <td className="py-2 px-4 border-b text-center">₱{asset.total_cost}</td>
+                <td className="py-2 px-4 border-b text-center">
+                  {moment(asset.expected_date).format("MM/DD/YYYY")}
+                </td>
+                <td className="py-2 px-4 border-b text-center">
+                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                    {asset.status}
+                  </span>
+                </td>
+                <td className="py-2 px-4 border-b text-center">
+                  <button
+                    onClick={() => handleStatusUpdate(asset)}
+                    className="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition duration-300"
+                  >
+                    Mark as Received
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Received Assets Table */}
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4">Received Assets ({receivedAssets.length})</h2>
+        <table className="min-w-full bg-white border-collapse">
+          <thead className="bg-black text-[#FEC00F]">
+            <tr>
+              <th className="py-2 px-4 border-b text-center">Asset Name</th>
+              <th className="py-2 px-4 border-b text-center">Type</th>
+              <th className="py-2 px-4 border-b text-center">Category</th>
+              <th className="py-2 px-4 border-b text-center">Quantity</th>
+              <th className="py-2 px-4 border-b text-center">Total Cost</th>
+              <th className="py-2 px-4 border-b text-center">Status</th>
+              <th className="py-2 px-4 border-b text-center">Location</th>
+              <th className="py-2 px-4 border-b text-center">Received Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentReceivedAssets.length > 0 ? (
+              currentReceivedAssets.map((asset, index) => (
+                <tr
+                  key={asset.id}
+                  className={`${
+                    index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
+                  } cursor-pointer hover:bg-gray-50`}
+                >
+                  <td className="py-2 px-4 border-b text-center">{asset.assetName}</td>
+                  <td className="py-2 px-4 border-b text-center">{asset.type}</td>
+                  <td className="py-2 px-4 border-b text-center">{asset.category}</td>
+                  <td className="py-2 px-4 border-b text-center">{asset.quantity}</td>
+                  <td className="py-2 px-4 border-b text-center">₱{asset.total_cost}</td>
+                  <td className="py-2 px-4 border-b text-center">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                      {asset.status}
+                    </span>
+                  </td>
+                  <td className="py-2 px-4 border-b text-center">{asset.location}</td>
+                  <td className="py-2 px-4 border-b text-center">
+                    {moment(asset.updated_at).format("MM/DD/YYYY")}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="8" className="py-4 text-center text-gray-500">No received assets yet.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Modals */}
       {showForm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-xl max-w-2xl w-full mx-4">
-            <h2 className="text-xl font-bold mb-4">Add New Incoming Asset</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-800">Add New Incoming Asset</h2>
+              <button
+                onClick={() => setShowForm(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
             <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Asset Name</label>
@@ -316,9 +451,19 @@ const IncomingAssets = () => {
       )}
 
       {showLocationDialog && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
-            <h2 className="text-xl font-bold mb-4">Select Storage Location</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-800">Select Storage Location</h2>
+              <button
+                onClick={() => setShowLocationDialog(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
             <form onSubmit={handleLocationSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Storage Location</label>
@@ -359,91 +504,6 @@ const IncomingAssets = () => {
           </div>
         </div>
       )}
-
-      {/* Pending Assets Table */}
-      <div className="mb-8">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">Pending Assets</h2>
-        <div className="bg-white rounded-lg shadow overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Cost</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {pendingAssets.map((asset) => (
-                <tr key={asset.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">{asset.assetName}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{asset.type}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{asset.category}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{asset.quantity}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">₱{asset.total_cost}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                      {asset.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() => handleStatusUpdate(asset)}
-                      className="text-blue-600 hover:text-blue-900 mr-2"
-                    >
-                      Mark as Received
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Received Assets Table */}
-      <div>
-        <h2 className="text-xl font-bold text-gray-800 mb-4">Received Assets</h2>
-        <div className="bg-white rounded-lg shadow overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Cost</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Received Date</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {receivedAssets.map((asset) => (
-                <tr key={asset.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">{asset.assetName}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{asset.type}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{asset.category}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{asset.quantity}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">₱{asset.total_cost}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                      {asset.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{asset.location}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {new Date(asset.updated_at).toLocaleDateString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   );
 };
