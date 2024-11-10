@@ -31,10 +31,6 @@ const updateAsset = async (req, res) => {
   try {
     const { id } = req.params;
     
-    if (req.body.productCode === '') {
-      return res.status(400).json({ error: "Product Code cannot be empty" });
-    }
-
     console.log('Updating asset with ID:', id);
     console.log('Update data:', req.body);
     const result = await Asset.updateAsset(req.body, id);
