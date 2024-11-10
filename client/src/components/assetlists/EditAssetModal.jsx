@@ -277,6 +277,7 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
                   value={editedAsset.location}
                   onChange={(e) => handleChange('location', e.target.value)}
                   options={locations}
+                  placeholder="Select Asset Location"
                   shake={shakeFields.includes('location')}
                 />
               </div>
@@ -287,7 +288,7 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
                   id="quantityForBorrowing"
                   type="number"
                   value={quantityForBorrowing}
-                  onChange={(e) => handleChange('quantityForBorrowing', Number(e.target.value))}
+                  onChange={(e) => setQuantityForBorrowing(Number(e.target.value))}
                   min="1"
                 />
               )}
