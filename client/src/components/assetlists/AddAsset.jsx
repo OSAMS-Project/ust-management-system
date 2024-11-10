@@ -276,6 +276,7 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
                     value={formData.selectedLocation}
                     onChange={(e) => handleInputChange('selectedLocation', e.target.value)}
                     options={locations}
+                    placeholder="Select Asset Location"
                     shake={shakeFields.includes("selectedLocation")}
                   />
                 </div>
