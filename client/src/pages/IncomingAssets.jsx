@@ -120,7 +120,7 @@ const IncomingAssets = () => {
         location: selectedLocation
       });
 
-      // Format the data for the main assets table
+      // Format the data for the main assets table with N/A for Product Code
       const newAssetData = {
         assetName: selectedAsset.assetName,
         assetDetails: selectedAsset.description || '',
@@ -130,7 +130,8 @@ const IncomingAssets = () => {
         totalCost: parseFloat(selectedAsset.total_cost) || 0,
         cost: parseFloat(selectedAsset.cost) || 0,
         type: selectedAsset.type,
-        image: ''
+        image: 'N/A',
+        productCode: 'N/A'
       };
 
       console.log('Attempting to create asset with data:', newAssetData);
