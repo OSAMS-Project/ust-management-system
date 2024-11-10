@@ -4,6 +4,8 @@ import NotificationPopup from '../components/utils/NotificationsPopup';
 import AddIncomingAssetForm from '../components/incomingassets/AddIncomingAssetForm';
 import LocationDialog from '../components/incomingassets/LocationDialog';
 import IncomingAssetsTable from '../components/incomingassets/IncomingAssetsTable';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTruckFast } from "@fortawesome/free-solid-svg-icons";
 
 const IncomingAssets = () => {
   const [assets, setAssets] = useState([]);
@@ -190,55 +192,66 @@ const IncomingAssets = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6 flex justify-between items-center">
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Add New Incoming Asset
-        </button>
+    <div>
+      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
+        <h1 className="text-5xl font-extrabold text-black">
+          Incoming Assets
+        </h1>
+        <FontAwesomeIcon
+          icon={faTruckFast}
+          className="text-black text-5xl transform"
+        />
       </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-6 flex justify-between items-center">
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Add New Incoming Asset
+          </button>
+        </div>
 
-      <IncomingAssetsTable 
-        assets={assets}
-        handleStatusUpdate={handleStatusUpdate}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        itemsPerPage={itemsPerPage}
-        receivedAssets={receivedAssets}
-        currentReceivedAssets={currentReceivedAssets}
-        currentPendingAssets={currentPendingAssets}
-      />
-
-      {showForm && (
-        <AddIncomingAssetForm 
-          formData={formData}
-          handleInputChange={handleInputChange}
-          handleSubmit={handleSubmit}
-          setShowForm={setShowForm}
-          categories={categories}
-          today={today}
-          setNotification={setNotification}
-          resetFormData={resetFormData}
+        <IncomingAssetsTable 
+          assets={assets}
+          handleStatusUpdate={handleStatusUpdate}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          itemsPerPage={itemsPerPage}
+          receivedAssets={receivedAssets}
+          currentReceivedAssets={currentReceivedAssets}
+          currentPendingAssets={currentPendingAssets}
         />
-      )}
 
-      {showLocationDialog && (
-        <LocationDialog 
-          showLocationDialog={showLocationDialog}
-          setShowLocationDialog={setShowLocationDialog}
-          selectedLocation={selectedLocation}
-          setSelectedLocation={setSelectedLocation}
-          locations={locations}
-          handleLocationSubmit={handleLocationSubmit}
+        {showForm && (
+          <AddIncomingAssetForm 
+            formData={formData}
+            handleInputChange={handleInputChange}
+            handleSubmit={handleSubmit}
+            setShowForm={setShowForm}
+            categories={categories}
+            today={today}
+            setNotification={setNotification}
+            resetFormData={resetFormData}
+          />
+        )}
+
+        {showLocationDialog && (
+          <LocationDialog 
+            showLocationDialog={showLocationDialog}
+            setShowLocationDialog={setShowLocationDialog}
+            selectedLocation={selectedLocation}
+            setSelectedLocation={setSelectedLocation}
+            locations={locations}
+            handleLocationSubmit={handleLocationSubmit}
+          />
+        )}
+
+        <NotificationPopup
+          notification={notification}
+          onClose={() => setNotification(null)}
         />
-      )}
-
-      <NotificationPopup
-        notification={notification}
-        onClose={() => setNotification(null)}
-      />
+      </div>
     </div>
   );
 };
