@@ -24,7 +24,10 @@ function AssetIssue({ user }) {
   const fetchIssues = async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/asset-issues`);
-      setIssues(response.data);
+      const activeIssues = response.data.filter(issue => 
+        issue.status !== 'In Maintenance' && issue.status !== 'Resolved'
+      );
+      setIssues(activeIssues);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching issues:', error);
@@ -94,10 +97,20 @@ function AssetIssue({ user }) {
           { status: 'In Maintenance' }
         );
 
-        // Remove the issue from the table
+        // Remove only from the current view, but keep in database
         setIssues(prevIssues => 
           prevIssues.filter(issue => issue.id !== selectedIssue.id)
         );
+
+        // Update asset maintenance status
+        try {
+          await axios.put(
+            `${process.env.REACT_APP_API_URL}/api/Assets/${selectedIssue.asset_id}/maintenance-status`,
+            { under_maintenance: true }
+          );
+        } catch (error) {
+          console.error('Error updating asset maintenance status:', error);
+        }
 
         setNotification({
           type: 'success',

@@ -3,6 +3,7 @@ import moment from 'moment';
 import AssetActivityLogs from './AssetActivityLogs';
 import BorrowLogs from './BorrowLogs';
 import MaintenanceLogs from '../maintenance/MaintenanceLogs';
+import IssueLogs from '../issue/IssueLogs';
 import QRCodeModal from './QRCodeModal';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faQrcode } from "@fortawesome/free-solid-svg-icons";
@@ -11,6 +12,7 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
   const [showActivityLogs, setShowActivityLogs] = useState(false);
   const [showBorrowLogs, setShowBorrowLogs] = useState(false);
   const [showMaintenanceLogs, setShowMaintenanceLogs] = useState(false);
+  const [showIssueLogs, setShowIssueLogs] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
 
   if (!selectedAsset) return null;
@@ -27,6 +29,7 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
         >
           <FontAwesomeIcon icon={faTimes} className="text-xl" />
         </button>
+
         <div className="p-8">
           <h2 className="text-3xl font-bold mb-6 text-gray-800">{selectedAsset.assetName}</h2>
           
@@ -78,6 +81,12 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
               Maintenance Logs
             </button>
             <button
+              onClick={() => setShowIssueLogs(true)}
+              className="flex-1 bg-red-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-red-600 transition-transform transform hover:scale-105"
+            >
+              Issue Logs
+            </button>
+            <button
               onClick={() => setShowQRCode(true)}
               className="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 transition-transform transform hover:scale-105"
             >
@@ -86,33 +95,39 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
             </button>
           </div>
         </div>
-      </div>
 
-      {showActivityLogs && (
-        <AssetActivityLogs
-          assetId={selectedAsset.asset_id}
-          onClose={() => setShowActivityLogs(false)}
-        />
-      )}
-      {showBorrowLogs && (
-        <BorrowLogs
-          assetId={selectedAsset.asset_id}
-          onClose={() => setShowBorrowLogs(false)}
-        />
-      )}
-      {showMaintenanceLogs && (
-        <MaintenanceLogs
-          assetId={selectedAsset.asset_id}
-          onClose={() => setShowMaintenanceLogs(false)}
-        />
-      )}
-      {showQRCode && (
-        <QRCodeModal
-          assetId={selectedAsset.asset_id}
-          assetName={selectedAsset.assetName}
-          onClose={() => setShowQRCode(false)}
-        />
-      )}
+        {showActivityLogs && (
+          <AssetActivityLogs
+            assetId={selectedAsset.asset_id}
+            onClose={() => setShowActivityLogs(false)}
+          />
+        )}
+        {showBorrowLogs && (
+          <BorrowLogs
+            assetId={selectedAsset.asset_id}
+            onClose={() => setShowBorrowLogs(false)}
+          />
+        )}
+        {showMaintenanceLogs && (
+          <MaintenanceLogs
+            assetId={selectedAsset.asset_id}
+            onClose={() => setShowMaintenanceLogs(false)}
+          />
+        )}
+        {showIssueLogs && (
+          <IssueLogs
+            assetId={selectedAsset.asset_id}
+            onClose={() => setShowIssueLogs(false)}
+          />
+        )}
+        {showQRCode && (
+          <QRCodeModal
+            assetId={selectedAsset.asset_id}
+            assetName={selectedAsset.assetName}
+            onClose={() => setShowQRCode(false)}
+          />
+        )}
+      </div>
     </div>
   );
 };

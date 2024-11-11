@@ -88,6 +88,16 @@ const AssetIssue = {
     const { rows } = await pool.query(query, values);
     return rows;
   },
+
+  getIssueLogsByAsset: async (assetId) => {
+    const query = `
+      SELECT * FROM asset_issues 
+      WHERE asset_id = $1 
+      ORDER BY created_at DESC
+    `;
+    const { rows } = await pool.query(query, [assetId]);
+    return rows;
+  },
 };
 
 module.exports = AssetIssue;

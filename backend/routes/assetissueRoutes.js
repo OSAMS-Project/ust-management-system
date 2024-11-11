@@ -17,5 +17,8 @@ router.delete('/:id', assetIssueController.deleteIssue);
 // Resolve issues by asset ID
 router.put('/resolve-by-asset/:assetId', assetIssueController.resolveIssuesByAsset);
 
+// Get issue logs by asset ID
+router.get('/logs/:assetId', assetIssueController.getIssueLogsByAsset);
+
 module.exports = router;
 

@@ -91,6 +91,17 @@ const assetIssueController = {
       res.status(500).json({ error: 'Failed to resolve issues' });
     }
   },
+
+  getIssueLogsByAsset: async (req, res) => {
+    try {
+      const { assetId } = req.params;
+      const logs = await AssetIssue.getIssueLogsByAsset(assetId);
+      res.json(logs);
+    } catch (error) {
+      console.error('Error fetching issue logs:', error);
+      res.status(500).json({ error: 'Failed to fetch issue logs' });
+    }
+  },
 };
 
 module.exports = assetIssueController;
