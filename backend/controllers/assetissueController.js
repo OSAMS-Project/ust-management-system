@@ -39,6 +39,16 @@ const assetIssueController = {
     try {
       const { id } = req.params;
       const { status } = req.body;
+      
+      // Validate status
+      const validStatuses = ['Pending', 'In Maintenance', 'In Progress', 'Resolved'];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ 
+          error: 'Invalid status',
+          validStatuses
+        });
+      }
+
       const updatedIssue = await AssetIssue.updateIssueStatus(id, status);
       if (!updatedIssue) {
         return res.status(404).json({ error: 'Issue not found' });
@@ -62,7 +72,25 @@ const assetIssueController = {
       console.error('Error deleting issue:', error);
       res.status(500).json({ error: 'Failed to delete issue' });
     }
-  }
+  },
+
+  resolveIssuesByAsset: async (req, res) => {
+    try {
+      const { assetId } = req.params;
+      const { status } = req.body;
+      
+      // Update all issues for this asset to resolved status
+      const updatedIssues = await AssetIssue.updateIssueStatusByAsset(assetId, status);
+      
+      res.json({ 
+        message: 'Issues updated successfully',
+        updatedIssues 
+      });
+    } catch (error) {
+      console.error('Error resolving issues:', error);
+      res.status(500).json({ error: 'Failed to resolve issues' });
+    }
+  },
 };
 
 module.exports = assetIssueController;

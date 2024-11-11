@@ -13,8 +13,6 @@ import EmailRequestForm from "./pages/RequestPage";
 import BorrowerForm from "./pages/BorrowerPage";
 import ProfilePage from "./pages/Profile";
 import BorrowingRequest from "./pages/BorrowingRequest";
-import RoleManagement from "./pages/RoleManagement";
-import QRPage from "./pages/QRPage";
 import AssetRequest from "./pages/AssetRequest";
 import AssetMaintenance from "./pages/AssetMaintenance";
 import AssetIssue from "./pages/AssetIssue";
@@ -22,6 +20,7 @@ import CompletedEvents from "./pages/CompletedEvents";
 import ArchivedRequests from "./pages/ArchivedRequests";
 import IncomingAssets from "./pages/IncomingAssets";
 import BorrowingHistory from "./pages/BorrowingHistory";
+import RoleManagement from "./pages/RoleManagement";
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -80,10 +79,9 @@ function AppContent({ user, setUser }) {
           <Route path="/asset-issue" element={<PrivateRoute user={user}><AssetIssue user={user} /></PrivateRoute>} />
           <Route path="/borrowingrequest" element={<PrivateRoute user={user}><BorrowingRequest /></PrivateRoute>} />
           <Route path="/users" element={<PrivateRoute user={user}><UserManagement /></PrivateRoute>} />
+          <Route path="/roles" element={<PrivateRoute user={user}><RoleManagement /></PrivateRoute>} />
           <Route path="/profile" element={<PrivateRoute user={user}><ProfilePage user={user} /></PrivateRoute>} />
           <Route path="/supplierlist" element={<PrivateRoute user={user}><SupplierList /></PrivateRoute>} />
-          <Route path="/roles" element={<PrivateRoute user={user}><RoleManagement /></PrivateRoute>} />
-          <Route path="/qr" element={<PrivateRoute user={user}><QRPage /></PrivateRoute>} />
           <Route path="/asset-request" element={<PrivateRoute user={user}><AssetRequest user={user} /></PrivateRoute>} />
           <Route path="/archived-requests" element={<PrivateRoute user={user}><ArchivedRequests user={user} /></PrivateRoute>} />
           <Route path="/incoming-assets" element={<PrivateRoute user={user}><IncomingAssets /></PrivateRoute>} />

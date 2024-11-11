@@ -59,12 +59,38 @@ function AssetMaintenance() {
 
   const handleCompleteRecord = async (id) => {
     try {
+      const maintenanceRecord = maintenanceRecords.find(record => record.id === id);
+      
       await axios.put(`${process.env.REACT_APP_API_URL}/api/Maintenance/complete/${id}`);
+      
+      if (maintenanceRecord) {
+        try {
+          await axios.put(
+            `${process.env.REACT_APP_API_URL}/api/asset-issues/resolve-by-asset/${maintenanceRecord.asset_id}`,
+            { status: 'Resolved' }
+          );
+        } catch (error) {
+          console.error('Error updating issue status:', error);
+        }
+      }
+
       setMaintenanceRecords(prevRecords => 
         prevRecords.map(record => 
           record.id === id ? { ...record, status: 'Completed' } : record
         )
       );
+
+      if (maintenanceRecord) {
+        try {
+          await axios.put(
+            `${process.env.REACT_APP_API_URL}/api/Assets/${maintenanceRecord.asset_id}/maintenance-status`,
+            { under_maintenance: false }
+          );
+        } catch (error) {
+          console.error('Error updating asset maintenance status:', error);
+        }
+      }
+
     } catch (error) {
       console.error('Error completing maintenance record:', error);
     }

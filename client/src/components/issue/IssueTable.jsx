@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import moment from 'moment';
 import AssetDetailsModal from '../assetlists/AssetDetailsModal';
+import { Wrench, Trash2 } from 'lucide-react';
 
-const IssueTable = ({ issues, assets, loading }) => {
+const IssueTable = ({ issues, assets, loading, onAddToMaintenance, onRemoveIssue }) => {
   const [selectedAsset, setSelectedAsset] = useState(null);
 
   const getPriorityColor = (priority) => {
@@ -24,8 +25,10 @@ const IssueTable = ({ issues, assets, loading }) => {
     switch (status.toLowerCase()) {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800';
-      case 'in progress':
+      case 'in maintenance':
         return 'bg-blue-100 text-blue-800';
+      case 'in progress':
+        return 'bg-purple-100 text-purple-800';
       case 'resolved':
         return 'bg-green-100 text-green-800';
       default:
@@ -38,6 +41,17 @@ const IssueTable = ({ issues, assets, loading }) => {
     if (asset) {
       setSelectedAsset(asset);
     }
+  };
+
+  const handleAddToMaintenance = (e, issue) => {
+    e.stopPropagation();
+    const asset = assets.find(a => a.asset_id === issue.asset_id);
+    onAddToMaintenance(issue, asset);
+  };
+
+  const handleRemoveIssue = (e, issueId) => {
+    e.stopPropagation();
+    onRemoveIssue(issueId);
   };
 
   if (loading) {
@@ -62,13 +76,16 @@ const IssueTable = ({ issues, assets, loading }) => {
               Priority
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Status
+              Maintenance Status
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Reported By
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Date Reported
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Actions
             </th>
           </tr>
         </thead>
@@ -114,6 +131,24 @@ const IssueTable = ({ issues, assets, loading }) => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {moment(issue.created_at).format('MMM DD, YYYY h:mm A')}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={(e) => handleAddToMaintenance(e, issue)}
+                      className="p-1 text-blue-600 hover:text-blue-800 rounded-full hover:bg-blue-100"
+                      title="Add to Maintenance"
+                    >
+                      <Wrench className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={(e) => handleRemoveIssue(e, issue.id)}
+                      className="p-1 text-red-600 hover:text-red-800 rounded-full hover:bg-red-100"
+                      title="Remove Issue"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             );

@@ -9,16 +9,14 @@ import {
   faCog,
   faSignOutAlt,
   faClipboardList,
-  faFontAwesomeFlag,
-  faQrcode,
-  faBoxOpen,
-  faTools,
   faExclamationTriangle,
   faChevronDown,
   faChevronUp,
   faTruckFast,
   faClipboardCheck,
   faHistory,
+  faTools,
+  faBoxOpen,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useLocation } from "react-router-dom";
 
@@ -51,8 +49,10 @@ const NavItem = ({ to, text, icon, isActive, subItems }) => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
-  const isSubItemActive =
-    subItems && subItems.some((item) => item.to === location.pathname);
+  const isSubItemActive = subItems && subItems.some(item => item.to === location.pathname);
+  
+  const shouldHighlight = isActive || 
+    (subItems && subItems.some(item => item.to === location.pathname) && !isActive);
 
   const toggleSubmenu = (e) => {
     e.preventDefault();
@@ -66,7 +66,7 @@ const NavItem = ({ to, text, icon, isActive, subItems }) => {
         <Link
           to={to}
           className={`flex items-center w-full p-3 rounded-md transition duration-200 ${
-            isActive || isSubItemActive ? "text-yellow-500" : "text-white"
+            isActive ? "text-yellow-500" : "text-white"
           }`}
         >
           <FontAwesomeIcon icon={icon} className="mr-3" />
@@ -141,9 +141,14 @@ const MENU_LIST = [
       { text: "Completed Events", to: "/completed-events", icon: faClipboardList },
     ],
   },
-  { text: "User Management", to: "/users", icon: faUserCog },
-  { text: "Role Management", to: "/roles", icon: faFontAwesomeFlag },
-  { text: "Generate QR", to: "/qr", icon: faQrcode },
+  { 
+    text: "User Management", 
+    to: "/users", 
+    icon: faUserCog,
+    subItems: [
+      { text: "Role Management", to: "/roles", icon: faUsers },
+    ],
+  },
 ];
 
 const Sidebar = ({ user, onLogout }) => {

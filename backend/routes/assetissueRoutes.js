@@ -14,5 +14,8 @@ router.put('/:id/status', assetIssueController.updateIssueStatus);
 // Delete issue
 router.delete('/:id', assetIssueController.deleteIssue);
 
+// Resolve issues by asset ID
+router.put('/resolve-by-asset/:assetId', assetIssueController.resolveIssuesByAsset);
+
 module.exports = router;
 

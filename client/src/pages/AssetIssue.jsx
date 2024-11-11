@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import AddAssetIssue from '../components/issue/AddAssetIssue';
 import IssueTable from '../components/issue/IssueTable';
+import MaintenanceModal from '../components/maintenance/MaintenanceModal';
 import NotificationPopup from '../components/utils/NotificationsPopup';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function AssetIssue({ user }) {
   const [issues, setIssues] = useState([]);
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
+  const [selectedIssue, setSelectedIssue] = useState(null);
   const [notification, setNotification] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchIssues();
@@ -67,6 +72,70 @@ function AssetIssue({ user }) {
     }
   };
 
+  const handleAddToMaintenance = (issue, asset) => {
+    setSelectedIssue({
+      ...issue,
+      asset: asset
+    });
+    setIsMaintenanceModalOpen(true);
+  };
+
+  const handleAddMaintenance = async (maintenanceData) => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/Maintenance/create`,
+        maintenanceData
+      );
+
+      if (response.data) {
+        // Update issue status to "In Maintenance"
+        await axios.put(
+          `${process.env.REACT_APP_API_URL}/api/asset-issues/${selectedIssue.id}/status`,
+          { status: 'In Maintenance' }
+        );
+
+        // Remove the issue from the table
+        setIssues(prevIssues => 
+          prevIssues.filter(issue => issue.id !== selectedIssue.id)
+        );
+
+        setNotification({
+          type: 'success',
+          message: 'Issue moved to maintenance successfully'
+        });
+
+        setIsMaintenanceModalOpen(false);
+        navigate('/maintenance');
+      }
+    } catch (error) {
+      console.error('Error creating maintenance record:', error);
+      setNotification({
+        type: 'error',
+        message: 'Failed to create maintenance record'
+      });
+    }
+  };
+
+  const handleRemoveIssue = async (issueId) => {
+    try {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/asset-issues/${issueId}`);
+      
+      // Update local state
+      setIssues(issues.filter(issue => issue.id !== issueId));
+      
+      setNotification({
+        type: 'success',
+        message: 'Issue removed successfully'
+      });
+    } catch (error) {
+      console.error('Error removing issue:', error);
+      setNotification({
+        type: 'error',
+        message: 'Failed to remove issue'
+      });
+    }
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -95,7 +164,24 @@ function AssetIssue({ user }) {
         issues={issues}
         assets={assets}
         loading={loading}
+        onAddToMaintenance={handleAddToMaintenance}
+        onRemoveIssue={handleRemoveIssue}
       />
+
+      {isMaintenanceModalOpen && (
+        <MaintenanceModal
+          isOpen={isMaintenanceModalOpen}
+          onClose={() => setIsMaintenanceModalOpen(false)}
+          onAddMaintenance={handleAddMaintenance}
+          initialData={{
+            assetId: selectedIssue?.asset_id,
+            description: `Issue Report: ${selectedIssue?.description}`,
+            maintenanceType: 'Corrective Maintenance'
+          }}
+          selectedAsset={selectedIssue?.asset}
+        />
+      )}
+
       <NotificationPopup 
         notification={notification}
         onClose={() => setNotification(null)}

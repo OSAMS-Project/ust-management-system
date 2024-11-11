@@ -75,7 +75,19 @@ const AssetIssue = {
     const query = 'DELETE FROM asset_issues WHERE id = $1 RETURNING *';
     const result = await pool.query(query, [id]);
     return result.rows[0];
-  }
+  },
+
+  updateIssueStatusByAsset: async (assetId, status) => {
+    const query = `
+      UPDATE asset_issues 
+      SET status = $1 
+      WHERE asset_id = $2 AND status != 'Resolved'
+      RETURNING *
+    `;
+    const values = [status, assetId];
+    const { rows } = await pool.query(query, values);
+    return rows;
+  },
 };
 
 module.exports = AssetIssue;

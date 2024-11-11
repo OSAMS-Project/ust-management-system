@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance }) => {
+const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, initialData = {}, selectedAsset }) => {
   const [assets, setAssets] = useState([]);
   const [maintenanceData, setMaintenanceData] = useState({
     assetId: '',
@@ -10,6 +10,7 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance }) => {
     date: '',
     cost: '',
     performedBy: '',
+    ...initialData
   });
 
   const maintenanceTypes = [
@@ -26,9 +27,13 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance }) => {
 
   useEffect(() => {
     if (isOpen) {
-      fetchAssets();
+      if (selectedAsset) {
+        setAssets([selectedAsset]);
+      } else {
+        fetchAssets();
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, selectedAsset]);
 
   const fetchAssets = async () => {
     try {
@@ -88,11 +93,12 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance }) => {
               onChange={handleInputChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
+              disabled={selectedAsset != null}
             >
               <option value="">Select an asset</option>
               {assets.map((asset) => (
                 <option key={asset.asset_id} value={asset.asset_id}>
-                  {asset.assetName} 
+                  {asset.assetName}
                 </option>
               ))}
             </select>
