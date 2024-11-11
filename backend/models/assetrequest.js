@@ -108,12 +108,15 @@ const AssetRequest = {
         id SERIAL PRIMARY KEY,
         asset_name VARCHAR(255) NOT NULL,
         quantity INTEGER NOT NULL,
+        comments TEXT,
         created_by VARCHAR(255),
         user_picture TEXT,
         status VARCHAR(50) DEFAULT 'pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         approved_at TIMESTAMP,
-        declined_at TIMESTAMP
+        declined_at TIMESTAMP,
+        archived_at TIMESTAMP,
+        original_status VARCHAR(50)
       )
     `;
     try {
