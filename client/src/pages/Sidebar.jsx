@@ -17,6 +17,8 @@ import {
   faChevronDown,
   faChevronUp,
   faTruckFast,
+  faClipboardCheck,
+  faHistory,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useLocation } from "react-router-dom";
 
@@ -121,7 +123,14 @@ const MENU_LIST = [
       { text: "Incoming Assets", to: "/incoming-assets", icon: faTruckFast },
     ],
   },
-  { text: "Borrowing Request", to: "/borrowingrequest", icon: faClipboardList },
+  { 
+    text: "Borrowing Request", 
+    to: "/borrowingrequest", 
+    icon: faClipboardList,
+    subItems: [
+      { text: "Borrowing History", to: "/borrowing-history", icon: faHistory },
+    ],
+  },
   { text: "Supplier Lists", to: "/supplierlist", icon: faUsers },
   {
     text: "Events Management",

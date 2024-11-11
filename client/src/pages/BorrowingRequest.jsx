@@ -113,22 +113,33 @@ const BorrowingRequest = () => {
     setNotification(null);
   };
 
-  const handleReject = (request) => {
+  const handleReject = async (request) => {
     setSelectedRequest(request);
     setIsRejectionModalOpen(true);
   };
 
   const handleRejectSubmit = async (reason) => {
     try {
-      await handleStatusUpdate(selectedRequest.id, "Rejected");
+      await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/borrowing-requests/${selectedRequest.id}/status`,
+        { status: "Rejected" }
+      );
+      
       await handleSendEmail(
         selectedRequest.email,
         selectedRequest.name,
         "Rejected",
         reason
       );
+      
       setIsRejectionModalOpen(false);
       setSelectedRequest(null);
+      
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/borrowing-requests`
+      );
+      setRequests(response.data);
+      
       setNotification({ 
         type: 'success', 
         message: 'Request rejected successfully' 

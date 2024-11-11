@@ -2,18 +2,17 @@ const express = require('express');
 const borrowingRequestController = require('../controllers/borrowingRequestController');
 const router = express.Router();
 
+// Move the history route before the ID-specific routes to prevent conflicts
+router.get('/history', borrowingRequestController.getBorrowingHistory);
+
 router.post('/', borrowingRequestController.createBorrowingRequest);
 router.get('/', borrowingRequestController.getAllBorrowingRequests);
 router.put('/:id/status', borrowingRequestController.updateBorrowingRequestStatus);
 router.get('/:id/cover-letter', borrowingRequestController.getCoverLetter);
-
-// Route for returning assets
 router.put('/:id/return', borrowingRequestController.returnBorrowingRequest);
+router.delete('/:id', borrowingRequestController.deleteBorrowingRequest);
 router.post('/send-email', borrowingRequestController.sendManualEmail);
 router.post('/notify-sms', borrowingRequestController.sendSMSReminder);
-
-// Add this route if it doesn't exist
-router.delete('/:id', borrowingRequestController.deleteBorrowingRequest);
 
 // Error handling middleware
 router.use((err, req, res, next) => {

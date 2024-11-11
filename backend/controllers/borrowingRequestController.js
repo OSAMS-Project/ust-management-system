@@ -94,42 +94,37 @@ exports.updateBorrowingRequestStatus = async (req, res) => {
     const { status } = req.body;
     const requestId = req.params.id;
 
-    if (status === "Rejected") {
-      await BorrowingRequest.deleteBorrowingRequest(requestId);
-      return res.status(200).json({
-        message: "Borrowing request rejected and deleted successfully.",
-      });
-    }
-
+    // Update instead of delete for rejected requests
     const updatedRequest = await BorrowingRequest.updateBorrowingRequestStatus(
       requestId,
       status
     );
+
     if (updatedRequest) {
-      const selectedAssets = updatedRequest.selected_assets;
-      await Promise.all(
-        selectedAssets.map(async (asset) => {
-          await Asset.updateAssetQuantity(
-            asset.asset_id,
-            -parseInt(asset.quantity, 10)
-          );
-        })
-      );
-
-      for (const asset of selectedAssets) {
-        await BorrowLogs.createBorrowLog({
-          assetId: asset.asset_id,
-          quantityBorrowed: parseInt(asset.quantity, 10),
-          borrowerName: updatedRequest.name,
-          borrowerEmail: updatedRequest.email,
-          borrowerDepartment: updatedRequest.department,
-          dateBorrowed: new Date(),
-          dateReturned: null,
-          borrowingRequestId: requestId,
-        });
-      }
-
       if (status === "Approved") {
+        const selectedAssets = updatedRequest.selected_assets;
+        await Promise.all(
+          selectedAssets.map(async (asset) => {
+            await Asset.updateAssetQuantity(
+              asset.asset_id,
+              -parseInt(asset.quantity, 10)
+            );
+          })
+        );
+
+        for (const asset of selectedAssets) {
+          await BorrowLogs.createBorrowLog({
+            assetId: asset.asset_id,
+            quantityBorrowed: parseInt(asset.quantity, 10),
+            borrowerName: updatedRequest.name,
+            borrowerEmail: updatedRequest.email,
+            borrowerDepartment: updatedRequest.department,
+            dateBorrowed: new Date(),
+            dateReturned: null,
+            borrowingRequestId: requestId,
+          });
+        }
+
         await emailService.sendApprovalEmail(
           updatedRequest.email,
           updatedRequest.name
@@ -227,6 +222,7 @@ exports.returnBorrowingRequest = async (req, res) => {
   try {
     const requestId = req.params.id;
     const request = await BorrowingRequest.getBorrowingRequestById(requestId);
+    const returnDateTime = new Date(); // Capture the exact moment return button is clicked
 
     if (!request) {
       return res.status(404).json({ message: "Borrowing request not found" });
@@ -241,10 +237,11 @@ exports.returnBorrowingRequest = async (req, res) => {
 
     const updatedRequest = await BorrowingRequest.updateBorrowingRequestStatus(
       requestId,
-      "Returned"
+      "Returned",
+      returnDateTime
     );
 
-    await BorrowLogs.updateBorrowLogReturnDate(requestId, new Date());
+    await BorrowLogs.updateBorrowLogReturnDate(requestId, returnDateTime);
 
     res.status(200).json(updatedRequest);
   } catch (error) {
@@ -277,6 +274,21 @@ exports.deleteBorrowingRequest = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error deleting borrowing request",
+      error: error.message
+    });
+  }
+};
+
+exports.getBorrowingHistory = async (req, res) => {
+  try {
+    console.log('Fetching borrowing history...');
+    const history = await BorrowingRequest.getBorrowingHistory();
+    console.log('History fetched:', history);
+    res.status(200).json(history);
+  } catch (error) {
+    console.error('Error fetching borrowing history:', error);
+    res.status(500).json({
+      message: 'Error fetching borrowing history',
       error: error.message
     });
   }

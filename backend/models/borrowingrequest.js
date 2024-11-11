@@ -1,6 +1,14 @@
 const { executeTransaction } = require('../utils/queryExecutor');
 
 class BorrowingRequest {
+  static async addDateReturnedColumn() {
+    const query = `
+      ALTER TABLE borrowing_requests 
+      ADD COLUMN IF NOT EXISTS date_returned TIMESTAMP;
+    `;
+    return executeTransaction([{ query }]);
+  }
+
   static async createBorrowingRequestTable() {
     const query = `
       CREATE TABLE IF NOT EXISTS borrowing_requests (
@@ -13,12 +21,16 @@ class BorrowingRequest {
         cover_letter_path TEXT,
         selected_assets JSONB NOT NULL,
         status VARCHAR(20) DEFAULT 'Pending',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                expected_return_date DATE,
-        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        expected_return_date DATE,
+        date_returned TIMESTAMP,
+        notes TEXT
       )
     `;
-    return executeTransaction([{ query, params: [] }]);
+    await executeTransaction([{ query }]);
+    // Add date_returned column if it doesn't exist
+    await this.addDateReturnedColumn();
+    return true;
   }
 
   static async createBorrowingRequest(requestData) {
@@ -66,9 +78,31 @@ class BorrowingRequest {
     }));
   }
 
-  static async updateBorrowingRequestStatus(requestId, status) {
-    const query = 'UPDATE borrowing_requests SET status = $1 WHERE id = $2 RETURNING *';
-    const params = [status, requestId];
+  static async updateBorrowingRequestStatus(requestId, status, dateReturned = null) {
+    let query;
+    let params;
+
+    if (dateReturned) {
+      query = `
+        UPDATE borrowing_requests 
+        SET status = $1, date_returned = $2 
+        WHERE id = $3 
+        RETURNING *
+      `;
+      params = [status, dateReturned, requestId];
+    } else {
+      query = `
+        UPDATE borrowing_requests 
+        SET status = $1 
+        WHERE id = $2 
+        RETURNING *
+      `;
+      params = [status, requestId];
+    }
+
+    console.log('Executing query:', query);
+    console.log('With params:', params);
+
     const result = await executeTransaction([{ query, params }]);
     return result[0];
   }
@@ -101,6 +135,24 @@ class BorrowingRequest {
     const query = "SELECT COUNT(*) as count FROM borrowing_requests WHERE status = 'Approved'";
     const result = await executeTransaction([{ query, params: [] }]);
     return parseInt(result[0].count, 10);
+  }
+
+  static async getBorrowingHistory() {
+    const query = `
+      SELECT *
+      FROM borrowing_requests
+      WHERE status IN ('Returned', 'Approved', 'Rejected')
+      ORDER BY created_at DESC
+    `;
+    const result = await executeTransaction([{ query }]);
+    return result.map(row => ({
+      ...row,
+      borrowed_asset_names: row.selected_assets.map(asset => asset.assetName).join(', '),
+      borrowed_asset_quantities: row.selected_assets.map(asset => asset.quantity).join(', '),
+      cover_letter_url: row.cover_letter_path ? `/api/borrowing-requests/${row.id}/cover-letter` : null,
+      expectedReturnDate: row.expected_return_date,
+      notes: row.notes
+    }));
   }
 }
 

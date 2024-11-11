@@ -21,6 +21,7 @@ import AssetIssue from "./pages/AssetIssue";
 import CompletedEvents from "./pages/CompletedEvents";
 import ArchivedRequests from "./pages/ArchivedRequests";
 import IncomingAssets from "./pages/IncomingAssets";
+import BorrowingHistory from "./pages/BorrowingHistory";
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -86,6 +87,7 @@ function AppContent({ user, setUser }) {
           <Route path="/asset-request" element={<PrivateRoute user={user}><AssetRequest user={user} /></PrivateRoute>} />
           <Route path="/archived-requests" element={<PrivateRoute user={user}><ArchivedRequests user={user} /></PrivateRoute>} />
           <Route path="/incoming-assets" element={<PrivateRoute user={user}><IncomingAssets /></PrivateRoute>} />
+          <Route path="/borrowing-history" element={<PrivateRoute user={user}><BorrowingHistory /></PrivateRoute>} />
 
         </Routes>
       </div>
