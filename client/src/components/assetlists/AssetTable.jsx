@@ -270,6 +270,7 @@ const AssetTable = ({
   const currentAssets = useMemo(() => {
     return assets
       .filter((asset) => {
+        if (asset.under_repair) return false;
         return asset.assetName.toLowerCase().includes(searchQuery.toLowerCase());
       })
       .sort((a, b) => {

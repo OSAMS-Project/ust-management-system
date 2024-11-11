@@ -13,7 +13,6 @@ import {
   faChevronDown,
   faChevronUp,
   faTruckFast,
-  faClipboardCheck,
   faHistory,
   faTools,
   faBoxOpen,
