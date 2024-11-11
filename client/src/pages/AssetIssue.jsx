@@ -60,7 +60,16 @@ function AssetIssue({ user }) {
         reported_by: user?.name,
         user_picture: user?.picture
       });
+
+      // Update the issues list
       setIssues([response.data, ...issues]);
+
+      // Update the asset's status in the database
+      await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/Assets/${issueData.asset_id}/issue-status`,
+        { has_issue: true }
+      );
+
       setIsModalOpen(false);
       setNotification({
         type: 'success',

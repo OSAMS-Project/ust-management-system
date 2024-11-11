@@ -102,6 +102,22 @@ const assetIssueController = {
       res.status(500).json({ error: 'Failed to fetch issue logs' });
     }
   },
+
+  getIssueHistory: async (req, res) => {
+    try {
+      console.log('Getting issue history...');
+      const history = await AssetIssue.getIssueHistory();
+      console.log('History retrieved:', history);
+      res.json(history);
+    } catch (error) {
+      console.error('Error in getIssueHistory:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch issue history',
+        details: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
+    }
+  },
 };
 
 module.exports = assetIssueController;

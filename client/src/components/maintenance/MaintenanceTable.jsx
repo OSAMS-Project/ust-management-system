@@ -5,20 +5,16 @@ const MaintenanceTable = ({ maintenanceRecords, assets = [], onCompleteRecord, o
   const [selectedAsset, setSelectedAsset] = useState(null);
 
   const handleRowClick = (assetId) => {
-    if (!assets) return;
-    
-    const asset = assets.find(a => a.asset_id === assetId);
+    const asset = assets?.find(a => a.asset_id === assetId);
     if (asset) {
       setSelectedAsset(asset);
     }
   };
 
-  const handleComplete = async (record) => {
-    try {
-      await onCompleteRecord(record.id);
-      // Asset will automatically return to asset list through the backend updates
-    } catch (error) {
-      console.error('Error completing maintenance record:', error);
+  const handleComplete = (e, record) => {
+    e.stopPropagation(); // Prevent row click event
+    if (window.confirm('Are you sure you want to complete this maintenance record?')) {
+      onCompleteRecord(record.id);
     }
   };
 
@@ -32,7 +28,7 @@ const MaintenanceTable = ({ maintenanceRecords, assets = [], onCompleteRecord, o
             <th className="px-4 py-2 text-left">Asset</th>
             <th className="px-4 py-2 text-left">Maintenance Type</th>
             <th className="px-4 py-2 text-left">Description</th>
-            <th className="px-4 py-2 text-left">Maintenance Date</th>
+            <th className="px-4 py-2 text-left">Date</th>
             <th className="px-4 py-2 text-left">Cost</th>
             <th className="px-4 py-2 text-left">Performed By</th>
             <th className="px-4 py-2 text-left">Actions</th>
@@ -58,7 +54,7 @@ const MaintenanceTable = ({ maintenanceRecords, assets = [], onCompleteRecord, o
                   <td className="px-4 py-2">{record.performed_by}</td>
                   <td className="px-4 py-2">
                     <button
-                      onClick={() => handleComplete(record)}
+                      onClick={(e) => handleComplete(e, record)}
                       className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-2 rounded mr-2"
                     >
                       Complete

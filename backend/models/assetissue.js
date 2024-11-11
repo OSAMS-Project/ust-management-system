@@ -26,31 +26,45 @@ const AssetIssue = {
   },
 
   createIssue: async (issueData) => {
-    console.log('Received issue data:', issueData); // Add this for debugging
-    
-    const query = `
-      INSERT INTO asset_issues 
-      (asset_id, issue_type, description, priority, reported_by, user_picture)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING *
-    `;
-    
-    const values = [
-      issueData.asset_id,
-      issueData.issue_type,
-      issueData.description,
-      issueData.priority,
-      issueData.reported_by,
-      issueData.user_picture
-    ];
-
+    const client = await pool.connect();
     try {
-      const result = await pool.query(query, values);
-      return result.rows[0];
+      await client.query('BEGIN');
+      
+      // Create the issue
+      const issueQuery = `
+        INSERT INTO asset_issues 
+        (asset_id, issue_type, description, priority, reported_by, user_picture)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING *
+      `;
+      
+      const issueValues = [
+        issueData.asset_id,
+        issueData.issue_type,
+        issueData.description,
+        issueData.priority,
+        issueData.reported_by,
+        issueData.user_picture
+      ];
+
+      const issueResult = await client.query(issueQuery, issueValues);
+
+      // Update the asset's has_issue status
+      const updateAssetQuery = `
+        UPDATE assets 
+        SET has_issue = true 
+        WHERE asset_id = $1
+      `;
+      await client.query(updateAssetQuery, [issueData.asset_id]);
+
+      await client.query('COMMIT');
+      return issueResult.rows[0];
     } catch (error) {
+      await client.query('ROLLBACK');
       console.error('Error in createIssue:', error);
-      console.error('Values being inserted:', values);
       throw error;
+    } finally {
+      client.release();
     }
   },
 
@@ -97,6 +111,34 @@ const AssetIssue = {
     `;
     const { rows } = await pool.query(query, [assetId]);
     return rows;
+  },
+
+  getIssueHistory: async () => {
+    try {
+      console.log('Executing getIssueHistory query...');
+      const query = `
+        SELECT 
+          ai.*,
+          a."assetName" as asset_name
+        FROM asset_issues ai
+        LEFT JOIN assets a ON ai.asset_id = a.asset_id
+        ORDER BY 
+          CASE 
+            WHEN ai.status = 'Pending' THEN 1
+            WHEN ai.status = 'In Progress' THEN 2
+            WHEN ai.status = 'In Maintenance' THEN 3
+            WHEN ai.status = 'Resolved' THEN 4
+            ELSE 5
+          END,
+          ai.created_at DESC
+      `;
+      const { rows } = await pool.query(query);
+      console.log('Query results:', rows);
+      return rows;
+    } catch (error) {
+      console.error('Database error in getIssueHistory:', error);
+      throw error;
+    }
   },
 };
 

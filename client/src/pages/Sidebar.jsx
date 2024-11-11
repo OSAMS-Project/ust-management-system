@@ -49,10 +49,14 @@ const NavItem = ({ to, text, icon, isActive, subItems }) => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
-  const isSubItemActive = subItems && subItems.some(item => item.to === location.pathname);
+  const isSubItemActive = subItems && subItems.some(item => {
+    if (item.subItems) {
+      return item.subItems.some(subItem => subItem.to === location.pathname);
+    }
+    return item.to === location.pathname;
+  });
   
-  const shouldHighlight = isActive || 
-    (subItems && subItems.some(item => item.to === location.pathname) && !isActive);
+  const shouldHighlight = isActive || isSubItemActive;
 
   const toggleSubmenu = (e) => {
     e.preventDefault();
@@ -66,7 +70,7 @@ const NavItem = ({ to, text, icon, isActive, subItems }) => {
         <Link
           to={to}
           className={`flex items-center w-full p-3 rounded-md transition duration-200 ${
-            isActive ? "text-yellow-500" : "text-white"
+            shouldHighlight ? "text-yellow-500" : "text-white"
           }`}
         >
           <FontAwesomeIcon icon={icon} className="mr-3" />
@@ -117,7 +121,7 @@ const MENU_LIST = [
     icon: faList,
     subItems: [
       { text: "Asset Maintenance", to: "/asset-maintenance", icon: faTools },
-      { text: "Asset Issue", to: "/asset-issue", icon: faExclamationTriangle },
+      { text: "Asset Issues", to: "/asset-issue", icon: faExclamationTriangle },
       { text: "Asset Request", to: "/asset-request", icon: faBoxOpen },
       { text: "Archived Requests", to: "/archived-requests", icon: faClipboardList },
       { text: "Incoming Assets", to: "/incoming-assets", icon: faTruckFast },

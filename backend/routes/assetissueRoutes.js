@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const assetIssueController = require('../controllers/assetissueController');
 
+// Make sure this route is before any routes with parameters
+router.get('/history', assetIssueController.getIssueHistory);
+
 // Get all issues
 router.get('/', assetIssueController.getAllIssues);
 

@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS Assets (
       "lastUpdated" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       added_by VARCHAR(255),
       quantity_for_borrowing BIGINT DEFAULT 0,
-      under_maintenance BOOLEAN DEFAULT false
+      under_maintenance BOOLEAN DEFAULT false,
+      has_issue BOOLEAN DEFAULT false
     )
   `;
   return executeTransaction([{ query, params: [] }]);
@@ -244,6 +245,34 @@ const updateMaintenanceStatus = async (assetId, isUnderMaintenance) => {
   return executeTransaction([{ query, params: [isUnderMaintenance, assetId] }]);
 };
 
+// Add this function
+const updateAssetStatus = async (assetId, statusData) => {
+  const query = `
+    UPDATE Assets 
+    SET under_maintenance = $1,
+        has_issue = $2,
+        is_active = CASE WHEN $1 = true THEN false ELSE is_active END,
+        quantity_for_borrowing = CASE WHEN $1 = true THEN 0 ELSE quantity_for_borrowing END
+    WHERE asset_id = $3 
+    RETURNING *
+  `;
+  return executeTransaction([{ 
+    query, 
+    params: [statusData.under_maintenance, statusData.has_issue, assetId] 
+  }]);
+};
+
+// Add this function
+const updateAssetIssueStatus = async (assetId, hasIssue) => {
+  const query = `
+    UPDATE assets 
+    SET has_issue = $1
+    WHERE asset_id = $2 
+    RETURNING *
+  `;
+  return executeTransaction([{ query, params: [hasIssue, assetId] }]);
+};
+
 module.exports = {
   createAssetsTable,
   createAsset,
@@ -261,5 +290,7 @@ module.exports = {
   updateAssetQuantity,
   readAsset,
   getTotalAssetsForBorrowing,
-  updateMaintenanceStatus
+  updateMaintenanceStatus,
+  updateAssetStatus,
+  updateAssetIssueStatus
 };

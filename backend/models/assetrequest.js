@@ -3,6 +3,7 @@ const pool = require('../config/database');
 const AssetRequest = {
   getAssetRequest: async () => {
     try {
+      await AssetRequest.createAssetRequestTable();
       const query = `
         SELECT * FROM asset_request 
         WHERE status = 'pending' 

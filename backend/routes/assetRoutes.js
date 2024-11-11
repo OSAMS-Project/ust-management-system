@@ -11,5 +11,7 @@ router.get('/active/count', assetController.getTotalActiveAssets);
 router.get('/available/count', assetController.getTotalAvailableAssets);
 router.get('/sorted', assetController.getAssetsSortedByActiveStatus);
 router.get('/active', assetController.getActiveAssets);
+router.put('/:id/status', assetController.updateAssetStatus);
+router.put('/:id/issue-status', assetController.updateAssetIssueStatus);
 
 module.exports = router;

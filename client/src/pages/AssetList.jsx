@@ -138,12 +138,31 @@ const AssetList = () => {
 
   const fetchAssets = async () => {
     try {
-      const response = await axios.get(
+      // Get all assets
+      const assetsResponse = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/Assets/read`
       );
-      setAssets(response.data);
-      calculateTotals(response.data);
-      calculateWeeklyChanges(response.data);
+      
+      // Get all active issues
+      const issuesResponse = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/asset-issues`
+      );
+
+      // Filter out assets that have active issues
+      const activeIssues = issuesResponse.data.filter(issue => 
+        issue.status !== 'Resolved' && issue.status !== 'Completed'
+      );
+      
+      const assetsWithActiveIssues = new Set(activeIssues.map(issue => issue.asset_id));
+
+      // Filter assets that don't have active issues and aren't under maintenance
+      const availableAssets = assetsResponse.data.filter(asset => 
+        !assetsWithActiveIssues.has(asset.asset_id) && !asset.under_maintenance
+      );
+
+      setAssets(availableAssets);
+      calculateTotals(availableAssets);
+      calculateWeeklyChanges(availableAssets);
     } catch (error) {
       console.error("Error fetching assets:", error.message);
       if (error.response) {

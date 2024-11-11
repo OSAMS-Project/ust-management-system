@@ -121,6 +121,46 @@ const getActiveAssets = async (req, res) => {
   }
 };
 
+const updateAssetStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const statusData = req.body;
+    const result = await Asset.updateAssetStatus(id, statusData);
+    
+    if (result.length > 0) {
+      res.json(result[0]);
+    } else {
+      res.status(404).json({ message: 'Asset not found' });
+    }
+  } catch (error) {
+    console.error('Error updating asset status:', error);
+    res.status(500).json({ 
+      error: 'Error updating asset status', 
+      details: error.message 
+    });
+  }
+};
+
+const updateAssetIssueStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { has_issue } = req.body;
+    const result = await Asset.updateAssetIssueStatus(id, has_issue);
+    
+    if (result.length > 0) {
+      res.json(result[0]);
+    } else {
+      res.status(404).json({ message: 'Asset not found' });
+    }
+  } catch (error) {
+    console.error('Error updating asset issue status:', error);
+    res.status(500).json({ 
+      error: 'Error updating asset issue status', 
+      details: error.message 
+    });
+  }
+};
+
 module.exports = {
   createAsset,
   readAssets,
@@ -130,5 +170,7 @@ module.exports = {
   getTotalActiveAssets,
   getTotalAvailableAssets,
   getAssetsSortedByActiveStatus,
-  getActiveAssets
+  getActiveAssets,
+  updateAssetStatus,
+  updateAssetIssueStatus
 };

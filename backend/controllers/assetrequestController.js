@@ -8,7 +8,11 @@ const assetrequestController = {
       res.json(assetrequests);
     } catch (error) {
       console.error('Error fetching asset requests:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ 
+        error: 'Internal server error',
+        details: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   },
 
