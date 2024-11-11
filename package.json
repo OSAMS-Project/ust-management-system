@@ -6,7 +6,8 @@
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "server": "nodemon backend/server.js",
-    "client": "npm start --prefix client"
+    "client": "npm start --prefix client",
+    "migrate:repair": "node backend/migrations/rename_maintenance_to_repair.js"
   },
   "keywords": [],
   "author": "",

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import AssetDetailsModal from '../assetlists/AssetDetailsModal';
+import moment from 'moment';
 
-const MaintenanceTable = ({ maintenanceRecords, assets = [], onCompleteRecord, onRemoveRecord }) => {
+const RepairTable = ({ repairRecords, assets = [], onCompleteRecord, onRemoveRecord }) => {
   const [selectedAsset, setSelectedAsset] = useState(null);
 
   const handleRowClick = (assetId) => {
@@ -12,13 +13,13 @@ const MaintenanceTable = ({ maintenanceRecords, assets = [], onCompleteRecord, o
   };
 
   const handleComplete = (e, record) => {
-    e.stopPropagation(); // Prevent row click event
-    if (window.confirm('Are you sure you want to complete this maintenance record?')) {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to complete this repair record?')) {
       onCompleteRecord(record.id);
     }
   };
 
-  if (!maintenanceRecords) return null;
+  if (!repairRecords) return null;
 
   return (
     <div className="overflow-x-auto">
@@ -26,7 +27,7 @@ const MaintenanceTable = ({ maintenanceRecords, assets = [], onCompleteRecord, o
         <thead className="bg-gray-100">
           <tr>
             <th className="px-4 py-2 text-left">Asset</th>
-            <th className="px-4 py-2 text-left">Maintenance Type</th>
+            <th className="px-4 py-2 text-left">Repair Type</th>
             <th className="px-4 py-2 text-left">Description</th>
             <th className="px-4 py-2 text-left">Date</th>
             <th className="px-4 py-2 text-left">Cost</th>
@@ -35,38 +36,28 @@ const MaintenanceTable = ({ maintenanceRecords, assets = [], onCompleteRecord, o
           </tr>
         </thead>
         <tbody>
-          {maintenanceRecords
+          {repairRecords
             .filter(record => record.status !== 'Completed')
             .map((record) => {
               const assetName = assets?.find(a => a.asset_id === record.asset_id)?.assetName || record.asset_id;
-              
               return (
-                <tr 
-                  key={record.id} 
-                  className="border-b hover:bg-gray-50 cursor-pointer"
+                <tr
+                  key={record.id}
                   onClick={() => handleRowClick(record.asset_id)}
+                  className="hover:bg-gray-50 cursor-pointer"
                 >
                   <td className="px-4 py-2">{assetName}</td>
-                  <td className="px-4 py-2">{record.maintenance_type}</td>
+                  <td className="px-4 py-2">{record.repair_type}</td>
                   <td className="px-4 py-2">{record.description}</td>
-                  <td className="px-4 py-2">{new Date(record.date).toLocaleDateString()}</td>
-                  <td className="px-4 py-2">₱{typeof record.cost === 'number' ? record.cost.toFixed(2) : record.cost}</td>
+                  <td className="px-4 py-2">{moment(record.date).format('MM/DD/YYYY')}</td>
+                  <td className="px-4 py-2">₱{record.cost}</td>
                   <td className="px-4 py-2">{record.performed_by}</td>
                   <td className="px-4 py-2">
                     <button
                       onClick={(e) => handleComplete(e, record)}
-                      className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-2 rounded mr-2"
+                      className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 mr-2"
                     >
                       Complete
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent row click when clicking buttons
-                        onRemoveRecord(record.id);
-                      }}
-                      className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded"
-                    >
-                      Remove
                     </button>
                   </td>
                 </tr>
@@ -74,15 +65,8 @@ const MaintenanceTable = ({ maintenanceRecords, assets = [], onCompleteRecord, o
             })}
         </tbody>
       </table>
-
-      {selectedAsset && (
-        <AssetDetailsModal
-          selectedAsset={selectedAsset}
-          onClose={() => setSelectedAsset(null)}
-        />
-      )}
     </div>
   );
 };
 
-export default MaintenanceTable;
+export default RepairTable;

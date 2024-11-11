@@ -126,7 +126,7 @@ const AssetIssue = {
           CASE 
             WHEN ai.status = 'Pending' THEN 1
             WHEN ai.status = 'In Progress' THEN 2
-            WHEN ai.status = 'In Maintenance' THEN 3
+            WHEN ai.status = 'In Repair' THEN 3
             WHEN ai.status = 'Resolved' THEN 4
             ELSE 5
           END,

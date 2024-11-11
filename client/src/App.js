@@ -14,7 +14,7 @@ import BorrowerForm from "./pages/BorrowerPage";
 import ProfilePage from "./pages/Profile";
 import BorrowingRequest from "./pages/BorrowingRequest";
 import AssetRequest from "./pages/AssetRequest";
-import AssetMaintenance from "./pages/AssetMaintenance";
+import AssetRepair from "./pages/AssetRepair";
 import AssetIssue from "./pages/AssetIssue";
 import CompletedEvents from "./pages/CompletedEvents";
 import ArchivedRequests from "./pages/ArchivedRequests";
@@ -75,7 +75,7 @@ function AppContent({ user, setUser }) {
           <Route path="/events" element={<PrivateRoute user={user}><Events /></PrivateRoute>} />
           <Route path="/completed-events" element={<PrivateRoute user={user}><CompletedEvents /></PrivateRoute>} />
           <Route path="/assets" element={<PrivateRoute user={user}><AssetList /></PrivateRoute>} />
-          <Route path="/asset-maintenance" element={<PrivateRoute user={user}><AssetMaintenance /></PrivateRoute>} />
+          <Route path="/asset-repair" element={<PrivateRoute user={user}><AssetRepair /></PrivateRoute>} />
           <Route path="/asset-issue" element={<PrivateRoute user={user}><AssetIssue user={user} /></PrivateRoute>} />
           <Route path="/borrowingrequest" element={<PrivateRoute user={user}><BorrowingRequest /></PrivateRoute>} />
           <Route path="/users" element={<PrivateRoute user={user}><UserManagement /></PrivateRoute>} />

@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS Assets (
       "lastUpdated" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       added_by VARCHAR(255),
       quantity_for_borrowing BIGINT DEFAULT 0,
-      under_maintenance BOOLEAN DEFAULT false,
+      under_repair BOOLEAN DEFAULT false,
       has_issue BOOLEAN DEFAULT false
     )
   `;
@@ -104,8 +104,8 @@ const deleteAsset = async (id) => {
     // Delete related asset issues
     await client.query('DELETE FROM asset_issues WHERE asset_id = $1', [id]);
 
-    // Delete related maintenance records
-    await client.query('DELETE FROM maintenance_records WHERE asset_id = $1', [id]);
+    // Delete related repair records
+    await client.query('DELETE FROM repair_records WHERE asset_id = $1', [id]);
     
     // Delete related borrow logs
     await client.query('DELETE FROM borrow_logs WHERE asset_id = $1', [id]);
@@ -233,23 +233,23 @@ const getTotalAssetsForBorrowing = async () => {
 };
 
 // Add this function
-const updateMaintenanceStatus = async (assetId, isUnderMaintenance) => {
+const updateRepairStatus = async (assetId, isUnderRepair) => {
   const query = `
     UPDATE Assets 
-    SET under_maintenance = $1,
+    SET under_repair = $1,
         is_active = CASE WHEN $1 = true THEN false ELSE is_active END,
         quantity_for_borrowing = CASE WHEN $1 = true THEN 0 ELSE quantity_for_borrowing END
     WHERE asset_id = $2 
     RETURNING *
   `;
-  return executeTransaction([{ query, params: [isUnderMaintenance, assetId] }]);
+  return executeTransaction([{ query, params: [isUnderRepair, assetId] }]);
 };
 
 // Add this function
 const updateAssetStatus = async (assetId, statusData) => {
   const query = `
     UPDATE Assets 
-    SET under_maintenance = $1,
+    SET under_repair = $1,
         has_issue = $2,
         is_active = CASE WHEN $1 = true THEN false ELSE is_active END,
         quantity_for_borrowing = CASE WHEN $1 = true THEN 0 ELSE quantity_for_borrowing END
@@ -258,7 +258,7 @@ const updateAssetStatus = async (assetId, statusData) => {
   `;
   return executeTransaction([{ 
     query, 
-    params: [statusData.under_maintenance, statusData.has_issue, assetId] 
+    params: [statusData.under_repair, statusData.has_issue, assetId] 
   }]);
 };
 
@@ -290,7 +290,7 @@ module.exports = {
   updateAssetQuantity,
   readAsset,
   getTotalAssetsForBorrowing,
-  updateMaintenanceStatus,
+  updateRepairStatus,
   updateAssetStatus,
   updateAssetIssueStatus
 };

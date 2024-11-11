@@ -41,7 +41,7 @@ const assetIssueController = {
       const { status } = req.body;
       
       // Validate status
-      const validStatuses = ['Pending', 'In Maintenance', 'In Progress', 'Resolved'];
+      const validStatuses = ['Pending', 'In Repair', 'In Progress', 'Resolved'];
       if (!validStatuses.includes(status)) {
         return res.status(400).json({ 
           error: 'Invalid status',

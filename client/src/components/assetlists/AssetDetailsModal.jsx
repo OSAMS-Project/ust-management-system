@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import moment from 'moment';
 import AssetActivityLogs from './AssetActivityLogs';
 import BorrowLogs from './BorrowLogs';
-import MaintenanceLogs from '../maintenance/MaintenanceLogs';
+import RepairLogs from '../repair/RepairLogs';
 import IssueLogs from '../issue/IssueLogs';
 import QRCodeModal from './QRCodeModal';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,7 +11,7 @@ import { faTimes, faQrcode } from "@fortawesome/free-solid-svg-icons";
 const AssetDetailsModal = ({ selectedAsset, onClose }) => {
   const [showActivityLogs, setShowActivityLogs] = useState(false);
   const [showBorrowLogs, setShowBorrowLogs] = useState(false);
-  const [showMaintenanceLogs, setShowMaintenanceLogs] = useState(false);
+  const [showRepairLogs, setShowRepairLogs] = useState(false);
   const [showIssueLogs, setShowIssueLogs] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
 
@@ -75,10 +75,10 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
               Borrow Logs
             </button>
             <button
-              onClick={() => setShowMaintenanceLogs(true)}
+              onClick={() => setShowRepairLogs(true)}
               className="flex-1 bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-yellow-600 transition-transform transform hover:scale-105"
             >
-              Maintenance Logs
+              Repair Logs
             </button>
             <button
               onClick={() => setShowIssueLogs(true)}
@@ -108,10 +108,10 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
             onClose={() => setShowBorrowLogs(false)}
           />
         )}
-        {showMaintenanceLogs && (
-          <MaintenanceLogs
+        {showRepairLogs && (
+          <RepairLogs
             assetId={selectedAsset.asset_id}
-            onClose={() => setShowMaintenanceLogs(false)}
+            onClose={() => setShowRepairLogs(false)}
           />
         )}
         {showIssueLogs && (

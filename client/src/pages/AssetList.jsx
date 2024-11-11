@@ -155,9 +155,9 @@ const AssetList = () => {
       
       const assetsWithActiveIssues = new Set(activeIssues.map(issue => issue.asset_id));
 
-      // Filter assets that don't have active issues and aren't under maintenance
+      // Filter assets that don't have active issues and aren't under repair
       const availableAssets = assetsResponse.data.filter(asset => 
-        !assetsWithActiveIssues.has(asset.asset_id) && !asset.under_maintenance
+        !assetsWithActiveIssues.has(asset.asset_id) && !asset.under_repair
       );
 
       setAssets(availableAssets);

@@ -159,7 +159,7 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
       createdDate: formData.createdDate.format('YYYY-MM-DD'),
       image: formData.image,
       type: formData.type,
-      under_maintenance: false
+      under_repair: false
     };
 
     try {

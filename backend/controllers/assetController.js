@@ -51,7 +51,7 @@ const deleteAsset = async (req, res) => {
     const deletedAsset = await Asset.deleteAsset(id);
     if (deletedAsset) {
       res.status(200).json({ 
-        message: 'Asset, related maintenance records, borrow logs, and activity logs deleted successfully', 
+        message: 'Asset, related repair records, borrow logs, and activity logs deleted successfully', 
         deletedAsset
       });
     } else {

@@ -121,10 +121,10 @@ const AssetTable = ({
       return;
     }
 
-    if (asset.under_maintenance) {
+    if (asset.under_repair) {
       setNotification({
         type: "error",
-        message: `${asset.assetName} is currently under maintenance and cannot be borrowed.`
+        message: `${asset.assetName} is currently under repair and cannot be borrowed.`
       });
       return;
     }
@@ -270,7 +270,7 @@ const AssetTable = ({
   const currentAssets = useMemo(() => {
     return assets
       .filter((asset) => {
-        if (asset.under_maintenance) return false;
+        if (asset.under_repair) return false;
         return asset.assetName.toLowerCase().includes(searchQuery.toLowerCase());
       })
       .sort((a, b) => {

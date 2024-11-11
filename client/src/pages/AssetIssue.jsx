@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AddAssetIssue from '../components/issue/AddAssetIssue';
 import IssueTable from '../components/issue/IssueTable';
-import MaintenanceModal from '../components/maintenance/MaintenanceModal';
+import RepairModal from '../components/repair/RepairModal';
 import NotificationPopup from '../components/utils/NotificationsPopup';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +11,7 @@ function AssetIssue({ user }) {
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
+  const [isRepairModalOpen, setIsRepairModalOpen] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [notification, setNotification] = useState(null);
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ function AssetIssue({ user }) {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/asset-issues`);
       const activeIssues = response.data.filter(issue => 
-        issue.status !== 'In Maintenance' && issue.status !== 'Resolved'
+        issue.status !== 'In Repair' && issue.status !== 'Resolved'
       );
       setIssues(activeIssues);
       setLoading(false);
@@ -84,26 +84,26 @@ function AssetIssue({ user }) {
     }
   };
 
-  const handleAddToMaintenance = (issue, asset) => {
+  const handleAddToRepair = (issue, asset) => {
     setSelectedIssue({
       ...issue,
       asset: asset
     });
-    setIsMaintenanceModalOpen(true);
+    setIsRepairModalOpen(true);
   };
 
-  const handleAddMaintenance = async (maintenanceData) => {
+  const handleAddRepair = async (repairData) => {
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/Maintenance/create`,
-        maintenanceData
+        `${process.env.REACT_APP_API_URL}/api/repair/create`,
+        repairData
       );
 
       if (response.data) {
-        // Update issue status to "In Maintenance"
+        // Update issue status to "In Repair"
         await axios.put(
           `${process.env.REACT_APP_API_URL}/api/asset-issues/${selectedIssue.id}/status`,
-          { status: 'In Maintenance' }
+          { status: 'In Repair' }
         );
 
         // Remove only from the current view, but keep in database
@@ -111,29 +111,29 @@ function AssetIssue({ user }) {
           prevIssues.filter(issue => issue.id !== selectedIssue.id)
         );
 
-        // Update asset maintenance status
+        // Update asset repair status
         try {
           await axios.put(
-            `${process.env.REACT_APP_API_URL}/api/Assets/${selectedIssue.asset_id}/maintenance-status`,
-            { under_maintenance: true }
+            `${process.env.REACT_APP_API_URL}/api/Assets/${selectedIssue.asset_id}/repair-status`,
+            { under_repair: true }
           );
         } catch (error) {
-          console.error('Error updating asset maintenance status:', error);
+          console.error('Error updating asset repair status:', error);
         }
 
         setNotification({
           type: 'success',
-          message: 'Issue moved to maintenance successfully'
+          message: 'Issue moved to repair successfully'
         });
 
-        setIsMaintenanceModalOpen(false);
-        navigate('/maintenance');
+        setIsRepairModalOpen(false);
+        navigate('/repair');
       }
     } catch (error) {
-      console.error('Error creating maintenance record:', error);
+      console.error('Error creating repair record:', error);
       setNotification({
         type: 'error',
-        message: 'Failed to create maintenance record'
+        message: 'Failed to create repair record'
       });
     }
   };
@@ -186,19 +186,19 @@ function AssetIssue({ user }) {
         issues={issues}
         assets={assets}
         loading={loading}
-        onAddToMaintenance={handleAddToMaintenance}
+        onAddToRepair={handleAddToRepair}
         onRemoveIssue={handleRemoveIssue}
       />
 
-      {isMaintenanceModalOpen && (
-        <MaintenanceModal
-          isOpen={isMaintenanceModalOpen}
-          onClose={() => setIsMaintenanceModalOpen(false)}
-          onAddMaintenance={handleAddMaintenance}
+      {isRepairModalOpen && (
+        <RepairModal
+          isOpen={isRepairModalOpen}
+          onClose={() => setIsRepairModalOpen(false)}
+          onAddRepair={handleAddRepair}
           initialData={{
             assetId: selectedIssue?.asset_id,
             description: `Issue Report: ${selectedIssue?.description}`,
-            maintenanceType: 'Corrective Maintenance'
+            repairType: 'Corrective Repair'
           }}
           selectedAsset={selectedIssue?.asset}
         />

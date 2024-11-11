@@ -120,7 +120,7 @@ const MENU_LIST = [
     to: "/assets",
     icon: faList,
     subItems: [
-      { text: "Asset Maintenance", to: "/asset-maintenance", icon: faTools },
+      { text: "Asset Repair", to: "/asset-repair", icon: faTools },
       { text: "Asset Issues", to: "/asset-issue", icon: faExclamationTriangle },
       { text: "Asset Request", to: "/asset-request", icon: faBoxOpen },
       { text: "Archived Requests", to: "/archived-requests", icon: faClipboardList },

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, initialData = {}, selectedAsset }) => {
+const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedAsset }) => {
   const [assets, setAssets] = useState([]);
-  const [maintenanceData, setMaintenanceData] = useState({
-    assetId: '',
-    maintenanceType: '',
+  const [repairData, setRepairData] = useState({
+    assetId: selectedAsset?.asset_id || '',
+    repairType: '',
     description: '',
     date: '',
     cost: '',
@@ -13,16 +13,16 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, initialData = {},
     ...initialData
   });
 
-  const maintenanceTypes = [
-    'Preventive Maintenance',
-    'Corrective Maintenance',
-    'Predictive Maintenance',
-    'Condition-based Maintenance',
-    'Routine Inspection',
-    'Emergency Repair',
-    'Hardware Upgrade',
+  const repairTypes = [
+    'Hardware Repair',
+    'Software Repair',
+    'Component Replacement',
     'Calibration',
+    'Emergency Repair',
+    'Preventive Repair',
+    'Diagnostic Check',
     'Cleaning',
+    'Parts Upgrade'
   ];
 
   useEffect(() => {
@@ -47,32 +47,37 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, initialData = {},
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setMaintenanceData({ ...maintenanceData, [name]: value });
+    setRepairData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const formattedData = {
-        asset_id: maintenanceData.assetId,
-        maintenance_type: maintenanceData.maintenanceType,
-        description: maintenanceData.description,
-        date: maintenanceData.date,
-        cost: maintenanceData.cost ? parseFloat(maintenanceData.cost) : null,
-        performed_by: maintenanceData.performedBy,
+        asset_id: repairData.assetId,
+        repair_type: repairData.repairType,
+        description: repairData.description,
+        date: repairData.date,
+        cost: parseFloat(repairData.cost),
+        performed_by: repairData.performedBy
       };
-      await onAddMaintenance(formattedData);
-      setMaintenanceData({
-        assetId: '',
-        maintenanceType: '',
-        description: '',
-        date: '',
-        cost: '',
-        performedBy: '',
-      });
-      onClose();
+
+      if (typeof onAddRepair === 'function') {
+        await onAddRepair(formattedData);
+        setRepairData({
+          assetId: '',
+          repairType: '',
+          description: '',
+          date: '',
+          cost: '',
+          performedBy: ''
+        });
+        onClose();
+      } else {
+        console.error('onAddRepair is not a function');
+      }
     } catch (error) {
-      console.error('Error submitting maintenance data:', error);
+      console.error('Error submitting repair:', error);
     }
   };
 
@@ -81,7 +86,7 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, initialData = {},
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
       <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <h3 className="text-lg font-bold mb-4">Add Maintenance Record</h3>
+        <h3 className="text-lg font-bold mb-4">Add Repair Record</h3>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="assetId">
@@ -89,7 +94,7 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, initialData = {},
             </label>
             <select
               name="assetId"
-              value={maintenanceData.assetId}
+              value={repairData.assetId}
               onChange={handleInputChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
@@ -104,18 +109,18 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, initialData = {},
             </select>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="maintenanceType">
-              Maintenance Type
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="repairType">
+              Repair Type
             </label>
             <select
-              name="maintenanceType"
-              value={maintenanceData.maintenanceType}
+              name="repairType"
+              value={repairData.repairType}
               onChange={handleInputChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
             >
-              <option value="">Select maintenance type</option>
-              {maintenanceTypes.map((type) => (
+              <option value="">Select repair type</option>
+              {repairTypes.map((type) => (
                 <option key={type} value={type}>
                   {type}
                 </option>
@@ -128,7 +133,7 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, initialData = {},
             </label>
             <textarea
               name="description"
-              value={maintenanceData.description}
+              value={repairData.description}
               onChange={handleInputChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
@@ -136,12 +141,12 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, initialData = {},
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="date">
-              Maintenance Date
+              Repair Date
             </label>
             <input
               type="date"
               name="date"
-              value={maintenanceData.date}
+              value={repairData.date}
               onChange={handleInputChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
@@ -149,12 +154,12 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, initialData = {},
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="cost">
-              Maintenance Cost
+              Repair Cost
             </label>
             <input
               type="number"
               name="cost"
-              value={maintenanceData.cost}
+              value={repairData.cost}
               onChange={handleInputChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
@@ -167,7 +172,7 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, initialData = {},
             <input
               type="text"
               name="performedBy"
-              value={maintenanceData.performedBy}
+              value={repairData.performedBy}
               onChange={handleInputChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
@@ -185,7 +190,7 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, initialData = {},
               type="submit"
               className="px-4 py-2 bg-blue-500 text-white rounded"
             >
-              Add Maintenance
+              Add Repair
             </button>
           </div>
         </form>
@@ -194,4 +199,4 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, initialData = {},
   );
 };
 
-export default MaintenanceModal;
+export default RepairModal;
