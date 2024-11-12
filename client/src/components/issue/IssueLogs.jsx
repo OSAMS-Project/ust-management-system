@@ -65,6 +65,7 @@ const IssueLogs = ({ assetId, onClose }) => {
                 <th className="px-4 py-2 text-left">Date Reported</th>
                 <th className="px-4 py-2 text-left">Issue Type</th>
                 <th className="px-4 py-2 text-left">Description</th>
+                <th className="px-4 py-2 text-left">Quantity</th>
                 <th className="px-4 py-2 text-left">Priority</th>
                 <th className="px-4 py-2 text-left">Status</th>
                 <th className="px-4 py-2 text-left">Reported By</th>
@@ -78,6 +79,7 @@ const IssueLogs = ({ assetId, onClose }) => {
                   </td>
                   <td className="px-4 py-2">{log.issue_type}</td>
                   <td className="px-4 py-2">{log.description}</td>
+                  <td className="px-4 py-2">{log.quantity || 1}</td>
                   <td className="px-4 py-2">
                     <span className={`px-2 py-1 rounded-full text-xs ${getPriorityColor(log.priority)}`}>
                       {log.priority}
