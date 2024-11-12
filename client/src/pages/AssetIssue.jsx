@@ -85,8 +85,10 @@ function AssetIssue({ user }) {
   };
 
   const handleAddToRepair = (issue, asset) => {
+    console.log('Selected Issue:', issue);
     setSelectedIssue({
       ...issue,
+      quantity: issue.quantity || 1,
       asset: asset
     });
     setIsRepairModalOpen(true);
@@ -94,9 +96,13 @@ function AssetIssue({ user }) {
 
   const handleAddRepair = async (repairData) => {
     try {
+      console.log('Repair Data being sent:', repairData);
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/repair/create`,
-        repairData
+        {
+          ...repairData,
+          quantity: selectedIssue.quantity
+        }
       );
 
       if (response.data) {
@@ -106,15 +112,15 @@ function AssetIssue({ user }) {
           { status: 'In Repair' }
         );
 
-        // Remove only from the current view, but keep in database
+        // Remove from current view
         setIssues(prevIssues => 
           prevIssues.filter(issue => issue.id !== selectedIssue.id)
         );
 
-        // Update asset repair status
+        // Update asset repair status - Fixed endpoint
         try {
           await axios.put(
-            `${process.env.REACT_APP_API_URL}/api/Assets/${selectedIssue.asset_id}/repair-status`,
+            `${process.env.REACT_APP_API_URL}/api/assets/${selectedIssue.asset_id}/repair-status`,
             { under_repair: true }
           );
         } catch (error) {

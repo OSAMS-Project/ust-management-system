@@ -1,14 +1,17 @@
-import React, { useState,} from 'react';
+import React, { useState, useEffect } from 'react';
 
 const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user }) => {
   const [issueData, setIssueData] = useState({
     asset_id: '',
-    issue_type: '',  // This should match the backend field name
+    issue_type: '',
     description: '',
     priority: '',
-    reported_by: user?.name || '',  // Set the current user's name
-    user_picture: user?.picture || '' // Set the current user's picture
+    quantity: 1,
+    reported_by: user?.name || '',
+    user_picture: user?.picture || ''
   });
+
+  const [selectedAssetDetails, setSelectedAssetDetails] = useState(null);
 
   const issueTypes = [
     'Hardware Malfunction',
@@ -26,22 +29,48 @@ const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    if (name === 'quantity') {
+      const numValue = parseInt(value) || 0;
+      const maxQuantity = selectedAssetDetails?.quantity || 0;
+      const validValue = Math.min(Math.max(0, numValue), maxQuantity);
+      
+      setIssueData(prev => ({
+        ...prev,
+        [name]: validValue
+      }));
+    } else {
+      setIssueData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const handleAssetSelect = (e) => {
+    const selectedAssetId = e.target.value;
+    const selectedAsset = assets.find(asset => asset.asset_id === selectedAssetId);
+    setSelectedAssetDetails(selectedAsset);
     setIssueData(prev => ({
       ...prev,
-      [name]: value
+      asset_id: selectedAssetId,
+      quantity: 1
     }));
+  };
+
+  const handleQuantityChange = (e) => {
+    const value = parseInt(e.target.value) || 0;
+    const maxQuantity = selectedAssetDetails?.quantity || 0;
+    const validValue = Math.min(Math.max(1, value), maxQuantity);
     
-    // Debug log
-    console.log('Updated issue data:', {
-      ...issueData,
-      [name]: value
-    });
+    setIssueData(prev => ({
+      ...prev,
+      quantity: validValue
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Include the user information in the submission
       await onAddIssue({
         ...issueData,
         reported_by: user?.name,
@@ -56,89 +85,123 @@ const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg w-full max-w-lg">
-        <form onSubmit={handleSubmit}>
-          <select
-            name="asset_id"
-            value={issueData.asset_id}
-            onChange={(e) => setIssueData({ ...issueData, asset_id: e.target.value })}
-            required
-          >
-            <option value="">Select Asset</option>
-            {assets.map(asset => (
-              <option key={asset.asset_id} value={asset.asset_id}>
-                {asset.assetName}
-              </option>
-            ))}
-          </select>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Issue Type
-            </label>
-            <select
-              name="issue_type"
-              value={issueData.issue_type}
-              onChange={handleInputChange}
-              className="w-full border rounded-md p-2"
-              required
-            >
-              <option value="">Select Issue Type</option>
-              {issueTypes.map(type => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
-          </div>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-lg">
+        <div className="p-6">
+          <h2 className="text-xl font-semibold mb-6">Submit Issue</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Asset
+              </label>
+              <select
+                name="asset_id"
+                value={issueData.asset_id}
+                onChange={handleAssetSelect}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select Asset</option>
+                {assets.map(asset => (
+                  <option key={asset.asset_id} value={asset.asset_id}>
+                    {asset.assetName}
+                  </option>
+                ))}
+              </select>
+              {selectedAssetDetails && (
+                <p className="text-sm text-gray-600 mt-1">
+                  Available Quantity: {selectedAssetDetails.quantity || 0}
+                </p>
+              )}
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Priority Level
-            </label>
-            <select
-              name="priority"
-              value={issueData.priority}
-              onChange={handleInputChange}
-              className="w-full border rounded-md p-2"
-              required
-            >
-              <option value="">Select Priority</option>
-              {priorityLevels.map(level => (
-                <option key={level} value={level}>{level}</option>
-              ))}
-            </select>
-          </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Quantity for Repair
+              </label>
+              <input
+                type="number"
+                name="quantity"
+                value={issueData.quantity}
+                onChange={handleQuantityChange}
+                min="1"
+                max={selectedAssetDetails?.quantity || 1}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <p className="text-sm text-gray-600">
+                Available: {selectedAssetDetails?.quantity || 0}
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Issue Type
+              </label>
+              <select
+                name="issue_type"
+                value={issueData.issue_type}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select Issue Type</option>
+                {issueTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <textarea
-              name="description"
-              value={issueData.description}
-              onChange={handleInputChange}
-              className="w-full border rounded-md p-2 h-32"
-              required
-              placeholder="Describe the issue in detail..."
-            />
-          </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Priority Level
+              </label>
+              <select
+                name="priority"
+                value={issueData.priority}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select Priority</option>
+                {priorityLevels.map(level => (
+                  <option key={level} value={level}>{level}</option>
+                ))}
+              </select>
+            </div>
 
-          <div className="flex justify-end space-x-4 mt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-            >
-              Submit Issue
-            </button>
-          </div>
-        </form>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={issueData.description}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]"
+                required
+                placeholder="Describe the issue in detail..."
+              />
+            </div>
+
+            <div className="flex justify-end gap-4 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={!issueData.quantity || issueData.quantity > (selectedAssetDetails?.quantity || 0)}
+              >
+                Submit Issue
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

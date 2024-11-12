@@ -1,58 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const Repair = require('../models/repair');
+const RepairController = require('../controllers/RepairController');
 
-router.get('/read', async (req, res) => {
+// Get all repair records
+router.get('/read', RepairController.getAllRepairRecords);
+
+// Create repair record
+router.post('/create', RepairController.createRepairRecord);
+
+// Complete repair record
+router.put('/:id/complete', RepairController.completeRepairRecord);
+
+// Delete repair record
+router.delete('/:id', RepairController.deleteRepairRecord);
+
+// Get repair records by asset
+router.get('/asset/:assetId', async (req, res) => {
   try {
-    const records = await Repair.getAllRepairRecords();
+    const { assetId } = req.params;
+    if (!assetId) {
+      return res.status(400).json({ message: 'Asset ID is required' });
+    }
+
+    const records = await RepairController.getRepairRecordsByAsset(assetId);
     res.json(records);
   } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-router.post('/create', async (req, res) => {
-  try {
-    const result = await Repair.createRepairRecord(req.body);
-    res.status(201).json(result[0]);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-router.put('/complete/:id', async (req, res) => {
-  try {
-    const result = await Repair.completeRepairRecord(req.params.id, new Date());
-    res.json(result[0]);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-router.delete('/delete/:id', async (req, res) => {
-  try {
-    await Repair.deleteRepairRecord(req.params.id);
-    res.json({ message: 'Repair record deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-router.get('/asset/:id', async (req, res) => {
-  try {
-    const assetId = req.params.id;
-    console.log('Fetching repair records for asset:', assetId);
-    
-    const records = await Repair.getRepairRecordsByAsset(assetId);
-    console.log('Found records:', records);
-    
-    res.json(records);
-  } catch (error) {
-    console.error('Error in /asset/:id route:', error);
-    res.status(500).json({ 
-      error: 'Internal server error', 
-      details: error.message 
-    });
+    console.error('Error fetching repair records:', error);
+    res.status(500).json({ message: 'Error fetching repair records' });
   }
 });
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedAsset }) => {
+const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedAsset, selectedIssue }) => {
   const [assets, setAssets] = useState([]);
   const [repairData, setRepairData] = useState({
     assetId: selectedAsset?.asset_id || '',
@@ -10,6 +10,7 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
     date: '',
     cost: '',
     performedBy: '',
+    quantity: selectedIssue?.quantity || 0,
     ...initialData
   });
 
@@ -32,8 +33,16 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
       } else {
         fetchAssets();
       }
+      if (selectedIssue) {
+        setRepairData(prev => ({
+          ...prev,
+          assetId: selectedAsset?.asset_id || '',
+          quantity: selectedIssue.quantity || 1,
+          description: selectedIssue.description || ''
+        }));
+      }
     }
-  }, [isOpen, selectedAsset]);
+  }, [isOpen, selectedAsset, selectedIssue]);
 
   const fetchAssets = async () => {
     try {
@@ -59,7 +68,9 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
         description: repairData.description,
         date: repairData.date,
         cost: parseFloat(repairData.cost),
-        performed_by: repairData.performedBy
+        performed_by: repairData.performedBy,
+        quantity: repairData.quantity,
+        issue_id: selectedIssue?.id
       };
 
       if (typeof onAddRepair === 'function') {
@@ -70,7 +81,8 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
           description: '',
           date: '',
           cost: '',
-          performedBy: ''
+          performedBy: '',
+          quantity: 0
         });
         onClose();
       } else {
@@ -107,6 +119,17 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
                 </option>
               ))}
             </select>
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Quantity for Repair
+            </label>
+            <input
+              type="number"
+              value={selectedIssue?.quantity || 1}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 cursor-not-allowed"
+              readOnly
+            />
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="repairType">

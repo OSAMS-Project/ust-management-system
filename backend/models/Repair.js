@@ -21,9 +21,9 @@ const Repair = {
         cost,
         performed_by,
         status,
-        fixed_date,
-        created_at,
-        updated_at
+        quantity,
+        completion_date,
+        created_at
       FROM repair_records 
       WHERE asset_id = $1 
       ORDER BY date DESC
@@ -40,36 +40,41 @@ const Repair = {
   createRepairRecord: async (data) => {
     const query = `
       INSERT INTO repair_records 
-      (asset_id, repair_type, description, date, cost, performed_by, status)
-      VALUES ($1, $2, $3, $4, $5, $6, 'Pending')
+      (asset_id, repair_type, description, date, cost, performed_by, status, quantity, issue_id)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     `;
+    
     const values = [
       data.asset_id,
       data.repair_type,
       data.description,
       data.date || new Date(),
-      data.cost,
-      data.performed_by
+      parseFloat(data.cost),
+      data.performed_by,
+      'Pending',
+      parseInt(data.quantity) || 1,
+      data.issue_id ? parseInt(data.issue_id) : null
     ];
     
+    console.log('Creating repair record with values:', values);
     return executeTransaction([{ query, params: values }]);
   },
 
-  completeRepairRecord: async (id, fixedDate) => {
+  completeRepairRecord: async (id) => {
     const query = `
       UPDATE repair_records 
       SET status = 'Completed',
-          fixed_date = $2
+          completion_date = CURRENT_TIMESTAMP
       WHERE id = $1 
       RETURNING *
     `;
-    return executeTransaction([{ query, params: [id, fixedDate] }]);
+    return executeTransaction([{ query, params: [parseInt(id)] }]);
   },
 
   deleteRepairRecord: async (id) => {
     const query = 'DELETE FROM repair_records WHERE id = $1 RETURNING *';
-    return executeTransaction([{ query, params: [id] }]);
+    return executeTransaction([{ query, params: [parseInt(id)] }]);
   }
 };
 

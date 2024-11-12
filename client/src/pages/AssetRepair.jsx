@@ -3,9 +3,12 @@ import axios from 'axios';
 import AddRepairButton from '../components/repair/AddRepairButton';
 import RepairModal from '../components/repair/RepairModal';
 import RepairTable from '../components/repair/RepairTable';
+import RepairLogs from '../components/repair/RepairLogs';
 
 function AssetRepair() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLogsModalOpen, setIsLogsModalOpen] = useState(false);
+  const [selectedAssetId, setSelectedAssetId] = useState(null);
   const [repairRecords, setRepairRecords] = useState([]);
   const [assets, setAssets] = useState([]);
 
@@ -45,36 +48,41 @@ function AssetRepair() {
     }
   };
 
-  const handleCompleteRecord = async (id) => {
+  const handleCompleteRecord = async (record) => {
     try {
-      const repairRecord = repairRecords.find(record => record.id === id);
+      console.log('Completing repair record:', record);
+
+      if (!record.id) {
+        console.error('No repair ID found:', record);
+        return;
+      }
+
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/repair/${record.id}/complete`);
       
-      await axios.put(`${process.env.REACT_APP_API_URL}/api/repair/complete/${id}`);
-      
-      if (repairRecord) {
-        try {
+      setRepairRecords(prevRecords => 
+        prevRecords.map(r => 
+          r.id === record.id ? { ...r, status: 'Completed' } : r
+        )
+      );
+
+      try {
+        if (record.issue_id) {
           await axios.put(
-            `${process.env.REACT_APP_API_URL}/api/asset-issues/resolve-by-asset/${repairRecord.asset_id}`,
+            `${process.env.REACT_APP_API_URL}/api/asset-issues/resolve-by-asset/${record.asset_id}`,
             { status: 'Resolved' }
           );
-
-          await axios.put(
-            `${process.env.REACT_APP_API_URL}/api/Assets/${repairRecord.asset_id}/status`,
-            { 
-              under_repair: false,
-              has_issue: false
-            }
-          );
-
-          setRepairRecords(prevRecords => 
-            prevRecords.map(record => 
-              record.id === id ? { ...record, status: 'Completed' } : record
-            )
-          );
-
-        } catch (error) {
-          console.error('Error updating related records:', error);
         }
+
+        await axios.put(
+          `${process.env.REACT_APP_API_URL}/api/Assets/${record.asset_id}/status`,
+          { 
+            under_repair: false,
+            has_issue: false
+          }
+        );
+
+      } catch (error) {
+        console.error('Error updating related records:', error);
       }
     } catch (error) {
       console.error('Error completing repair record:', error);
@@ -88,6 +96,11 @@ function AssetRepair() {
     } catch (error) {
       console.error('Error removing repair record:', error);
     }
+  };
+
+  const handleViewLogs = (assetId) => {
+    setSelectedAssetId(assetId);
+    setIsLogsModalOpen(true);
   };
 
   return (
@@ -106,8 +119,15 @@ function AssetRepair() {
           assets={assets}
           onCompleteRecord={handleCompleteRecord}
           onRemoveRecord={handleRemoveRecord}
+          onViewLogs={handleViewLogs}
         />
       </div>
+      {isLogsModalOpen && selectedAssetId && (
+        <RepairLogs
+          assetId={selectedAssetId}
+          onClose={() => setIsLogsModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

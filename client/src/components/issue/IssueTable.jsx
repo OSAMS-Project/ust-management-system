@@ -7,23 +7,18 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue }) =
     return <div>Loading...</div>;
   }
 
-  const handleAddToRepair = (issue) => {
-    const asset = assets.find(a => a.asset_id === issue.asset_id);
-    onAddToRepair(issue, asset);
-  };
-
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white">
-        <thead className="bg-gray-100">
+      <table className="min-w-full bg-white border rounded-lg">
+        <thead className="bg-gray-50">
           <tr>
             <th className="px-4 py-2 text-left">Asset</th>
             <th className="px-4 py-2 text-left">Issue Type</th>
             <th className="px-4 py-2 text-left">Description</th>
             <th className="px-4 py-2 text-left">Priority</th>
+            <th className="px-4 py-2 text-left">Quantity</th>
             <th className="px-4 py-2 text-left">Reported By</th>
             <th className="px-4 py-2 text-left">Date Reported</th>
-            <th className="px-4 py-2 text-left">Status</th>
             <th className="px-4 py-2 text-left">Actions</th>
           </tr>
         </thead>
@@ -47,6 +42,9 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue }) =
                   </span>
                 </td>
                 <td className="px-4 py-2">
+                  <span className="font-medium">{issue.quantity}</span>
+                </td>
+                <td className="px-4 py-2">
                   <div className="flex items-center">
                     {issue.user_picture && (
                       <img 
@@ -59,28 +57,32 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue }) =
                   </div>
                 </td>
                 <td className="px-4 py-2">{moment(issue.created_at).format('MM/DD/YYYY')}</td>
-                <td className="px-4 py-2">{issue.status}</td>
                 <td className="px-4 py-2">
-                  <button
-                    onClick={() => handleAddToRepair(issue)}
-                    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 mr-2"
-                    title="Add to Repair"
-                  >
-                    <Wrench size={16} />
-                  </button>
-                  <button
-                    onClick={() => onRemoveIssue(issue.id)}
-                    className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
-                    title="Remove Issue"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => onAddToRepair(issue, asset)}
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+                    >
+                      Repair
+                    </button>
+                    <button
+                      onClick={() => onRemoveIssue(issue.id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </td>
               </tr>
             );
           })}
         </tbody>
       </table>
+      {issues.length === 0 && (
+        <div className="text-center py-4 text-gray-500">
+          No issues found
+        </div>
+      )}
     </div>
   );
 };
