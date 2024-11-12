@@ -38,9 +38,10 @@ const AssetRequest = {
       const query = `
         SELECT * FROM asset_request 
         WHERE status = 'declined' 
-        ORDER BY created_at DESC
+        ORDER BY declined_at DESC NULLS LAST
       `;
       const { rows } = await pool.query(query);
+      console.log('Fetched declined requests:', rows);
       return rows;
     } catch (error) {
       console.error('Error in getDeclinedRequests:', error);
@@ -64,20 +65,26 @@ const AssetRequest = {
 
   updateAssetRequest: async (id, assetData) => {
     try {
+      console.log('Updating asset request:', { id, assetData });
+      
       const setClause = [];
       const values = [];
       let paramCount = 1;
 
-      if (assetData.status === 'approved') {
-        setClause.push(`approved_at = CURRENT_TIMESTAMP`);
-      } else if (assetData.status === 'declined') {
-        setClause.push(`declined_at = CURRENT_TIMESTAMP`);
-      }
-      
-      if (assetData.status !== undefined) {
+      if (assetData.status) {
         setClause.push(`status = $${paramCount}`);
         values.push(assetData.status);
         paramCount++;
+      }
+
+      if (assetData.auto_declined !== undefined) {
+        setClause.push(`auto_declined = $${paramCount}`);
+        values.push(assetData.auto_declined);
+        paramCount++;
+      }
+
+      if (assetData.status === 'declined') {
+        setClause.push(`declined_at = CURRENT_TIMESTAMP`);
       }
 
       values.push(id);
@@ -89,7 +96,11 @@ const AssetRequest = {
         RETURNING *
       `;
 
+      console.log('Executing query:', { query, values });
+      
       const { rows } = await pool.query(query, values);
+      console.log('Update result:', rows[0]);
+      
       return rows[0];
     } catch (error) {
       console.error('Error in updateAssetRequest:', error);
@@ -117,7 +128,8 @@ const AssetRequest = {
         approved_at TIMESTAMP,
         declined_at TIMESTAMP,
         archived_at TIMESTAMP,
-        original_status VARCHAR(50)
+        original_status VARCHAR(50),
+        auto_declined BOOLEAN DEFAULT FALSE
       )
     `;
     try {

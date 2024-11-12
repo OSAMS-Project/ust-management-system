@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import AssetRequestTable from '../components/assetrequest/AssetRequestTable';
 import ApprovedRequestTable from '../components/assetrequest/ApprovedRequestTable';
@@ -20,30 +20,42 @@ const AssetRequest = ({ user }) => {
 
   console.log('User in AssetRequests:', user);
 
-  const fetchAllRequests = async () => {
+  const fetchAllRequests = useCallback(async () => {
     try {
-      // Fetch pending requests
-      const pendingResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/asset-request`);
-      setAssetRequests(pendingResponse.data);
+      console.log('Fetching all requests...');
+      const [pendingRes, declinedRes, approvedRes] = await Promise.all([
+        axios.get(`${process.env.REACT_APP_API_URL}/api/asset-request`),
+        axios.get(`${process.env.REACT_APP_API_URL}/api/asset-request/declined`),
+        axios.get(`${process.env.REACT_APP_API_URL}/api/asset-request/approved`)
+      ]);
 
-      // Fetch approved requests
-      const approvedResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/asset-request/approved`);
-      setApprovedRequests(approvedResponse.data);
-
-      // Fetch declined requests
-      const declinedResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/asset-request/declined`);
-      setDeclinedRequests(declinedResponse.data);
+      setAssetRequests(pendingRes.data);
+      const sortedDeclined = declinedRes.data.sort((a, b) => 
+        new Date(b.declined_at) - new Date(a.declined_at)
+      );
+      setDeclinedRequests(sortedDeclined);
+      setApprovedRequests(approvedRes.data);
+      
+      console.log('Updated requests:', {
+        pending: pendingRes.data,
+        declined: declinedRes.data,
+        approved: approvedRes.data
+      });
     } catch (error) {
       console.error('Error fetching requests:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAllRequests();
-  }, []);
+  }, [fetchAllRequests]);
 
   const handleInputChange = (e) => {
-    setNewAsset({ ...newAsset, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setNewAsset(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -68,7 +80,11 @@ const AssetRequest = ({ user }) => {
       console.log('Response:', response.data);
       setIsModalOpen(false);
       fetchAllRequests();
-      setNewAsset({ assetName: '', quantity: '', comments: '' });
+      setNewAsset({
+        assetName: '',
+        quantity: '',
+        comments: ''
+      });
     } catch (error) {
       console.error('Error adding asset request:', error.response?.data || error.message);
     }
@@ -83,12 +99,52 @@ const AssetRequest = ({ user }) => {
     }
   };
 
-  const handleDecline = async (id) => {
+  const handleDecline = async (requestData) => {
+    const isAutoDeclined = typeof requestData === 'object' && requestData.auto_declined;
+    const requestId = isAutoDeclined ? requestData.id : requestData;
+
     try {
-      await axios.put(`${process.env.REACT_APP_API_URL}/api/asset-request/${id}/decline`);
-      fetchAllRequests(); // Fetch all requests again after declining
+      // Find the request that's being declined
+      const requestToDecline = assetRequests.find(req => req.id === requestId);
+      if (!requestToDecline) return;
+
+      // Immediately remove from pending requests
+      setAssetRequests(prev => prev.filter(req => req.id !== requestId));
+
+      // Create the declined request object with all necessary data
+      const declinedRequest = {
+        ...requestToDecline,
+        status: 'declined',
+        auto_declined: isAutoDeclined,
+        declined_at: new Date().toISOString()
+      };
+
+      // Add to declined requests immediately
+      setDeclinedRequests(prev => [declinedRequest, ...prev]);
+
+      // Make API call
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/asset-request/${requestId}/decline`,
+        { 
+          status: 'declined',
+          auto_declined: isAutoDeclined,
+          declined_at: declinedRequest.declined_at
+        }
+      );
+
+      if (!response.data) {
+        // Revert changes if API call fails
+        setAssetRequests(prev => [...prev, requestToDecline]);
+        setDeclinedRequests(prev => prev.filter(req => req.id !== requestId));
+      }
     } catch (error) {
       console.error('Error declining request:', error);
+      // Revert changes on error
+      const requestToDecline = assetRequests.find(req => req.id === requestId);
+      if (requestToDecline) {
+        setAssetRequests(prev => [...prev, requestToDecline]);
+        setDeclinedRequests(prev => prev.filter(req => req.id !== requestId));
+      }
     }
   };
 
@@ -99,6 +155,15 @@ const AssetRequest = ({ user }) => {
     } catch (error) {
       console.error('Error archiving request:', error);
     }
+  };
+
+  const handleOpenModal = () => {
+    setNewAsset({
+      assetName: '',
+      quantity: '',
+      comments: ''
+    });
+    setIsModalOpen(true);
   };
 
   return (
@@ -119,7 +184,7 @@ const AssetRequest = ({ user }) => {
       </div>
 
       <button 
-        onClick={() => setIsModalOpen(true)}
+        onClick={handleOpenModal}
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 ml-2"
       >
         Add Asset Request
@@ -131,12 +196,12 @@ const AssetRequest = ({ user }) => {
           onApprove={handleApprove}
           onDecline={handleDecline}
         />
-        <ApprovedRequestTable 
-          approvedRequests={approvedRequests} 
-          onArchive={handleArchive}
-        />
         <DeclinedRequestTable 
           declinedRequests={declinedRequests} 
+          onArchive={handleArchive}
+        />
+        <ApprovedRequestTable 
+          approvedRequests={approvedRequests} 
           onArchive={handleArchive}
         />
       </div>

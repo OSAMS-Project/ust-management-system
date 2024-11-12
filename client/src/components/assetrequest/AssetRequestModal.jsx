@@ -21,6 +21,7 @@ const AssetRequestModal = ({
             onChange={onInputChange}
             placeholder="Asset Name"
             className="w-full p-2 mb-2 border rounded"
+            required
           />
           <input
             type="number"
@@ -29,6 +30,7 @@ const AssetRequestModal = ({
             onChange={onInputChange}
             placeholder="Quantity"
             className="w-full p-2 mb-2 border rounded"
+            required
           />
           <textarea
             name="comments"

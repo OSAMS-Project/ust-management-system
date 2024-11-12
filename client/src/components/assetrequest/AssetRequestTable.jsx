@@ -1,19 +1,89 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import moment from 'moment';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
-import ViewRequestModal from './ViewRequestModal';
+
+const TIMER_DURATION = {
+  TESTING: 30, // 30 seconds for testing
+  PRODUCTION: 7 * 24 * 60 * 60 // 7 days in seconds
+};
+
+const IS_TESTING = false; // Set to false when deploying to production
 
 const AssetRequestTable = ({ assetRequests, onApprove, onDecline }) => {
+  const [timeLeft, setTimeLeft] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedRequest, setSelectedRequest] = useState(null);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const itemsPerPage = 5;
-  
-  const totalPages = Math.ceil(assetRequests.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentRequests = assetRequests.slice(startIndex, endIndex);
+
+  // Initialize timers for new requests
+  useEffect(() => {
+    const newTimeLeft = {};
+    assetRequests.forEach(asset => {
+      const createdDate = moment(asset.created_at);
+      const duration = IS_TESTING ? TIMER_DURATION.TESTING : TIMER_DURATION.PRODUCTION;
+      const expiryDate = moment(createdDate).add(duration, IS_TESTING ? 'seconds' : 'seconds');
+      const remaining = Math.max(0, expiryDate.diff(moment(), 'seconds'));
+      newTimeLeft[asset.id] = remaining;
+    });
+    setTimeLeft(newTimeLeft);
+  }, [assetRequests]);
+
+  // Handle countdown timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        const newTimeLeft = { ...prev };
+        let hasChanges = false;
+
+        Object.entries(newTimeLeft).forEach(([id, time]) => {
+          if (time > 0) {
+            newTimeLeft[id] = time - 1;
+            hasChanges = true;
+
+            if (IS_TESTING && time <= 5) {
+              console.log(`Request ${id} time remaining: ${time - 1} seconds`);
+            }
+
+            // Check if timer just expired
+            if (newTimeLeft[id] === 0) {
+              console.log(`Timer expired for request ${id}! Auto-declining...`);
+              const request = assetRequests.find(req => req.id === parseInt(id));
+              if (request) {
+                onDecline({
+                  ...request,
+                  auto_declined: true,
+                  status: 'declined',
+                  declined_at: new Date().toISOString()
+                });
+              }
+            }
+          }
+        });
+
+        return hasChanges ? newTimeLeft : prev;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [assetRequests, onDecline]);
+
+  // Format the time remaining to show days, hours, minutes, and seconds
+  const formatTimeLeft = (seconds) => {
+    if (seconds <= 0) return "Expired";
+    
+    const days = Math.floor(seconds / (24 * 60 * 60));
+    const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
+    const minutes = Math.floor((seconds % (60 * 60)) / 60);
+    const remainingSeconds = seconds % 60;
+
+    if (days > 0) {
+      return `${days}d ${hours}h ${minutes}m ${remainingSeconds}s`;
+    } else if (hours > 0) {
+      return `${hours}h ${minutes}m ${remainingSeconds}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${remainingSeconds}s`;
+    } else {
+      return `${remainingSeconds}s`;
+    }
+  };
 
   return (
     <div className="mt-2">
@@ -25,42 +95,34 @@ const AssetRequestTable = ({ assetRequests, onApprove, onDecline }) => {
             <th className="py-2 px-4 border-b text-center">Quantity</th>
             <th className="py-2 px-4 border-b text-center">Date Requested</th>
             <th className="py-2 px-4 border-b text-center">Requested By</th>
+            <th className="py-2 px-4 border-b text-center">Time Remaining</th>
             <th className="py-2 px-4 border-b text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {currentRequests.map((asset, index) => (
-            <tr
-              key={index}
-              className={`${
-                index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
-              } cursor-pointer hover:bg-gray-50`}
-            >
+          {assetRequests.map((asset) => (
+            <tr key={asset.id}>
               <td className="py-2 px-4 border-b text-center">{asset.asset_name}</td>
               <td className="py-2 px-4 border-b text-center">{asset.quantity}</td>
               <td className="py-2 px-4 border-b text-center">
-                {moment(asset.created_at).format("MM/DD/YYYY")}
+                {moment(asset.created_at).format('MM/DD/YYYY')}
               </td>
               <td className="py-2 px-4 border-b text-center">
                 <div className="flex items-center justify-center">
-                  <img 
-                    src={asset.user_picture || "https://via.placeholder.com/30"} 
-                    alt={asset.created_by} 
+                  <img
+                    src={asset.user_picture || "https://via.placeholder.com/30"}
+                    alt={asset.created_by}
                     className="w-8 h-8 rounded-full mr-2"
                   />
                   {asset.created_by}
                 </div>
               </td>
               <td className="py-2 px-4 border-b text-center">
-                <button
-                  onClick={() => {
-                    setSelectedRequest(asset);
-                    setIsViewModalOpen(true);
-                  }}
-                  className="bg-blue-500 text-white px-2 py-1 rounded mr-2 text-xs hover:bg-blue-600 transition duration-300"
-                >
-                  <FontAwesomeIcon icon={faEye} />
-                </button>
+                <span className={timeLeft[asset.id] <= 10 ? 'text-red-500' : ''}>
+                  {formatTimeLeft(timeLeft[asset.id])}
+                </span>
+              </td>
+              <td className="py-2 px-4 border-b text-center">
                 <button
                   onClick={() => onApprove(asset.id)}
                   className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs hover:bg-green-600 transition duration-300"
@@ -78,27 +140,6 @@ const AssetRequestTable = ({ assetRequests, onApprove, onDecline }) => {
           ))}
         </tbody>
       </table>
-      <div className="mt-4 mb-8 flex justify-center">
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrentPage(i + 1)}
-            className={`mx-1 px-3 py-1 rounded ${
-              currentPage === i + 1
-                ? "bg-yellow-500 text-white"
-                : "bg-gray-200"
-            }`}
-          >
-            {i + 1}
-          </button>
-        ))}
-      </div>
-
-      <ViewRequestModal
-        isOpen={isViewModalOpen}
-        onClose={() => setIsViewModalOpen(false)}
-        request={selectedRequest}
-      />
     </div>
   );
 };

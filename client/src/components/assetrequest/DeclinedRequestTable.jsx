@@ -15,6 +15,13 @@ const DeclinedRequestTable = ({ declinedRequests, onArchive }) => {
   const endIndex = startIndex + itemsPerPage;
   const currentRequests = declinedRequests.slice(startIndex, endIndex);
 
+  const getDeclineReason = (request) => {
+    if (request.auto_declined) {
+      return "Auto-declined (Timer Expired)";
+    }
+    return "Manually Declined";
+  };
+
   return (
     <div className="mt-8 mb-8">
       <h2 className="text-2xl font-bold mb-4">Declined Requests</h2>
@@ -27,6 +34,7 @@ const DeclinedRequestTable = ({ declinedRequests, onArchive }) => {
             <th className="py-2 px-4 border-b text-center">Date Declined</th>
             <th className="py-2 px-4 border-b text-center">Requested By</th>
             <th className="py-2 px-4 border-b text-center">Status</th>
+            <th className="py-2 px-4 border-b text-center">Reason</th>
             <th className="py-2 px-4 border-b text-center">Actions</th>
           </tr>
         </thead>
@@ -59,6 +67,11 @@ const DeclinedRequestTable = ({ declinedRequests, onArchive }) => {
               <td className="py-2 px-4 border-b text-center">
                 <span className="bg-red-100 text-red-800 px-2 py-1 rounded">
                   Declined
+                </span>
+              </td>
+              <td className="py-2 px-4 border-b text-center">
+                <span className="text-gray-600 text-sm">
+                  {getDeclineReason(asset)}
                 </span>
               </td>
               <td className="py-2 px-4 border-b text-center">
