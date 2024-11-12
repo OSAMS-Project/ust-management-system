@@ -2,51 +2,41 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedAsset, selectedIssue }) => {
-  const [assets, setAssets] = useState([]);
   const [repairData, setRepairData] = useState({
-    assetId: selectedAsset?.asset_id || '',
+    assetId: '',
     repairType: '',
     description: '',
     date: '',
     cost: '',
     performedBy: '',
-    quantity: selectedIssue?.quantity || 1,
+    repair_quantity: 1,
     ...initialData
   });
 
+  // Define repairTypes array
   const repairTypes = [
     'Hardware Repair',
     'Software Repair',
     'Component Replacement',
     'Calibration',
     'Emergency Repair',
-    'Preventive Repair',
+    'Preventive Maintenance',
     'Diagnostic Check',
     'Cleaning',
     'Parts Upgrade'
   ];
 
+  // Update repair data when modal opens or selected issue changes
   useEffect(() => {
-    if (isOpen && selectedIssue) {
-      console.log('Selected Issue in Modal:', selectedIssue);
+    if (isOpen && selectedIssue && selectedAsset) {
       setRepairData(prev => ({
         ...prev,
-        assetId: selectedAsset?.asset_id || '',
-        quantity: parseInt(selectedIssue.quantity),
+        assetId: selectedAsset.asset_id || selectedIssue.asset_id,
+        repair_quantity: parseInt(selectedIssue.issue_quantity) || 1,
         description: `Issue Report: ${selectedIssue.description || ''}`
       }));
     }
   }, [isOpen, selectedAsset, selectedIssue]);
-
-  const fetchAssets = async () => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/Assets/read`);
-      const nonConsumableAssets = response.data.filter(asset => asset.type === 'Non-Consumable');
-      setAssets(nonConsumableAssets);
-    } catch (error) {
-      console.error('Error fetching assets:', error);
-    }
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -56,16 +46,22 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (!selectedAsset?.asset_id && !selectedIssue?.asset_id) {
+        throw new Error('Asset ID is required');
+      }
+
       const formattedData = {
-        asset_id: repairData.assetId,
+        asset_id: selectedAsset?.asset_id || selectedIssue?.asset_id,
         repair_type: repairData.repairType,
         description: repairData.description,
         date: repairData.date,
         cost: parseFloat(repairData.cost),
         performed_by: repairData.performedBy,
-        quantity: repairData.quantity,
+        quantity: repairData.repair_quantity,
         issue_id: selectedIssue?.id
       };
+
+      console.log('Submitting repair data:', formattedData);
 
       if (typeof onAddRepair === 'function') {
         await onAddRepair(formattedData);
@@ -76,7 +72,7 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
           date: '',
           cost: '',
           performedBy: '',
-          quantity: 1
+          repair_quantity: 1
         });
         onClose();
       } else {
@@ -84,6 +80,7 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
       }
     } catch (error) {
       console.error('Error submitting repair:', error);
+      alert(error.message || 'Error submitting repair');
     }
   };
 
@@ -104,6 +101,12 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 cursor-not-allowed"
               readOnly
             />
+            {/* Hidden input for asset_id */}
+            <input
+              type="hidden"
+              name="asset_id"
+              value={selectedAsset?.asset_id || selectedIssue?.asset_id || ''}
+            />
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -111,8 +114,8 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
             </label>
             <input
               type="number"
-              name="quantity"
-              value={repairData.quantity}
+              name="repair_quantity"
+              value={repairData.repair_quantity}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 cursor-not-allowed"
               readOnly
             />

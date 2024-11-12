@@ -21,7 +21,7 @@ const Repair = {
         cost,
         performed_by,
         status,
-        quantity,
+        repair_quantity,
         completion_date,
         created_at
       FROM repair_records 
@@ -40,7 +40,7 @@ const Repair = {
   createRepairRecord: async (data) => {
     const query = `
       INSERT INTO repair_records 
-      (asset_id, repair_type, description, date, cost, performed_by, status, quantity, issue_id)
+      (asset_id, repair_type, description, date, cost, performed_by, status, repair_quantity, issue_id)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     `;
@@ -53,7 +53,7 @@ const Repair = {
       parseFloat(data.cost),
       data.performed_by,
       'Pending',
-      parseInt(data.quantity) || 1,
+      parseInt(data.repair_quantity) || 1,
       data.issue_id ? parseInt(data.issue_id) : null
     ];
     

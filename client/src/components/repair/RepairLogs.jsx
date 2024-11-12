@@ -81,7 +81,7 @@ const RepairLogs = ({ assetId, onClose }) => {
                   <td className="px-4 py-2">{log.repair_type}</td>
                   <td className="px-4 py-2">{log.description}</td>
                   <td className="px-4 py-2">
-                    <span className="font-medium">{log.quantity || 1}</span>
+                    <span className="font-medium">{log.repair_quantity || 1}</span>
                   </td>
                   <td className="px-4 py-2">₱{typeof log.cost === 'number' ? log.cost.toFixed(2) : log.cost}</td>
                   <td className="px-4 py-2">

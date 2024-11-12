@@ -71,18 +71,49 @@ const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (!issueData.asset_id || !issueData.issue_type || !issueData.priority || !issueData.description) {
+        throw new Error('Please fill in all required fields');
+      }
+
+      if (!issueData.quantity || issueData.quantity < 1 || 
+          (selectedAssetDetails && issueData.quantity > selectedAssetDetails.quantity)) {
+        throw new Error('Invalid quantity selected');
+      }
+
+      const selectedAsset = assets.find(asset => asset.asset_id === issueData.asset_id);
+      if (!selectedAsset) {
+        throw new Error('Selected asset not found');
+      }
+
       const submissionData = {
         ...issueData,
-        quantity: parseInt(issueData.quantity),
-        reported_by: user?.name,
-        user_picture: user?.picture
+        asset_id: selectedAsset.asset_id,
+        issue_quantity: parseInt(issueData.quantity),
+        reported_by: user?.name || 'Unknown User',
+        user_picture: user?.picture || '',
+        status: 'Pending',
+        date_reported: new Date().toISOString(),
+        assetName: selectedAsset.assetName,
+        assetDetails: selectedAsset.assetDetails
       };
       
       console.log('Submitting issue with data:', submissionData);
       await onAddIssue(submissionData);
+      
+      setIssueData({
+        asset_id: '',
+        issue_type: '',
+        description: '',
+        priority: '',
+        quantity: 1,
+        reported_by: user?.name || '',
+        user_picture: user?.picture || ''
+      });
+      setSelectedAssetDetails(null);
       onClose();
     } catch (error) {
       console.error('Error submitting issue:', error);
+      alert(error.message || 'Error submitting issue. Please try again.');
     }
   };
 

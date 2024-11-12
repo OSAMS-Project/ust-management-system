@@ -42,7 +42,7 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue }) =
                   </span>
                 </td>
                 <td className="px-4 py-2">
-                  <span className="font-medium">{issue.quantity}</span>
+                  <span className="font-medium">{issue.issue_quantity}</span>
                 </td>
                 <td className="px-4 py-2">
                   <div className="flex items-center">
@@ -60,7 +60,10 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue }) =
                 <td className="px-4 py-2">
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => onAddToRepair(issue, asset)}
+                      onClick={() => onAddToRepair({
+                        ...issue,
+                        repair_quantity: issue.issue_quantity
+                      }, asset)}
                       className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
                     >
                       Repair

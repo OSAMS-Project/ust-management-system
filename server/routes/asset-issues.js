@@ -7,7 +7,7 @@ const router = express.Router();
 router.post('/', async (req, res) => {
   const connection = await pool.getConnection();
   try {
-    const { asset_id, quantity, ...issueData } = req.body;
+    const { asset_id, issue_quantity, ...issueData } = req.body;
     
     await connection.beginTransaction();
 
@@ -17,16 +17,13 @@ router.post('/', async (req, res) => {
       [asset_id]
     );
 
-    console.log('Current asset:', assetResult); // Debug log
-
-    if (!assetResult || assetResult.quantity < quantity) {
+    if (!assetResult || assetResult.quantity < issue_quantity) {
       await connection.rollback();
       return res.status(400).json({ message: 'Insufficient quantity available' });
     }
 
     // Calculate new quantity
-    const newQuantity = parseInt(assetResult.quantity) - parseInt(quantity);
-    console.log('New quantity will be:', newQuantity); // Debug log
+    const newQuantity = parseInt(assetResult.quantity) - parseInt(issue_quantity);
 
     // Update asset quantity and status
     const updateAssetQuery = `
@@ -42,7 +39,7 @@ router.post('/', async (req, res) => {
     // Create issue record
     const insertIssueQuery = `
       INSERT INTO asset_issues 
-      (asset_id, issue_type, description, priority, quantity, reported_by, user_picture, status) 
+      (asset_id, issue_type, description, priority, issue_quantity, reported_by, user_picture, status) 
       VALUES ($1, $2, $3, $4, $5, $6, $7, 'Pending') 
       RETURNING *
     `;
@@ -54,25 +51,17 @@ router.post('/', async (req, res) => {
         issueData.issue_type,
         issueData.description,
         issueData.priority,
-        parseInt(quantity),
+        parseInt(issue_quantity),
         issueData.reported_by,
         issueData.user_picture
       ]
     );
 
-    // Verify the update
-    const [verifyAsset] = await connection.query(
-      'SELECT * FROM assets WHERE asset_id = $1',
-      [asset_id]
-    );
-
-    console.log('Asset after update:', verifyAsset); // Debug log
-
     await connection.commit();
     
     res.status(201).json({
       ...issueResult,
-      asset: verifyAsset
+      asset: assetResult
     });
 
   } catch (error) {
@@ -80,11 +69,7 @@ router.post('/', async (req, res) => {
     console.error('Error creating issue:', error);
     res.status(500).json({ 
       message: 'Error creating issue', 
-      error: error.message,
-      details: {
-        asset_id: req.body.asset_id,
-        quantity: req.body.quantity
-      }
+      error: error.message
     });
   } finally {
     connection.release();

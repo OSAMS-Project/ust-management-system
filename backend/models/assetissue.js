@@ -31,10 +31,29 @@ const AssetIssue = {
     try {
       await client.query('BEGIN');
       
-      // Create the issue
+      // First check if asset has enough quantity
+      const assetQuery = 'SELECT quantity FROM assets WHERE asset_id = $1';
+      const assetResult = await client.query(assetQuery, [issueData.asset_id]);
+      
+      if (!assetResult.rows[0] || assetResult.rows[0].quantity < issueData.issue_quantity) {
+        throw new Error('Insufficient asset quantity available');
+      }
+
+      // Update asset quantity
+      const updateAssetQuery = `
+        UPDATE assets 
+        SET 
+          quantity = quantity - $1,
+          has_issue = true 
+        WHERE asset_id = $2
+        RETURNING quantity
+      `;
+      await client.query(updateAssetQuery, [issueData.issue_quantity, issueData.asset_id]);
+      
+      // Create the issue record
       const issueQuery = `
         INSERT INTO asset_issues 
-        (asset_id, issue_type, description, priority, quantity, reported_by, user_picture)
+        (asset_id, issue_type, description, priority, issue_quantity, reported_by, user_picture)
         VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *
       `;
@@ -44,20 +63,12 @@ const AssetIssue = {
         issueData.issue_type,
         issueData.description,
         issueData.priority,
-        issueData.quantity || 1,
+        issueData.issue_quantity,
         issueData.reported_by,
         issueData.user_picture
       ];
 
       const issueResult = await client.query(issueQuery, issueValues);
-
-      // Update the asset's has_issue status
-      const updateAssetQuery = `
-        UPDATE assets 
-        SET has_issue = true 
-        WHERE asset_id = $1
-      `;
-      await client.query(updateAssetQuery, [issueData.asset_id]);
 
       await client.query('COMMIT');
       return issueResult.rows[0];

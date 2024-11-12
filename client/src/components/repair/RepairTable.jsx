@@ -53,7 +53,7 @@ const RepairTable = ({ repairRecords, assets = [], onCompleteRecord, onRemoveRec
                   <td className="px-4 py-2">{record.repair_type}</td>
                   <td className="px-4 py-2">{record.description}</td>
                   <td className="px-4 py-2">
-                    <span className="font-medium">{record.quantity}</span>
+                    <span className="font-medium">{record.repair_quantity}</span>
                   </td>
                   <td className="px-4 py-2">{moment(record.date).format('MM/DD/YYYY')}</td>
                   <td className="px-4 py-2">₱{record.cost}</td>
