@@ -86,6 +86,7 @@ function AppContent({ user, setUser }) {
           <Route path="/archived-requests" element={<PrivateRoute user={user}><ArchivedRequests user={user} /></PrivateRoute>} />
           <Route path="/incoming-assets" element={<PrivateRoute user={user}><IncomingAssets /></PrivateRoute>} />
           <Route path="/borrowing-history" element={<PrivateRoute user={user}><BorrowingHistory /></PrivateRoute>} />
+          <Route path="/repair" element={<PrivateRoute user={user}><AssetRepair /></PrivateRoute>} />
 
         </Routes>
       </div>

@@ -68,24 +68,28 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
             >
               View Activity Logs
             </button>
-            <button
-              onClick={() => setShowBorrowLogs(true)}
-              className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-purple-700 transition-transform transform hover:scale-105"
-            >
-              Borrow Logs
-            </button>
-            <button
-              onClick={() => setShowRepairLogs(true)}
-              className="flex-1 bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-yellow-600 transition-transform transform hover:scale-105"
-            >
-              Repair Logs
-            </button>
-            <button
-              onClick={() => setShowIssueLogs(true)}
-              className="flex-1 bg-red-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-red-600 transition-transform transform hover:scale-105"
-            >
-              Issue Logs
-            </button>
+            {selectedAsset.type === 'Non-Consumable' && (
+              <>
+                <button
+                  onClick={() => setShowBorrowLogs(true)}
+                  className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-purple-700 transition-transform transform hover:scale-105"
+                >
+                  Borrow Logs
+                </button>
+                <button
+                  onClick={() => setShowRepairLogs(true)}
+                  className="flex-1 bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-yellow-600 transition-transform transform hover:scale-105"
+                >
+                  Repair Logs
+                </button>
+                <button
+                  onClick={() => setShowIssueLogs(true)}
+                  className="flex-1 bg-red-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-red-600 transition-transform transform hover:scale-105"
+                >
+                  Issue Logs
+                </button>
+              </>
+            )}
             <button
               onClick={() => setShowQRCode(true)}
               className="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 transition-transform transform hover:scale-105"

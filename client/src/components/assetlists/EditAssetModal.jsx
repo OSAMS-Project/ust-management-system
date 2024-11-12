@@ -36,22 +36,27 @@ const InputField = ({ label, id, type = "text", value, onChange, placeholder, pr
   </div>
 );
 
-const SelectField = ({ label, id, value, onChange, options, placeholder, shake }) => (
-  <div className={`space-y-1 ${shake ? 'animate-shake' : ''}`}>
-    <label htmlFor={id} className="block text-sm font-medium text-gray-700">{label}</label>
+const SelectField = ({ label, id, value, onChange, options, placeholder, shake, error }) => (
+  <div className="mb-4">
+    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={id}>
+      {label}
+    </label>
     <select
       id={id}
       value={value}
       onChange={onChange}
-      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
+        shake ? 'animate-shake' : ''
+      } ${error ? 'border-red-500' : ''}`}
     >
       <option value="">{placeholder}</option>
-      {options.map((option, index) => (
-        <option key={index} value={typeof option === 'string' ? option : option.value}>
-          {typeof option === 'string' ? option : option.label}
+      {options.map((option) => (
+        <option key={option} value={option}>
+          {option}
         </option>
       ))}
     </select>
+    {error && <p className="text-red-500 text-xs italic mt-1">{error}</p>}
   </div>
 );
 
@@ -61,6 +66,7 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
   const [totalCost, setTotalCost] = useState("");
   const [quantityForBorrowing, setQuantityForBorrowing] = useState(0);
   const [shakeFields, setShakeFields] = useState([]);
+  const [typeChangeError, setTypeChangeError] = useState('');
 
   useEffect(() => {
     if (asset) {
@@ -72,14 +78,20 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
     }
   }, [asset]);
 
-  const handleChange = (field, value) => {
-    setEditedAsset(prev => ({ ...prev, [field]: value }));
-    if (field === 'quantity' || field === 'cost') {
-      calculateTotalCost(
-        field === 'quantity' ? value : editedAsset.quantity,
-        field === 'cost' ? value : editedAsset.cost
-      );
+  const handleChange = async (field, value) => {
+    if (field === 'type' && value === 'Consumable' && editedAsset.type === 'Non-Consumable') {
+      const status = await checkAssetStatus(editedAsset.asset_id);
+      if (!status.canChangeType) {
+        setTypeChangeError(status.message);
+        return;
+      }
+      setTypeChangeError('');
     }
+
+    setEditedAsset(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const calculateTotalCost = (quantity, cost) => {
@@ -121,11 +133,21 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
     
     if (editedAsset) {
       try {
+        // Check if type is being changed from Non-Consumable to Consumable
+        if (asset.type === 'Non-Consumable' && editedAsset.type === 'Consumable') {
+          const status = await checkAssetStatus(editedAsset.asset_id);
+          if (!status.canChangeType) {
+            setTypeChangeError(status.message);
+            return; // Prevent saving if there are active records
+          }
+        }
+
         if (quantityForBorrowing > editedAsset.quantity) {
           alert(`Quantity for borrowing cannot exceed available quantity of ${editedAsset.quantity}.`);
           setQuantityForBorrowing(editedAsset.quantity);
           return;
         }
+
         const updatedAsset = {
           ...editedAsset,
           image: newImage || editedAsset.image,
@@ -179,6 +201,45 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
           console.error("Response status:", error.response.status);
         }
       }
+    }
+  };
+
+  const checkAssetStatus = async (assetId) => {
+    try {
+      // Check repair records
+      const repairResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/repair/read`);
+      const hasActiveRepairs = repairResponse.data.some(
+        record => record.asset_id === assetId && record.status !== 'Completed'
+      );
+
+      // Check issue records
+      const issueResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/asset-issues`);
+      const hasActiveIssues = issueResponse.data.some(
+        issue => issue.asset_id === assetId && 
+        issue.status !== 'Resolved' && 
+        issue.status !== 'In Repair'
+      );
+
+      // Check borrowing requests
+      const borrowResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/borrowing-requests`);
+      const hasActiveBorrowRequests = borrowResponse.data.some(
+        request => request.selected_assets.some(
+          selectedAsset => selectedAsset.asset_id === assetId
+        ) && request.status === 'Pending'
+      );
+
+      return {
+        canChangeType: !hasActiveRepairs && !hasActiveIssues && !hasActiveBorrowRequests,
+        message: hasActiveRepairs ? 'Cannot change to Consumable: Asset has active repair records' :
+                hasActiveIssues ? 'Cannot change to Consumable: Asset has active issue records' :
+                hasActiveBorrowRequests ? 'Cannot change to Consumable: Asset has pending borrow requests' : ''
+      };
+    } catch (error) {
+      console.error('Error checking asset status:', error);
+      return {
+        canChangeType: false,
+        message: 'Error checking asset status'
+      };
     }
   };
 
@@ -241,6 +302,7 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
                   options={['Consumable', 'Non-Consumable']}
                   placeholder="Select Asset Type"
                   shake={shakeFields.includes('type')}
+                  error={typeChangeError}
                 />
               </div>
 
