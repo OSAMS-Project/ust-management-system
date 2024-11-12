@@ -66,12 +66,10 @@ function AssetRepair() {
       );
 
       try {
-        if (record.issue_id) {
-          await axios.put(
-            `${process.env.REACT_APP_API_URL}/api/asset-issues/resolve-by-asset/${record.asset_id}`,
-            { status: 'Resolved' }
-          );
-        }
+        await axios.put(
+          `${process.env.REACT_APP_API_URL}/api/asset-issues/resolve-by-asset/${record.asset_id}`,
+          { status: 'Resolved' }
+        );
 
         await axios.put(
           `${process.env.REACT_APP_API_URL}/api/Assets/${record.asset_id}/status`,

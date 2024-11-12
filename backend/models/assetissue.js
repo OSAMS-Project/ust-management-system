@@ -94,8 +94,10 @@ const AssetIssue = {
   updateIssueStatusByAsset: async (assetId, status) => {
     const query = `
       UPDATE asset_issues 
-      SET status = $1 
-      WHERE asset_id = $2 AND status != 'Resolved'
+      SET status = $1,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE asset_id = $2 
+      AND (status = 'In Repair' OR status = 'Pending')
       RETURNING *
     `;
     const values = [status, assetId];
