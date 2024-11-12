@@ -3,6 +3,9 @@ import moment from 'moment';
 import { Wrench, Trash2 } from 'lucide-react';
 
 const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue }) => {
+  // Filter out issues that are in repair status
+  const activeIssues = issues.filter(issue => issue.status !== 'In Repair');
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -23,7 +26,7 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue }) =
           </tr>
         </thead>
         <tbody>
-          {issues.map((issue) => {
+          {activeIssues.map((issue) => {
             const asset = assets.find(a => a.asset_id === issue.asset_id);
             const assetName = asset ? asset.assetName : issue.asset_id;
             
@@ -81,9 +84,9 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue }) =
           })}
         </tbody>
       </table>
-      {issues.length === 0 && (
+      {activeIssues.length === 0 && (
         <div className="text-center py-4 text-gray-500">
-          No issues found
+          No active issues found
         </div>
       )}
     </div>

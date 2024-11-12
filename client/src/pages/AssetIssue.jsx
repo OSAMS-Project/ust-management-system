@@ -111,17 +111,30 @@ function AssetIssue({ user }) {
       };
 
       console.log('Creating repair record with data:', repairData);
+      
+      // Create repair record
       await axios.post(
         `${process.env.REACT_APP_API_URL}/api/repair/create`, 
         repairData
       );
 
-      // Update the issues list to reflect the new repair
-      const updatedIssues = issues.map(issue => 
-        issue.id === formData.issue_id 
-          ? { ...issue, status: 'In Repair' } 
-          : issue
+      // Update asset status to under repair
+      await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/Assets/${formData.asset_id}/status`,
+        { 
+          under_repair: true,
+          has_issue: true
+        }
       );
+
+      // Update issue status to In Repair
+      await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/asset-issues/${formData.issue_id}/status`,
+        { status: 'In Repair' }
+      );
+
+      // Update the issues list to reflect the new repair
+      const updatedIssues = issues.filter(issue => issue.id !== formData.issue_id);
       setIssues(updatedIssues);
 
       setIsRepairModalOpen(false);
@@ -130,8 +143,6 @@ function AssetIssue({ user }) {
         message: 'Repair record created successfully'
       });
 
-      // Optionally, refresh the issues list
-      fetchIssues();
     } catch (error) {
       console.error('Error creating repair record:', error);
       setNotification({
