@@ -84,9 +84,22 @@ const assetrequestController = {
 
   declineAssetRequest: async (req, res) => {
     try {
-      const updatedAsset = await AssetRequest.updateAssetRequest(req.params.id, { status: 'declined' });
+      const { id } = req.params;
+      const { auto_declined, declined_at } = req.body;
+
+      const updatedAsset = await AssetRequest.updateAssetRequest(id, { 
+        status: 'declined',
+        auto_declined: auto_declined || false,
+        declined_at: declined_at || new Date().toISOString()
+      });
+      
       if (updatedAsset) {
-        res.json(updatedAsset);
+        // Return the complete updated request
+        res.json({
+          ...updatedAsset,
+          auto_declined: auto_declined || false,
+          declined_at: declined_at || new Date().toISOString()
+        });
       } else {
         res.status(404).json({ error: 'Asset request not found' });
       }
