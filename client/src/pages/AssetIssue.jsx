@@ -86,16 +86,23 @@ function AssetIssue({ user }) {
 
   const handleAddToRepair = (issue, asset) => {
     console.log('Selected Issue:', issue);
+    console.log('Selected Asset:', asset);
+    
     setSelectedIssue({
       ...issue,
-      quantity: issue.quantity || 1,
-      asset: asset
+      asset_id: issue.asset_id,
+      quantity: parseInt(issue.quantity),
+      asset: {
+        asset_id: asset.asset_id,
+        assetName: asset.assetName
+      }
     });
     setIsRepairModalOpen(true);
   };
 
   const handleAddRepair = async (repairData) => {
     try {
+      console.log('Selected Issue for repair:', selectedIssue);
       console.log('Repair Data being sent:', repairData);
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/repair/create`,
@@ -117,7 +124,7 @@ function AssetIssue({ user }) {
           prevIssues.filter(issue => issue.id !== selectedIssue.id)
         );
 
-        // Update asset repair status - Fixed endpoint
+        // Update asset repair status
         try {
           await axios.put(
             `${process.env.REACT_APP_API_URL}/api/assets/${selectedIssue.asset_id}/repair-status`,
@@ -201,11 +208,7 @@ function AssetIssue({ user }) {
           isOpen={isRepairModalOpen}
           onClose={() => setIsRepairModalOpen(false)}
           onAddRepair={handleAddRepair}
-          initialData={{
-            assetId: selectedIssue?.asset_id,
-            description: `Issue Report: ${selectedIssue?.description}`,
-            repairType: 'Corrective Repair'
-          }}
+          selectedIssue={selectedIssue}
           selectedAsset={selectedIssue?.asset}
         />
       )}

@@ -9,12 +9,12 @@ function App() {
         {/* ... other routes ... */}
         
         <Route 
-          path="/asset-repair" 
+          path="/repair" 
           element={
             <ProtectedRoute>
               <AssetRepair />
             </ProtectedRoute>
-          } 
+          }
         />
         
         {/* ... other routes ... */}

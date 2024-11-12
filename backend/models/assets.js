@@ -98,11 +98,13 @@ const deleteAsset = async (id) => {
   try {
     await client.query('BEGIN');
     
+    await client.query('DELETE FROM repair_records WHERE asset_id = $1', [id]);
+     // Delete related asset issues
+    await client.query('DELETE FROM asset_issues WHERE asset_id = $1', [id]);
+
     // Delete related event assets
     await client.query('DELETE FROM event_assets WHERE asset_id = $1', [id]);
 
-    // Delete related asset issues
-    await client.query('DELETE FROM asset_issues WHERE asset_id = $1', [id]);
 
     // Delete related repair records
     await client.query('DELETE FROM repair_records WHERE asset_id = $1', [id]);

@@ -9,6 +9,7 @@ const AssetIssue = {
         issue_type VARCHAR(100) NOT NULL,
         description TEXT NOT NULL,
         priority VARCHAR(50) NOT NULL,
+        quantity INTEGER DEFAULT 1,
         status VARCHAR(50) DEFAULT 'Pending',
         reported_by VARCHAR(255),
         user_picture TEXT,
@@ -33,8 +34,8 @@ const AssetIssue = {
       // Create the issue
       const issueQuery = `
         INSERT INTO asset_issues 
-        (asset_id, issue_type, description, priority, reported_by, user_picture)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        (asset_id, issue_type, description, priority, quantity, reported_by, user_picture)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING *
       `;
       
@@ -43,6 +44,7 @@ const AssetIssue = {
         issueData.issue_type,
         issueData.description,
         issueData.priority,
+        issueData.quantity || 1,
         issueData.reported_by,
         issueData.user_picture
       ];

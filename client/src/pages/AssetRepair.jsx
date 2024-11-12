@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import AddRepairButton from '../components/repair/AddRepairButton';
 import RepairModal from '../components/repair/RepairModal';
 import RepairTable from '../components/repair/RepairTable';
 import RepairLogs from '../components/repair/RepairLogs';
@@ -104,7 +103,6 @@ function AssetRepair() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Asset Repair</h1>
-      <AddRepairButton onClick={() => setIsModalOpen(true)} />
       <RepairModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 

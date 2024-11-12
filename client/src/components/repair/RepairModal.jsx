@@ -10,7 +10,7 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
     date: '',
     cost: '',
     performedBy: '',
-    quantity: selectedIssue?.quantity || 0,
+    quantity: selectedIssue?.quantity || 1,
     ...initialData
   });
 
@@ -27,20 +27,14 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
   ];
 
   useEffect(() => {
-    if (isOpen) {
-      if (selectedAsset) {
-        setAssets([selectedAsset]);
-      } else {
-        fetchAssets();
-      }
-      if (selectedIssue) {
-        setRepairData(prev => ({
-          ...prev,
-          assetId: selectedAsset?.asset_id || '',
-          quantity: selectedIssue.quantity || 1,
-          description: selectedIssue.description || ''
-        }));
-      }
+    if (isOpen && selectedIssue) {
+      console.log('Selected Issue in Modal:', selectedIssue);
+      setRepairData(prev => ({
+        ...prev,
+        assetId: selectedAsset?.asset_id || '',
+        quantity: parseInt(selectedIssue.quantity),
+        description: `Issue Report: ${selectedIssue.description || ''}`
+      }));
     }
   }, [isOpen, selectedAsset, selectedIssue]);
 
@@ -82,7 +76,7 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
           date: '',
           cost: '',
           performedBy: '',
-          quantity: 0
+          quantity: 1
         });
         onClose();
       } else {
@@ -101,24 +95,15 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
         <h3 className="text-lg font-bold mb-4">Add Repair Record</h3>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="assetId">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
               Asset
             </label>
-            <select
-              name="assetId"
-              value={repairData.assetId}
-              onChange={handleInputChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
-              disabled={selectedAsset != null}
-            >
-              <option value="">Select an asset</option>
-              {assets.map((asset) => (
-                <option key={asset.asset_id} value={asset.asset_id}>
-                  {asset.assetName}
-                </option>
-              ))}
-            </select>
+            <input
+              type="text"
+              value={selectedAsset?.assetName || ''}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 cursor-not-allowed"
+              readOnly
+            />
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -126,7 +111,8 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
             </label>
             <input
               type="number"
-              value={selectedIssue?.quantity || 1}
+              name="quantity"
+              value={repairData.quantity}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 cursor-not-allowed"
               readOnly
             />

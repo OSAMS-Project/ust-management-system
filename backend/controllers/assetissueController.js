@@ -24,6 +24,18 @@ const assetIssueController = {
         });
       }
 
+      // Validate quantity is a positive integer
+      if (issueData.quantity) {
+        const quantity = parseInt(issueData.quantity);
+        if (isNaN(quantity) || quantity < 1) {
+          return res.status(400).json({
+            error: 'Quantity must be a positive number',
+            received: issueData.quantity
+          });
+        }
+        issueData.quantity = quantity;
+      }
+
       const newIssue = await AssetIssue.createIssue(issueData);
       res.status(201).json(newIssue);
     } catch (error) {

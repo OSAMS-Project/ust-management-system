@@ -71,11 +71,15 @@ const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await onAddIssue({
+      const submissionData = {
         ...issueData,
+        quantity: parseInt(issueData.quantity),
         reported_by: user?.name,
         user_picture: user?.picture
-      });
+      };
+      
+      console.log('Submitting issue with data:', submissionData);
+      await onAddIssue(submissionData);
       onClose();
     } catch (error) {
       console.error('Error submitting issue:', error);
