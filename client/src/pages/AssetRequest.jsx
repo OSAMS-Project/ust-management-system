@@ -51,7 +51,11 @@ const AssetRequest = ({ user }) => {
   }, [fetchAllRequests]);
 
   const handleInputChange = (e) => {
-    setNewAsset({ ...newAsset, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setNewAsset(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -76,7 +80,11 @@ const AssetRequest = ({ user }) => {
       console.log('Response:', response.data);
       setIsModalOpen(false);
       fetchAllRequests();
-      setNewAsset({ assetName: '', quantity: '', comments: '' });
+      setNewAsset({
+        assetName: '',
+        quantity: '',
+        comments: ''
+      });
     } catch (error) {
       console.error('Error adding asset request:', error.response?.data || error.message);
     }
@@ -149,6 +157,15 @@ const AssetRequest = ({ user }) => {
     }
   };
 
+  const handleOpenModal = () => {
+    setNewAsset({
+      assetName: '',
+      quantity: '',
+      comments: ''
+    });
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
@@ -167,7 +184,7 @@ const AssetRequest = ({ user }) => {
       </div>
 
       <button 
-        onClick={() => setIsModalOpen(true)}
+        onClick={handleOpenModal}
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 ml-2"
       >
         Add Asset Request

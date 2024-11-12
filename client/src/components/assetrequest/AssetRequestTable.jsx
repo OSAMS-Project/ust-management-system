@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
 
 const TIMER_DURATION = {
   TESTING: 30, // 30 seconds for testing
