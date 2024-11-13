@@ -1,4 +1,5 @@
 const Asset = require('../models/assets');
+const { executeTransaction } = require('../utils/queryExecutor');
 
 const createAsset = async (req, res) => {
   try {
@@ -30,18 +31,53 @@ const readAssets = async (req, res) => {
 const updateAsset = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    console.log('Updating asset with ID:', id);
-    console.log('Update data:', req.body);
-    const result = await Asset.updateAsset(req.body, id);
-    if (result.length > 0) {
-      res.json(result[0]);
-    } else {
-      res.status(404).json({ error: "Asset not found" });
+    const updates = req.body;
+
+    // If quantity_for_borrowing is being updated
+    if (updates.quantityForBorrowing !== undefined) {
+      try {
+        const pendingRequestsTotal = await checkPendingBorrowRequests(id);
+        
+        if (updates.quantityForBorrowing < pendingRequestsTotal) {
+          return res.status(400).json({
+            error: 'Cannot decrease quantity for borrowing below pending requests total',
+            pendingRequestsTotal,
+            requestedQuantity: updates.quantityForBorrowing
+          });
+        }
+
+        // Update the quantity_for_borrowing in the updates object
+        updates.quantity_for_borrowing = updates.quantityForBorrowing;
+        delete updates.quantityForBorrowing;
+      } catch (error) {
+        console.error('Error checking pending requests:', error);
+        return res.status(500).json({ 
+          error: 'Error checking pending requests',
+          details: error.message 
+        });
+      }
     }
-  } catch (err) {
-    console.error("Error in updateAsset:", err);
-    res.status(500).json({ error: "Error updating asset", details: err.toString(), stack: err.stack });
+
+    // Continue with update if validation passes
+    try {
+      const updatedAsset = await Asset.updateAsset(id, updates);
+      if (!updatedAsset) {
+        return res.status(404).json({ error: 'Asset not found' });
+      }
+      res.json(updatedAsset);
+    } catch (error) {
+      console.error('Error updating asset:', error);
+      res.status(500).json({ 
+        error: 'Error updating asset',
+        details: error.message 
+      });
+    }
+  } catch (error) {
+    console.error('Error in updateAsset:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      details: error.message 
+    });
   }
 };
 
@@ -166,6 +202,24 @@ const updateAssetIssueStatus = async (req, res) => {
       error: 'Error updating asset issue status', 
       details: error.message 
     });
+  }
+};
+
+// Update the checkPendingBorrowRequests function
+const checkPendingBorrowRequests = async (assetId) => {
+  try {
+    const query = `
+      SELECT COALESCE(SUM(CAST((borrowed_asset->>'quantity') AS INTEGER)), 0) as total_requested
+      FROM borrowing_requests br, 
+      jsonb_array_elements(selected_assets) as borrowed_asset
+      WHERE borrowed_asset->>'asset_id' = $1 
+      AND br.status = 'Pending'
+    `;
+    const result = await executeTransaction([{ query, params: [assetId] }]);
+    return parseInt(result[0].total_requested) || 0;
+  } catch (error) {
+    console.error('Error checking pending borrow requests:', error);
+    throw error;
   }
 };
 

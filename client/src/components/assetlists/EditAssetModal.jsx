@@ -67,6 +67,7 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
   const [quantityForBorrowing, setQuantityForBorrowing] = useState(0);
   const [shakeFields, setShakeFields] = useState([]);
   const [typeChangeError, setTypeChangeError] = useState('');
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     if (asset) {
@@ -88,16 +89,28 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
       setTypeChangeError('');
     }
 
-    setEditedAsset(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setEditedAsset(prev => {
+      const newAsset = {
+        ...prev,
+        [field]: value
+      };
+
+      if (field === 'quantity' || field === 'cost') {
+        const newQuantity = field === 'quantity' ? value : newAsset.quantity;
+        const newCost = field === 'cost' ? value : newAsset.cost;
+        calculateTotalCost(newQuantity, newCost);
+      }
+
+      return newAsset;
+    });
   };
 
   const calculateTotalCost = (quantity, cost) => {
     if (quantity && cost) {
       const calculatedTotalCost = parseFloat(cost) * parseInt(quantity);
       setTotalCost(calculatedTotalCost.toFixed(2));
+    } else {
+      setTotalCost("0.00");
     }
   };
 
@@ -243,10 +256,48 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
     }
   };
 
+  const handleQuantityForBorrowingChange = async (value) => {
+    const newValue = Number(value);
+    
+    if (newValue < quantityForBorrowing) {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/borrowing-requests/pending/${asset.asset_id}`
+        );
+        const pendingTotal = response.data.total_requested;
+
+        if (newValue < pendingTotal) {
+          setNotification({
+            type: 'error',
+            message: `Cannot decrease quantity below pending requests (${pendingTotal} units currently requested)`
+          });
+          return;
+        }
+      } catch (error) {
+        console.error('Error checking pending requests:', error);
+        setNotification({
+          type: 'error',
+          message: 'Error validating quantity change'
+        });
+        return;
+      }
+    }
+
+    setQuantityForBorrowing(newValue);
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-6 z-50">
+      {notification && (
+        <div className={`fixed top-4 right-4 p-4 rounded-md shadow-lg ${
+          notification.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+        }`}>
+          {notification.message}
+        </div>
+      )}
+      
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
         <div className="px-8 py-5 border-b">
           <h2 className="text-2xl font-bold text-gray-800">Edit Asset</h2>
@@ -322,6 +373,7 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
                   value={editedAsset.quantity}
                   onChange={(e) => handleChange('quantity', Number(e.target.value))}
                   shake={shakeFields.includes('quantity')}
+                  min="1"
                 />
               </div>
 
@@ -350,7 +402,7 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
                   id="quantityForBorrowing"
                   type="number"
                   value={quantityForBorrowing}
-                  onChange={(e) => setQuantityForBorrowing(Number(e.target.value))}
+                  onChange={(e) => handleQuantityForBorrowingChange(e.target.value)}
                   min="1"
                 />
               )}

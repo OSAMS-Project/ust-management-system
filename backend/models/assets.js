@@ -64,32 +64,56 @@ const readAssets = async () => {
 	return executeTransaction([{ query, params: [] }]);
 };
 
-const updateAsset = async (values, id) => {
+const updateAsset = async (id, updates) => {
 	try {
-		console.log("Updating asset with values:", JSON.stringify(values, null, 2));
-		console.log("Asset ID:", id);
-		const { lastUpdated, quantityForBorrowing, ...updateValues } = values;
-		if (quantityForBorrowing !== undefined) {
-			updateValues.quantity_for_borrowing = quantityForBorrowing;
-		}
-		const setString = Object.keys(updateValues)
-			.map((key, i) => `"${key}" = $${i + 1}`)
-			.join(", ");
+		// Create SET clause dynamically from updates object
+		const setClause = [];
+		const values = [];
+		let paramCount = 1;
+
+		// Map of frontend camelCase to database column names
+		const columnMapping = {
+			productCode: '"productCode"',
+			assetName: '"assetName"',
+			assetDetails: '"assetDetails"',
+			totalCost: '"totalCost"',
+			createdDate: '"createdDate"',
+			lastUpdated: '"lastUpdated"',
+			quantity_for_borrowing: 'quantity_for_borrowing',
+			is_active: 'is_active',
+			under_repair: 'under_repair',
+			has_issue: 'has_issue'
+		};
+
+		Object.entries(updates).forEach(([key, value]) => {
+			// Skip undefined values and totalCost
+			if (value === undefined || key === 'totalCost') return;
+
+			// Use mapped column name if it exists, otherwise use the key
+			const columnName = columnMapping[key] || key;
+			
+			setClause.push(`${columnName} = $${paramCount}`);
+			values.push(value);
+			paramCount++;
+		});
+
+		// Add the asset_id as the last parameter
+		values.push(id);
+
 		const query = `
-      UPDATE Assets 
-      SET ${setString}, "lastUpdated" = CURRENT_TIMESTAMP 
-      WHERE asset_id = $${Object.keys(updateValues).length + 1} 
+      UPDATE assets 
+      SET ${setClause.join(', ')}
+      WHERE asset_id = $${paramCount}
       RETURNING *
     `;
-		const params = [...Object.values(updateValues), id];
-		console.log("Update query:", query);
-		console.log("Update params:", params);
-		const result = await executeTransaction([{ query, params }]);
-		console.log("Update result:", JSON.stringify(result, null, 2));
-		return result;
+
+		console.log('Update Query:', query);
+		console.log('Update Values:', values);
+
+		const result = await executeTransaction([{ query, params: values }]);
+		return result[0];
 	} catch (error) {
-		console.error("Error in updateAsset:", error);
-		console.error("Stack trace:", error.stack);
+		console.error('Error in updateAsset:', error);
 		throw error;
 	}
 };
