@@ -73,8 +73,22 @@ const createAssetActivityLog = async (req, res) => {
   }
 };
 
+const logEventAllocation = async (req, res) => {
+  try {
+    const { assetId, quantity, eventName } = req.body;
+    const userId = req.user?.id; // If you have user authentication
+
+    await AssetActivityLog.logEventAllocation(assetId, quantity, eventName, userId);
+    res.status(201).json({ message: 'Event allocation logged successfully' });
+  } catch (err) {
+    console.error('Error in logEventAllocation:', err);
+    res.status(500).json({ error: 'Error logging event allocation', details: err.toString() });
+  }
+};
+
 module.exports = {
   updateAsset,
   getAssetActivityLogs,
   createAssetActivityLog,
+  logEventAllocation,
 };

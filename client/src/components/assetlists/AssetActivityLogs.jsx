@@ -19,7 +19,8 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
     category: "Category",
     location: "Location",
     type: "Type",
-    assetDetails: "Details"
+    assetDetails: "Details",
+    event_allocation: "Event Allocation"
   };
 
   useEffect(() => {
@@ -48,6 +49,38 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
     return acc;
   }, {});
 
+  const formatLogMessage = (log) => {
+    if (log.action === 'event_allocation') {
+      return (
+        <p key={log.id} className="text-sm text-gray-600 mb-1">
+          <strong className="text-black">Event Allocation</strong>: 
+          Allocated <strong className="text-blue-600">{log.old_value}</strong> units 
+          to event "<strong className="text-green-600">{log.new_value}</strong>"
+        </p>
+      );
+    }
+
+    if (log.action === 'event_return') {
+      return (
+        <p key={log.id} className="text-sm text-gray-600 mb-1">
+          <strong className="text-black">{fieldNameMapping[log.field_name] || log.field_name}</strong>: 
+          <strong className="text-green-600">{log.context}</strong>
+          <br />
+          Available quantity updated from <strong className="text-blue-600">{log.old_value}</strong> to 
+          <strong className="text-green-600"> {log.new_value}</strong>
+        </p>
+      );
+    }
+
+    return (
+      <p key={log.id} className="text-sm text-gray-600 mb-1">
+        <strong className="text-black">{fieldNameMapping[log.field_name] || log.field_name}</strong>: 
+        "<strong className="text-blue-600">{log.old_value || '(empty)'}</strong>" → 
+        "<strong className="text-green-600">{log.new_value}</strong>"
+      </p>
+    );
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
@@ -63,11 +96,7 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
             {Object.entries(groupedLogs).map(([timestamp, logGroup]) => (
               <div key={timestamp} className="bg-gray-100 p-3 rounded-lg">
                 <p className="font-semibold text-sm text-gray-700 mb-2">Update on {timestamp}</p>
-                {logGroup.map((log, index) => (
-                  <p key={index} className="text-sm text-gray-600 mb-1">
-                    <strong className="text-black">{fieldNameMapping[log.field_name] || log.field_name}</strong>: "<strong className="text-blue-600">{log.old_value || '(empty)'}</strong>" → "<strong className="text-green-600">{log.new_value}</strong>"
-                  </p>
-                ))}
+                {logGroup.map((log) => formatLogMessage(log))}
               </div>
             ))}
           </div>

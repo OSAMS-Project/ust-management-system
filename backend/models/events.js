@@ -1,5 +1,6 @@
 const { executeTransaction } = require('../utils/queryExecutor');
 const pool = require('../config/database');  // Adjust the path if necessary
+const AssetActivityLog = require('../models/assetactivitylogs');
 
 const createEventsTable = async () => {
   const query = `
@@ -159,6 +160,16 @@ const addAssetsToEvent = async (eventId, assets) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+
+    // First get the event name
+    const eventQuery = 'SELECT event_name FROM Events WHERE unique_id = $1';
+    const eventResult = await client.query(eventQuery, [eventId]);
+    const eventName = eventResult.rows[0]?.event_name;
+
+    if (!eventName) {
+      throw new Error(`Event not found with ID: ${eventId}`);
+    }
+
     for (const asset of assets) {
       // Get the current asset details including cost
       const assetDetailsQuery = 'SELECT cost FROM assets WHERE asset_id = $1';
@@ -186,6 +197,14 @@ const addAssetsToEvent = async (eventId, assets) => {
           [eventId, asset.asset_id, asset.selectedQuantity, assetCost]
         );
       }
+
+      // Log the event allocation - we'll skip the userId since it's not critical
+      await AssetActivityLog.logEventAllocation(
+        asset.asset_id,
+        asset.selectedQuantity,
+        eventName,
+        null // userId is optional
+      );
     }
     await client.query('COMMIT');
     console.log(`Assets successfully processed for event ${eventId}`);
@@ -269,16 +288,20 @@ const completeEvent = async (uniqueId) => {
   try {
     await client.query('BEGIN');
 
+    // Get the event name first
+    const eventQuery = 'SELECT event_name FROM Events WHERE unique_id = $1';
+    const eventResult = await client.query(eventQuery, [uniqueId]);
+    const eventName = eventResult.rows[0]?.event_name;
+
     // Get the current assets for the event with asset names, types and quantities
     const getAssetsQuery = `
-    SELECT ea.*, a."assetName", a.quantity as total_quantity, a.type, a.cost
-    FROM event_assets ea
-    JOIN assets a ON ea.asset_id = a.asset_id
-    WHERE ea.event_id = $1
-  `;
+      SELECT ea.*, a."assetName", a.quantity as total_quantity, a.type, a.cost
+      FROM event_assets ea
+      JOIN assets a ON ea.asset_id = a.asset_id
+      WHERE ea.event_id = $1
+    `;
     const assetsResult = await client.query(getAssetsQuery, [uniqueId]);
     
-    // Log assets for debugging
     console.log('Assets before completion:', assetsResult.rows);
 
     const completedAssets = assetsResult.rows.map(asset => ({
@@ -294,17 +317,30 @@ const completeEvent = async (uniqueId) => {
     const updatedEvent = await client.query(updateEventQuery, [JSON.stringify(completedAssets), uniqueId]);
     console.log('Event marked as completed:', updatedEvent.rows[0]);
 
-    // Return only non-consumable assets to the asset list
-    const returnAssetsQuery = `
-      UPDATE assets a
-      SET quantity = a.quantity + ea.quantity
-      FROM event_assets ea
-      WHERE ea.event_id = $1 
-      AND ea.asset_id = a.asset_id
-      AND LOWER(a.type) = 'non-consumable'
-    `;
-    const returnAssetsResult = await client.query(returnAssetsQuery, [uniqueId]);
-    console.log('Non-consumable assets returned:', returnAssetsResult.rowCount);
+    // Return only non-consumable assets to the asset list and log the return
+    for (const asset of assetsResult.rows) {
+      if (asset.type.toLowerCase() === 'non-consumable') {
+        // Update the asset quantity
+        const returnAssetsQuery = `
+          UPDATE assets 
+          SET quantity = quantity + $1
+          WHERE asset_id = $2
+          RETURNING quantity
+        `;
+        const returnResult = await client.query(returnAssetsQuery, [asset.quantity, asset.asset_id]);
+        
+        // Log the return of the asset
+        await AssetActivityLog.logAssetActivity(
+          asset.asset_id,
+          'event_return',
+          'quantity',
+          asset.total_quantity.toString(),
+          returnResult.rows[0].quantity.toString(),
+          null, // userId is optional
+          `Returned ${asset.quantity} units from event "${eventName}"`
+        );
+      }
+    }
 
     // Remove assets from event_assets table
     const deleteEventAssetsQuery = "DELETE FROM event_assets WHERE event_id = $1";
