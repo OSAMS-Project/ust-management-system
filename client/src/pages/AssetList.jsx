@@ -208,19 +208,23 @@ const AssetList = () => {
       if (!assetId) {
         return;
       }
+      
+      // Delete the asset and its associated borrowing requests
       const response = await axios.delete(
         `${process.env.REACT_APP_API_URL}/api/Assets/delete/${assetId}`
       );
+      
       if (response.status === 200) {
         setAssets((prevAssets) =>
           prevAssets.filter((asset) => asset.asset_id !== assetId)
         );
-        showNotification("Asset deleted successfully");
+        showNotification(response.data.message || "Asset deleted successfully");
       } else {
         throw new Error("Failed to delete asset");
       }
     } catch (error) {
-      showNotification("Error deleting asset", "error");
+      console.error("Error deleting asset:", error);
+      showNotification(error.response?.data?.message || "Error deleting asset", "error");
     }
   }, []);
 

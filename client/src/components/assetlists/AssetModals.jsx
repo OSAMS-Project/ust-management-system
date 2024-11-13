@@ -67,7 +67,11 @@ const AssetModals = ({
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteConfirm}
-        message={`Are you sure you want to delete the asset "${assetToDelete?.assetName}"? This action cannot be undone.`}
+        message={
+          assetToDelete?.is_active 
+            ? `Warning: "${assetToDelete?.assetName}" has active borrowing requests. Deleting this asset will also remove all associated borrowing requests. Are you sure you want to proceed?`
+            : `Are you sure you want to delete the asset "${assetToDelete?.assetName}"? This action cannot be undone.`
+        }
       />
 
       <QuantityForBorrowingModal

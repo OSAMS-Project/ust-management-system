@@ -48,10 +48,18 @@ const updateAsset = async (req, res) => {
 const deleteAsset = async (req, res) => {
   try {
     const id = String(req.params.id);
+
+    // Check if asset has active borrowing requests first
+    const hasActiveBorrowings = await Asset.checkActiveBorrowings(id);
+
+    // Delete the asset and all related records
     const deletedAsset = await Asset.deleteAsset(id);
+
     if (deletedAsset) {
       res.status(200).json({ 
-        message: 'Asset, related repair records, borrow logs, and activity logs deleted successfully', 
+        message: hasActiveBorrowings 
+          ? 'Asset, related records, and active borrowing requests deleted successfully'
+          : 'Asset and related records deleted successfully',
         deletedAsset
       });
     } else {
