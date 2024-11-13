@@ -1,18 +1,26 @@
-import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUsers } from '@fortawesome/free-solid-svg-icons';
+import React from "react";
 
 const SupplierInfoCard = ({ totalSuppliers }) => {
   return (
-    <div className="mb-6">
-      <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500 transition-all duration-300 hover:shadow-lg">
-        <div className="flex items-center">
-          <div className="bg-blue-100 rounded-full p-3 mr-4">
-            <FontAwesomeIcon icon={faUsers} className="text-blue-500 text-xl" />
-          </div>
-          <div>
-            <h2 className="text-sm font-semibold text-gray-600">Total Suppliers</h2>
-            <p className="text-2xl font-bold text-gray-800 mt-1">{totalSuppliers}</p>
+    <div className="px-4">
+      <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full px-5 py-1 text-center uppercase tracking-wider mb-3">
+        Supplier Summary
+      </div>
+
+      {/* Total Suppliers Section */}
+      <div className="grid grid-cols-1 gap-4 mb-8">
+        <div
+          className="p-6 rounded-lg shadow-md h-48 bg-cover bg-center relative overflow-hidden"
+          style={{ backgroundImage: "url('ust-img-4.JPG')" }}
+        >
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className="relative z-10 flex flex-col items-center justify-center text-center">
+            <h2 className="text-7xl font-bold text-[#FEC00F]">
+              {totalSuppliers}
+            </h2>
+            <p className="text-2xl font-semibold text-white mt-2">
+              Total Suppliers
+            </p>
           </div>
         </div>
       </div>

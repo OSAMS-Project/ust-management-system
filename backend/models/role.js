@@ -1,4 +1,5 @@
 const { executeTransaction } = require('../utils/queryExecutor');
+const pool = require('../config/database');
 
 const createRoleTable = async () => {
   const query = `
@@ -6,11 +7,11 @@ const createRoleTable = async () => {
       id SERIAL PRIMARY KEY,
       role_name VARCHAR(255) UNIQUE NOT NULL
     )
-  `;
+  `;  
   try {
     return await executeTransaction([{ query, params: [] }]);
   } catch (err) {
-    console.error('Error creating Role table:', err);
+    console.error('Error creating Role table:', err); 
     throw err;
   }
 };
