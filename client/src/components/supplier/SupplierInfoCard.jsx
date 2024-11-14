@@ -14,7 +14,7 @@ const SupplierInfoCard = ({ totalSuppliers }) => {
           style={{ backgroundImage: "url('ust-img-4.JPG')" }}
         >
           <div className="absolute inset-0 bg-black opacity-50"></div>
-          <div className="relative z-10 flex flex-col items-center justify-center text-center">
+          <div className="relative flex flex-col items-center justify-center text-center">
             <h2 className="text-7xl font-bold text-[#FEC00F]">
               {totalSuppliers}
             </h2>
