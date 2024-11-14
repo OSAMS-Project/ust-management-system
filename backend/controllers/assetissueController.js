@@ -76,13 +76,23 @@ const assetIssueController = {
     try {
       const { id } = req.params;
       const deletedIssue = await AssetIssue.deleteIssue(id);
+      
       if (!deletedIssue) {
         return res.status(404).json({ error: 'Issue not found' });
       }
-      res.json({ message: 'Issue deleted successfully' });
+
+      res.json({ 
+        message: 'Issue deleted successfully',
+        data: deletedIssue,
+        success: true
+      });
     } catch (error) {
       console.error('Error deleting issue:', error);
-      res.status(500).json({ error: 'Failed to delete issue' });
+      res.status(500).json({ 
+        error: 'Failed to delete issue',
+        details: error.message,
+        success: false
+      });
     }
   },
 
@@ -127,6 +137,47 @@ const assetIssueController = {
         error: 'Failed to fetch issue history',
         details: error.message,
         stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
+    }
+  },
+
+  updateIssue: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+
+      // Validate required fields if they are being updated
+      if (updateData.issue_type && !updateData.issue_type.trim()) {
+        return res.status(400).json({ error: 'Issue type cannot be empty' });
+      }
+      if (updateData.description && !updateData.description.trim()) {
+        return res.status(400).json({ error: 'Description cannot be empty' });
+      }
+      if (updateData.priority && !updateData.priority.trim()) {
+        return res.status(400).json({ error: 'Priority cannot be empty' });
+      }
+
+      // Validate quantity if it's being updated
+      if (updateData.issue_quantity) {
+        const quantity = parseInt(updateData.issue_quantity);
+        if (isNaN(quantity) || quantity < 1) {
+          return res.status(400).json({ error: 'Quantity must be a positive number' });
+        }
+        updateData.issue_quantity = quantity;
+      }
+
+      const updatedIssue = await AssetIssue.updateIssue(id, updateData);
+      
+      if (!updatedIssue) {
+        return res.status(404).json({ error: 'Issue not found' });
+      }
+
+      res.json(updatedIssue);
+    } catch (error) {
+      console.error('Error updating issue:', error);
+      res.status(500).json({ 
+        error: 'Failed to update issue',
+        details: error.message 
       });
     }
   },

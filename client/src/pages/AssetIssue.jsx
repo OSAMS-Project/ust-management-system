@@ -5,6 +5,7 @@ import RepairModal from '../components/repair/RepairModal';
 import NotificationPopup from '../components/utils/NotificationsPopup';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import EditIssueModal from '../components/issue/EditIssueModal';
 
 function AssetIssue({ user }) {
   const [issues, setIssues] = useState([]);
@@ -14,6 +15,7 @@ function AssetIssue({ user }) {
   const [isRepairModalOpen, setIsRepairModalOpen] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -172,6 +174,38 @@ function AssetIssue({ user }) {
     }
   };
 
+  const handleEditIssue = async (issueId, editData) => {
+    try {
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/asset-issues/${issueId}`,
+        editData
+      );
+
+      // Update issues list with edited issue
+      setIssues(issues.map(issue => 
+        issue.id === issueId ? { ...issue, ...editData } : issue
+      ));
+
+      setIsEditModalOpen(false);
+      setSelectedIssue(null);
+      setNotification({
+        type: 'success',
+        message: 'Issue updated successfully'
+      });
+    } catch (error) {
+      console.error('Error updating issue:', error);
+      setNotification({
+        type: 'error',
+        message: 'Failed to update issue'
+      });
+    }
+  };
+
+  const handleOpenEditModal = (issue) => {
+    setSelectedIssue(issue);
+    setIsEditModalOpen(true);
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -202,6 +236,7 @@ function AssetIssue({ user }) {
         loading={loading}
         onAddToRepair={handleAddToRepair}
         onRemoveIssue={handleRemoveIssue}
+        onEditIssue={handleOpenEditModal}
       />
 
       {isRepairModalOpen && (
@@ -211,6 +246,19 @@ function AssetIssue({ user }) {
           onAddRepair={handleAddRepair}
           selectedIssue={selectedIssue}
           selectedAsset={selectedIssue?.asset}
+        />
+      )}
+
+      {isEditModalOpen && selectedIssue && (
+        <EditIssueModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedIssue(null);
+          }}
+          onEditIssue={handleEditIssue}
+          issue={selectedIssue}
+          assets={assets}
         />
       )}
 

@@ -134,7 +134,7 @@ const AssetCategory = ({ onSaveCategory, onDeleteCategory, categories }) => {
     <div className="group-button">
       <Button
         onClick={handleOpenModal}
-        className="px-3 py-2 border-2 border-black text-black bg-green-400 rounded-md hover:bg-green-300 duration-300"
+        className="px-3 py-2 border-2 border-black text-black bg-green-400 rounded-md hover:bg-green-300 duration-300 "
       >
         Add Category
       </Button>

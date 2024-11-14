@@ -23,5 +23,8 @@ router.put('/resolve-by-asset/:assetId', assetIssueController.resolveIssuesByAss
 // Get issue logs by asset ID
 router.get('/logs/:assetId', assetIssueController.getIssueLogsByAsset);
 
+// Update issue
+router.put('/:id', assetIssueController.updateIssue);
+
 module.exports = router;
 

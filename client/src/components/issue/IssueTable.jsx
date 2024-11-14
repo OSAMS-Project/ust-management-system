@@ -1,8 +1,8 @@
 import React from 'react';
 import moment from 'moment';
-import { Wrench, Trash2 } from 'lucide-react';
+import { Wrench, Trash2, Edit } from 'lucide-react';
 
-const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue }) => {
+const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue, onEditIssue }) => {
   // Filter out issues that are in repair status
   const activeIssues = issues.filter(issue => issue.status !== 'In Repair');
 
@@ -63,19 +63,25 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue }) =
                 <td className="px-4 py-2">
                   <div className="flex space-x-2">
                     <button
+                      onClick={() => onEditIssue(issue)}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
                       onClick={() => onAddToRepair({
                         ...issue,
                         repair_quantity: issue.issue_quantity
                       }, asset)}
                       className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
                     >
-                      Repair
+                      <Wrench className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => onRemoveIssue(issue.id)}
                       className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                     >
-                      Remove
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </td>
