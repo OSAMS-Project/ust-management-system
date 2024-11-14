@@ -38,6 +38,7 @@ const SupplierTable = ({ suppliers, onDelete, onEdit }) => {
             <th className="py-2 px-4 border-b text-center">Street Address</th>
             <th className="py-2 px-4 border-b text-center">City</th>
             <th className="py-2 px-4 border-b text-center">Contact No.</th>
+            <th className="py-2 px-4 border-b text-center">Email</th>
             <th className="py-2 px-4 border-b text-center">Actions</th>
           </tr>
         </thead>
@@ -67,6 +68,9 @@ const SupplierTable = ({ suppliers, onDelete, onEdit }) => {
               </td>
               <td className="py-2 px-4 border-b text-center">
                 {supplier.contactno}
+              </td>
+              <td className="py-2 px-4 border-b text-center">
+                {supplier.email}
               </td>
               <td className="py-2 px-4 border-b text-center">
                 <button

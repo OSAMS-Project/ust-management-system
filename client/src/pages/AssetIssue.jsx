@@ -211,14 +211,6 @@ function AssetIssue({ user }) {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold">Asset Issues</h1>
-          <div className="flex items-center mt-2">
-            <img 
-              src={user?.picture || "https://via.placeholder.com/40"} 
-              alt="Profile" 
-              className="w-10 h-10 rounded-full object-cover mr-2" 
-            />
-            <p className="text-lg">Logged in as: {user?.name || "User"}</p>
-          </div>
         </div>
         <AddAssetIssue
           onAddIssue={handleAddIssue}
