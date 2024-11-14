@@ -8,8 +8,9 @@ import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { faArrowRight, faBox, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 
 import { Link } from "react-router-dom";
+import { formatTime } from '../../utils/timeUtils';
 
-const DashboardInfoCards = ({ formatTime }) => {
+const DashboardInfoCards = () => {
   const [totalAssets, setTotalAssets] = useState(null);
   const [totalEvents, setTotalEvents] = useState(null);
   const [totalAssetsForBorrowing, setTotalAssetsForBorrowing] = useState(null);
@@ -22,6 +23,22 @@ const DashboardInfoCards = ({ formatTime }) => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [events, setEvents] = useState([]);
   const [totalOngoingEvents, setTotalOngoingEvents] = useState(null);
+
+  const formatTime = (time) => {
+    if (!time) return '';
+    
+    // Assuming time is in HH:mm format (24-hour)
+    const [hours, minutes] = time.split(':');
+    const date = new Date();
+    date.setHours(hours);
+    date.setMinutes(minutes);
+    
+    return date.toLocaleString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    }).toLowerCase(); // Returns format like "2:30 pm"
+  };
 
   useEffect(() => {
     const fetchData = async () => {
