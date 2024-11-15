@@ -63,4 +63,29 @@ router.get('/asset-cost/:eventId/:assetId', async (req, res) => {
   }
 });
 
+router.get('/:eventId/consumables', async (req, res) => {
+  try {
+    const consumables = await Event.getEventConsumables(req.params.eventId);
+    res.json(consumables);
+  } catch (error) {
+    console.error('Error fetching consumables:', error);
+    res.status(500).json({ error: 'Failed to fetch consumables' });
+  }
+});
+
+router.put('/:uniqueId/complete', async (req, res) => {
+  const { uniqueId } = req.params;
+  const { returnQuantities } = req.body;
+  try {
+    const updatedEvent = await Event.completeEvent(uniqueId, returnQuantities);
+    res.status(200).json({ 
+      message: 'Event completed successfully', 
+      updatedEvent: updatedEvent 
+    });
+  } catch (error) {
+    console.error('Error completing event:', error);
+    res.status(500).json({ error: 'Failed to complete event' });
+  }
+});
+
 module.exports = router;

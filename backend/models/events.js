@@ -283,72 +283,91 @@ const getEventById = async (uniqueId) => {
   }
 };
 
-const completeEvent = async (uniqueId) => {
+const completeEvent = async (uniqueId, returnQuantities = {}) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
-    // Get the event name first
+    // Get the event name and assets
     const eventQuery = 'SELECT event_name FROM Events WHERE unique_id = $1';
     const eventResult = await client.query(eventQuery, [uniqueId]);
     const eventName = eventResult.rows[0]?.event_name;
 
-    // Get the current assets for the event with asset names, types and quantities
+    // Get all assets for this event with their current quantities
     const getAssetsQuery = `
-      SELECT ea.*, a."assetName", a.quantity as total_quantity, a.type, a.cost
+      SELECT 
+        ea.*,
+        a."assetName",
+        a.quantity as current_quantity,
+        a.type
       FROM event_assets ea
       JOIN assets a ON ea.asset_id = a.asset_id
       WHERE ea.event_id = $1
     `;
     const assetsResult = await client.query(getAssetsQuery, [uniqueId]);
     
-    console.log('Assets before completion:', assetsResult.rows);
+    const completedAssets = [];
 
-    const completedAssets = assetsResult.rows.map(asset => ({
-      asset_id: asset.asset_id,
-      assetName: asset.assetName,
-      quantity: asset.quantity,
-      total_quantity: asset.total_quantity,
-      type: asset.type
-    }));
-
-    // Mark the event as completed and store the completed assets
-    const updateEventQuery = "UPDATE Events SET is_completed = true, completed_assets = $1 WHERE unique_id = $2 RETURNING *";
-    const updatedEvent = await client.query(updateEventQuery, [JSON.stringify(completedAssets), uniqueId]);
-    console.log('Event marked as completed:', updatedEvent.rows[0]);
-
-    // Return only non-consumable assets to the asset list and log the return
+    // Process each asset
     for (const asset of assetsResult.rows) {
-      if (asset.type.toLowerCase() === 'non-consumable') {
-        // Update the asset quantity
-        const returnAssetsQuery = `
-          UPDATE assets 
-          SET quantity = quantity + $1
-          WHERE asset_id = $2
-          RETURNING quantity
-        `;
-        const returnResult = await client.query(returnAssetsQuery, [asset.quantity, asset.asset_id]);
-        
-        // Log the return of the asset
-        await AssetActivityLog.logAssetActivity(
-          asset.asset_id,
-          'event_return',
-          'quantity',
-          asset.total_quantity.toString(),
-          returnResult.rows[0].quantity.toString(),
-          null, // userId is optional
-          `Returned ${asset.quantity} units from event "${eventName}"`
-        );
-      }
+      const returnQty = parseInt(returnQuantities[asset.asset_id] || 0);
+      const originalQty = parseInt(asset.quantity);
+      
+      // Calculate how many were used/not returned
+      const usedQty = originalQty - returnQty;
+
+      // Update the main assets table with the returned quantity
+      const updateAssetQuery = `
+        UPDATE assets 
+        SET quantity = quantity + $1
+        WHERE asset_id = $2
+        RETURNING quantity as new_quantity
+      `;
+      const updateResult = await client.query(updateAssetQuery, [returnQty, asset.asset_id]);
+      
+      // Log the activity
+      await AssetActivityLog.logAssetActivity(
+        asset.asset_id,
+        'event_return',
+        'quantity',
+        asset.current_quantity.toString(),
+        updateResult.rows[0].new_quantity.toString(),
+        null,
+        `Returned ${returnQty} units from event "${eventName}". ${usedQty} units were used.`
+      );
+
+      completedAssets.push({
+        asset_id: asset.asset_id,
+        assetName: asset.assetName,
+        original_quantity: originalQty,
+        returned_quantity: returnQty,
+        used_quantity: usedQty,
+        type: asset.type
+      });
     }
 
-    // Remove assets from event_assets table
-    const deleteEventAssetsQuery = "DELETE FROM event_assets WHERE event_id = $1";
-    const deleteEventAssetsResult = await client.query(deleteEventAssetsQuery, [uniqueId]);
-    console.log('Event assets deleted:', deleteEventAssetsResult.rowCount);
+    // Mark event as completed
+    const updateEventQuery = `
+      UPDATE Events 
+      SET is_completed = true, 
+          completed_assets = $1 
+      WHERE unique_id = $2 
+      RETURNING *
+    `;
+    const updatedEvent = await client.query(updateEventQuery, [
+      JSON.stringify(completedAssets),
+      uniqueId
+    ]);
+
+    // Remove assets from event_assets
+    await client.query('DELETE FROM event_assets WHERE event_id = $1', [uniqueId]);
 
     await client.query('COMMIT');
-    return updatedEvent.rows[0];
+    return {
+      success: true,
+      updatedEvent: updatedEvent.rows[0],
+      completedAssets
+    };
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Error in completeEvent:', err);
@@ -442,6 +461,27 @@ const getEventByName = async (eventName) => {
   return result.rows[0];
 };
 
+const getEventConsumables = async (eventId) => {
+  const query = `
+    SELECT 
+      ea.asset_id,
+      ea.quantity,
+      a."assetName",
+      a.type
+    FROM event_assets ea
+    JOIN assets a ON ea.asset_id = a.asset_id
+    WHERE ea.event_id = $1 AND a.type = 'Consumable'
+  `;
+  
+  try {
+    const result = await pool.query(query, [eventId]);
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching event consumables:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   createEventsTable,
   createEventAssetsTable,  // Make sure this line is here
@@ -460,5 +500,6 @@ module.exports = {
   updateAssetQuantity,
   updateEventAssetQuantity,
   updateMainAssetQuantity,
-  getEventByName
+  getEventByName,
+  getEventConsumables
 };

@@ -64,15 +64,23 @@ const deleteEvent = async (req, res) => {
 
 const completeEvent = async (req, res) => {
   const { uniqueId } = req.params;
+  const { returnQuantities } = req.body;
+  
   try {
-    const updatedEvent = await Event.completeEvent(uniqueId);
+    const result = await Event.completeEvent(uniqueId, returnQuantities);
     res.status(200).json({ 
+      success: true,
       message: 'Event completed successfully', 
-      updatedEvent: updatedEvent 
+      updatedEvent: result.updatedEvent,
+      completedAssets: result.completedAssets
     });
   } catch (error) {
     console.error('Error completing event:', error);
-    res.status(500).json({ error: 'Failed to complete event' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to complete event',
+      details: error.message 
+    });
   }
 };
 

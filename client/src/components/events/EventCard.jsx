@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEdit, faPlus, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faEdit, faPlus, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import AssetSelectionDialog from './AssetSelectionDialog';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime, handleAddAsset, assets }) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showAssetDialog, setShowAssetDialog] = useState(false);
   const [refreshedAssets, setRefreshedAssets] = useState(assets);
   const [isLoading, setIsLoading] = useState(false);
+  const [consumableDialog, setConsumableDialog] = useState(false);
+  const [consumableAssets, setConsumableAssets] = useState([]);
+  const [returnQuantities, setReturnQuantities] = useState({});
 
   const fetchLatestAssets = async () => {
     try {
@@ -34,6 +38,65 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
     handleAddAsset(item, selectedAssets);
     setShowAssetDialog(false);
   };
+
+  const fetchEventConsumables = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/${item.unique_id}/consumables`);
+      setConsumableAssets(response.data);
+      const quantities = {};
+      response.data.forEach(asset => {
+        quantities[asset.asset_id] = 0;
+      });
+      setReturnQuantities(quantities);
+    } catch (error) {
+      console.error('Error fetching consumables:', error);
+    }
+  };
+
+  const handleEventComplete = async () => {
+    if (consumableAssets.length > 0) {
+      setConsumableDialog(true);
+    } else {
+      handleComplete(item.unique_id, {});
+      setShowConfirmDialog(false);
+    }
+  };
+
+  const handleQuantityChange = (assetId, value) => {
+    const asset = consumableAssets.find(a => a.asset_id === assetId);
+    const numValue = parseInt(value) || 0;
+    
+    if (numValue >= 0 && numValue <= asset.quantity) {
+      setReturnQuantities(prev => ({
+        ...prev,
+        [assetId]: numValue
+      }));
+    }
+  };
+
+  const handleConsumableSubmit = async () => {
+    try {
+      const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/events/${item.unique_id}/complete`, {
+        returnQuantities
+      });
+      
+      if (response.data.success) {
+        toast.success('Event completed successfully');
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error completing event:', error);
+      toast.error('Failed to complete event');
+    }
+    setConsumableDialog(false);
+    setShowConfirmDialog(false);
+  };
+
+  useEffect(() => {
+    if (showConfirmDialog) {
+      fetchEventConsumables();
+    }
+  }, [showConfirmDialog]);
 
   return (
     <div className="relative overflow-hidden rounded-lg shadow-lg w-80 h-[32rem] group">
@@ -114,22 +177,70 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
             <div className="flex justify-end gap-2">
               <button
                 className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 text-sm transition"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowConfirmDialog(false);
-                }}
+                onClick={() => setShowConfirmDialog(false)}
               >
                 Cancel
               </button>
               <button
                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-sm transition"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleComplete(item.unique_id);
-                  setShowConfirmDialog(false);
-                }}
+                onClick={handleEventComplete}
               >
                 Confirm
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Add Consumable Return Dialog */}
+      {consumableDialog && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-50"
+          />
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 max-w-md w-full mx-auto z-50">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold text-gray-800">Return Unused Consumables</h2>
+              <button 
+                onClick={() => setConsumableDialog(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            </div>
+            
+            <div className="max-h-96 overflow-y-auto">
+              {consumableAssets.map(asset => (
+                <div key={asset.asset_id} className="mb-4 p-4 border rounded-lg">
+                  <p className="font-semibold">{asset.assetName}</p>
+                  <p className="text-sm text-gray-600">Allocated: {asset.quantity}</p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <label className="text-sm">Unused Quantity:</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max={asset.quantity}
+                      value={returnQuantities[asset.asset_id]}
+                      onChange={(e) => handleQuantityChange(asset.asset_id, e.target.value)}
+                      className="border rounded px-2 py-1 w-20"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 text-sm transition"
+                onClick={() => setConsumableDialog(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-sm transition"
+                onClick={handleConsumableSubmit}
+              >
+                Complete Event
               </button>
             </div>
           </div>
