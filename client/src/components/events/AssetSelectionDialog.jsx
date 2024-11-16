@@ -5,8 +5,13 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
   const [quantityInput, setQuantityInput] = useState('');
   const [currentAsset, setCurrentAsset] = useState(null);
   const [previewQuantities, setPreviewQuantities] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
 
   if (!isOpen) return null;
+
+  const filteredAssets = assets.filter(asset =>
+    asset.assetName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleAssetClick = (asset) => {
     setCurrentAsset(asset);
@@ -60,12 +65,33 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
     setPreviewQuantities({});
   };
 
+  const handleRemoveSelectedAsset = (assetToRemove) => {
+    setSelectedAssets(selectedAssets.filter(asset => asset.asset_id !== assetToRemove.asset_id));
+    
+    setPreviewQuantities(prev => ({
+      ...prev,
+      [assetToRemove.asset_id]: undefined
+    }));
+  };
+
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">Select Assets</h3>
+        
+        {/* Search Input */}
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Search assets..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
         <div className="max-h-60 overflow-y-auto mb-4">
-          {assets.map((asset) => (
+          {filteredAssets.map((asset) => (
             <div 
               key={asset.asset_id} 
               className="p-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center"
@@ -77,6 +103,11 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
               </span>
             </div>
           ))}
+          {filteredAssets.length === 0 && (
+            <div className="p-2 text-center text-gray-500">
+              No assets found
+            </div>
+          )}
         </div>
         {currentAsset && (
           <form onSubmit={handleQuantitySubmit} className="mb-4">
@@ -97,10 +128,18 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
         )}
         <div className="mb-4">
           <h4 className="font-medium mb-2">Selected Assets:</h4>
-          {selectedAssets.map((asset, index) => (
-            <div key={index} className="flex justify-between items-center">
+          {selectedAssets.map((asset) => (
+            <div key={asset.asset_id} className="flex justify-between items-center mb-2 bg-gray-50 p-2 rounded">
               <span>{asset.assetName}</span>
-              <span>Quantity: {asset.selectedQuantity}</span>
+              <div className="flex items-center gap-2">
+                <span>Quantity: {asset.selectedQuantity}</span>
+                <button
+                  onClick={() => handleRemoveSelectedAsset(asset)}
+                  className="text-red-500 hover:text-red-700 px-2 py-1 rounded"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
           ))}
         </div>
