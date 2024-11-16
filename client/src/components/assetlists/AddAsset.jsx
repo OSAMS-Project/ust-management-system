@@ -257,8 +257,9 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
                     id="quantity"
                     type="number"
                     value={formData.quantity}
-                    onChange={(e) => handleInputChange('quantity', Number(e.target.value))}
+                    onChange={(e) => handleInputChange('quantity', Math.max(1, Number(e.target.value)))}
                     shake={shakeFields.includes("quantity")}
+                    min="1"
                   />
                 </div>
 

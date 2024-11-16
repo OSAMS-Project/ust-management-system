@@ -375,7 +375,7 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
                   id="quantity"
                   type="number"
                   value={editedAsset.quantity}
-                  onChange={(e) => handleChange('quantity', Number(e.target.value))}
+                  onChange={(e) => handleChange('quantity', Math.max(1, Number(e.target.value)))}
                   shake={shakeFields.includes('quantity')}
                   min="1"
                 />
@@ -406,7 +406,7 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
                   id="quantityForBorrowing"
                   type="number"
                   value={quantityForBorrowing}
-                  onChange={(e) => handleQuantityForBorrowingChange(e.target.value)}
+                  onChange={(e) => handleQuantityForBorrowingChange(Math.max(1, Number(e.target.value)))}
                   min="1"
                 />
               )}
