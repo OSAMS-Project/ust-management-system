@@ -8,7 +8,7 @@ async function addModifiedByToActivityLogs() {
     // Drop the existing table
     await client.query(`DROP TABLE IF EXISTS AssetActivityLogs`);
 
-    // Recreate the table with all required columns
+    // Recreate the table with all required columns including created_at
     await client.query(`
       CREATE TABLE AssetActivityLogs (
         id SERIAL PRIMARY KEY,
@@ -25,10 +25,10 @@ async function addModifiedByToActivityLogs() {
     `);
 
     await client.query('COMMIT');
-    console.log('Successfully recreated AssetActivityLogs table with modified_by column');
+    console.log('Successfully recreated AssetActivityLogs table with modified_by and created_at columns');
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Error adding modified_by column:', error);
+    console.error('Error recreating table:', error);
     throw error;
   } finally {
     client.release();

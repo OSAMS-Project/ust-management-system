@@ -40,7 +40,7 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
   }, [assetId]);
 
   const groupedLogs = logs.reduce((acc, log) => {
-    const timestamp = moment().format('MMMM D, YYYY - h:mm A');
+    const timestamp = moment(log.created_at).format('MMMM D, YYYY - h:mm A');
     if (!acc[timestamp]) {
       acc[timestamp] = [];
     }
@@ -55,16 +55,6 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
           <strong className="text-black">Event Allocation</strong>: 
           Allocated <strong className="text-blue-600">{log.old_value}</strong> units 
           to event "<strong className="text-green-600">{log.new_value}</strong>"
-          <div className="flex items-center mt-1 text-xs text-gray-500">
-            {log.user_picture && (
-              <img 
-                src={log.user_picture} 
-                alt="User"
-                className="w-4 h-4 rounded-full mr-1"
-              />
-            )}
-            <span>Modified by {log.modified_by || 'Unknown User'}</span>
-          </div>
         </p>
       );
     }
@@ -77,16 +67,6 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
           <br />
           Available quantity updated from <strong className="text-blue-600">{log.old_value}</strong> to 
           <strong className="text-green-600"> {log.new_value}</strong>
-          <div className="flex items-center mt-1 text-xs text-gray-500">
-            {log.user_picture && (
-              <img 
-                src={log.user_picture} 
-                alt="User"
-                className="w-4 h-4 rounded-full mr-1"
-              />
-            )}
-            <span>Modified by {log.modified_by || 'Unknown User'}</span>
-          </div>
         </p>
       );
     }
@@ -98,16 +78,6 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
           "<strong className="text-blue-600">{log.old_value || '(empty)'}</strong>" → 
           "<strong className="text-green-600">{log.new_value}</strong>"
         </p>
-        <div className="flex items-center mt-1 text-xs text-gray-500">
-          {log.user_picture && (
-            <img 
-              src={log.user_picture} 
-              alt="User"
-              className="w-4 h-4 rounded-full mr-1"
-            />
-          )}
-          <span>Modified by {log.modified_by || 'Unknown User'}</span>
-        </div>
       </div>
     );
   };
@@ -127,6 +97,16 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
             {Object.entries(groupedLogs).map(([timestamp, logGroup]) => (
               <div key={timestamp} className="bg-gray-100 p-3 rounded-lg">
                 <p className="font-semibold text-sm text-gray-700 mb-2">Update on {timestamp}</p>
+                <div className="flex items-center mb-3 text-xs text-gray-500">
+                  {logGroup[0].user_picture && (
+                    <img 
+                      src={logGroup[0].user_picture} 
+                      alt="User"
+                      className="w-4 h-4 rounded-full mr-1"
+                    />
+                  )}
+                  <span>Modified by {logGroup[0].modified_by || 'Unknown User'}</span>
+                </div>
                 {logGroup.map((log) => formatLogMessage(log))}
               </div>
             ))}

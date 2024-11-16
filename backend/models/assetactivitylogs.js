@@ -47,10 +47,11 @@ const getAssetActivityLogs = async (assetId) => {
       new_value,
       modified_by,
       user_picture,
-      context
+      context,
+      created_at
     FROM AssetActivityLogs
     WHERE asset_id = $1
-    ORDER BY id DESC
+    ORDER BY created_at DESC, id DESC
   `;
   return executeTransaction([{ query, params: [assetId] }]);
 };
