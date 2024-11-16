@@ -148,17 +148,13 @@ const BorrowingHistory = () => {
                 <th className="py-3 px-4 border-b text-center">Contact No.</th>
                 <th className="py-3 px-4 border-b text-center">Department</th>
                 <th className="py-3 px-4 border-b text-center">Purpose</th>
-                <th className="py-3 px-4 border-b text-center">
-                  Borrowed Asset
-                </th>
+                <th className="py-3 px-4 border-b text-center">Borrowed Asset</th>
                 <th className="py-3 px-4 border-b text-center">Quantity</th>
+                <th className="py-3 px-4 border-b text-center">Date Requested</th>
+                <th className="py-3 px-4 border-b text-center">Date Collected</th>
                 <th className="py-3 px-4 border-b text-center">Cover Letter</th>
-                <th className="py-3 px-4 border-b text-center">
-                  Expected Return Date
-                </th>
-                <th className="py-3 px-4 border-b text-center">
-                  Actual Return Date
-                </th>
+                <th className="py-3 px-4 border-b text-center">Expected Return Date</th>
+                <th className="py-3 px-4 border-b text-center">Actual Return Date</th>
                 <th className="py-3 px-4 border-b text-center">Status</th>
               </tr>
             </thead>
@@ -190,6 +186,12 @@ const BorrowingHistory = () => {
                   </td>
                   <td className="py-2 px-4 border-b text-center">
                     {record.borrowed_asset_quantities}
+                  </td>
+                  <td className="py-2 px-4 border-b text-center">
+                    {moment(record.date_requested).format("MMMM Do YYYY")}
+                  </td>
+                  <td className="py-2 px-4 border-b text-center">
+                    {record.date_collected ? moment(record.date_collected).format("MMMM Do YYYY") : 'Not yet collected'}
                   </td>
                   <td className="py-2 px-4 border-b text-center">
                     {record.cover_letter_url ? (

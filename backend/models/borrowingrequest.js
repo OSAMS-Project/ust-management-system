@@ -22,22 +22,27 @@ class BorrowingRequest {
         selected_assets JSONB NOT NULL,
         status VARCHAR(20) DEFAULT 'Pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        date_requested TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        date_to_be_collected DATE,
+        date_collected TIMESTAMP,
         expected_return_date DATE,
         date_returned TIMESTAMP,
         notes TEXT
       )
     `;
     await executeTransaction([{ query }]);
-    // Add date_returned column if it doesn't exist
-    await this.addDateReturnedColumn();
     return true;
   }
 
   static async createBorrowingRequest(requestData) {
     const query = `
       INSERT INTO borrowing_requests (
-        name, email, department, purpose, contact_no, cover_letter_path, selected_assets, expected_return_date, notes, status
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *
+        name, email, department, purpose, contact_no, cover_letter_path, 
+        selected_assets, expected_return_date, notes, status, 
+        date_requested, date_to_be_collected
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 
+        CURRENT_TIMESTAMP, $11) 
+      RETURNING *
     `;
     const params = [
       requestData.name,
@@ -49,7 +54,8 @@ class BorrowingRequest {
       JSON.stringify(requestData.selectedAssets),
       requestData.expectedReturnDate,
       requestData.notes,
-      'Pending'
+      'Pending',
+      requestData.dateToBeCollected // Now this is the 11th parameter
     ];
     console.log('Executing query with params:', params);
     try {
@@ -82,7 +88,15 @@ class BorrowingRequest {
     let query;
     let params;
 
-    if (dateReturned) {
+    if (status === 'Approved') {
+      query = `
+        UPDATE borrowing_requests 
+        SET status = $1, date_collected = CURRENT_TIMESTAMP 
+        WHERE id = $2 
+        RETURNING *
+      `;
+      params = [status, requestId];
+    } else if (dateReturned) {
       query = `
         UPDATE borrowing_requests 
         SET status = $1, date_returned = $2 

@@ -5,6 +5,7 @@ import NotificationPopup from "../components/utils/NotificationsPopup";
 import RejectionReasonModal from "../components/borrower/RejectionReasonModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
+import { Check, X, RotateCcw, Bell } from 'lucide-react'; // Import Lucide icons
 
 const BorrowingRequest = () => {
   const [requests, setRequests] = useState([]);
@@ -170,25 +171,24 @@ const BorrowingRequest = () => {
   const acceptedRequests = requests.filter((req) => req.status === "Approved");
 
   const renderTable = (title, data, showActions) => (
-    <div className="mb-8">
+    <div className="mb-8 overflow-x-auto">
       <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border-collapse shadow-lg rounded-lg">
+      <div className="min-w-max">
+        <table className="w-full bg-white border-collapse shadow-lg rounded-lg">
           <thead className="bg-black text-[#FEC00F]">
             <tr>
-              <th className="py-3 px-4 border-b text-center">Name</th>
-              <th className="py-3 px-4 border-b text-center">Email</th>
-              <th className="py-3 px-4 border-b text-center">Contact No.</th>
-              <th className="py-3 px-4 border-b text-center">Department</th>
-              <th className="py-3 px-4 border-b text-center">Purpose</th>
-              <th className="py-3 px-4 border-b text-center">Borrowed Asset</th>
-              <th className="py-3 px-4 border-b text-center">Quantity</th>
-              <th className="py-3 px-4 border-b text-center">Cover Letter</th>
-              <th className="py-3 px-4 border-b text-center">
-                Expected Return Date
-              </th>
-              <th className="py-3 px-4 border-b text-center">Actions</th>
-              <th className="py-3 px-4 border-b text-center">Notify</th>
+              <th className="py-2 px-3 border-b text-center whitespace-nowrap">Name</th>
+              <th className="py-2 px-3 border-b text-center whitespace-nowrap">Email</th>
+              <th className="py-2 px-3 border-b text-center whitespace-nowrap">Contact No.</th>
+              <th className="py-2 px-3 border-b text-center whitespace-nowrap">Department</th>
+              <th className="py-2 px-3 border-b text-center whitespace-nowrap">Purpose</th>
+              <th className="py-2 px-3 border-b text-center whitespace-nowrap">Borrowed Asset</th>
+              <th className="py-2 px-3 border-b text-center whitespace-nowrap">Quantity</th>
+              <th className="py-2 px-3 border-b text-center whitespace-nowrap">Date Requested</th>
+              <th className="py-2 px-3 border-b text-center whitespace-nowrap">Date to be Collected</th>
+              <th className="py-2 px-3 border-b text-center whitespace-nowrap">Cover Letter</th>
+              <th className="py-2 px-3 border-b text-center whitespace-nowrap">Expected Return Date</th>
+              <th className="py-2 px-3 border-b text-center whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -199,28 +199,20 @@ const BorrowingRequest = () => {
                   index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
                 } hover:bg-gray-50 transition duration-150`}
               >
-                <td className="py-2 px-4 border-b text-center">
-                  {request.name}
+                <td className="py-2 px-3 border-b text-center whitespace-nowrap">{request.name}</td>
+                <td className="py-2 px-3 border-b text-center whitespace-nowrap">{request.email}</td>
+                <td className="py-2 px-3 border-b text-center whitespace-nowrap">{request.contact_no}</td>
+                <td className="py-2 px-3 border-b text-center whitespace-nowrap">{request.department}</td>
+                <td className="py-2 px-3 border-b text-center whitespace-nowrap">{request.purpose}</td>
+                <td className="py-2 px-3 border-b text-center whitespace-nowrap">{request.borrowed_asset_names}</td>
+                <td className="py-2 px-3 border-b text-center whitespace-nowrap">{request.borrowed_asset_quantities}</td>
+                <td className="py-2 px-3 border-b text-center whitespace-nowrap">
+                  {moment(request.date_requested).format("MMM DD YYYY")}
                 </td>
-                <td className="py-2 px-4 border-b text-center">
-                  {request.email}
+                <td className="py-2 px-3 border-b text-center whitespace-nowrap">
+                  {moment(request.date_to_be_collected).format("MMM DD YYYY")}
                 </td>
-                <td className="py-2 px-4 border-b text-center">
-                  {request.contact_no}
-                </td>
-                <td className="py-2 px-4 border-b text-center">
-                  {request.department}
-                </td>
-                <td className="py-2 px-4 border-b text-center">
-                  {request.purpose}
-                </td>
-                <td className="py-2 px-4 border-b text-center">
-                  {request.borrowed_asset_names}
-                </td>
-                <td className="py-2 px-4 border-b text-center">
-                  {request.borrowed_asset_quantities}
-                </td>
-                <td className="py-2 px-4 border-b text-center">
+                <td className="py-2 px-3 border-b text-center whitespace-nowrap">
                   {request.cover_letter_url ? (
                     <a
                       href={`${process.env.REACT_APP_API_URL}${request.cover_letter_url}`}
@@ -228,64 +220,62 @@ const BorrowingRequest = () => {
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
                     >
-                      View Cover Letter
+                      View
                     </a>
                   ) : (
-                    "No cover letter"
+                    "None"
                   )}
                 </td>
-                <td className="py-2 px-4 border-b text-center">
-                  {moment(request.expectedReturnDate).format("MMMM Do YYYY")}
+                <td className="py-2 px-3 border-b text-center whitespace-nowrap">
+                  {moment(request.expectedReturnDate).format("MMM DD YYYY")}
                 </td>
-                <td className="py-2 px-4 border-b text-center">
-                  {request.status === "Pending" ? (
-                    <>
-                      <button
-                        onClick={() => {
-                          handleStatusUpdate(request.id, "Approved");
-                          handleSendEmail(
-                            request.email,
-                            request.name,
-                            "Approved"
-                          );
-                        }}
-                        className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs hover:bg-green-600 transition duration-300"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleReject(request)}
-                        className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300"
-                      >
-                        Reject
-                      </button>
-                    </>
-                  ) : (
-                    request.status === "Approved" && (
-                      <button
-                        onClick={() => handleReturnAsset(request.id)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition duration-300"
-                      >
-                        Returned
-                      </button>
-                    )
-                  )}
-                </td>
-                <td className="py-2 px-4 border-b text-center">
-                  <button
-                    onClick={() =>
-                      handleNotifyUser(
-                        request.contact_no,
-                        request.name,
-                        moment(request.expectedReturnDate).format(
-                          "MMMM Do YYYY"
-                        )
+                <td className="py-2 px-3 border-b text-center">
+                  <div className="flex gap-1 justify-center">
+                    {request.status === "Pending" ? (
+                      <>
+                        <button
+                          onClick={() => {
+                            handleStatusUpdate(request.id, "Approved");
+                            handleSendEmail(request.email, request.name, "Approved");
+                          }}
+                          title="Approve"
+                          className="bg-green-500 text-white p-1.5 rounded hover:bg-green-600 transition duration-300"
+                        >
+                          <Check size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleReject(request)}
+                          title="Reject"
+                          className="bg-red-500 text-white p-1.5 rounded hover:bg-red-600 transition duration-300"
+                        >
+                          <X size={14} />
+                        </button>
+                      </>
+                    ) : (
+                      request.status === "Approved" && (
+                        <button
+                          onClick={() => handleReturnAsset(request.id)}
+                          title="Return"
+                          className="bg-blue-500 text-white p-1.5 rounded hover:bg-blue-600 transition duration-300"
+                        >
+                          <RotateCcw size={14} />
+                        </button>
                       )
-                    }
-                    className="bg-yellow-500 text-white px-3 py-1 rounded text-xs hover:bg-yellow-600 transition duration-300"
-                  >
-                    Notify
-                  </button>
+                    )}
+                    <button
+                      onClick={() =>
+                        handleNotifyUser(
+                          request.contact_no,
+                          request.name,
+                          moment(request.expectedReturnDate).format("MMMM Do YYYY")
+                        )
+                      }
+                      title="Notify"
+                      className="bg-yellow-500 text-white p-1.5 rounded hover:bg-yellow-600 transition duration-300"
+                    >
+                      <Bell size={14} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

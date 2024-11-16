@@ -12,13 +12,7 @@ exports.createBorrowingRequest = [
   upload.single("coverLetter"),
   async (req, res) => {
     try {
-      console.log("Received request:", {
-        body: req.body,
-        file: req.file,
-        headers: req.headers,
-        method: req.method,
-        url: req.url,
-      });
+      console.log("Received request body:", req.body);
 
       const {
         name,
@@ -28,6 +22,7 @@ exports.createBorrowingRequest = [
         contactNo,
         selectedAssets,
         expectedReturnDate,
+        dateToBeCollected,
         notes,
       } = req.body;
 
@@ -36,6 +31,7 @@ exports.createBorrowingRequest = [
         return res.status(400).json({
           message: "Missing required fields",
           fields: { name, email, department, purpose, contactNo },
+          received: req.body
         });
       }
 
@@ -49,8 +45,24 @@ exports.createBorrowingRequest = [
       let parsedSelectedAssets = [];
       try {
         parsedSelectedAssets = selectedAssets ? JSON.parse(selectedAssets) : [];
+        console.log('Parsed selected assets:', parsedSelectedAssets);
       } catch (error) {
         console.error("Error parsing selectedAssets:", error);
+        return res.status(400).json({
+          message: "Invalid selectedAssets format",
+          error: error.message,
+          received: selectedAssets
+        });
+      }
+
+      // Get dateToBeCollected from the first asset if not provided directly
+      const finalDateToBeCollected = dateToBeCollected || parsedSelectedAssets[0]?.dateToBeCollected;
+
+      if (!finalDateToBeCollected) {
+        return res.status(400).json({
+          message: "Missing dateToBeCollected",
+          received: { dateToBeCollected, selectedAssets: parsedSelectedAssets }
+        });
       }
 
       // Create borrowing request entry
@@ -63,6 +75,7 @@ exports.createBorrowingRequest = [
         coverLetterPath,
         selectedAssets: parsedSelectedAssets,
         expectedReturnDate,
+        dateToBeCollected: finalDateToBeCollected,
         notes,
       });
 

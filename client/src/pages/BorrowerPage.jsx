@@ -22,35 +22,63 @@ function BorrowerForm() {
   const [showTerms, setShowTerms] = useState(true);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsSubmitting(true); // Set submitting state to true
-    setConfirmationMessage(""); // Reset confirmation message
+    e.preventDefault();
+    setIsSubmitting(true);
+    setConfirmationMessage("");
 
     try {
       const formData = new FormData();
       formData.append('name', name);
-      formData.append('email', email); // Email field added
+      formData.append('email', email);
       formData.append('department', department);
       formData.append('purpose', purpose);
       formData.append('contactNo', contactNo);
       formData.append('coverLetter', coverLetter);
-      formData.append('selectedAssets', JSON.stringify(selectedAssets));
-      formData.append('expectedReturnDate', expectedReturnDate); // Append expected return date
-      formData.append('notes', notes); // Append notes
+      
+      // Make sure selectedAssets includes dateToBeCollected
+      const assetsWithDates = selectedAssets.map(asset => ({
+        ...asset,
+        dateToBeCollected: asset.dateToBeCollected
+      }));
+      
+      formData.append('selectedAssets', JSON.stringify(assetsWithDates));
+      formData.append('expectedReturnDate', expectedReturnDate);
+      formData.append('dateToBeCollected', selectedAssets[0]?.dateToBeCollected || ''); // Get dateToBeCollected from first asset
+      formData.append('notes', notes);
 
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/borrowing-requests`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      console.log('Submitting form data:', {
+        name,
+        email,
+        department,
+        purpose,
+        contactNo,
+        selectedAssets: assetsWithDates,
+        expectedReturnDate,
+        dateToBeCollected: selectedAssets[0]?.dateToBeCollected,
+        notes
       });
 
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/borrowing-requests`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
       console.log('Borrowing request submitted:', response.data);
-      setConfirmationMessage("Your borrowing request has been submitted successfully!"); // Set confirmation message
+      setConfirmationMessage("Your borrowing request has been submitted successfully!");
       resetForm();
     } catch (error) {
       console.error('Error submitting borrowing request:', error);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+      }
     } finally {
-      setIsSubmitting(false); // Reset submitting state
+      setIsSubmitting(false);
     }
   };
 
