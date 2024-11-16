@@ -15,15 +15,15 @@ const BorrowingHistory = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        console.log('Fetching history...');
+        console.log("Fetching history...");
         const response = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/borrowing-requests/history`
         );
-        console.log('History data received:', response.data);
+        console.log("History data received:", response.data);
         setHistory(response.data);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching history:', err);
+        console.error("Error fetching history:", err);
         setError(`Failed to fetch borrowing history: ${err.message}`);
         setLoading(false);
       }
@@ -44,11 +44,11 @@ const BorrowingHistory = () => {
 
     switch (dateFilter) {
       case "TODAY":
-        return recordDate.isSame(today, 'day');
+        return recordDate.isSame(today, "day");
       case "WEEK":
-        return recordDate.isAfter(today.clone().subtract(1, 'week'));
+        return recordDate.isAfter(today.clone().subtract(1, "week"));
       case "MONTH":
-        return recordDate.isAfter(today.clone().subtract(1, 'month'));
+        return recordDate.isAfter(today.clone().subtract(1, "month"));
       default:
         return true;
     }
@@ -65,17 +65,20 @@ const BorrowingHistory = () => {
     );
   };
 
-  const filteredHistory = history.filter(record => 
-    filterByStatus(record) && filterByDate(record) && filterBySearch(record)
+  const filteredHistory = history.filter(
+    (record) =>
+      filterByStatus(record) && filterByDate(record) && filterBySearch(record)
   );
 
   if (loading) return <div className="text-center py-4">Loading...</div>;
-  if (error) return <div className="text-center py-4 text-red-500">{error}</div>;
-  
+  if (error)
+    return <div className="text-center py-4 text-red-500">{error}</div>;
+
   return (
-    <div className="container mx-auto px-6">
-      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6 mb-6">
-        <h1 className="text-4xl font-extrabold text-black">
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
+        <h1 className="text-5xl font-extrabold text-black">
           Borrowing History
         </h1>
         <FontAwesomeIcon icon={faHistory} className="text-black text-4xl" />
@@ -128,7 +131,9 @@ const BorrowingHistory = () => {
       {/* No Results Message */}
       {filteredHistory.length === 0 && (
         <div className="text-center py-8 bg-white rounded-lg shadow">
-          <p className="text-gray-500">No records found matching your criteria</p>
+          <p className="text-gray-500">
+            No records found matching your criteria
+          </p>
         </div>
       )}
 
@@ -143,11 +148,17 @@ const BorrowingHistory = () => {
                 <th className="py-3 px-4 border-b text-center">Contact No.</th>
                 <th className="py-3 px-4 border-b text-center">Department</th>
                 <th className="py-3 px-4 border-b text-center">Purpose</th>
-                <th className="py-3 px-4 border-b text-center">Borrowed Asset</th>
+                <th className="py-3 px-4 border-b text-center">
+                  Borrowed Asset
+                </th>
                 <th className="py-3 px-4 border-b text-center">Quantity</th>
                 <th className="py-3 px-4 border-b text-center">Cover Letter</th>
-                <th className="py-3 px-4 border-b text-center">Expected Return Date</th>
-                <th className="py-3 px-4 border-b text-center">Actual Return Date</th>
+                <th className="py-3 px-4 border-b text-center">
+                  Expected Return Date
+                </th>
+                <th className="py-3 px-4 border-b text-center">
+                  Actual Return Date
+                </th>
                 <th className="py-3 px-4 border-b text-center">Status</th>
               </tr>
             </thead>
@@ -159,11 +170,21 @@ const BorrowingHistory = () => {
                     index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
                   } hover:bg-gray-50 transition duration-150`}
                 >
-                  <td className="py-2 px-4 border-b text-center">{record.name}</td>
-                  <td className="py-2 px-4 border-b text-center">{record.email}</td>
-                  <td className="py-2 px-4 border-b text-center">{record.contact_no}</td>
-                  <td className="py-2 px-4 border-b text-center">{record.department}</td>
-                  <td className="py-2 px-4 border-b text-center">{record.purpose}</td>
+                  <td className="py-2 px-4 border-b text-center">
+                    {record.name}
+                  </td>
+                  <td className="py-2 px-4 border-b text-center">
+                    {record.email}
+                  </td>
+                  <td className="py-2 px-4 border-b text-center">
+                    {record.contact_no}
+                  </td>
+                  <td className="py-2 px-4 border-b text-center">
+                    {record.department}
+                  </td>
+                  <td className="py-2 px-4 border-b text-center">
+                    {record.purpose}
+                  </td>
                   <td className="py-2 px-4 border-b text-center">
                     {record.borrowed_asset_names}
                   </td>
@@ -188,13 +209,13 @@ const BorrowingHistory = () => {
                     {moment(record.expected_return_date).format("MMMM Do YYYY")}
                   </td>
                   <td className="py-2 px-4 border-b text-center">
-                    {record.status === "Rejected" ? (
-                      "N/A"
-                    ) : record.status === "Returned" && record.date_returned ? (
-                      moment(record.date_returned).format("MMMM Do YYYY, h:mm:ss a")
-                    ) : (
-                      "N/A"
-                    )}
+                    {record.status === "Rejected"
+                      ? "N/A"
+                      : record.status === "Returned" && record.date_returned
+                      ? moment(record.date_returned).format(
+                          "MMMM Do YYYY, h:mm:ss a"
+                        )
+                      : "N/A"}
                   </td>
                   <td className="py-2 px-4 border-b text-center">
                     <span
@@ -219,4 +240,4 @@ const BorrowingHistory = () => {
   );
 };
 
-export default BorrowingHistory; 
+export default BorrowingHistory;

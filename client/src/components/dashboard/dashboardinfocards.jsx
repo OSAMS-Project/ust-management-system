@@ -5,10 +5,14 @@ import AssetDetailsModal from "../assetlists/AssetDetailsModal";
 import EventDetailsModal from "../events/EventDetailsModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
-import { faArrowRight, faBox, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowRight,
+  faBox,
+  faCalendarAlt,
+} from "@fortawesome/free-solid-svg-icons";
 
 import { Link } from "react-router-dom";
-import { formatTime } from '../../utils/timeUtils';
+import { formatTime } from "../../utils/timeUtils";
 
 const DashboardInfoCards = () => {
   const [totalAssets, setTotalAssets] = useState(null);
@@ -25,19 +29,21 @@ const DashboardInfoCards = () => {
   const [totalOngoingEvents, setTotalOngoingEvents] = useState(null);
 
   const formatTime = (time) => {
-    if (!time) return '';
-    
+    if (!time) return "";
+
     // Assuming time is in HH:mm format (24-hour)
-    const [hours, minutes] = time.split(':');
+    const [hours, minutes] = time.split(":");
     const date = new Date();
     date.setHours(hours);
     date.setMinutes(minutes);
-    
-    return date.toLocaleString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    }).toLowerCase(); // Returns format like "2:30 pm"
+
+    return date
+      .toLocaleString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })
+      .toLowerCase(); // Returns format like "2:30 pm"
   };
 
   useEffect(() => {
@@ -94,10 +100,12 @@ const DashboardInfoCards = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/dashboard/total-events`);
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/dashboard/total-events`
+        );
         setTotalOngoingEvents(response.data.totalEvents);
       } catch (error) {
-        console.error('Error fetching events:', error);
+        console.error("Error fetching events:", error);
         setError(true);
       }
     };
@@ -145,11 +153,11 @@ const DashboardInfoCards = () => {
 
   return (
     <div>
-<div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-lg px-3 py-1 uppercase tracking-wide mb-3">
+      <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-lg px-3 py-1 uppercase tracking-wide mb-3">
         SYSTEM SUMMARY
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-1 px-2">
         <div
           className="bg-[#FEC00F] p-7 rounded-lg shadow-md flex items-center h-48 bg-cover bg-center relative overflow-hidden"
           style={{ backgroundImage: "url('ust-image.JPG')" }}
@@ -269,7 +277,9 @@ const DashboardInfoCards = () => {
             </Link>
           </div>
         </div>
+      </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-1 px-2 py-1">
         <div
           className="bg-[#FEC00F] p-7 rounded-lg shadow-md flex items-center h-48 bg-cover bg-center relative overflow-hidden"
           style={{ backgroundImage: "url('ust-img-7.JPG')" }}
@@ -299,91 +309,178 @@ const DashboardInfoCards = () => {
             </Link>
           </div>
         </div>
-      </div>
-      {/* Recent Added Assets Section */}
-  {/* Recent Added Assets Section */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <div>
-            <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-lg px-3 py-1 uppercase tracking-wide mb-2">
-              Recently Added Assets
-            </div>
-            <div className="p-3 rounded-md">
-              {recentAssets.length === 0 ? (
-                <p className="text-gray-500 text-sm">No recent assets yet</p>
-              ) : (
-                recentAssets.slice(0, 3).map((asset, index) => (
-                  <div
-                    key={asset.asset_id}
-                    className={`py-1 ${index < recentAssets.slice(0, 3).length - 1 ? "border-b" : ""
-                      } border-gray-200`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <FontAwesomeIcon icon={faBox} className="text-black text-lg" />
-                      <div className="flex justify-between items-center w-full">
-                        <div>
-                          <p className="text-xs text-gray-400">
-                            {moment(asset.createdDate).format("MMM D, YYYY, h:mmA")}
-                          </p>
-                          <p className="font-bold text-md">{asset.assetName}</p>
-                          <p className="text-xs text-gray-500 mb-1">{asset.assetDetails}</p>
-                        </div>
-                        <button
-                          className="bg-black text-white px-2 py-0.5 rounded-full flex items-center"
-                          onClick={() => handleAssetDetailsClick(asset)}
-                        >
-                          <FontAwesomeIcon icon={faEye} className="mr-1 text-xs" />
-                          View
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
+        <div
+          className="bg-[#FEC00F] p-7 rounded-lg shadow-md flex items-center h-48 bg-cover bg-center relative overflow-hidden"
+          style={{ backgroundImage: "url('ust-img-6.JPG')" }}
+        >
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className="relative z-10 flex flex-col justify-between h-full w-3/4 text-left">
+            <div className="p-4">
+              <h2 className="text-7xl font-extrabold text-[#FEC00F] drop-shadow-lg">
+                {error
+                  ? "Error"
+                  : totalOngoingEvents === null
+                  ? "Loading..."
+                  : totalOngoingEvents}
+              </h2>
+              <p className="text-[1.25rem] font-semibold text-white drop-shadow-md">
+                Incoming Assets
+              </p>
             </div>
           </div>
-
-    {/* Upcoming Events Section */}
-    <div>
-            <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-lg px-3 py-1 uppercase tracking-wide mb-2">
-              Upcoming Events
-            </div>
-            <div className="p-3 rounded-md">
-              {sortedEvents.length === 0 ? (
-                <p className="text-gray-500 text-sm">No upcoming events yet</p>
-              ) : (
-                sortedEvents.slice(0, 3).map((event, index) => (
-                  <div
-                    key={event.unique_id}
-                    className={`py-1 ${index < sortedEvents.slice(0, 3).length - 1 ? "border-b" : ""
-                      } border-gray-200`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <FontAwesomeIcon icon={faCalendarAlt} className="text-black text-lg" />
-                      <div className="flex justify-between items-center w-full">
-                        <div>
-                          <p className="text-xs text-gray-400">
-                            {moment(event.event_date).format("MMM D, YYYY")}{" "}
-                            {formatTime(event.event_start_time)} -{" "}
-                            {formatTime(event.event_end_time)}
-                          </p>
-                          <p className="font-bold text-md">{event.event_name}</p>
-                          <p className="text-xs text-gray-500 mb-1">{event.description}</p>
-                        </div>
-                        <button
-                          className="bg-black text-white px-2 py-0.5 rounded-full flex items-center"
-                          onClick={() => handleEventDetailsClick(event)}
-                        >
-                          <FontAwesomeIcon icon={faEye} className="mr-1 text-xs" />
-                          View
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
+          <div className="absolute bottom-4 right-4">
+            <Link
+              to="/events"
+              className="bg-gray-100 text-black py-1 px-3 rounded-full font-medium text-sm hover:bg-gray-400 transition duration-300"
+            >
+              See More
+              <FontAwesomeIcon icon={faArrowRight} className="ml-2 text-sm" />
+            </Link>
           </div>
         </div>
+        <div
+          className="bg-[#FEC00F] p-7 rounded-lg shadow-md flex items-center h-48 bg-cover bg-center relative overflow-hidden"
+          style={{ backgroundImage: "url('ust-img-6.JPG')" }}
+        >
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className="relative z-10 flex flex-col justify-between h-full w-3/4 text-left">
+            <div className="p-4">
+              <h2 className="text-7xl font-extrabold text-[#FEC00F] drop-shadow-lg">
+                {error
+                  ? "Error"
+                  : totalOngoingEvents === null
+                  ? "Loading..."
+                  : totalOngoingEvents}
+              </h2>
+              <p className="text-[1.25rem] font-semibold text-white drop-shadow-md">
+                Ongoing Asset Repairs
+              </p>
+            </div>
+          </div>
+          <div className="absolute bottom-4 right-4">
+            <Link
+              to="/events"
+              className="bg-gray-100 text-black py-1 px-3 rounded-full font-medium text-sm hover:bg-gray-400 transition duration-300"
+            >
+              See More
+              <FontAwesomeIcon icon={faArrowRight} className="ml-2 text-sm" />
+            </Link>
+          </div>
+        </div>
+      </div>
+      {/* Recent Added Assets Section */}
+      {/* Recent Added Assets Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+
+        
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+        <div>
+          <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-lg px-3 py-1 uppercase tracking-wide mb-2">
+            Recently Added Assets
+          </div>
+          <div className="p-3 rounded-md">
+            {recentAssets.length === 0 ? (
+              <p className="text-gray-500 text-sm">No recent assets yet</p>
+            ) : (
+              recentAssets.slice(0, 3).map((asset, index) => (
+                <div
+                  key={asset.asset_id}
+                  className={`py-1 ${
+                    index < recentAssets.slice(0, 3).length - 1
+                      ? "border-b"
+                      : ""
+                  } border-gray-200`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <FontAwesomeIcon
+                      icon={faBox}
+                      className="text-black text-lg"
+                    />
+                    <div className="flex justify-between items-center w-full">
+                      <div>
+                        <p className="text-xs text-gray-400">
+                          {moment(asset.createdDate).format(
+                            "MMM D, YYYY, h:mmA"
+                          )}
+                        </p>
+                        <p className="font-bold text-md">{asset.assetName}</p>
+                        <p className="text-xs text-gray-500 mb-1">
+                          {asset.assetDetails}
+                        </p>
+                      </div>
+                      <button
+                        className="bg-black text-white px-2 py-0.5 rounded-full flex items-center"
+                        onClick={() => handleAssetDetailsClick(asset)}
+                      >
+                        <FontAwesomeIcon
+                          icon={faEye}
+                          className="mr-1 text-xs"
+                        />
+                        View
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Upcoming Events Section */}
+        <div>
+          <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-lg px-3 py-1 uppercase tracking-wide mb-2">
+            Upcoming Events
+          </div>
+          <div className="p-3 rounded-md">
+            {sortedEvents.length === 0 ? (
+              <p className="text-gray-500 text-sm">No upcoming events yet</p>
+            ) : (
+              sortedEvents.slice(0, 3).map((event, index) => (
+                <div
+                  key={event.unique_id}
+                  className={`py-1 ${
+                    index < sortedEvents.slice(0, 3).length - 1
+                      ? "border-b"
+                      : ""
+                  } border-gray-200`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <FontAwesomeIcon
+                      icon={faCalendarAlt}
+                      className="text-black text-lg"
+                    />
+                    <div className="flex justify-between items-center w-full">
+                      <div>
+                        <p className="text-xs text-gray-400">
+                          {moment(event.event_date).format("MMM D, YYYY")}{" "}
+                          {formatTime(event.event_start_time)} -{" "}
+                          {formatTime(event.event_end_time)}
+                        </p>
+                        <p className="font-bold text-md">{event.event_name}</p>
+                        <p className="text-xs text-gray-500 mb-1">
+                          {event.description}
+                        </p>
+                      </div>
+                      <button
+                        className="bg-black text-white px-2 py-0.5 rounded-full flex items-center"
+                        onClick={() => handleEventDetailsClick(event)}
+                      >
+                        <FontAwesomeIcon
+                          icon={faEye}
+                          className="mr-1 text-xs"
+                        />
+                        View
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
 
       {selectedAsset && (
         <AssetDetailsModal

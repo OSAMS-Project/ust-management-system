@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import moment from "moment";
-import NotificationPopup from '../components/utils/NotificationsPopup';
-import RejectionReasonModal from '../components/borrower/RejectionReasonModal';
+import NotificationPopup from "../components/utils/NotificationsPopup";
+import RejectionReasonModal from "../components/borrower/RejectionReasonModal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUsers } from "@fortawesome/free-solid-svg-icons";
 
 const BorrowingRequest = () => {
   const [requests, setRequests] = useState([]);
@@ -66,28 +68,34 @@ const BorrowingRequest = () => {
           request.id === id ? { ...request, status: "Returned" } : request
         )
       );
-      setNotification({ type: 'success', message: 'Asset returned successfully!' });
+      setNotification({
+        type: "success",
+        message: "Asset returned successfully!",
+      });
     } catch (err) {
       console.error("Error returning asset:", err);
-      setNotification({ type: 'error', message: 'Failed to return asset. Please try again.' });
+      setNotification({
+        type: "error",
+        message: "Failed to return asset. Please try again.",
+      });
     }
   };
 
-  const handleSendEmail = async (email, name, status, rejectionReason = '') => {
+  const handleSendEmail = async (email, name, status, rejectionReason = "") => {
     try {
       await axios.post(
         `${process.env.REACT_APP_API_URL}/api/borrowing-requests/send-email`,
         { email, name, status, rejectionReason }
       );
-      setNotification({ 
-        type: 'success', 
-        message: `Email sent successfully for status: ${status}` 
+      setNotification({
+        type: "success",
+        message: `Email sent successfully for status: ${status}`,
       });
     } catch (err) {
       console.error("Error sending email:", err);
-      setNotification({ 
-        type: 'error', 
-        message: "Failed to send email. Please try again." 
+      setNotification({
+        type: "error",
+        message: "Failed to send email. Please try again.",
       });
     }
   };
@@ -124,31 +132,31 @@ const BorrowingRequest = () => {
         `${process.env.REACT_APP_API_URL}/api/borrowing-requests/${selectedRequest.id}/status`,
         { status: "Rejected" }
       );
-      
+
       await handleSendEmail(
         selectedRequest.email,
         selectedRequest.name,
         "Rejected",
         reason
       );
-      
+
       setIsRejectionModalOpen(false);
       setSelectedRequest(null);
-      
+
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/borrowing-requests`
       );
       setRequests(response.data);
-      
-      setNotification({ 
-        type: 'success', 
-        message: 'Request rejected successfully' 
+
+      setNotification({
+        type: "success",
+        message: "Request rejected successfully",
       });
     } catch (error) {
-      console.error('Error rejecting request:', error);
-      setNotification({ 
-        type: 'error', 
-        message: 'Failed to reject request' 
+      console.error("Error rejecting request:", error);
+      setNotification({
+        type: "error",
+        message: "Failed to reject request",
       });
     }
   };
@@ -159,9 +167,7 @@ const BorrowingRequest = () => {
 
   // Filter requests by status
   const pendingRequests = requests.filter((req) => req.status === "Pending");
-  const acceptedRequests = requests.filter(
-    (req) => req.status === "Approved"
-  );
+  const acceptedRequests = requests.filter((req) => req.status === "Approved");
 
   const renderTable = (title, data, showActions) => (
     <div className="mb-8">
@@ -254,13 +260,15 @@ const BorrowingRequest = () => {
                         Reject
                       </button>
                     </>
-                  ) : request.status === "Approved" && (
-                    <button
-                      onClick={() => handleReturnAsset(request.id)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition duration-300"
-                    >
-                      Returned
-                    </button>
+                  ) : (
+                    request.status === "Approved" && (
+                      <button
+                        onClick={() => handleReturnAsset(request.id)}
+                        className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition duration-300"
+                      >
+                        Returned
+                      </button>
+                    )
                   )}
                 </td>
                 <td className="py-2 px-4 border-b text-center">
@@ -288,24 +296,33 @@ const BorrowingRequest = () => {
   );
 
   return (
-    <div className="container w-full mx-auto px-6">
-      <h1 className="flex items-center font-sans font-bold break-normal text-black px-2 py-4 text-xl md:text-2xl">
-        Borrowing Request Page
-      </h1>
-      {renderTable("Pending Requests", pendingRequests, true)}
-      {renderTable("Accepted Requests", acceptedRequests, true)}
-      <NotificationPopup 
-        notification={notification} 
-        onClose={handleCloseNotification}
-      />
-      <RejectionReasonModal
-        isOpen={isRejectionModalOpen}
-        onClose={() => {
-          setIsRejectionModalOpen(false);
-          setSelectedRequest(null);
-        }}
-        onSubmit={handleRejectSubmit}
-      />
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
+        <h1 className="text-5xl font-extrabold text-black">
+          Borrowing Requests
+        </h1>
+        <FontAwesomeIcon
+          icon={faUsers}
+          className="text-black text-5xl transform"
+        />
+      </div>
+      <div className="px-6">
+        {renderTable("Pending Requests", pendingRequests, true)}
+        {renderTable("Accepted Requests", acceptedRequests, true)}
+        <NotificationPopup
+          notification={notification}
+          onClose={handleCloseNotification}
+        />
+        <RejectionReasonModal
+          isOpen={isRejectionModalOpen}
+          onClose={() => {
+            setIsRejectionModalOpen(false);
+            setSelectedRequest(null);
+          }}
+          onSubmit={handleRejectSubmit}
+        />
+      </div>
     </div>
   );
 };
