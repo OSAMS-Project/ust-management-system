@@ -7,9 +7,10 @@ import EventCard from "../components/events/EventCard";
 import EditEventDialog from "../components/events/EditEventDialog";
 import SearchEvent from "../components/events/SearchEvent";
 import axios from "axios";
-import CompletedEvents from "../components/events/CompleteEventDialog";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
+import NotificationPopup from "../components/utils/NotificationsPopup";
+
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 const formatTime = (time) => {
   if (!time) return "";
@@ -124,51 +125,67 @@ function Events() {
   const handleEdit = (event) => {
     setEditingEvent(event);
     setFormData({
-      unique_id: event.unique_id,
-      event_name: event.event_name,
-      description: event.description,
-      event_date: event.event_date.split('T')[0],
-      event_location: event.event_location,
-      event_start_time: event.event_start_time,
-      event_end_time: event.event_end_time,
-      image: event.image || '/ust-image.JPG'
+      ...event,
+      event_date: event.event_date
     });
     setShowEditDialog(true);
   };
   const filteredEvents = data.filter((event) =>
     event.event_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const [notification, setNotification] = useState(null);
+  const showSuccessNotification = (message) => {
+    setNotification({
+      type: 'success',
+      message: message,
+    });
+    setTimeout(() => setNotification(null), 3000);
+  };
+  const showErrorNotification = (message) => {
+    setNotification({
+      type: 'error',
+      message: message,
+    });
+    setTimeout(() => setNotification(null), 3000);
+  };
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      const updatedFormData = { ...formData };
+      // Create a new date object with the correct timezone offset
+      const eventDate = new Date(formData.event_date);
+      const offset = eventDate.getTimezoneOffset() * 60000;
+      const adjustedDate = new Date(eventDate.getTime() - offset);
       
-      if (updatedFormData.image === '/ust-image.JPG') {
-        delete updatedFormData.image;
-      }
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/Events/update/${editingEvent.unique_id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updatedFormData),
-        }
+      const updatedFormData = {
+        ...formData,
+        event_date: adjustedDate.toISOString().split('T')[0]
+      };
+
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/Events/update/${formData.unique_id}`,
+        updatedFormData
       );
-      if (!response.ok) {
-        throw new Error("Failed to update event");
+
+      if (response.status === 200) {
+        setData(prevData =>
+          prevData.map(event =>
+            event.unique_id === formData.unique_id
+              ? { ...event, ...updatedFormData }
+              : event
+          )
+        );
+        setShowEditDialog(false);
+        setNotification({
+          type: 'success',
+          message: 'Event updated successfully'
+        });
       }
-      const updatedEvent = await response.json();
-      setData((prevData) =>
-        prevData.map((event) =>
-          event.unique_id === editingEvent.unique_id ? updatedEvent : event
-        )
-      );
-      setShowEditDialog(false);
-      setEditingEvent(null);
-    } catch (err) {
-      console.error("Error updating event:", err);
+    } catch (error) {
+      console.error('Error updating event:', error);
+      setNotification({
+        type: 'error',
+        message: 'Failed to update event'
+      });
     }
   };
   const handleChange = (e, eventId = null) => {
@@ -196,17 +213,19 @@ function Events() {
           body: JSON.stringify(formData),
         }
       );
+      
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create event");
+        throw new Error('Failed to create event');
       }
+      
       const newEvent = await response.json();
       setData((prevData) => [...prevData, newEvent]);
       setFormData({ event_name: "", description: "", event_date: "" });
       setShowDialog(false);
+      showSuccessNotification('Event created successfully');
     } catch (err) {
       console.error("Error creating event:", err);
-      alert(`Error creating event: ${err.message}`);
+      showErrorNotification('Failed to create event');
     }
   };
   const handleCompleteEvent = async (uniqueId) => {
@@ -237,14 +256,24 @@ function Events() {
   };
   const handleDeleteEvent = async (eventId) => {
     try {
-      await axios.delete(
-        `${process.env.REACT_APP_API_URL}/api/Events/delete/${eventId}`
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/Events/delete/${eventId}`,
+        {
+          method: "DELETE",
+        }
       );
-      setData((prevData) =>
-        prevData.filter((event) => event.unique_id !== eventId)
-      );
-    } catch (error) {
-      console.error("Error deleting event:", error);
+
+      if (!response.ok) {
+        throw new Error('Failed to delete event');
+      }
+
+      setData((prevData) => prevData.filter((event) => event.unique_id !== eventId));
+      setShowEditDialog(false);
+      setEditingEvent(null);
+      showSuccessNotification('Event deleted successfully');
+    } catch (err) {
+      console.error("Error deleting event:", err);
+      showErrorNotification('Failed to delete event');
     }
   };
   const handleExplore = async (event) => {
@@ -445,6 +474,12 @@ function Events() {
           </div>
         </div>
       </div>
+      {notification && (
+        <NotificationPopup
+          notification={notification}
+          onClose={() => setNotification(null)}
+        />
+      )}
     </div>
   );
 }

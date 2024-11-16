@@ -2,14 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShowDialog, isEditing, cancelCreate }) => {
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+
     try {
       await handleSubmit(e);
       setError('');
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -105,7 +111,11 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
       <dialog open className="relative bg-stone-100 p-6 rounded-md shadow-lg z-50 rounded-2xl">
         <h2 className="text-2xl mb-4">New Event</h2>
         <form onSubmit={onSubmit} className="space-y-4 w-96">
-          {error && <p className="text-red-500 mb-4">{error}</p>}
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+              {error}
+            </div>
+          )}
           <div>
             <input
               type="text"
