@@ -44,16 +44,14 @@ function CompletedEvents() {
   return (
     <div className="space-y-6">
       <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
-        <h1 className="text-5xl font-extrabold text-black">
-          Completed Events
-        </h1>
+        <h1 className="text-5xl font-extrabold text-black">Completed Events</h1>
         <FontAwesomeIcon
           icon={faUsers}
           className="text-black text-5xl transform"
         />
       </div>
 
-      <div className="p-6">
+      <div className="px-6">
         <CompletedEventsDialog
           completedEvents={completedEvents}
           onEventDeleted={handleEventDeleted}
@@ -63,4 +61,4 @@ function CompletedEvents() {
   );
 }
 
-export default CompletedEvents; 
+export default CompletedEvents;
