@@ -6,6 +6,8 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
   const [currentAsset, setCurrentAsset] = useState(null);
   const [previewQuantities, setPreviewQuantities] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
 
   if (!isOpen) return null;
 
@@ -66,12 +68,35 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
   };
 
   const handleRemoveSelectedAsset = (assetToRemove) => {
-    setSelectedAssets(selectedAssets.filter(asset => asset.asset_id !== assetToRemove.asset_id));
+    setSelectedAssets(prevAssets => {
+      const updatedAssets = prevAssets.filter(asset => asset.asset_id !== assetToRemove.asset_id);
+      
+      // Calculate if current page will be empty after removal
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const itemsInCurrentPage = updatedAssets.slice(startIndex, startIndex + itemsPerPage);
+      
+      // If current page will be empty and we're not on the first page, go to previous page
+      if (itemsInCurrentPage.length === 0 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
+      
+      return updatedAssets;
+    });
     
     setPreviewQuantities(prev => ({
       ...prev,
       [assetToRemove.asset_id]: undefined
     }));
+  };
+
+  // Calculate pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = selectedAssets.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(selectedAssets.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   return (
@@ -128,7 +153,7 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
         )}
         <div className="mb-4">
           <h4 className="font-medium mb-2">Selected Assets:</h4>
-          {selectedAssets.map((asset) => (
+          {currentItems.map((asset) => (
             <div key={asset.asset_id} className="flex justify-between items-center mb-2 bg-gray-50 p-2 rounded">
               <span>{asset.assetName}</span>
               <div className="flex items-center gap-2">
@@ -142,6 +167,25 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
               </div>
             </div>
           ))}
+          
+          {/* Pagination */}
+          {selectedAssets.length > itemsPerPage && (
+            <div className="flex justify-center gap-2 mt-4">
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index + 1}
+                  onClick={() => handlePageChange(index + 1)}
+                  className={`px-3 py-1 rounded ${
+                    currentPage === index + 1
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-200 hover:bg-gray-300'
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex justify-end">
           <button
