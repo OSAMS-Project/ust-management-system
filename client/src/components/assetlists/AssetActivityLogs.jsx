@@ -15,7 +15,6 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
     totalCost: "Total Cost",
     is_active: "Borrow",
     quantity_for_borrowing: "Borrowing Quantity",
-    lastUpdated: "Last Updated",
     category: "Category",
     location: "Location",
     type: "Type",
@@ -31,7 +30,7 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
         setLogs(response.data);
         setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching activity logs:", error.response ? error.response.data : error.message);
+        console.error("Error fetching activity logs:", error);
         setError("Failed to fetch activity logs. Please try again later.");
         setIsLoading(false);
       }
@@ -41,7 +40,7 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
   }, [assetId]);
 
   const groupedLogs = logs.reduce((acc, log) => {
-    const timestamp = moment(log.timestamp).format('MMMM D, YYYY - h:mm A');
+    const timestamp = moment().format('MMMM D, YYYY - h:mm A');
     if (!acc[timestamp]) {
       acc[timestamp] = [];
     }
@@ -56,6 +55,16 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
           <strong className="text-black">Event Allocation</strong>: 
           Allocated <strong className="text-blue-600">{log.old_value}</strong> units 
           to event "<strong className="text-green-600">{log.new_value}</strong>"
+          <div className="flex items-center mt-1 text-xs text-gray-500">
+            {log.user_picture && (
+              <img 
+                src={log.user_picture} 
+                alt="User"
+                className="w-4 h-4 rounded-full mr-1"
+              />
+            )}
+            <span>Modified by {log.modified_by || 'Unknown User'}</span>
+          </div>
         </p>
       );
     }
@@ -68,16 +77,38 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
           <br />
           Available quantity updated from <strong className="text-blue-600">{log.old_value}</strong> to 
           <strong className="text-green-600"> {log.new_value}</strong>
+          <div className="flex items-center mt-1 text-xs text-gray-500">
+            {log.user_picture && (
+              <img 
+                src={log.user_picture} 
+                alt="User"
+                className="w-4 h-4 rounded-full mr-1"
+              />
+            )}
+            <span>Modified by {log.modified_by || 'Unknown User'}</span>
+          </div>
         </p>
       );
     }
 
     return (
-      <p key={log.id} className="text-sm text-gray-600 mb-1">
-        <strong className="text-black">{fieldNameMapping[log.field_name] || log.field_name}</strong>: 
-        "<strong className="text-blue-600">{log.old_value || '(empty)'}</strong>" → 
-        "<strong className="text-green-600">{log.new_value}</strong>"
-      </p>
+      <div key={log.id} className="text-sm text-gray-600 mb-1">
+        <p>
+          <strong className="text-black">{fieldNameMapping[log.field_name] || log.field_name}</strong>: 
+          "<strong className="text-blue-600">{log.old_value || '(empty)'}</strong>" → 
+          "<strong className="text-green-600">{log.new_value}</strong>"
+        </p>
+        <div className="flex items-center mt-1 text-xs text-gray-500">
+          {log.user_picture && (
+            <img 
+              src={log.user_picture} 
+              alt="User"
+              className="w-4 h-4 rounded-full mr-1"
+            />
+          )}
+          <span>Modified by {log.modified_by || 'Unknown User'}</span>
+        </div>
+      </div>
     );
   };
 

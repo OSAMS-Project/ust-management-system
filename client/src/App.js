@@ -74,7 +74,7 @@ function AppContent({ user, setUser }) {
           <Route path="/dashboard" element={<PrivateRoute user={user}><Dashboard user={user} /></PrivateRoute>} />
           <Route path="/events" element={<PrivateRoute user={user}><Events /></PrivateRoute>} />
           <Route path="/completed-events" element={<PrivateRoute user={user}><CompletedEvents /></PrivateRoute>} />
-          <Route path="/assets" element={<PrivateRoute user={user}><AssetList /></PrivateRoute>} />
+          <Route path="/assets" element={<PrivateRoute user={user}><AssetList user={user} /></PrivateRoute>} />
           <Route path="/asset-repair" element={<PrivateRoute user={user}><AssetRepair /></PrivateRoute>} />
           <Route path="/asset-issue" element={<PrivateRoute user={user}><AssetIssue user={user} /></PrivateRoute>} />
           <Route path="/borrowingrequest" element={<PrivateRoute user={user}><BorrowingRequest /></PrivateRoute>} />

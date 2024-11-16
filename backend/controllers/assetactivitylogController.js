@@ -7,16 +7,18 @@ const updateAsset = async (req, res) => {
     const oldAsset = await Asset.readAsset(id);
     const result = await Asset.updateAsset(req.body, id);
     
-    // Log changes
+    const { modified_by, user_picture } = req.body;
+    
     Object.keys(req.body).forEach(async (key) => {
-      if (oldAsset[key] !== req.body[key]) {
+      if (key !== 'modified_by' && key !== 'user_picture' && oldAsset[key] !== req.body[key]) {
         await AssetActivityLog.logAssetActivity(
           id,
           'update',
           key,
           oldAsset[key],
           req.body[key],
-          req.user.id // Assuming you have user information in the request
+          modified_by,
+          user_picture
         );
       }
     });
@@ -45,7 +47,7 @@ const getAssetActivityLogs = async (req, res) => {
 
 const createAssetActivityLog = async (req, res) => {
   try {
-    const { asset_id, action, changes } = req.body;
+    const { asset_id, action, changes, modified_by, user_picture } = req.body;
     const asset = await Asset.readAsset(asset_id);
 
     if (!asset) {
@@ -55,16 +57,19 @@ const createAssetActivityLog = async (req, res) => {
     const logs = await Promise.all(
       Object.entries(changes)
         .filter(([field, { oldValue, newValue }]) => {
-          // Only log fields that have actually changed
           return JSON.stringify(oldValue) !== JSON.stringify(newValue);
         })
         .map(([field, { oldValue, newValue }]) => {
-          if (field === 'quantityForBorrowing' && !asset.is_active) {
-            return null;
-          }
-          return AssetActivityLog.logAssetActivity(asset_id, action, field, oldValue, newValue);
+          return AssetActivityLog.logAssetActivity(
+            asset_id, 
+            action, 
+            field, 
+            oldValue, 
+            newValue,
+            modified_by,
+            user_picture
+          );
         })
-        .filter(log => log !== null)
     );
     res.status(201).json(logs);
   } catch (err) {
@@ -75,10 +80,15 @@ const createAssetActivityLog = async (req, res) => {
 
 const logEventAllocation = async (req, res) => {
   try {
-    const { assetId, quantity, eventName } = req.body;
-    const userId = req.user?.id; // If you have user authentication
+    const { assetId, quantity, eventName, modified_by, user_picture } = req.body;
 
-    await AssetActivityLog.logEventAllocation(assetId, quantity, eventName, userId);
+    await AssetActivityLog.logEventAllocation(
+      assetId, 
+      quantity, 
+      eventName, 
+      modified_by,
+      user_picture
+    );
     res.status(201).json({ message: 'Event allocation logged successfully' });
   } catch (err) {
     console.error('Error in logEventAllocation:', err);

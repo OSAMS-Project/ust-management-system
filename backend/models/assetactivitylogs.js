@@ -10,14 +10,15 @@ const createAssetActivityLogsTable = async () => {
       field_name VARCHAR(50),
       old_value TEXT,
       new_value TEXT,
-      timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      user_id INTEGER
+      modified_by VARCHAR(255),
+      user_picture TEXT,
+      context TEXT
     )
   `;
   return executeTransaction([{ query, params: [] }]);
 };
 
-const logAssetActivity = async (assetId, action, fieldName, oldValue, newValue, userId, context = null) => {
+const logAssetActivity = async (assetId, action, fieldName, oldValue, newValue, modifiedBy, userPicture, context = null) => {
   const query = `
     INSERT INTO AssetActivityLogs (
       asset_id, 
@@ -25,40 +26,57 @@ const logAssetActivity = async (assetId, action, fieldName, oldValue, newValue, 
       field_name, 
       old_value, 
       new_value, 
-      user_id,
+      modified_by,
+      user_picture,
       context
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
   `;
-  const values = [assetId, action, fieldName, oldValue, newValue, userId, context];
+  const values = [assetId, action, fieldName, oldValue, newValue, modifiedBy, userPicture, context];
   return executeTransaction([{ query, params: values }]);
 };
 
 const getAssetActivityLogs = async (assetId) => {
   const query = `
-    SELECT * FROM AssetActivityLogs
+    SELECT 
+      id,
+      asset_id,
+      action,
+      field_name,
+      old_value,
+      new_value,
+      modified_by,
+      user_picture,
+      context
+    FROM AssetActivityLogs
     WHERE asset_id = $1
-    ORDER BY timestamp DESC
+    ORDER BY id DESC
   `;
   return executeTransaction([{ query, params: [assetId] }]);
 };
 
-const createAssetActivityLog = async (asset_id, action, field_name, old_value, new_value) => {
+const logEventAllocation = async (assetId, quantity, eventName, modifiedBy, userPicture) => {
   const query = `
-    INSERT INTO AssetActivityLogs (asset_id, action, field_name, old_value, new_value)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING *
+    INSERT INTO AssetActivityLogs (
+      asset_id, 
+      action, 
+      field_name, 
+      old_value, 
+      new_value, 
+      modified_by,
+      user_picture
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
   `;
-  const params = [asset_id, action, field_name, old_value, new_value];
-  return executeTransaction([{ query, params }]);
-};
-
-const logEventAllocation = async (assetId, quantity, eventName, userId) => {
-  const query = `
-    INSERT INTO AssetActivityLogs (asset_id, action, field_name, old_value, new_value, user_id)
-    VALUES ($1, $2, $3, $4, $5, $6)
-  `;
-  const values = [assetId, 'event_allocation', 'event_allocation', quantity.toString(), eventName, userId];
+  const values = [
+    assetId, 
+    'event_allocation', 
+    'event_allocation', 
+    quantity.toString(), 
+    eventName, 
+    modifiedBy,
+    userPicture
+  ];
   return executeTransaction([{ query, params: values }]);
 };
 
@@ -66,6 +84,5 @@ module.exports = {
   createAssetActivityLogsTable,
   logAssetActivity,
   getAssetActivityLogs,
-  createAssetActivityLog,
   logEventAllocation,
 };

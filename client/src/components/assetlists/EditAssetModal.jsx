@@ -194,6 +194,8 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
         }, {});
 
         if (Object.keys(changedFields).length > 0) {
+          const user = JSON.parse(localStorage.getItem('user'));
+
           const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/assets/update/${updatedAsset.asset_id}`, updatedAsset);
           console.log("Update response:", response.data);
 
@@ -201,7 +203,9 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
           await axios.post(`${process.env.REACT_APP_API_URL}/api/asset-activity-logs`, {
             asset_id: updatedAsset.asset_id,
             action: 'update',
-            changes: changedFields
+            changes: changedFields,
+            modified_by: user?.name || user?.email,
+            user_picture: user?.picture
           });
 
           onEditAsset(response.data);
