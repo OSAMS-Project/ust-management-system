@@ -120,13 +120,16 @@ const AddIncomingAssetForm = ({
                 <div className="relative">
                   <span className="absolute left-3 top-2 text-gray-500">₱</span>
                   <input
-                    type="number"
+                    type="text"
                     name="cost"
                     value={formData.cost}
-                    onChange={handleInputChange}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                        handleInputChange(e);
+                      }
+                    }}
                     className="w-full pl-8 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    min="0"
-                    step="0.01"
                     required
                     placeholder="0.00"
                   />
