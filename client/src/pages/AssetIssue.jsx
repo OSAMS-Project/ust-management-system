@@ -6,6 +6,7 @@ import NotificationPopup from '../components/utils/NotificationsPopup';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import EditIssueModal from '../components/issue/EditIssueModal';
+import PaginationControls from '../components/assetlists/PaginationControls';
 
 function AssetIssue({ user }) {
   const [issues, setIssues] = useState([]);
@@ -17,6 +18,8 @@ function AssetIssue({ user }) {
   const [notification, setNotification] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     fetchIssues();
@@ -206,6 +209,58 @@ function AssetIssue({ user }) {
     setIsEditModalOpen(true);
   };
 
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
+
+  const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
+  const calculateEndIndex = () => Math.min(calculateStartIndex() + itemsPerPage - 1, issues.length);
+  const totalPages = Math.ceil(issues.length / itemsPerPage);
+
+  const renderPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    const halfVisible = Math.floor(maxVisiblePages / 2);
+
+    let startPage = Math.max(currentPage - halfVisible, 1);
+    let endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(endPage - maxVisiblePages + 1, 1);
+    }
+
+    pageNumbers.push(
+      ...Array.from(
+        { length: endPage - startPage + 1 },
+        (_, index) => startPage + index
+      ).map((i) => (
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+            i === currentPage
+              ? "z-10 bg-[#FEC00F] text-black font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FEC00F]"
+              : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+          }`}
+        >
+          {i}
+        </button>
+      ))
+    );
+
+    return pageNumbers;
+  };
+
+  const paginatedIssues = issues.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -223,13 +278,27 @@ function AssetIssue({ user }) {
       </div>
 
       <IssueTable 
-        issues={issues}
+        issues={paginatedIssues}
         assets={assets}
         loading={loading}
         onAddToRepair={handleAddToRepair}
         onRemoveIssue={handleRemoveIssue}
         onEditIssue={handleOpenEditModal}
       />
+
+      {issues.length > 0 && (
+        <PaginationControls
+          itemsPerPage={itemsPerPage}
+          handleItemsPerPageChange={handleItemsPerPageChange}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          handlePageChange={handlePageChange}
+          calculateStartIndex={calculateStartIndex}
+          calculateEndIndex={calculateEndIndex}
+          totalItems={issues.length}
+          renderPageNumbers={renderPageNumbers}
+        />
+      )}
 
       {isRepairModalOpen && (
         <RepairModal

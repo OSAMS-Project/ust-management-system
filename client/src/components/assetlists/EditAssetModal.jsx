@@ -318,9 +318,9 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
         </div>
       )}
       
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
-        <div className="px-8 py-5 border-b">
-          <h2 className="text-2xl font-bold text-gray-800">Edit Asset</h2>
+      <div className="bg-white rounded-[20px] shadow-2xl w-full max-w-2xl">
+        <div className="bg-[#FEC000] px-8 py-5 rounded-t-[20px] border-b">
+          <h2 className="text-2xl font-bold text-black">Edit Asset</h2>
         </div>
         
         <div className="px-8 py-6 max-h-[calc(100vh-150px)] overflow-y-auto">
@@ -459,7 +459,7 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
           )}
         </div>
 
-        <div className="px-8 py-5 border-t flex justify-end gap-4">
+        <div className="px-8 py-5 border-t flex justify-end gap-4 rounded-b-[20px]">
           <button 
             onClick={onClose}
             className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

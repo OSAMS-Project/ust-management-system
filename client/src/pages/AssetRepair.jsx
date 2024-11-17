@@ -3,6 +3,7 @@ import axios from 'axios';
 import RepairModal from '../components/repair/RepairModal';
 import RepairTable from '../components/repair/RepairTable';
 import RepairLogs from '../components/repair/RepairLogs';
+import PaginationControls from '../components/assetlists/PaginationControls';
 
 function AssetRepair() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -10,6 +11,8 @@ function AssetRepair() {
   const [selectedAssetId, setSelectedAssetId] = useState(null);
   const [repairRecords, setRepairRecords] = useState([]);
   const [assets, setAssets] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     fetchRepairRecords();
@@ -100,6 +103,58 @@ function AssetRepair() {
     setIsLogsModalOpen(true);
   };
 
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
+
+  const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
+  const calculateEndIndex = () => Math.min(calculateStartIndex() + itemsPerPage - 1, repairRecords.length);
+  const totalPages = Math.ceil(repairRecords.length / itemsPerPage);
+
+  const renderPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    const halfVisible = Math.floor(maxVisiblePages / 2);
+
+    let startPage = Math.max(currentPage - halfVisible, 1);
+    let endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(endPage - maxVisiblePages + 1, 1);
+    }
+
+    pageNumbers.push(
+      ...Array.from(
+        { length: endPage - startPage + 1 },
+        (_, index) => startPage + index
+      ).map((i) => (
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+            i === currentPage
+              ? "z-10 bg-[#FEC00F] text-black font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FEC00F]"
+              : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+          }`}
+        >
+          {i}
+        </button>
+      ))
+    );
+
+    return pageNumbers;
+  };
+
+  const paginatedRepairRecords = repairRecords.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Asset Repair</h1>
@@ -111,12 +166,25 @@ function AssetRepair() {
       />
       <div className="mt-6">
         <RepairTable 
-          repairRecords={repairRecords}
+          repairRecords={paginatedRepairRecords}
           assets={assets}
           onCompleteRecord={handleCompleteRecord}
           onRemoveRecord={handleRemoveRecord}
           onViewLogs={handleViewLogs}
         />
+        {repairRecords.length > 0 && (
+          <PaginationControls
+            itemsPerPage={itemsPerPage}
+            handleItemsPerPageChange={handleItemsPerPageChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            handlePageChange={handlePageChange}
+            calculateStartIndex={calculateStartIndex}
+            calculateEndIndex={calculateEndIndex}
+            totalItems={repairRecords.length}
+            renderPageNumbers={renderPageNumbers}
+          />
+        )}
       </div>
       {isLogsModalOpen && selectedAssetId && (
         <RepairLogs

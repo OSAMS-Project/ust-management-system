@@ -11,7 +11,7 @@ const QRCodeModal = ({ assetId, assetName, onClose }) => {
     content: () => qrRef.current,
   });
 
-  const qrCodeUrl = `${window.location.origin}/asset/${assetId}`;
+  const qrCodeUrl = `${window.location.origin}/scan/${assetId}`;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">

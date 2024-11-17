@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode"; 
 import axios from "axios";
@@ -8,6 +8,7 @@ const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
 function SignIn({ setUser }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [error, setError] = useState(null);
 
   const handleLoginSuccess = async (credentialResponse) => {
@@ -26,13 +27,21 @@ function SignIn({ setUser }) {
         // Check if the user has access
         if (user.access) {
           setUser(decoded);
-          navigate('/dashboard');
+          
+          // Get the return URL from query parameters
+          const params = new URLSearchParams(location.search);
+          const returnUrl = params.get('returnUrl');
+          
+          // Navigate to return URL if it exists, otherwise go to dashboard
+          if (returnUrl) {
+            navigate(returnUrl);
+          } else {
+            navigate('/dashboard');
+          }
         } else {
-          // User exists but does not have access
           setError("Access denied. Please contact the administrator for access.");
         }
       } else {
-        // User doesn't exist, show error message
         setError("User not found. Please request access.");
       }
     } catch (error) {
