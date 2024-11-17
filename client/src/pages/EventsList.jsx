@@ -204,6 +204,18 @@ function Events() {
     e.preventDefault();
     
     try {
+      // Validate event name length
+      if (formData.event_name.length > 100) {
+        showErrorNotification('Event name must not exceed 100 characters');
+        return;
+      }
+
+      // Validate description length
+      if (formData.description.length > 200) {
+        showErrorNotification('Description must not exceed 200 characters');
+        return;
+      }
+
       // Check if an event with the same name already exists
       const eventExists = data.some(
         event => event.event_name.toLowerCase() === formData.event_name.toLowerCase()
@@ -226,7 +238,8 @@ function Events() {
       );
       
       if (!response.ok) {
-        throw new Error('Failed to create event');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create event');
       }
       
       const newEvent = await response.json();
@@ -236,7 +249,17 @@ function Events() {
       showSuccessNotification('Event created successfully');
     } catch (err) {
       console.error("Error creating event:", err);
-      showErrorNotification('Failed to create event');
+      if (err.message.includes('value too long')) {
+        if (err.message.includes('event_name')) {
+          showErrorNotification('Event name must not exceed 100 characters');
+        } else if (err.message.includes('description')) {
+          showErrorNotification('Description must not exceed 200 characters');
+        } else {
+          showErrorNotification('Text input exceeds maximum length');
+        }
+      } else {
+        showErrorNotification('Failed to create event');
+      }
     }
   };
   const handleCompleteEvent = async (uniqueId) => {
