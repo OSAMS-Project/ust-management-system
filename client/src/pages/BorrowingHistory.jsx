@@ -3,6 +3,7 @@ import axios from "axios";
 import moment from "moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHistory, faSearch } from "@fortawesome/free-solid-svg-icons";
+import PaginationControls from '../components/assetlists/PaginationControls';
 
 const BorrowingHistory = () => {
   const [history, setHistory] = useState([]);
@@ -11,6 +12,8 @@ const BorrowingHistory = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -70,6 +73,58 @@ const BorrowingHistory = () => {
       filterByStatus(record) && filterByDate(record) && filterBySearch(record)
   );
 
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
+
+  const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
+  const calculateEndIndex = () => Math.min(calculateStartIndex() + itemsPerPage - 1, filteredHistory.length);
+  const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
+
+  const renderPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    const halfVisible = Math.floor(maxVisiblePages / 2);
+
+    let startPage = Math.max(currentPage - halfVisible, 1);
+    let endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(endPage - maxVisiblePages + 1, 1);
+    }
+
+    pageNumbers.push(
+      ...Array.from(
+        { length: endPage - startPage + 1 },
+        (_, index) => startPage + index
+      ).map((i) => (
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+            i === currentPage
+              ? "z-10 bg-[#FEC00F] text-black font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FEC00F]"
+              : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+          }`}
+        >
+          {i}
+        </button>
+      ))
+    );
+
+    return pageNumbers;
+  };
+
+  const paginatedHistory = filteredHistory.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   if (loading) return <div className="text-center py-4">Loading...</div>;
   if (error)
     return <div className="text-center py-4 text-red-500">{error}</div>;
@@ -95,7 +150,7 @@ const BorrowingHistory = () => {
               placeholder="Search by name, email, department, or asset..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-yellow-500"
+              className="w-1/4 pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-yellow-500"
             />
             <FontAwesomeIcon
               icon={faSearch}
@@ -161,7 +216,7 @@ const BorrowingHistory = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredHistory.map((record, index) => (
+                {paginatedHistory.map((record, index) => (
                   <tr
                     key={record.id}
                     className={`${
@@ -237,6 +292,20 @@ const BorrowingHistory = () => {
               </tbody>
             </table>
           </div>
+        )}
+
+        {filteredHistory.length > 0 && (
+          <PaginationControls
+            itemsPerPage={itemsPerPage}
+            handleItemsPerPageChange={handleItemsPerPageChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            handlePageChange={handlePageChange}
+            calculateStartIndex={calculateStartIndex}
+            calculateEndIndex={calculateEndIndex}
+            totalItems={filteredHistory.length}
+            renderPageNumbers={renderPageNumbers}
+          />
         )}
       </div>
     </div>
