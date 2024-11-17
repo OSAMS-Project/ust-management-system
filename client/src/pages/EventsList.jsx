@@ -41,7 +41,7 @@ function Events() {
     useState(false);
   const [completedEvents, setCompletedEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const eventsPerPage = 6;
+  const eventsPerPage = 7;
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
   const filteredEvents = data.filter((event) =>

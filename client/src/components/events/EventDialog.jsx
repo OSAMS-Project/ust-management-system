@@ -3,22 +3,6 @@ import React, { useState, useEffect, useRef } from 'react';
 const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShowDialog, isEditing, cancelCreate }) => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError('');
-
-    try {
-      await handleSubmit(e);
-      setError('');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const [locationOptions] = useState([
     'Online', 'Off-campus', 'In-campus',
     'Arch of the Centuries', 'Benavides Auditorium', 'Benavides Garden',
@@ -53,7 +37,30 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
 
-  const today = new Date().toISOString().split('T')[0];
+  // Get current date in Philippine timezone
+  const now = new Date();
+  const phTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+  const year = phTime.getFullYear();
+  const month = String(phTime.getMonth() + 1).padStart(2, '0');
+  const day = String(phTime.getDate()).padStart(2, '0');
+  const formattedToday = `${year}-${month}-${day}`;
+
+  const handleDateChange = (e) => {
+    const selectedDate = new Date(e.target.value);
+    const phNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+    
+    // Reset hours to compare just the dates
+    selectedDate.setHours(0, 0, 0, 0);
+    phNow.setHours(0, 0, 0, 0);
+
+    if (selectedDate < phNow) {
+      setError('Cannot select a past date');
+      return;
+    }
+
+    setError('');
+    handleChange(e);
+  };
 
   useEffect(() => {
     if (formData.event_location) {
@@ -125,7 +132,7 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
 
         {/* Form Content */}
         <div className="p-6 max-h-[80vh] overflow-y-auto">
-          <form onSubmit={onSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
                 {error}
@@ -167,15 +174,18 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
                 <input
                   type="date"
                   name="event_date"
-                  value={formData.event_date}
-                  onChange={handleChange}
-                  min={today}
+                  value={formData.event_date || ''}
+                  onChange={handleDateChange}
+                  min={formattedToday}
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   required
                 />
+                {error && (
+                  <div className="text-red-500 text-sm mt-1">{error}</div>
+                )}
               </div>
 
-              {/* Event Times */}
+              {/* Event Time */}
               <div className="form-group">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Event Time</label>
                 <div className="grid grid-cols-2 gap-4">
