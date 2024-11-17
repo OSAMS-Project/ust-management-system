@@ -10,6 +10,41 @@ const AddIncomingAssetForm = ({
   setNotification,
   resetFormData
 }) => {
+  // Get current date and time in Philippine timezone
+  const getPhilippinesDateTime = () => {
+    const now = new Date();
+    const phDateTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+    return phDateTime;
+  };
+
+  const formatDateTimeForInput = (date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
+  const handleDateTimeChange = (e) => {
+    const selectedDateTime = new Date(e.target.value);
+    const phNow = getPhilippinesDateTime();
+    
+    if (selectedDateTime < phNow) {
+      setNotification({
+        type: 'error',
+        message: 'Cannot select a past date and time'
+      });
+      return;
+    }
+    
+    handleInputChange(e);
+  };
+
+  const phNow = getPhilippinesDateTime();
+  const minDateTime = formatDateTimeForInput(phNow);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-auto transform transition-all animate-fadeIn font-roboto">
@@ -136,21 +171,8 @@ const AddIncomingAssetForm = ({
                   type="datetime-local"
                   name="expected_date"
                   value={formData.expected_date}
-                  min={today + 'T00:00'}
-                  onChange={(e) => {
-                    const selectedDate = new Date(e.target.value);
-                    const now = new Date();
-                    
-                    if (selectedDate < now) {
-                      setNotification({
-                        type: 'error',
-                        message: 'Cannot select a past date and time'
-                      });
-                      return;
-                    }
-                    
-                    handleInputChange(e);
-                  }}
+                  min={minDateTime}
+                  onChange={handleDateTimeChange}
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   required
                 />
