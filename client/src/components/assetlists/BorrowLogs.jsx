@@ -27,13 +27,13 @@ const BorrowLogs = ({ assetId, onClose }) => {
     fetchBorrowLogs();
   }, [assetId]);
 
-  const formatDateTime = (date) => {
-    return moment(date).format('MMMM D, YYYY - h:mm A');
+  const formatDate = (date) => {
+    return moment(date).format('MM/DD/YYYY');
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto relative">
+      <div className="bg-white rounded-lg shadow-xl w-3/4 max-h-[90vh] overflow-y-auto relative">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200"
@@ -49,31 +49,36 @@ const BorrowLogs = ({ assetId, onClose }) => {
             <p className="text-red-500">{error}</p>
           ) : (
             <table className="min-w-full bg-white">
-              <thead className="bg-gray-100">
+              <thead className="bg-black">
                 <tr>
-                  <th className="px-4 py-2 text-left">Borrowed Date</th>
-                  <th className="px-4 py-2 text-left">Borrower</th>
-                  <th className="px-4 py-2 text-left">Email</th>
-                  <th className="px-4 py-2 text-left">Department</th>
-                  <th className="px-4 py-2 text-left">Quantity</th>
-                  <th className="px-4 py-2 text-left">Returned Date</th>
+                  <th className="px-4 py-2 text-center text-[#FEC00F]">Borrowed Date</th>
+                  <th className="px-4 py-2 text-center text-[#FEC00F]">Borrower</th>
+                  <th className="px-4 py-2 text-center text-[#FEC00F]">Email</th>
+                  <th className="px-4 py-2 text-center text-[#FEC00F]">Department</th>
+                  <th className="px-4 py-2 text-center text-[#FEC00F]">Quantity</th>
+                  <th className="px-4 py-2 text-center text-[#FEC00F]">Returned Date</th>
                 </tr>
               </thead>
               <tbody>
                 {logs.map((log, index) => (
-                  <tr key={index} className="border-b">
-                    <td className="px-4 py-2">{formatDateTime(log.date_borrowed)}</td>
-                    <td className="px-4 py-2">{log.borrower_name}</td>
-                    <td className="px-4 py-2">{log.borrower_email}</td>
-                    <td className="px-4 py-2">{log.borrower_department}</td>
-                    <td className="px-4 py-2">{log.quantity_borrowed}</td>
-                    <td className="px-4 py-2">
-                      {log.date_returned ? formatDateTime(log.date_returned) : 'Not yet returned'}
+                  <tr key={index} className="border-b hover:bg-gray-50">
+                    <td className="px-4 py-2 text-center">{formatDate(log.date_borrowed)}</td>
+                    <td className="px-4 py-2 text-center">{log.borrower_name}</td>
+                    <td className="px-4 py-2 text-center">{log.borrower_email}</td>
+                    <td className="px-4 py-2 text-center">{log.borrower_department}</td>
+                    <td className="px-4 py-2 text-center">{log.quantity_borrowed}</td>
+                    <td className="px-4 py-2 text-center">
+                      {log.date_returned ? formatDate(log.date_returned) : 'Not yet returned'}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          )}
+          {logs.length === 0 && !isLoading && !error && (
+            <div className="text-center py-4 text-gray-500">
+              No borrow logs found for this asset.
+            </div>
           )}
         </div>
       </div>

@@ -60,38 +60,38 @@ const IssueLogs = ({ assetId, onClose }) => {
         
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white">
-            <thead className="bg-gray-100">
+            <thead className="bg-black">
               <tr>
-                <th className="px-4 py-2 text-left">Date Reported</th>
-                <th className="px-4 py-2 text-left">Issue Type</th>
-                <th className="px-4 py-2 text-left">Description</th>
-                <th className="px-4 py-2 text-left">Quantity</th>
-                <th className="px-4 py-2 text-left">Priority</th>
-                <th className="px-4 py-2 text-left">Status</th>
-                <th className="px-4 py-2 text-left">Reported By</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Date Reported</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Issue Type</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Description</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Quantity</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Priority</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Status</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Reported By</th>
               </tr>
             </thead>
             <tbody>
               {logs.map((log) => (
-                <tr key={log.id} className="border-b">
-                  <td className="px-4 py-2">
+                <tr key={log.id} className="border-b hover:bg-gray-50">
+                  <td className="px-4 py-2 text-center">
                     {moment(log.created_at).format('MM/DD/YYYY')}
                   </td>
-                  <td className="px-4 py-2">{log.issue_type}</td>
-                  <td className="px-4 py-2">{log.description}</td>
-                  <td className="px-4 py-2">{log.issue_quantity || 1}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 text-center">{log.issue_type}</td>
+                  <td className="px-4 py-2 text-center">{log.description}</td>
+                  <td className="px-4 py-2 text-center">{log.issue_quantity || 1}</td>
+                  <td className="px-4 py-2 text-center">
                     <span className={`px-2 py-1 rounded-full text-xs ${getPriorityColor(log.priority)}`}>
                       {log.priority}
                     </span>
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 text-center">
                     <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(log.status)}`}>
                       {log.status}
                     </span>
                   </td>
                   <td className="px-4 py-2">
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                       <img 
                         src={log.user_picture || "https://via.placeholder.com/30"} 
                         alt={log.reported_by} 

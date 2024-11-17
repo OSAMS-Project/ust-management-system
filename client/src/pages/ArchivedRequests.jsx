@@ -50,10 +50,7 @@ const ArchivedRequests = ({ user }) => {
         />
       </div>
 
-      <div className="flex items-center mb-4 px-2">
-        <img src={user?.picture || "https://via.placeholder.com/40"} alt="Profile" className="w-10 h-10 rounded-full object-cover mr-2" />
-        <p className="text-lg">Logged in as: {user?.name || "User"}</p>
-      </div>
+     
 
       <div id='recipients' className="p-4 mt-4 lg:mt-0 rounded shadow bg-white">
         <ArchivedRequestTable 

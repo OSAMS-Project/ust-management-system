@@ -62,37 +62,37 @@ const RepairLogs = ({ assetId, onClose }) => {
         
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white">
-            <thead className="bg-gray-100">
+            <thead className="bg-black">
               <tr>
-                <th className="px-4 py-2 text-left">Date</th>
-                <th className="px-4 py-2 text-left">Type</th>
-                <th className="px-4 py-2 text-left">Description</th>
-                <th className="px-4 py-2 text-left">Quantity</th>
-                <th className="px-4 py-2 text-left">Cost</th>
-                <th className="px-4 py-2 text-left">Status</th>
-                <th className="px-4 py-2 text-left">Completion Date</th>
-                <th className="px-4 py-2 text-left">Performed By</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Date</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Type</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Description</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Quantity</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Cost</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Status</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Completion Date</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Performed By</th>
               </tr>
             </thead>
             <tbody>
               {logs.map((log) => (
                 <tr key={log.id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-2">{moment(log.date).format('MM/DD/YYYY')}</td>
-                  <td className="px-4 py-2">{log.repair_type}</td>
-                  <td className="px-4 py-2">{log.description}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 text-center">{moment(log.date).format('MM/DD/YYYY')}</td>
+                  <td className="px-4 py-2 text-center">{log.repair_type}</td>
+                  <td className="px-4 py-2 text-center">{log.description}</td>
+                  <td className="px-4 py-2 text-center">
                     <span className="font-medium">{log.repair_quantity || 1}</span>
                   </td>
-                  <td className="px-4 py-2">₱{typeof log.cost === 'number' ? log.cost.toFixed(2) : log.cost}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 text-center">₱{typeof log.cost === 'number' ? log.cost.toFixed(2) : log.cost}</td>
+                  <td className="px-4 py-2 text-center">
                     <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(log.status)}`}>
                       {getDisplayStatus(log.status, log.completion_date)}
                     </span>
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 text-center">
                     {log.completion_date ? moment(log.completion_date).format('MM/DD/YYYY') : 'N/A'}
                   </td>
-                  <td className="px-4 py-2">{log.performed_by}</td>
+                  <td className="px-4 py-2 text-center">{log.performed_by}</td>
                 </tr>
               ))}
             </tbody>

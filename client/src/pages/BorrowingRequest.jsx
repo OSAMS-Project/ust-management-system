@@ -207,10 +207,10 @@ const BorrowingRequest = () => {
                 <td className="py-2 px-3 border-b text-center whitespace-nowrap">{request.borrowed_asset_names}</td>
                 <td className="py-2 px-3 border-b text-center whitespace-nowrap">{request.borrowed_asset_quantities}</td>
                 <td className="py-2 px-3 border-b text-center whitespace-nowrap">
-                  {moment(request.date_requested).format("MMM DD YYYY")}
+                  {moment(request.date_requested).format("MM/DD/YYYY")}
                 </td>
                 <td className="py-2 px-3 border-b text-center whitespace-nowrap">
-                  {moment(request.date_to_be_collected).format("MMM DD YYYY")}
+                  {moment(request.date_to_be_collected).format("MM/DD/YYYY")}
                 </td>
                 <td className="py-2 px-3 border-b text-center whitespace-nowrap">
                   {request.cover_letter_url ? (
@@ -227,7 +227,7 @@ const BorrowingRequest = () => {
                   )}
                 </td>
                 <td className="py-2 px-3 border-b text-center whitespace-nowrap">
-                  {moment(request.expectedReturnDate).format("MMM DD YYYY")}
+                  {moment(request.expectedReturnDate).format("MM/DD/YYYY")}
                 </td>
                 <td className="py-2 px-3 border-b text-center">
                   <div className="flex gap-1 justify-center">
