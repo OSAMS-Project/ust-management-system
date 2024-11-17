@@ -4,10 +4,8 @@ const Button = ({ className, onClick, children, variant = 'primary', size = 'med
   const baseStyles = "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none";
   
   const variants = {
-    primary: "bg-blue-600 text-black hover:bg-blue-700",
+    primary: "bg-[#FEC000] text-black",
     outline: "border border-gray-300 bg-transparent hover:bg-gray-50",
-    ghost: "bg-transparent hover:bg-gray-100",
-    destructive: "bg-red-600 text-black hover:bg-red-700",
   };
 
   const sizes = {

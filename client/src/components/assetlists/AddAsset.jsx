@@ -186,9 +186,9 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-6 z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl">
-            <div className="px-8 py-5 border-b">
-              <h2 className="text-2xl font-bold text-gray-800">Add Asset</h2>
+          <div className="bg-white rounded-[20px] shadow-2xl w-full max-w-2xl">
+            <div className="bg-[#FEC000] px-8 py-5 rounded-t-[20px] border-b">
+              <h2 className="text-2xl font-bold text-black">Add Asset</h2>
             </div>
             
             <div className="px-8 py-6 max-h-[calc(100vh-150px)] overflow-y-auto">
@@ -313,7 +313,7 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
               </form>
             </div>
 
-            <div className="px-8 py-5 border-t flex justify-end gap-4">
+            <div className="px-8 py-5 border-t flex justify-end gap-4 rounded-b-[20px]">
               <button 
                 onClick={onCloseModal}
                 className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -322,7 +322,7 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
               </button>
               <button 
                 onClick={handleSaveAsset}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-[#FEC000] hover:bg-[#ffd042] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Add Asset
               </button>

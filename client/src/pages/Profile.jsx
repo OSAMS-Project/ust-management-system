@@ -71,14 +71,7 @@ const ProfilePage = ({ user }) => {
         )}
       </div>
 
-      {/* Additional user information can go here */}
-      {/* Example: User Activity */}
-      <div className="mt-6 bg-white shadow-md rounded-lg p-6">
-        <h3 className="text-xl font-semibold mb-4">User Activity</h3>
-        {/* List of user activities can be displayed here */}
-        <p>No recent activities.</p>
-      </div>
-
+    
     </div>
   );
 };

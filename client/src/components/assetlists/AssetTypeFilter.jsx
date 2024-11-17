@@ -42,8 +42,8 @@ const AssetTypeFilter = ({ selectedFilter, onFilterChange }) => {
           {Object.entries(filterOptions).map(([value, label]) => (
             <div
               key={value}
-              className={`px-3 py-1 cursor-pointer hover:bg-yellow-100 ${
-                selectedFilter === value ? 'bg-yellow-200' : ''
+              className={`px-3 py-1 cursor-pointer hover:bg-gray-100 ${
+                selectedFilter === value ? 'bg-gray-100' : ''
               } truncate`}
               onClick={() => handleSelect(value)}
             >

@@ -89,7 +89,7 @@ const TableControls = ({ onToggleColumns, prepareCSVData, assets, visibleColumns
       </CSVLink>
       <button
         onClick={generatePDF}
-        className="p-2 rounded-full bg-yellow-400 border-2 border-black text-black hover:bg-yellow-300 duration-300 flex items-center justify-center"
+        className="p-2 rounded-full bg-yellow-400 border-2 text-white hover:bg-yellow-300 duration-300 flex items-center justify-center"
         title="Export to PDF"
       >
         <FontAwesomeIcon icon={faFilePdf} className="text-lg" />
