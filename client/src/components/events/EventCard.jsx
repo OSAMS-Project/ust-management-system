@@ -45,6 +45,8 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/${item.unique_id}/assets`);
       const { consumables, nonConsumables } = response.data;
       
+      setShowConfirmDialog(false); // Close confirmation dialog first
+
       if (consumables.length > 0) {
         // If there are consumables, show the dialog for unused consumables
         setConsumableAssets(consumables);
@@ -69,7 +71,6 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
         // If no assets, just complete the event
         handleComplete(item.unique_id, {});
       }
-      setShowConfirmDialog(false);
     } catch (error) {
       console.error('Error handling event completion:', error);
       toast.error('Failed to complete event');
@@ -111,12 +112,6 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
     setConsumableDialog(false);
     setShowConfirmDialog(false);
   };
-
-  useEffect(() => {
-    if (showConfirmDialog) {
-      handleEventComplete();
-    }
-  }, [showConfirmDialog]);
 
   return (
     <div className="relative overflow-hidden rounded-lg shadow-lg w-80 h-[32rem] group">
@@ -203,7 +198,7 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
               </button>
               <button
                 className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-sm transition"
-                onClick={handleEventComplete}
+                onClick={() => handleEventComplete()}
               >
                 Confirm
               </button>
