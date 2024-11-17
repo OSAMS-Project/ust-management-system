@@ -44,8 +44,11 @@ function Events() {
   const eventsPerPage = 6;
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  const currentEvents = data.slice(indexOfFirstEvent, indexOfLastEvent);
-  const totalPages = Math.ceil(data.length / eventsPerPage);
+  const filteredEvents = data.filter((event) =>
+    event.event_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
+  const currentEvents = filteredEvents.slice(indexOfFirstEvent, indexOfLastEvent);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const handleEventDeleted = (deletedEventId) => {
     setCompletedEvents((prevEvents) =>
@@ -130,9 +133,6 @@ function Events() {
     });
     setShowEditDialog(true);
   };
-  const filteredEvents = data.filter((event) =>
-    event.event_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
   const [notification, setNotification] = useState(null);
   const showSuccessNotification = (message) => {
     setNotification({
@@ -454,19 +454,27 @@ function Events() {
         />
         <div className="w-82 mx-auto p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            {currentEvents.map((item) => (
-              <EventCard
-                key={item.unique_id}
-                item={item}
-                handleExplore={handleExplore}
-                handleComplete={handleCompleteEvent}
-                handleEdit={handleEdit}
-                formatTime={formatTime}
-                handleAddAsset={handleAddAsset}
-                assets={assets}
-              />
-            ))}
-            <AddEventButton onAddEvent={handleAddEvent} /> {/* Add Button */}
+            {currentEvents.length > 0 ? (
+              <>
+                {currentEvents.map((item) => (
+                  <EventCard
+                    key={item.unique_id}
+                    item={item}
+                    handleExplore={handleExplore}
+                    handleComplete={handleCompleteEvent}
+                    handleEdit={handleEdit}
+                    formatTime={formatTime}
+                    handleAddAsset={handleAddAsset}
+                    assets={assets}
+                  />
+                ))}
+                <AddEventButton onAddEvent={handleAddEvent} />
+              </>
+            ) : (
+              <div className="col-span-full text-center text-gray-500">
+                No events found matching your search
+              </div>
+            )}
           </div>
           <div className="mt-4 mb-8 flex justify-center">
             {Array.from({ length: totalPages }, (_, i) => (

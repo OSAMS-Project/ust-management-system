@@ -106,127 +106,164 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
   if (!showDialog) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 rounded-md">
-      <div className="absolute inset-0 bg-black opacity-50"></div>
-      <dialog open className="relative bg-stone-100 p-6 rounded-md shadow-lg z-50 rounded-2xl">
-        <h2 className="text-2xl mb-4">New Event</h2>
-        <form onSubmit={onSubmit} className="space-y-4 w-96">
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
-            </div>
-          )}
-          <div>
-            <input
-              type="text"
-              name="event_name"
-              placeholder="Event Name"
-              value={formData.event_name}
-              onChange={handleChange}
-              className="border px-4 py-2 w-full"
-              required
-            />
-          </div>
-          <div>
-            <textarea
-              name="description"
-              placeholder="Description"
-              value={formData.description}
-              onChange={handleChange}
-              className="border px-4 py-2 w-full"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Event Date</label>
-            <input
-              type="date"
-              name="event_date"
-              value={formData.event_date}
-              onChange={handleChange}
-              min={today}
-              className="border px-4 py-2 w-full"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Event Start Time</label>
-            <input
-              type="time"
-              name="event_start_time"
-              value={formData.event_start_time}
-              onChange={handleChange}
-              className="border px-4 py-2 w-full"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Event End Time</label>
-            <input
-              type="time"
-              name="event_end_time"
-              value={formData.event_end_time}
-              onChange={handleChange}
-              className="border px-4 py-2 w-full"
-              required
-            />
-          </div>
-          <div className="relative">
-            <label className="block text-sm font-medium text-gray-700">Event Location</label>
-            <input
-              ref={inputRef}
-              type="text"
-              name="event_location"
-              value={formData.event_location || ''}
-              onChange={handleLocationChange}
-              onFocus={() => setShowDropdown(true)}
-              className="border px-4 py-2 w-full"
-              placeholder="Type or select a location"
-              required
-            />
-            {showDropdown && (
-              <ul ref={dropdownRef} className="absolute z-10 w-full bg-white border border-gray-300 mt-1 max-h-32 overflow-y-auto custom-scrollbar">
-                {filteredLocations.map((location, index) => (
-                  <li 
-                    key={index}
-                    onClick={() => selectLocation(location)}
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                  >
-                    {location}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Event Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="mt-1 block w-full"
-            />
-            {formData.image && (
-              <img src={formData.image} alt="Event" className="mt-2 h-32 w-full object-cover rounded" />
-            )}
-          </div>
-          <div className="flex justify-end space-x-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-auto transform transition-all animate-fadeIn font-roboto">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 p-6 rounded-t-2xl">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-black">Add New Event</h2>
             <button
-              type="button"
               onClick={() => setShowDialog(false)}
-              className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
+              className="text-black hover:text-gray-700 transition-colors"
             >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded"
-            >
-              Add Event
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
-        </form>
-      </dialog>
+        </div>
+
+        {/* Form Content */}
+        <div className="p-6 max-h-[80vh] overflow-y-auto">
+          <form onSubmit={onSubmit} className="space-y-6">
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+                {error}
+              </div>
+            )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Event Name */}
+              <div className="form-group md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Event Name</label>
+                <input
+                  type="text"
+                  name="event_name"
+                  value={formData.event_name}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  required
+                  placeholder="Enter event name"
+                />
+              </div>
+
+              {/* Description */}
+              <div className="form-group md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows="3"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                  placeholder="Enter event description"
+                  required
+                />
+              </div>
+
+              {/* Event Date */}
+              <div className="form-group">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Event Date</label>
+                <input
+                  type="date"
+                  name="event_date"
+                  value={formData.event_date}
+                  onChange={handleChange}
+                  min={today}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  required
+                />
+              </div>
+
+              {/* Event Times */}
+              <div className="form-group">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Event Time</label>
+                <div className="grid grid-cols-2 gap-4">
+                  <input
+                    type="time"
+                    name="event_start_time"
+                    value={formData.event_start_time}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  />
+                  <input
+                    type="time"
+                    name="event_end_time"
+                    value={formData.event_end_time}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Location */}
+              <div className="form-group md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Event Location</label>
+                <div className="relative">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    name="event_location"
+                    value={formData.event_location || ''}
+                    onChange={handleLocationChange}
+                    onFocus={() => setShowDropdown(true)}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="Type or select a location"
+                    required
+                  />
+                  {showDropdown && (
+                    <ul ref={dropdownRef} className="absolute z-10 w-full bg-white border border-gray-300 mt-1 max-h-32 overflow-y-auto rounded-lg shadow-lg">
+                      {filteredLocations.map((location, index) => (
+                        <li 
+                          key={index}
+                          onClick={() => selectLocation(location)}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                        >
+                          {location}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+
+              {/* Image Upload */}
+              <div className="form-group md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Event Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+                {formData.image && (
+                  <img src={formData.image} alt="Event" className="mt-2 h-32 w-full object-cover rounded-lg" />
+                )}
+              </div>
+            </div>
+
+            {/* Form Actions */}
+            <div className="flex justify-end gap-4 pt-4 border-t">
+              <button
+                type="button"
+                onClick={() => setShowDialog(false)}
+                className="px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-6 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors disabled:opacity-50"
+              >
+                {isSubmitting ? 'Adding...' : 'Add Event'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };
