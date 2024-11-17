@@ -11,7 +11,8 @@ const IncomingAssets = () => {
   const [assets, setAssets] = useState([]);
   const [receivedAssets, setReceivedAssets] = useState([]);
   const [currentReceivedAssets, setCurrentReceivedAssets] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [pendingCurrentPage, setPendingCurrentPage] = useState(1);
+  const [receivedCurrentPage, setReceivedCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [showForm, setShowForm] = useState(false);
   const [showLocationDialog, setShowLocationDialog] = useState(false);
@@ -215,8 +216,10 @@ const IncomingAssets = () => {
         <IncomingAssetsTable 
           assets={assets}
           handleStatusUpdate={handleStatusUpdate}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
+          pendingCurrentPage={pendingCurrentPage}
+          setPendingCurrentPage={setPendingCurrentPage}
+          receivedCurrentPage={receivedCurrentPage}
+          setReceivedCurrentPage={setReceivedCurrentPage}
           itemsPerPage={itemsPerPage}
           receivedAssets={receivedAssets}
           currentReceivedAssets={currentReceivedAssets}

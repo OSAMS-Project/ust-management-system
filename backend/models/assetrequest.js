@@ -75,16 +75,18 @@ const AssetRequest = {
         setClause.push(`status = $${paramCount}`);
         values.push(assetData.status);
         paramCount++;
+
+        if (assetData.status === 'approved') {
+          setClause.push(`approved_at = CURRENT_TIMESTAMP`);
+        } else if (assetData.status === 'declined') {
+          setClause.push(`declined_at = CURRENT_TIMESTAMP`);
+        }
       }
 
       if (assetData.auto_declined !== undefined) {
         setClause.push(`auto_declined = $${paramCount}`);
         values.push(assetData.auto_declined);
         paramCount++;
-      }
-
-      if (assetData.status === 'declined') {
-        setClause.push(`declined_at = CURRENT_TIMESTAMP`);
       }
 
       values.push(id);
@@ -96,11 +98,7 @@ const AssetRequest = {
         RETURNING *
       `;
 
-      console.log('Executing query:', { query, values });
-      
       const { rows } = await pool.query(query, values);
-      console.log('Update result:', rows[0]);
-      
       return rows[0];
     } catch (error) {
       console.error('Error in updateAssetRequest:', error);

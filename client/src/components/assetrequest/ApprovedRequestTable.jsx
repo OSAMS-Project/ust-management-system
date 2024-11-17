@@ -15,6 +15,10 @@ const ApprovedRequestTable = ({ approvedRequests, onArchive }) => {
   const endIndex = startIndex + itemsPerPage;
   const currentRequests = approvedRequests.slice(startIndex, endIndex);
 
+  const formatDate = (date) => {
+    return date ? moment(date).format("MM/DD/YYYY") : "N/A";
+  };
+
   return (
     <div className="mt-8">
       <h2 className="text-2xl font-bold mb-4">Approved Requests</h2>
@@ -41,10 +45,10 @@ const ApprovedRequestTable = ({ approvedRequests, onArchive }) => {
               <td className="py-2 px-4 border-b text-center">{asset.asset_name}</td>
               <td className="py-2 px-4 border-b text-center">{asset.quantity}</td>
               <td className="py-2 px-4 border-b text-center">
-                {moment(asset.created_at).format("MM/DD/YYYY")}
+                {formatDate(asset.created_at)}
               </td>
               <td className="py-2 px-4 border-b text-center">
-                {moment(asset.approved_at).format("MM/DD/YYYY")}
+                {formatDate(asset.approved_at)}
               </td>
               <td className="py-2 px-4 border-b text-center">
                 <div className="flex items-center justify-center">
