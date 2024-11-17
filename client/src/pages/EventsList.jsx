@@ -202,7 +202,18 @@ function Events() {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     try {
+      // Check if an event with the same name already exists
+      const eventExists = data.some(
+        event => event.event_name.toLowerCase() === formData.event_name.toLowerCase()
+      );
+
+      if (eventExists) {
+        showErrorNotification('An event with this name already exists');
+        return;
+      }
+
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/Events/create`,
         {
