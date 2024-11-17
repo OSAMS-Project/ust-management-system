@@ -7,6 +7,7 @@ import PaginationControls from './PaginationControls';
 import AssetModals from './AssetModals';
 import axios from "axios";
 import moment from "moment";
+import PDFGenerator from './PDFGenerator';
 
 const getInitialVisibleColumns = () => {
   const savedColumns = localStorage.getItem('visibleColumns');
@@ -377,10 +378,16 @@ const AssetTable = ({
   // Component render
   return (
     <div className="relative p-3 w-full text-[20px]">
-      <TableControls 
-        onToggleColumns={() => setIsColumnPopupOpen(!isColumnPopupOpen)}
-        prepareCSVData={prepareCSVData}
-      />
+      <div className="mb-4 flex justify-end space-x-2">
+        <TableControls 
+          onToggleColumns={() => setIsColumnPopupOpen(!isColumnPopupOpen)}
+          prepareCSVData={prepareCSVData}
+        />
+        <PDFGenerator 
+          assets={assets}
+          visibleColumns={visibleColumns}
+        />
+      </div>
 
       {isColumnPopupOpen && (
         <ColumnVisibilityPopup
