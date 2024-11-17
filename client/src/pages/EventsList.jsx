@@ -44,8 +44,11 @@ function Events() {
   const eventsPerPage = 6;
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  const currentEvents = data.slice(indexOfFirstEvent, indexOfLastEvent);
-  const totalPages = Math.ceil(data.length / eventsPerPage);
+  const filteredEvents = data.filter((event) =>
+    event.event_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const currentEvents = filteredEvents.slice(indexOfFirstEvent, indexOfLastEvent);
+  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const handleEventDeleted = (deletedEventId) => {
     setCompletedEvents((prevEvents) =>
@@ -130,9 +133,6 @@ function Events() {
     });
     setShowEditDialog(true);
   };
-  const filteredEvents = data.filter((event) =>
-    event.event_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
   const [notification, setNotification] = useState(null);
   const showSuccessNotification = (message) => {
     setNotification({
