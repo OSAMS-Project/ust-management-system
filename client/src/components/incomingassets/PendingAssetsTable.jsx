@@ -16,7 +16,7 @@ const PendingAssetsTable = ({
             <th className="py-2 px-4 border-b text-center">Category</th>
             <th className="py-2 px-4 border-b text-center">Quantity</th>
             <th className="py-2 px-4 border-b text-center">Total Cost</th>
-            <th className="py-2 px-4 border-b text-center">Expected Date</th>
+            <th className="py-2 px-4 border-b text-center">Expected Date of Arrival</th>
             <th className="py-2 px-4 border-b text-center">Status</th>
             <th className="py-2 px-4 border-b text-center">Actions</th>
           </tr>

@@ -131,7 +131,7 @@ const AddIncomingAssetForm = ({
 
               {/* Expected Date */}
               <div className="form-group md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Expected Date</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Expected Date of Arrival</label>
                 <input
                   type="datetime-local"
                   name="expected_date"
