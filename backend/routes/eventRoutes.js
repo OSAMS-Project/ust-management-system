@@ -10,7 +10,55 @@ router.get('/read', eventController.readEvents);
 router.put('/update/:uniqueId', eventController.updateEvent);
 router.delete('/delete/:uniqueId', eventController.deleteEvent);
 router.get('/completed', eventController.getCompletedEvents);
-router.put('/:uniqueId/complete', eventController.completeEvent);
+
+router.get('/:eventId/assets', async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const assets = await Event.getEventAssets(eventId);
+    res.json(assets);
+  } catch (error) {
+    console.error('Error fetching event assets:', error);
+    res.status(500).json({ error: 'Failed to fetch event assets' });
+  }
+});
+
+router.get('/:eventId/nonConsumables', async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const nonConsumables = await Event.getEventNonConsumables(eventId);
+    res.json(nonConsumables);
+  } catch (error) {
+    console.error('Error fetching non-consumable assets:', error);
+    res.status(500).json({ error: 'Failed to fetch non-consumable assets' });
+  }
+});
+
+router.get('/:eventId/consumables', async (req, res) => {
+  try {
+    const consumables = await Event.getEventConsumables(req.params.eventId);
+    res.json(consumables);
+  } catch (error) {
+    console.error('Error fetching consumables:', error);
+    res.status(500).json({ error: 'Failed to fetch consumables' });
+  }
+});
+
+router.put('/:uniqueId/complete', async (req, res) => {
+  const { uniqueId } = req.params;
+  const { returnQuantities } = req.body;
+  
+  try {
+    const result = await Event.completeEvent(uniqueId, returnQuantities);
+    res.json(result);
+  } catch (error) {
+    console.error('Error completing event:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to complete event',
+      details: error.message 
+    });
+  }
+});
 
 router.get('/:id', async (req, res) => {
   try {
@@ -31,28 +79,20 @@ router.post('/:eventId/updateAssetQuantity', eventController.updateAssetQuantity
 router.get('/asset-cost/:eventId/:assetId', async (req, res) => {
   try {
     const { eventId, assetId } = req.params;
-    console.log('Fetching cost for:', { eventId, assetId });
-    
-    // Simplified query - we only need the asset cost
     const query = `
       SELECT cost, "assetName"
       FROM assets
       WHERE asset_id = $1
     `;
-    
-    console.log('Executing query:', { query, assetId });
     const result = await pool.query(query, [assetId]);
-    console.log('Query result:', result.rows);
 
     if (result.rows.length === 0) {
-      console.log('No cost found for asset:', assetId);
       return res.status(404).json({ message: 'Asset cost not found' });
     }
 
     const cost = parseFloat(result.rows[0].cost) || 0;
     const assetName = result.rows[0].assetName;
     
-    console.log('Found cost:', { assetName, cost });
     res.json({ cost, assetName });
   } catch (error) {
     console.error('Error fetching asset cost:', error);
@@ -60,31 +100,6 @@ router.get('/asset-cost/:eventId/:assetId', async (req, res) => {
       message: 'Error fetching asset cost', 
       error: error.message 
     });
-  }
-});
-
-router.get('/:eventId/consumables', async (req, res) => {
-  try {
-    const consumables = await Event.getEventConsumables(req.params.eventId);
-    res.json(consumables);
-  } catch (error) {
-    console.error('Error fetching consumables:', error);
-    res.status(500).json({ error: 'Failed to fetch consumables' });
-  }
-});
-
-router.put('/:uniqueId/complete', async (req, res) => {
-  const { uniqueId } = req.params;
-  const { returnQuantities } = req.body;
-  try {
-    const updatedEvent = await Event.completeEvent(uniqueId, returnQuantities);
-    res.status(200).json({ 
-      message: 'Event completed successfully', 
-      updatedEvent: updatedEvent 
-    });
-  } catch (error) {
-    console.error('Error completing event:', error);
-    res.status(500).json({ error: 'Failed to complete event' });
   }
 });
 

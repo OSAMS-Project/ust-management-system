@@ -39,26 +39,40 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
     setShowAssetDialog(false);
   };
 
-  const fetchEventConsumables = async () => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/${item.unique_id}/consumables`);
-      setConsumableAssets(response.data);
-      const quantities = {};
-      response.data.forEach(asset => {
-        quantities[asset.asset_id] = 0;
-      });
-      setReturnQuantities(quantities);
-    } catch (error) {
-      console.error('Error fetching consumables:', error);
-    }
-  };
-
   const handleEventComplete = async () => {
-    if (consumableAssets.length > 0) {
-      setConsumableDialog(true);
-    } else {
-      handleComplete(item.unique_id, {});
+    try {
+      // First, fetch both consumable and non-consumable assets for this event
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/${item.unique_id}/assets`);
+      const { consumables, nonConsumables } = response.data;
+      
+      if (consumables.length > 0) {
+        // If there are consumables, show the dialog for unused consumables
+        setConsumableAssets(consumables);
+        const quantities = {};
+        consumables.forEach(asset => {
+          quantities[asset.asset_id] = 0;
+        });
+        setReturnQuantities(quantities);
+        setConsumableDialog(true);
+      } else if (nonConsumables.length > 0) {
+        // If there are only non-consumables, return them automatically
+        const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/events/${item.unique_id}/complete`, {
+          returnQuantities: {},
+          nonConsumables: nonConsumables
+        });
+        
+        if (response.data.success) {
+          toast.success('Event completed successfully');
+          window.location.reload();
+        }
+      } else {
+        // If no assets, just complete the event
+        handleComplete(item.unique_id, {});
+      }
       setShowConfirmDialog(false);
+    } catch (error) {
+      console.error('Error handling event completion:', error);
+      toast.error('Failed to complete event');
     }
   };
 
@@ -76,8 +90,14 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
 
   const handleConsumableSubmit = async () => {
     try {
+      // Get non-consumable assets for this event
+      const nonConsumablesResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/${item.unique_id}/nonConsumables`);
+      const nonConsumables = nonConsumablesResponse.data;
+
+      // Submit both consumable returns and non-consumable returns
       const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/events/${item.unique_id}/complete`, {
-        returnQuantities
+        returnQuantities,
+        nonConsumables
       });
       
       if (response.data.success) {
@@ -94,7 +114,7 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
 
   useEffect(() => {
     if (showConfirmDialog) {
-      fetchEventConsumables();
+      handleEventComplete();
     }
   }, [showConfirmDialog]);
 

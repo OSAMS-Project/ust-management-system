@@ -66,6 +66,14 @@ const readAssets = async () => {
 
 const updateAsset = async (id, updates) => {
 	try {
+		// If trying to change to Consumable type, verify no borrowing quantity
+		if (updates.type === 'Consumable') {
+			const currentAsset = await readAsset(id);
+			if (currentAsset && currentAsset.quantity_for_borrowing > 0) {
+				throw new Error('Cannot change to Consumable while asset has borrowing quantity');
+			}
+		}
+
 		// Create SET clause dynamically from updates object
 		const setClause = [];
 		const values = [];

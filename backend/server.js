@@ -155,51 +155,13 @@ app.get('/test', (req, res) => {
 });
 
 const port = process.env.PORT || 5000;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-  console.log('API endpoints:');
-  console.log('  - GET    /api/assets');
-  console.log('  - POST   /api/assets');
-  console.log('  - PUT    /api/assets/:id');
-  console.log('  - DELETE /api/assets/:id');
-  console.log('  - GET    /api/categories');
-  console.log('  - POST   /api/categories');
-  console.log('  - DELETE /api/categories/:categoryName');
-  console.log('  - GET    /api/locations');
-  console.log('  - POST   /api/locations');
-  console.log('  - DELETE /api/locations/:locationName');
-  console.log('  - GET    /api/events');
-  console.log('  - POST   /api/events');
-  console.log('  - PUT    /api/events/:uniqueId');
-  console.log('  - DELETE /api/events/delete/:uniqueId');
-  console.log('  - GET    /api/users');
-  console.log('  - POST   /api/users');
-  console.log('  - PUT    /api/users/:id');
-  console.log('  - DELETE /api/users/:id');
-  console.log('  - GET    /api/suppliers');
-  console.log('  - POST   /api/suppliers');
-  console.log('  - DELETE /api/suppliers/:supplierName');
-  console.log('  - GET    /api/asset-activity-logs');
-  console.log('  - POST   /api/asset-activity-logs');
-  console.log('  - GET    /api/dashboard');
-  console.log('  - GET    /api/borrowing-requests');
-  console.log('  - POST   /api/borrowing-requests');
-  console.log('  - PUT    /api/borrowing-requests/:id');
-  console.log('  - DELETE /api/borrowing-requests/:id');
-  console.log('  - GET    /api/borrow-logs');
-  console.log('  - POST   /api/borrow-logs');
-  console.log('  - GET    /api/assets/sse');
-  console.log('  - PUT    /api/assets/updateQuantity/:assetId');
-  console.log('  - POST   /api/events/:eventId/addAssets');
-  console.log('  - POST   /api/events/:eventId/removeAsset');
-  console.log('  - POST   /api/events/:eventId/updateAssetQuantity');
-  console.log('  - DELETE /api/Events/delete/:eventId');
-  console.log('  - GET    /api/incoming-assets');
-  console.log('  - POST   /api/incoming-assets');
-  console.log('  - PUT    /api/incoming-assets/:id');
-  console.log('  - PATCH  /api/incoming-assets/:id/status');
-  console.log('  - DELETE /api/incoming-assets/:id');
-  initializeTables();
+app.listen(port, async () => {
+  try {
+    await Event.addCompletionColumns();
+    console.log(`Server is running on port ${port}`);
+  } catch (error) {
+    console.error('Error setting up database:', error);
+  }
 });
 
 const initializeTables = async () => {

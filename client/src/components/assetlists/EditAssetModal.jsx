@@ -290,6 +290,22 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
     setQuantityForBorrowing(newValue);
   };
 
+  const handleTypeChange = async (value) => {
+    // If changing to Consumable, check if asset has borrowing quantity
+    if (value === 'Consumable' && asset.quantity_for_borrowing > 0) {
+      setNotification({
+        type: 'error',
+        message: 'Cannot change to Consumable while asset has borrowing quantity. Please deactivate borrowing first.'
+      });
+      return;
+    }
+    
+    setEditedAsset(prev => ({
+      ...prev,
+      type: value
+    }));
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -353,7 +369,7 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
                   label="Asset Type"
                   id="type"
                   value={editedAsset.type}
-                  onChange={(e) => handleChange('type', e.target.value)}
+                  onChange={(e) => handleTypeChange(e.target.value)}
                   options={['Consumable', 'Non-Consumable']}
                   placeholder="Select Asset Type"
                   shake={shakeFields.includes('type')}
