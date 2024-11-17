@@ -5,9 +5,10 @@ import DeleteEventDialog from './DeleteEventDialog';
 const formatDateForInput = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const phDate = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+  const year = phDate.getFullYear();
+  const month = String(phDate.getMonth() + 1).padStart(2, '0');
+  const day = String(phDate.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
 
@@ -95,6 +96,28 @@ const EditEventDialog = ({
     };
   }, [showDialog]);
 
+  const now = new Date();
+  const phTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+  const year = phTime.getFullYear();
+  const month = String(phTime.getMonth() + 1).padStart(2, '0');
+  const day = String(phTime.getDate()).padStart(2, '0');
+  const formattedToday = `${year}-${month}-${day}`;
+
+  const handleDateChange = (e) => {
+    const selectedDate = new Date(e.target.value);
+    const phNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+    
+    selectedDate.setHours(0, 0, 0, 0);
+    phNow.setHours(0, 0, 0, 0);
+
+    if (selectedDate < phNow) {
+      toast.error('Cannot select a past date');
+      return;
+    }
+
+    handleChange(e);
+  };
+
   if (!showDialog) return null;
 
   return (
@@ -154,8 +177,8 @@ const EditEventDialog = ({
                   type="date"
                   name="event_date"
                   value={formatDateForInput(formData.event_date) || ""}
-                  onChange={handleChange}
-                  min={today}
+                  onChange={handleDateChange}
+                  min={formattedToday}
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
                   required
                 />
