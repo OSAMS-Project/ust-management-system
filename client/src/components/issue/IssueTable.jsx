@@ -13,16 +13,16 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue, onE
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border rounded-lg">
-        <thead className="bg-gray-50">
+        <thead className="bg-black">
           <tr>
-            <th className="px-4 py-2 text-left">Asset</th>
-            <th className="px-4 py-2 text-left">Issue Type</th>
-            <th className="px-4 py-2 text-left">Description</th>
-            <th className="px-4 py-2 text-left">Priority</th>
-            <th className="px-4 py-2 text-left">Quantity</th>
-            <th className="px-4 py-2 text-left">Reported By</th>
-            <th className="px-4 py-2 text-left">Date Reported</th>
-            <th className="px-4 py-2 text-left">Actions</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Asset</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Issue Type</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Description</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Priority</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Quantity</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Reported By</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Date Reported</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -32,10 +32,10 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue, onE
             
             return (
               <tr key={issue.id} className="border-b hover:bg-gray-50">
-                <td className="px-4 py-2">{assetName}</td>
-                <td className="px-4 py-2">{issue.issue_type}</td>
-                <td className="px-4 py-2">{issue.description}</td>
-                <td className="px-4 py-2">
+                <td className="px-4 py-2 text-center">{assetName}</td>
+                <td className="px-4 py-2 text-center">{issue.issue_type}</td>
+                <td className="px-4 py-2 text-center">{issue.description}</td>
+                <td className="px-4 py-2 text-center">
                   <span className={`px-2 py-1 rounded text-white ${
                     issue.priority === 'High' ? 'bg-red-500' :
                     issue.priority === 'Medium' ? 'bg-yellow-500' :
@@ -44,11 +44,11 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue, onE
                     {issue.priority}
                   </span>
                 </td>
-                <td className="px-4 py-2">
+                <td className="px-4 py-2 text-center">
                   <span className="font-medium">{issue.issue_quantity}</span>
                 </td>
                 <td className="px-4 py-2">
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     {issue.user_picture && (
                       <img 
                         src={issue.user_picture} 
@@ -59,9 +59,9 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue, onE
                     {issue.reported_by}
                   </div>
                 </td>
-                <td className="px-4 py-2">{moment(issue.created_at).format('MM/DD/YYYY')}</td>
+                <td className="px-4 py-2 text-center">{moment(issue.created_at).format('MM/DD/YYYY')}</td>
                 <td className="px-4 py-2">
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-2 justify-center">
                     <button
                       onClick={() => onEditIssue(issue)}
                       className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"

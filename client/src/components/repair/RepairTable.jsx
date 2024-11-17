@@ -26,16 +26,16 @@ const RepairTable = ({ repairRecords, assets = [], onCompleteRecord, onRemoveRec
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border rounded-lg">
-        <thead className="bg-gray-50">
+        <thead className="bg-black">
           <tr>
-            <th className="px-4 py-2 text-left">Asset</th>
-            <th className="px-4 py-2 text-left">Repair Type</th>
-            <th className="px-4 py-2 text-left">Description</th>
-            <th className="px-4 py-2 text-left">Quantity</th>
-            <th className="px-4 py-2 text-left">Date</th>
-            <th className="px-4 py-2 text-left">Cost</th>
-            <th className="px-4 py-2 text-left">Performed By</th>
-            <th className="px-4 py-2 text-left">Actions</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Asset</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Repair Type</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Description</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Quantity</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Date</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Cost</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Performed By</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -49,17 +49,17 @@ const RepairTable = ({ repairRecords, assets = [], onCompleteRecord, onRemoveRec
                   onClick={() => handleRowClick(record.asset_id)}
                   className="hover:bg-gray-50 cursor-pointer border-b"
                 >
-                  <td className="px-4 py-2">{assetName}</td>
-                  <td className="px-4 py-2">{record.repair_type}</td>
-                  <td className="px-4 py-2">{record.description}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 text-center">{assetName}</td>
+                  <td className="px-4 py-2 text-center">{record.repair_type}</td>
+                  <td className="px-4 py-2 text-center">{record.description}</td>
+                  <td className="px-4 py-2 text-center">
                     <span className="font-medium">{record.repair_quantity}</span>
                   </td>
-                  <td className="px-4 py-2">{moment(record.date).format('MM/DD/YYYY')}</td>
-                  <td className="px-4 py-2">₱{record.cost}</td>
-                  <td className="px-4 py-2">{record.performed_by}</td>
+                  <td className="px-4 py-2 text-center">{moment(record.date).format('MM/DD/YYYY')}</td>
+                  <td className="px-4 py-2 text-center">₱{record.cost}</td>
+                  <td className="px-4 py-2 text-center">{record.performed_by}</td>
                   <td className="px-4 py-2">
-                    <div className="flex space-x-2">
+                    <div className="flex space-x-2 justify-center">
                       <button
                         onClick={(e) => handleComplete(e, record)}
                         className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 mr-2"
