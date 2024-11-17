@@ -44,11 +44,8 @@ function Events() {
   const eventsPerPage = 6;
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  const filteredEvents = data.filter((event) =>
-    event.event_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
-  const currentEvents = filteredEvents.slice(indexOfFirstEvent, indexOfLastEvent);
+  const currentEvents = data.slice(indexOfFirstEvent, indexOfLastEvent);
+  const totalPages = Math.ceil(data.length / eventsPerPage);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const handleEventDeleted = (deletedEventId) => {
     setCompletedEvents((prevEvents) =>
@@ -133,6 +130,9 @@ function Events() {
     });
     setShowEditDialog(true);
   };
+  const filteredEvents = data.filter((event) =>
+    event.event_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   const [notification, setNotification] = useState(null);
   const showSuccessNotification = (message) => {
     setNotification({
@@ -209,13 +209,12 @@ function Events() {
         showErrorNotification('Event name must not exceed 100 characters');
         return;
       }
-
+      
       // Validate description length
       if (formData.description.length > 200) {
         showErrorNotification('Description must not exceed 200 characters');
         return;
       }
-
       // Check if an event with the same name already exists
       const eventExists = data.some(
         event => event.event_name.toLowerCase() === formData.event_name.toLowerCase()
@@ -238,8 +237,7 @@ function Events() {
       );
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create event');
+        throw new Error('Failed to create event');
       }
       
       const newEvent = await response.json();
@@ -249,17 +247,7 @@ function Events() {
       showSuccessNotification('Event created successfully');
     } catch (err) {
       console.error("Error creating event:", err);
-      if (err.message.includes('value too long')) {
-        if (err.message.includes('event_name')) {
-          showErrorNotification('Event name must not exceed 100 characters');
-        } else if (err.message.includes('description')) {
-          showErrorNotification('Description must not exceed 200 characters');
-        } else {
-          showErrorNotification('Text input exceeds maximum length');
-        }
-      } else {
-        showErrorNotification('Failed to create event');
-      }
+      showErrorNotification('Failed to create event');
     }
   };
   const handleCompleteEvent = async (uniqueId) => {
@@ -477,27 +465,19 @@ function Events() {
         />
         <div className="w-82 mx-auto p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            {currentEvents.length > 0 ? (
-              <>
-                {currentEvents.map((item) => (
-                  <EventCard
-                    key={item.unique_id}
-                    item={item}
-                    handleExplore={handleExplore}
-                    handleComplete={handleCompleteEvent}
-                    handleEdit={handleEdit}
-                    formatTime={formatTime}
-                    handleAddAsset={handleAddAsset}
-                    assets={assets}
-                  />
-                ))}
-                <AddEventButton onAddEvent={handleAddEvent} />
-              </>
-            ) : (
-              <div className="col-span-full text-center text-gray-500">
-                No events found matching your search
-              </div>
-            )}
+            {currentEvents.map((item) => (
+              <EventCard
+                key={item.unique_id}
+                item={item}
+                handleExplore={handleExplore}
+                handleComplete={handleCompleteEvent}
+                handleEdit={handleEdit}
+                formatTime={formatTime}
+                handleAddAsset={handleAddAsset}
+                assets={assets}
+              />
+            ))}
+            <AddEventButton onAddEvent={handleAddEvent} /> {/* Add Button */}
           </div>
           <div className="mt-4 mb-8 flex justify-center">
             {Array.from({ length: totalPages }, (_, i) => (
