@@ -23,6 +23,13 @@ function BorrowerForm() {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showTerms, setShowTerms] = useState(true);
 
+  const handleContactNumberChange = (e) => {
+    const value = e.target.value;
+    // Only allow digits
+    const numbersOnly = value.replace(/[^0-9]/g, '');
+    setContactNo(numbersOnly);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -262,7 +269,10 @@ function BorrowerForm() {
                   name="contactNo"
                   required
                   value={contactNo}
-                  onChange={(e) => setContactNo(e.target.value)}
+                  onChange={handleContactNumberChange}
+                  maxLength="11" // Limit to 11 digits for phone numbers
+                  pattern="[0-9]*" // HTML5 pattern for numbers only
+                  inputMode="numeric" // Shows numeric keyboard on mobile
                   placeholder=" "
                   className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
                 />
@@ -272,6 +282,9 @@ function BorrowerForm() {
                 >
                   Enter your contact number
                 </label>
+                {contactNo && !/^[0-9]+$/.test(contactNo) && (
+                  <p className="text-red-500 text-sm mt-1">Please enter numbers only</p>
+                )}
               </div>
         
               {/* Expected Date of Return Field */}
