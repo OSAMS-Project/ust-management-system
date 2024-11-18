@@ -60,7 +60,7 @@ const BorrowingRequest = () => {
 
   const handleStatusUpdate = async (id, status) => {
     try {
-      console.log('Before update - Request ID:', id, 'New Status:', status); // Debug log
+      console.log('Before update - Request ID:', id, 'New Status:', status);
 
       // Update the URL to match your route
       const response = await axios.put(
@@ -68,7 +68,7 @@ const BorrowingRequest = () => {
         { status: status }
       );
 
-      console.log('API Response:', response.data); // Debug log
+      console.log('API Response:', response.data);
 
       if (status === "Approved") {
         const request = requests.find(req => req.id === id);
@@ -344,10 +344,7 @@ const BorrowingRequest = () => {
                         {request.status === "Pending" ? (
                           <>
                             <button
-                              onClick={() => {
-                                handleStatusUpdate(request.id, "Approved");
-                                handleSendEmail(request.email, request.name, "Approved");
-                              }}
+                              onClick={() => handleStatusUpdate(request.id, "Approved")}
                               title="Approve"
                               className="bg-green-500 text-white p-1.5 rounded hover:bg-green-600 transition duration-300"
                             >
