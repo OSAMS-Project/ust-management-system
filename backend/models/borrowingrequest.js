@@ -318,6 +318,23 @@ class BorrowingRequest {
       return 0;
     }
   }
+
+  static async returnBorrowingRequest(requestId) {
+    const query = {
+      text: `
+        UPDATE borrowing_requests 
+        SET 
+          status = 'Returned',
+          date_returned = CURRENT_TIMESTAMP
+        WHERE id = $1 
+        RETURNING *
+      `,
+      values: [requestId]
+    };
+    
+    const result = await pool.query(query);
+    return result.rows[0];
+  }
 }
 
 module.exports = BorrowingRequest;

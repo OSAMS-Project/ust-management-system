@@ -220,52 +220,90 @@ exports.getCoverLetter = async (req, res) => {
 exports.returnBorrowingRequest = async (req, res) => {
   try {
     const requestId = req.params.id;
-    const returnDateTime = new Date().toISOString();
+    console.log('Starting return process for request ID:', requestId);
 
     // Start transaction
     await pool.query('BEGIN');
 
-    // 1. Update borrowing request status (only status, no return_date)
+    // 1. Get the request and its assets
+    const getRequestQuery = {
+      text: `
+        SELECT * FROM borrowing_requests 
+        WHERE id = $1 AND status = 'Approved'
+        FOR UPDATE
+      `,
+      values: [requestId]
+    };
+
+    const requestResult = await pool.query(getRequestQuery);
+
+    if (requestResult.rows.length === 0) {
+      await pool.query('ROLLBACK');
+      return res.status(404).json({ 
+        message: 'Borrowing request not found or already returned' 
+      });
+    }
+
+    const request = requestResult.rows[0];
+    const selectedAssets = typeof request.selected_assets === 'string'
+      ? JSON.parse(request.selected_assets)
+      : request.selected_assets;
+
+    // 2. Update asset quantities
+    for (const asset of selectedAssets) {
+      const updateAssetQuery = {
+        text: `
+          UPDATE assets 
+          SET quantity_for_borrowing = quantity_for_borrowing + $1
+          WHERE asset_id = $2
+          RETURNING asset_id, quantity_for_borrowing
+        `,
+        values: [parseInt(asset.quantity), asset.asset_id]
+      };
+
+      const assetResult = await pool.query(updateAssetQuery);
+      console.log(`Updated quantity for asset ${asset.asset_id}:`, assetResult.rows[0]);
+    }
+
+    // 3. Update request status
     const updateRequestQuery = {
       text: `
         UPDATE borrowing_requests 
-        SET status = 'Returned'
-        WHERE id = $1 
+        SET 
+          status = 'Returned',
+          date_returned = CURRENT_TIMESTAMP
+        WHERE id = $1
         RETURNING *
       `,
       values: [requestId]
     };
 
-    // 2. Update borrow logs with date_returned
-    const updateBorrowLogsQuery = {
+    const updatedRequest = await pool.query(updateRequestQuery);
+
+    // 4. Update borrow logs
+    const updateLogsQuery = {
       text: `
         UPDATE borrow_logs 
-        SET date_returned = $1
-        WHERE borrowing_request_id = $2
-        RETURNING *
+        SET date_returned = CURRENT_TIMESTAMP
+        WHERE borrowing_request_id = $1
+        AND date_returned IS NULL
       `,
-      values: [returnDateTime, requestId]
+      values: [requestId]
     };
 
-    // Execute both updates
-    const [requestResult, borrowLogResult] = await Promise.all([
-      pool.query(updateRequestQuery),
-      pool.query(updateBorrowLogsQuery)
-    ]);
+    await pool.query(updateLogsQuery);
 
     // Commit transaction
     await pool.query('COMMIT');
 
     res.status(200).json({
       message: 'Asset returned successfully',
-      request: requestResult.rows[0],
-      borrowLog: borrowLogResult.rows[0]
+      request: updatedRequest.rows[0]
     });
 
   } catch (error) {
-    // Rollback in case of error
     await pool.query('ROLLBACK');
-    console.error('Error returning assets:', error);
+    console.error('Return process error:', error);
     res.status(500).json({ 
       message: 'Error returning assets', 
       error: error.message 

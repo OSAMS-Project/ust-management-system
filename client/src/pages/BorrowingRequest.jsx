@@ -103,52 +103,16 @@ const BorrowingRequest = () => {
       console.log('Return response:', response.data);
 
       if (response.data) {
-        // Immediately update the local state
-        setRequests((prevRequests) => {
-          const updatedRequests = prevRequests.map((request) => {
-            if (request.id === id) {
-              return {
-                ...request,
-                ...response.data.request,
-                status: "Returned",
-                date_returned: new Date().toISOString()
-              };
-            }
-            return request;
-          });
-          return updatedRequests;
-        });
-
-        // Show both toast and notification
+        // Show notifications
         toast.success("Asset returned successfully!");
         setNotification({
           type: "success",
           message: "Asset returned successfully!",
-          duration: 3000 // Optional: auto-close after 3 seconds
+          duration: 3000
         });
 
-        // Update asset quantities
-        const request = requests.find(req => req.id === id);
-        if (request && request.selected_assets) {
-          const assets = typeof request.selected_assets === 'string' 
-            ? JSON.parse(request.selected_assets) 
-            : request.selected_assets;
-
-          console.log('Updating assets:', assets); // Debug log
-
-          // Update each asset's quantity
-          for (const asset of assets) {
-            try {
-              await axios.put(
-                `${process.env.REACT_APP_API_URL}/api/assets/${asset.asset_id}/return`, 
-                { quantity: parseInt(asset.quantity) }
-              );
-            } catch (error) {
-              console.error(`Error updating asset ${asset.asset_id}:`, error);
-              toast.error(`Failed to update quantity for ${asset.assetName}`);
-            }
-          }
-        }
+        // Fetch fresh data
+        await fetchRequests();
       }
 
     } catch (err) {
