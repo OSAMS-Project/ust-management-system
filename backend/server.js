@@ -26,6 +26,7 @@ const AssetIssue = require('./models/assetissue');
 const supplierActivityLogRoutes = require('./routes/supplieractivitylogRoutes');
 const incomingAssetsRouter = require('./routes/incomingAssetsRoutes');
 const IncomingAssets = require('./models/incomingassets');
+const maintenanceRoutes = require('./routes/maintenanceRoutes');
 
 const { createEventsTable, createEventAssetsTable } = require('./models/events');
 
@@ -72,7 +73,7 @@ app.use('/api/repair', repairRoutes);
 app.use('/api/roles', roleRoutes);
 app.use('/api/supplier-activity-logs', supplierActivityLogRoutes);
 app.use('/api/incoming-assets', incomingAssetsRouter);
-
+app.use('/api/maintenance', maintenanceRoutes);
 
 // SSE endpoint
 app.get('/api/assets/sse', (req, res) => {

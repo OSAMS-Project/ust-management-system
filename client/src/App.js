@@ -23,6 +23,7 @@ import BorrowingHistory from "./pages/BorrowingHistory";
 import RoleManagement from "./pages/RoleManagement";
 import ScanRedirect from "./components/scan/ScanRedirect";
 import AssetDetailsPage from './pages/AssetDetailsPage';
+import AssetMaintenance from "./pages/AssetMaintenance";
 
 console.log('Supabase URL:', process.env.REACT_APP_SUPABASE_URL);
 console.log('API URL:', process.env.REACT_APP_API_URL);
@@ -92,6 +93,7 @@ function AppContent({ user, setUser }) {
           <Route path="/incoming-assets" element={<PrivateRoute user={user}><IncomingAssets /></PrivateRoute>} />
           <Route path="/borrowing-history" element={<PrivateRoute user={user}><BorrowingHistory /></PrivateRoute>} />
           <Route path="/repair" element={<PrivateRoute user={user}><AssetRepair /></PrivateRoute>} />
+          <Route path="/asset-maintenance" element={<PrivateRoute user={user}><AssetMaintenance user={user} /></PrivateRoute>} />
           <Route path="/scan/:assetId" element={<ScanRedirect />} />
           <Route 
             path="/assets/details/:assetId" 

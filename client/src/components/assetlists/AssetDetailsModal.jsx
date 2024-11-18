@@ -4,6 +4,7 @@ import AssetActivityLogs from './AssetActivityLogs';
 import BorrowLogs from './BorrowLogs';
 import RepairLogs from '../repair/RepairLogs';
 import IssueLogs from '../issue/IssueLogs';
+import MaintenanceLogs from '../maintenance/MaintenanceLogs';
 import QRCodeModal from './QRCodeModal';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faQrcode } from "@fortawesome/free-solid-svg-icons";
@@ -13,6 +14,7 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
   const [showBorrowLogs, setShowBorrowLogs] = useState(false);
   const [showRepairLogs, setShowRepairLogs] = useState(false);
   const [showIssueLogs, setShowIssueLogs] = useState(false);
+  const [showMaintenanceLogs, setShowMaintenanceLogs] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
 
   if (!selectedAsset) return null;
@@ -77,6 +79,12 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
                   Borrow Logs
                 </button>
                 <button
+                  onClick={() => setShowMaintenanceLogs(true)}
+                  className="flex-1 bg-orange-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-orange-600 transition-transform transform hover:scale-105"
+                >
+                  Maintenance Logs
+                </button>
+                <button
                   onClick={() => setShowRepairLogs(true)}
                   className="flex-1 bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-yellow-600 transition-transform transform hover:scale-105"
                 >
@@ -122,6 +130,12 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
           <IssueLogs
             assetId={selectedAsset.asset_id}
             onClose={() => setShowIssueLogs(false)}
+          />
+        )}
+        {showMaintenanceLogs && (
+          <MaintenanceLogs
+            assetId={selectedAsset.asset_id}
+            onClose={() => setShowMaintenanceLogs(false)}
           />
         )}
         {showQRCode && (
