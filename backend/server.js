@@ -187,7 +187,7 @@ const initializeTables = async () => {
     console.log('Asset issues table initialized');
     await IncomingAssets.createIncomingAssetsTable();
     console.log('Incoming assets table initialized');
-    await BorrowingRequest.createBorrowingRequestsTable();
+    await BorrowingRequest.createBorrowingRequestTable();
     await BorrowingRequest.createBorrowedAssetsTable();
     console.log('All tables initialized successfully');
   } catch (err) {

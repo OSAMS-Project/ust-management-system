@@ -19,7 +19,7 @@ class BorrowingRequest {
         department VARCHAR(255) NOT NULL,
         purpose TEXT NOT NULL,
         contact_no VARCHAR(20) NOT NULL,
-        cover_letter_path TEXT,
+        cover_letter_url TEXT,
         selected_assets JSONB NOT NULL,
         status VARCHAR(20) DEFAULT 'Pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -121,7 +121,7 @@ class BorrowingRequest {
         CROSS JOIN jsonb_array_elements(br.selected_assets::jsonb) sa
         GROUP BY br.id, br.name, br.email, br.department, br.purpose, 
                  br.contact_no, br.date_requested, br.date_to_be_collected, 
-                 br.expected_return_date, br.status, br.notes, br.cover_letter_path
+                 br.expected_return_date, br.status, br.notes, br.cover_letter_url
         ORDER BY br.date_requested DESC;
       `;
 
@@ -135,7 +135,7 @@ class BorrowingRequest {
         borrowed_asset_quantities: Array.isArray(row.asset_details) && row.asset_details[0] !== null
           ? row.asset_details.map(a => a.quantity).join(', ')
           : 'N/A',
-        cover_letter_url: row.cover_letter_path 
+        cover_letter_url: row.cover_letter_url 
           ? `/api/borrowing-requests/${row.id}/cover-letter` 
           : null
       }));
@@ -215,7 +215,7 @@ class BorrowingRequest {
       ...row,
       borrowed_asset_names: row.selected_assets.map(asset => asset.assetName).join(', '),
       borrowed_asset_quantities: row.selected_assets.map(asset => asset.quantity).join(', '),
-      cover_letter_url: row.cover_letter_path ? `/api/borrowing-requests/${row.id}/cover-letter` : null,
+      cover_letter_url: row.cover_letter_url ? `/api/borrowing-requests/${row.id}/cover-letter` : null,
       expectedReturnDate: row.expected_return_date,
       notes: row.notes
     }));
@@ -237,35 +237,6 @@ class BorrowingRequest {
       console.log('Borrowed assets table created successfully');
     } catch (error) {
       console.error('Error creating borrowed assets table:', error);
-      throw error;
-    }
-  }
-
-  static async createBorrowingRequestsTable() {
-    const query = `
-      CREATE TABLE IF NOT EXISTS borrowing_requests (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL,
-        department VARCHAR(255) NOT NULL,
-        purpose TEXT,
-        contact_no VARCHAR(255) NOT NULL,
-        cover_letter_url TEXT,
-        selected_assets JSONB,
-        date_requested TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        date_to_be_collected TIMESTAMP,
-        expected_return_date DATE,
-        status VARCHAR(50) DEFAULT 'Pending',
-        notes TEXT
-      );
-    `;
-    
-    try {
-      await pool.query(query);
-      console.log('Borrowing requests table created successfully');
-      return true;
-    } catch (error) {
-      console.error('Error creating borrowing requests table:', error);
       throw error;
     }
   }
