@@ -67,7 +67,7 @@ function BorrowSelectModal({ isOpen, onClose, activeAssets, onSelectMaterials })
                 {selectedAssets[asset.asset_id] && (
                   <input
                     type="number"
-                    min="1"
+                    min="0"
                     max={asset.quantity_for_borrowing}
                     value={selectedAssets[asset.asset_id]?.quantity || ''}
                     onChange={(e) => handleQuantityChange(asset.asset_id, e.target.value)}

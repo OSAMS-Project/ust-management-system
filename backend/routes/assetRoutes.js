@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const assetController = require('../controllers/assetController');
 const Asset = require('../models/assets');
+const { executeTransaction } = require('../utils/queryExecutor');
+const pool = require('../config/database');
 
 router.post('/create', assetController.createAsset);
 router.get('/read', assetController.readAssets);
@@ -39,6 +41,58 @@ router.put('/:id/repair-status', async (req, res) => {
         assetId: req.params.id,
         requestedStatus: req.body.under_repair
       }
+    });
+  }
+});
+
+router.put('/:id/return', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { quantity } = req.body;
+
+    console.log('Updating asset:', { id, quantity }); // Debug log
+
+    // First, get the current asset to verify it exists
+    const getAssetQuery = {
+      text: 'SELECT * FROM assets WHERE asset_id = $1',
+      values: [id]
+    };
+
+    const asset = await pool.query(getAssetQuery);
+    
+    if (asset.rows.length === 0) {
+      return res.status(404).json({
+        message: `Asset with ID ${id} not found`
+      });
+    }
+
+    // Update asset quantity
+    const updateQuery = {
+      text: `
+        UPDATE assets 
+        SET quantity_for_borrowing = quantity_for_borrowing + $1
+        WHERE asset_id = $2 
+        RETURNING *
+      `,
+      values: [quantity, id]
+    };
+
+    const result = await pool.query(updateQuery);
+
+    if (result.rows.length === 0) {
+      throw new Error('Update failed');
+    }
+
+    res.json({
+      message: 'Asset quantity updated successfully',
+      asset: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('Error updating asset quantity:', error);
+    res.status(500).json({
+      message: 'Error updating asset quantity',
+      error: error.message
     });
   }
 });

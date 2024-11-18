@@ -26,7 +26,11 @@ const AssetIssue = require('./models/assetissue');
 const supplierActivityLogRoutes = require('./routes/supplieractivitylogRoutes');
 const incomingAssetsRouter = require('./routes/incomingAssetsRoutes');
 const IncomingAssets = require('./models/incomingassets');
+<<<<<<< Updated upstream
 const maintenanceRoutes = require('./routes/maintenanceRoutes');
+=======
+const BorrowingRequest = require('./models/borrowingrequest');
+>>>>>>> Stashed changes
 
 const { createEventsTable, createEventAssetsTable } = require('./models/events');
 
@@ -186,6 +190,8 @@ const initializeTables = async () => {
     console.log('Asset issues table initialized');
     await IncomingAssets.createIncomingAssetsTable();
     console.log('Incoming assets table initialized');
+    await BorrowingRequest.createBorrowingRequestsTable();
+    await BorrowingRequest.createBorrowedAssetsTable();
     console.log('All tables initialized successfully');
   } catch (err) {
     console.error('Error initializing tables:', err);

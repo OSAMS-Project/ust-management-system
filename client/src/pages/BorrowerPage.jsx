@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import axios from 'axios';
 import BorrowSelectModal from '../components/borrower/BorrowSelectModal';
 import TermsAndConditionsModal from '../components/borrower/TermsAndConditionsModal';
+import supabase from '../config/supabaseClient';
+import { toast } from 'react-hot-toast';
 
 function BorrowerForm() {
   const [email, setEmail] = useState("");
@@ -26,57 +28,71 @@ function BorrowerForm() {
     setIsSubmitting(true);
     setConfirmationMessage("");
 
-    try {
-      const formData = new FormData();
-      formData.append('name', name);
-      formData.append('email', email);
-      formData.append('department', department);
-      formData.append('purpose', purpose);
-      formData.append('contactNo', contactNo);
-      formData.append('coverLetter', coverLetter);
-      
-      // Make sure selectedAssets includes dateToBeCollected
-      const assetsWithDates = selectedAssets.map(asset => ({
-        ...asset,
-        dateToBeCollected: asset.dateToBeCollected
-      }));
-      
-      formData.append('selectedAssets', JSON.stringify(assetsWithDates));
-      formData.append('expectedReturnDate', expectedReturnDate);
-      formData.append('dateToBeCollected', selectedAssets[0]?.dateToBeCollected || ''); // Get dateToBeCollected from first asset
-      formData.append('notes', notes);
+    // Validate selected assets
+    if (!selectedAssets || selectedAssets.length === 0) {
+      toast.error('Please select at least one asset');
+      setIsSubmitting(false);
+      return;
+    }
 
-      console.log('Submitting form data:', {
+    try {
+      let coverLetterUrl = null;
+
+      // Upload cover letter if exists
+      if (coverLetter) {
+        const timestamp = new Date().getTime();
+        const cleanFileName = coverLetter.name.replace(/[^a-zA-Z0-9]/g, '_');
+        const fileName = `cover_letters/${timestamp}-${cleanFileName}`;
+
+        // Upload to Supabase
+        const { error: uploadError } = await supabase.storage
+          .from('samplebucket')
+          .upload(fileName, coverLetter);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        // Get public URL
+        const { data } = supabase.storage
+          .from('samplebucket')
+          .getPublicUrl(fileName);
+
+        coverLetterUrl = data.publicUrl;
+      }
+
+      const requestBody = {
         name,
         email,
         department,
         purpose,
         contactNo,
-        selectedAssets: assetsWithDates,
+        coverLetterUrl,
+        selectedAssets,
         expectedReturnDate,
-        dateToBeCollected: selectedAssets[0]?.dateToBeCollected,
+        dateToBeCollected: selectedAssets[0]?.dateToBeCollected || '',
         notes
-      });
+      };
+
+      console.log('Submitting request:', requestBody);
 
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/borrowing-requests`,
-        formData,
+        requestBody,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'application/json',
           },
         }
       );
 
-      console.log('Borrowing request submitted:', response.data);
+      console.log('Response:', response.data);
       setConfirmationMessage("Your borrowing request has been submitted successfully!");
+      toast.success('Request submitted successfully!');
       resetForm();
     } catch (error) {
-      console.error('Error submitting borrowing request:', error);
-      if (error.response) {
-        console.error('Response data:', error.response.data);
-        console.error('Response status:', error.response.status);
-      }
+      console.error('Error submitting borrowing request:', error.response?.data || error);
+      toast.error(error.response?.data?.message || 'Error submitting request');
     } finally {
       setIsSubmitting(false);
     }
@@ -316,6 +332,11 @@ function BorrowerForm() {
                     file:bg-gray-200 file:text-gray-700
                     hover:file:bg-gray-300 transition-colors duration-300"
                 />
+                {coverLetter && (
+                  <div className="mt-2 text-sm text-gray-600">
+                    Selected file: {coverLetter.name}
+                  </div>
+                )}
               </div>
         
               {/* Submit Button */}

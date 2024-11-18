@@ -28,8 +28,13 @@ import IncomingAssets from "./pages/IncomingAssets";
 import BorrowingHistory from "./pages/BorrowingHistory";
 import RoleManagement from "./pages/RoleManagement";
 import ScanRedirect from "./components/scan/ScanRedirect";
+<<<<<<< Updated upstream
 import AssetDetailsPage from "./pages/AssetDetailsPage";
 import AssetMaintenance from "./pages/AssetMaintenance";
+=======
+import AssetDetailsPage from './pages/AssetDetailsPage';
+import FileUpload from './components/FileUpload';
+>>>>>>> Stashed changes
 
 console.log("Supabase URL:", process.env.REACT_APP_SUPABASE_URL);
 console.log("API URL:", process.env.REACT_APP_API_URL);
@@ -273,6 +278,7 @@ function AppContent({ user, setUser }) {
               </PrivateRoute>
             }
           />
+          <Route path="/file-upload" element={<PrivateRoute user={user}><FileUpload /></PrivateRoute>} />
         </Routes>
       </div>
     </div>

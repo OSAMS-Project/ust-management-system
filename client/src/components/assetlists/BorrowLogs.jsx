@@ -4,6 +4,10 @@ import moment from 'moment';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
+const formatDate = (date) => {
+  return date ? moment(date).format("MM/DD/YYYY") : 'Not yet returned';
+};
+
 const BorrowLogs = ({ assetId, onClose }) => {
   const [logs, setLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -26,10 +30,6 @@ const BorrowLogs = ({ assetId, onClose }) => {
 
     fetchBorrowLogs();
   }, [assetId]);
-
-  const formatDate = (date) => {
-    return moment(date).format('MM/DD/YYYY');
-  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
@@ -68,7 +68,7 @@ const BorrowLogs = ({ assetId, onClose }) => {
                     <td className="px-4 py-2 text-center">{log.borrower_department}</td>
                     <td className="px-4 py-2 text-center">{log.quantity_borrowed}</td>
                     <td className="px-4 py-2 text-center">
-                      {log.date_returned ? formatDate(log.date_returned) : 'Not yet returned'}
+                      {formatDate(log.date_returned)}
                     </td>
                   </tr>
                 ))}

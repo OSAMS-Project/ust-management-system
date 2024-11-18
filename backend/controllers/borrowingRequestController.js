@@ -7,98 +7,81 @@ const upload = multer({ dest: "uploads/" });
 const BorrowLogs = require("../models/borrowLogs");
 const emailService = require("../services/emailService");
 const {sendSMS} = require("../services/smsService");
+const pool = require("../config/database");
 
-exports.createBorrowingRequest = [
-  upload.single("coverLetter"),
-  async (req, res) => {
-    try {
-      console.log("Received request body:", req.body);
+exports.createBorrowingRequest = async (req, res) => {
+  try {
+    const requestData = {
+      name: req.body.name,
+      email: req.body.email,
+      department: req.body.department,
+      purpose: req.body.purpose,
+      contactNo: req.body.contactNo,
+      coverLetterUrl: req.body.coverLetterUrl,
+      selectedAssets: req.body.selectedAssets,
+      expectedReturnDate: req.body.expectedReturnDate,
+      dateToBeCollected: req.body.dateToBeCollected,
+      notes: req.body.notes
+    };
 
-      const {
-        name,
-        email,
-        department,
-        purpose,
-        contactNo,
-        selectedAssets,
-        expectedReturnDate,
-        dateToBeCollected,
-        notes,
-      } = req.body;
+    console.log('Creating borrowing request with data:', requestData);
 
-      // Validate required fields
-      if (!name || !email || !department || !purpose || !contactNo) {
-        return res.status(400).json({
-          message: "Missing required fields",
-          fields: { name, email, department, purpose, contactNo },
-          received: req.body
-        });
-      }
-
-      // Save cover letter path if uploaded
-      let coverLetterPath = null;
-      if (req.file) {
-        coverLetterPath = req.file.path;
-      }
-
-      // Parse selected assets JSON if provided
-      let parsedSelectedAssets = [];
-      try {
-        parsedSelectedAssets = selectedAssets ? JSON.parse(selectedAssets) : [];
-        console.log('Parsed selected assets:', parsedSelectedAssets);
-      } catch (error) {
-        console.error("Error parsing selectedAssets:", error);
-        return res.status(400).json({
-          message: "Invalid selectedAssets format",
-          error: error.message,
-          received: selectedAssets
-        });
-      }
-
-      // Get dateToBeCollected from the first asset if not provided directly
-      const finalDateToBeCollected = dateToBeCollected || parsedSelectedAssets[0]?.dateToBeCollected;
-
-      if (!finalDateToBeCollected) {
-        return res.status(400).json({
-          message: "Missing dateToBeCollected",
-          received: { dateToBeCollected, selectedAssets: parsedSelectedAssets }
-        });
-      }
-
-      // Create borrowing request entry
-      const newRequest = await BorrowingRequest.createBorrowingRequest({
-        name,
-        email,
-        department,
-        purpose,
-        contactNo,
-        coverLetterPath,
-        selectedAssets: parsedSelectedAssets,
-        expectedReturnDate,
-        dateToBeCollected: finalDateToBeCollected,
-        notes,
-      });
-
-      res.status(201).json(newRequest);
-    } catch (error) {
-      console.error("Error creating borrowing request:", error);
-      res.status(500).json({
-        message: "Error creating borrowing request",
-        error: error.message,
-      });
-    }
-  },
-];
+    const requestId = await BorrowingRequest.createBorrowingRequest(requestData);
+    
+    res.status(201).json({
+      message: 'Borrowing request created successfully',
+      requestId: requestId
+    });
+  } catch (error) {
+    console.error('Error in createBorrowingRequest:', error);
+    res.status(500).json({
+      message: 'Error creating borrowing request',
+      error: error.message
+    });
+  }
+};
 
 exports.getAllBorrowingRequests = async (req, res) => {
   try {
-    const requests = await BorrowingRequest.getAllBorrowingRequests();
-    res.status(200).json(requests);
+    const query = {
+      text: `
+        SELECT 
+          br.*,
+          json_agg(
+            json_build_object(
+              'assetName', a."assetName",
+              'quantity', (sa->>'quantity')
+            )
+          ) as asset_details
+        FROM borrowing_requests br
+        CROSS JOIN jsonb_array_elements(br.selected_assets::jsonb) sa
+        LEFT JOIN assets a ON a.asset_id = (sa->>'assetId')::text
+        GROUP BY br.id, br.name, br.email, br.department, br.purpose, 
+                 br.contact_no, br.date_requested, br.date_to_be_collected, 
+                 br.expected_return_date, br.status, br.notes, br.cover_letter_url
+        ORDER BY br.date_requested DESC;
+      `
+    };
+
+    const result = await pool.query(query);
+    console.log('Query result:', result.rows[0]); // Debug log
+
+    const requests = result.rows.map(row => ({
+      ...row,
+      borrowed_asset_names: Array.isArray(row.asset_details) && row.asset_details[0] !== null
+        ? row.asset_details.map(a => a.assetName).join(', ')
+        : 'N/A',
+      borrowed_asset_quantities: Array.isArray(row.asset_details) && row.asset_details[0] !== null
+        ? row.asset_details.map(a => a.quantity).join(', ')
+        : 'N/A'
+    }));
+
+    console.log('Processed requests:', requests[0]); // Debug log
+    res.json(requests);
+
   } catch (error) {
-    res.status(500).json({
-      message: "Error fetching borrowing requests",
-      error: error.message,
-    });
+    console.error('Controller Error:', error);
+    res.status(500).json({ message: 'Error fetching borrowing requests' });
   }
 };
 
@@ -107,7 +90,7 @@ exports.updateBorrowingRequestStatus = async (req, res) => {
     const { status } = req.body;
     const requestId = req.params.id;
 
-    // Update instead of delete for rejected requests
+    // Update the request status
     const updatedRequest = await BorrowingRequest.updateBorrowingRequestStatus(
       requestId,
       status
@@ -115,6 +98,7 @@ exports.updateBorrowingRequestStatus = async (req, res) => {
 
     if (updatedRequest) {
       if (status === "Approved") {
+        // Update asset quantities
         const selectedAssets = updatedRequest.selected_assets;
         await Promise.all(
           selectedAssets.map(async (asset) => {
@@ -125,6 +109,7 @@ exports.updateBorrowingRequestStatus = async (req, res) => {
           })
         );
 
+        // Create borrow logs
         for (const asset of selectedAssets) {
           await BorrowLogs.createBorrowLog({
             assetId: asset.asset_id,
@@ -138,6 +123,7 @@ exports.updateBorrowingRequestStatus = async (req, res) => {
           });
         }
 
+        // Send approval email
         await emailService.sendApprovalEmail(
           updatedRequest.email,
           updatedRequest.name
@@ -234,34 +220,56 @@ exports.getCoverLetter = async (req, res) => {
 exports.returnBorrowingRequest = async (req, res) => {
   try {
     const requestId = req.params.id;
-    const request = await BorrowingRequest.getBorrowingRequestById(requestId);
-    const returnDateTime = new Date(); // Capture the exact moment return button is clicked
+    const returnDateTime = new Date().toISOString();
 
-    if (!request) {
-      return res.status(404).json({ message: "Borrowing request not found" });
-    }
+    // Start transaction
+    await pool.query('BEGIN');
 
-    const selectedAssets = request.selected_assets;
-    await Promise.all(
-      selectedAssets.map(async (asset) => {
-        await Asset.updateAssetQuantity(asset.asset_id, asset.quantity);
-      })
-    );
+    // 1. Update borrowing request status (only status, no return_date)
+    const updateRequestQuery = {
+      text: `
+        UPDATE borrowing_requests 
+        SET status = 'Returned'
+        WHERE id = $1 
+        RETURNING *
+      `,
+      values: [requestId]
+    };
 
-    const updatedRequest = await BorrowingRequest.updateBorrowingRequestStatus(
-      requestId,
-      "Returned",
-      returnDateTime
-    );
+    // 2. Update borrow logs with date_returned
+    const updateBorrowLogsQuery = {
+      text: `
+        UPDATE borrow_logs 
+        SET date_returned = $1
+        WHERE borrowing_request_id = $2
+        RETURNING *
+      `,
+      values: [returnDateTime, requestId]
+    };
 
-    await BorrowLogs.updateBorrowLogReturnDate(requestId, returnDateTime);
+    // Execute both updates
+    const [requestResult, borrowLogResult] = await Promise.all([
+      pool.query(updateRequestQuery),
+      pool.query(updateBorrowLogsQuery)
+    ]);
 
-    res.status(200).json(updatedRequest);
+    // Commit transaction
+    await pool.query('COMMIT');
+
+    res.status(200).json({
+      message: 'Asset returned successfully',
+      request: requestResult.rows[0],
+      borrowLog: borrowLogResult.rows[0]
+    });
+
   } catch (error) {
-    console.error("Error returning assets:", error);
-    res
-      .status(500)
-      .json({ message: "Error returning assets", error: error.message });
+    // Rollback in case of error
+    await pool.query('ROLLBACK');
+    console.error('Error returning assets:', error);
+    res.status(500).json({ 
+      message: 'Error returning assets', 
+      error: error.message 
+    });
   }
 };
 

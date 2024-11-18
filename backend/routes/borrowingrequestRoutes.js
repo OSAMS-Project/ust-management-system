@@ -10,6 +10,7 @@ router.post('/', borrowingRequestController.createBorrowingRequest);
 router.get('/', borrowingRequestController.getAllBorrowingRequests);
 router.put('/:id/status', borrowingRequestController.updateBorrowingRequestStatus);
 router.get('/:id/cover-letter', borrowingRequestController.getCoverLetter);
+router.get('/', borrowingRequestController.getAllBorrowingRequests);
 router.put('/:id/return', borrowingRequestController.returnBorrowingRequest);
 router.delete('/:id', borrowingRequestController.deleteBorrowingRequest);
 router.post('/send-email', borrowingRequestController.sendManualEmail);
@@ -52,6 +53,73 @@ router.get('/pending/:assetId', async (req, res) => {
 router.use((err, req, res, next) => {
   console.error('Error in borrowing request routes:', err);
   res.status(500).json({ message: 'Internal server error', error: err.message });
+});
+
+router.put('/:id/return', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const returnDateTime = new Date().toISOString();
+
+    // Start transaction
+    await pool.query('BEGIN');
+
+    // 1. Update borrowing request status
+    const updateRequestQuery = {
+      text: `
+        UPDATE borrowing_requests 
+        SET status = 'Returned', 
+            return_date = $1
+        WHERE id = $2 
+        RETURNING *
+      `,
+      values: [returnDateTime, id]
+    };
+
+    // 2. Update borrow logs with correct column name (date_returned)
+    const updateBorrowLogsQuery = {
+      text: `
+        UPDATE borrow_logs 
+        SET 
+          date_returned = $1,
+          status = 'Returned'
+        WHERE borrowing_request_id = $2
+        RETURNING *
+      `,
+      values: [returnDateTime, id]
+    };
+
+    // Execute updates
+    const requestResult = await pool.query(updateRequestQuery);
+    const borrowLogResult = await pool.query(updateBorrowLogsQuery);
+
+    // Debug logs
+    console.log('Request update result:', requestResult.rows[0]);
+    console.log('Borrow log update result:', borrowLogResult.rows[0]);
+
+    if (requestResult.rowCount === 0) {
+      await pool.query('ROLLBACK');
+      return res.status(404).json({
+        message: 'Borrowing request not found'
+      });
+    }
+
+    // Commit transaction
+    await pool.query('COMMIT');
+
+    res.json({
+      message: 'Asset returned successfully',
+      request: requestResult.rows[0],
+      borrowLog: borrowLogResult.rows[0]
+    });
+
+  } catch (error) {
+    await pool.query('ROLLBACK');
+    console.error('Error in return endpoint:', error);
+    res.status(500).json({
+      message: 'Error returning asset',
+      error: error.message
+    });
+  }
 });
 
 module.exports = router;
