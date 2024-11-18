@@ -27,6 +27,9 @@ const DashboardInfoCards = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [events, setEvents] = useState([]);
   const [totalOngoingEvents, setTotalOngoingEvents] = useState(null);
+  const [repairRecords, setRepairRecords] = useState([]);
+  const [totalOngoingRepairs, setTotalOngoingRepairs] = useState(null);
+  const [totalIncomingAssets, setTotalIncomingAssets] = useState(null);
 
   const formatTime = (time) => {
     if (!time) return "";
@@ -84,6 +87,16 @@ const DashboardInfoCards = () => {
           `${process.env.REACT_APP_API_URL}/api/dashboard/recent-assets`
         );
         setRecentAssets(recentAssetsResponse.data);
+
+        const incomingAssetsResponse = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/dashboard/total-incoming-assets`
+        );
+        setTotalIncomingAssets(incomingAssetsResponse.data.totalIncomingAssets);
+
+        const repairRecordsResponse = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/dashboard/total-repairs`
+        );
+        setTotalOngoingRepairs(repairRecordsResponse.data.totalOngoingRepairs);
 
         const recentEventsResponse = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/dashboard/recent-events`
@@ -159,43 +172,43 @@ const DashboardInfoCards = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-1 px-2">
         <div
-          className="bg-[#FEC00F] p-7 rounded-lg shadow-md flex items-center h-48 bg-cover bg-center relative overflow-hidden"
+          className="bg-[#FEC00F] p-5 rounded-lg shadow-md flex items-center h-36 bg-cover bg-center relative overflow-hidden"
           style={{ backgroundImage: "url('ust-image.JPG')" }}
         >
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col justify-between h-full w-3/4 text-left">
-            <div className="p-4">
-              <h2 className="text-7xl font-extrabold text-[#FEC00F] drop-shadow-lg">
+            <div className="p-3">
+              <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error
                   ? "Error"
                   : totalAssets === null
                   ? "Loading..."
                   : totalAssets}
               </h2>
-              <p className="text-[1.25rem] font-semibold text-white drop-shadow-md">
+              <p className="text-base font-semibold text-white drop-shadow-md">
                 Total Assets
               </p>
             </div>
           </div>
-          <div className="absolute bottom-4 right-4">
+          <div className="absolute bottom-3 right-3">
             <Link
               to="/assets"
-              className="bg-gray-100 text-black py-1 px-3 rounded-full font-medium text-sm hover:bg-gray-400 transition duration-300"
+              className="bg-gray-100 text-black py-1 px-2 rounded-full font-medium text-xs hover:bg-gray-400 transition duration-300"
             >
               See More
-              <FontAwesomeIcon icon={faArrowRight} className="ml-2 text-sm" />
+              <FontAwesomeIcon icon={faArrowRight} className="ml-1 text-sm" />
             </Link>
           </div>
         </div>
 
         <div
-          className="bg-[#FEC00F] p-7 rounded-lg shadow-md flex items-center h-48 bg-cover bg-center relative overflow-hidden"
+          className="bg-[#FEC00F] p-5 rounded-lg shadow-md flex items-center h-36 bg-cover bg-center relative overflow-hidden"
           style={{ backgroundImage: "url('ust-img-6.JPG')" }}
         >
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col justify-between h-full w-3/4 text-left">
-            <div className="p-4">
-              <h2 className="text-7xl font-extrabold text-[#FEC00F] drop-shadow-lg">
+            <div className="p-3">
+              <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error
                   ? "Error"
                   : totalOngoingEvents === null
@@ -219,13 +232,13 @@ const DashboardInfoCards = () => {
         </div>
 
         <div
-          className="bg-[#FEC00F] p-7 rounded-lg shadow-md flex items-center h-48 bg-cover bg-center relative overflow-hidden"
+          className="bg-[#FEC00F] p-5 rounded-lg shadow-md flex items-center h-36 bg-cover bg-center relative overflow-hidden"
           style={{ backgroundImage: "url('ust-img-5.JPG')" }}
         >
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col justify-between h-full w-3/4 text-left">
-            <div className="p-4">
-              <h2 className="text-7xl font-extrabold text-[#FEC00F] drop-shadow-lg">
+            <div className="p-3">
+              <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error
                   ? "Error"
                   : totalAssetsForBorrowing === null
@@ -249,13 +262,13 @@ const DashboardInfoCards = () => {
         </div>
 
         <div
-          className="bg-[#FEC00F] p-7 rounded-lg shadow-md flex items-center h-48 bg-cover bg-center relative overflow-hidden"
+          className="bg-[#FEC00F] p-5 rounded-lg shadow-md flex items-center h-36 bg-cover bg-center relative overflow-hidden"
           style={{ backgroundImage: "url('ust-img-5.JPG')" }}
         >
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col justify-between h-full w-3/4 text-left">
-            <div className="p-4">
-              <h2 className="text-7xl font-extrabold text-[#FEC00F] drop-shadow-lg">
+            <div className="p-3">
+              <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error
                   ? "Error"
                   : totalPendingRequests === null
@@ -281,13 +294,13 @@ const DashboardInfoCards = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-1 px-2 py-1">
         <div
-          className="bg-[#FEC00F] p-7 rounded-lg shadow-md flex items-center h-48 bg-cover bg-center relative overflow-hidden"
+          className="bg-[#FEC00F] p-5 rounded-lg shadow-md flex items-center h-36 bg-cover bg-center relative overflow-hidden"
           style={{ backgroundImage: "url('ust-img-7.JPG')" }}
         >
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col justify-between h-full w-3/4 text-left">
-            <div className="p-4">
-              <h2 className="text-7xl font-extrabold text-[#FEC00F] drop-shadow-lg">
+            <div className="p-3">
+              <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error
                   ? "Error"
                   : totalAcceptedRequests === null
@@ -310,18 +323,18 @@ const DashboardInfoCards = () => {
           </div>
         </div>
         <div
-          className="bg-[#FEC00F] p-7 rounded-lg shadow-md flex items-center h-48 bg-cover bg-center relative overflow-hidden"
+          className="bg-[#FEC00F] p-5 rounded-lg shadow-md flex items-center h-36 bg-cover bg-center relative overflow-hidden"
           style={{ backgroundImage: "url('ust-img-6.JPG')" }}
         >
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col justify-between h-full w-3/4 text-left">
-            <div className="p-4">
-              <h2 className="text-7xl font-extrabold text-[#FEC00F] drop-shadow-lg">
+            <div className="p-3">
+              <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error
                   ? "Error"
-                  : totalOngoingEvents === null
+                  : totalIncomingAssets === null
                   ? "Loading..."
-                  : totalOngoingEvents}
+                  : totalIncomingAssets}
               </h2>
               <p className="text-[1.25rem] font-semibold text-white drop-shadow-md">
                 Incoming Assets
@@ -339,13 +352,13 @@ const DashboardInfoCards = () => {
           </div>
         </div>
         <div
-          className="bg-[#FEC00F] p-7 rounded-lg shadow-md flex items-center h-48 bg-cover bg-center relative overflow-hidden"
+          className="bg-[#FEC00F] p-5 rounded-lg shadow-md flex items-center h-36 bg-cover bg-center relative overflow-hidden"
           style={{ backgroundImage: "url('ust-img-6.JPG')" }}
         >
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col justify-between h-full w-3/4 text-left">
-            <div className="p-4">
-              <h2 className="text-7xl font-extrabold text-[#FEC00F] drop-shadow-lg">
+            <div className="p-3">
+              <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error
                   ? "Error"
                   : totalOngoingEvents === null
@@ -369,118 +382,6 @@ const DashboardInfoCards = () => {
         </div>
       </div>
       {/* Recent Added Assets Section */}
-      {/* Recent Added Assets Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
-
-        
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-        <div>
-          <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-lg px-3 py-1 uppercase tracking-wide mb-2">
-            Recently Added Assets
-          </div>
-          <div className="p-3 rounded-md">
-            {recentAssets.length === 0 ? (
-              <p className="text-gray-500 text-sm">No recent assets yet</p>
-            ) : (
-              recentAssets.slice(0, 3).map((asset, index) => (
-                <div
-                  key={asset.asset_id}
-                  className={`py-1 ${
-                    index < recentAssets.slice(0, 3).length - 1
-                      ? "border-b"
-                      : ""
-                  } border-gray-200`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <FontAwesomeIcon
-                      icon={faBox}
-                      className="text-black text-lg"
-                    />
-                    <div className="flex justify-between items-center w-full">
-                      <div>
-                        <p className="text-xs text-gray-400">
-                          {moment(asset.createdDate).format(
-                            "MMM D, YYYY, h:mmA"
-                          )}
-                        </p>
-                        <p className="font-bold text-md">{asset.assetName}</p>
-                        <p className="text-xs text-gray-500 mb-1">
-                          {asset.assetDetails}
-                        </p>
-                      </div>
-                      <button
-                        className="bg-black text-white px-2 py-0.5 rounded-full flex items-center"
-                        onClick={() => handleAssetDetailsClick(asset)}
-                      >
-                        <FontAwesomeIcon
-                          icon={faEye}
-                          className="mr-1 text-xs"
-                        />
-                        View
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Upcoming Events Section */}
-        <div>
-          <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-lg px-3 py-1 uppercase tracking-wide mb-2">
-            Upcoming Events
-          </div>
-          <div className="p-3 rounded-md">
-            {sortedEvents.length === 0 ? (
-              <p className="text-gray-500 text-sm">No upcoming events yet</p>
-            ) : (
-              sortedEvents.slice(0, 3).map((event, index) => (
-                <div
-                  key={event.unique_id}
-                  className={`py-1 ${
-                    index < sortedEvents.slice(0, 3).length - 1
-                      ? "border-b"
-                      : ""
-                  } border-gray-200`}
-                >
-                  <div className="flex items-center space-x-3">
-                    <FontAwesomeIcon
-                      icon={faCalendarAlt}
-                      className="text-black text-lg"
-                    />
-                    <div className="flex justify-between items-center w-full">
-                      <div>
-                        <p className="text-xs text-gray-400">
-                          {moment(event.event_date).format("MMM D, YYYY")}{" "}
-                          {formatTime(event.event_start_time)} -{" "}
-                          {formatTime(event.event_end_time)}
-                        </p>
-                        <p className="font-bold text-md">{event.event_name}</p>
-                        <p className="text-xs text-gray-500 mb-1">
-                          {event.description}
-                        </p>
-                      </div>
-                      <button
-                        className="bg-black text-white px-2 py-0.5 rounded-full flex items-center"
-                        onClick={() => handleEventDetailsClick(event)}
-                      >
-                        <FontAwesomeIcon
-                          icon={faEye}
-                          className="mr-1 text-xs"
-                        />
-                        View
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
 
       {selectedAsset && (
         <AssetDetailsModal

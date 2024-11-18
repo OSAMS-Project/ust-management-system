@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import moment from 'moment';
-import DashboardInfoCards from '../components/dashboard/dashboardinfocards';
-import StockPriceChart from '../components/dashboard/StockPriceChart';
-import BorrowerFrequencyChart from '../components/dashboard/BorrowerFrequencyChart';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import moment from "moment";
+import DashboardInfoCards from "../components/dashboard/dashboardinfocards";
+import StockPriceOverview from "../components/dashboard/StockPriceChart";
+import BorrowerFrequencyChart from "../components/dashboard/BorrowerFrequencyChart";
+import EventCompletionChart from "../components/dashboard/EventCompletionChart";
+import UpcomingEvents from "../components/dashboard/UpcomingEvents";
+import RecentlyAddedAssets from "../components/dashboard/RecentlyAddedAssets";
 
 const toSentenceCase = (str) => {
   return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
@@ -11,17 +14,37 @@ const toSentenceCase = (str) => {
 
 const Dashboard = ({ user }) => {
   const [assets, setAssets] = useState([]);
+  const [recentAssets, setRecentAssets] = useState([]);
+  const [recentEvents, setRecentEvents] = useState([]);
   const [stockHistory, setStockHistory] = useState([]);
   const [borrowerFrequency, setBorrowerFrequency] = useState({});
+  const [totalEvents, setTotalEvents] = useState(0);
+  const [completedEvents, setCompletedEvents] = useState([]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const assetsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/Assets/read`);
+        const assetsResponse = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/Assets/read`
+        );
         setAssets(assetsResponse.data);
+        setRecentAssets(assetsResponse.data.slice(0, 3));
         calculateWeeklyStockHistory(assetsResponse.data);
 
-        const requestsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/borrowing-requests`);
+        const eventsResponse = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/Events/read`
+        );
+        setRecentEvents(eventsResponse.data.slice(0, 3));
+        setTotalEvents(eventsResponse.data.length);
+
+        const completedEventsResponse = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/events/completed`
+        );
+        setCompletedEvents(completedEventsResponse.data || []);
+
+        const requestsResponse = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/borrowing-requests`
+        );
         processBorrowerFrequency(requestsResponse.data);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
@@ -37,7 +60,9 @@ const Dashboard = ({ user }) => {
       const endOfWeek = moment().subtract(i, "weeks").endOf("week");
 
       const weeklyStockPrice = assetData
-        .filter((asset) => moment(asset.createdDate).isBetween(startOfWeek, endOfWeek))
+        .filter((asset) =>
+          moment(asset.createdDate).isBetween(startOfWeek, endOfWeek)
+        )
         .reduce((acc, asset) => acc + asset.cost * asset.quantity, 0);
 
       historicalData.push({
@@ -56,33 +81,55 @@ const Dashboard = ({ user }) => {
     setBorrowerFrequency(frequency);
   };
 
+  const handleAssetDetailsClick = (asset) => {
+    console.log("Asset details clicked:", asset);
+  };
+
+  const handleEventDetailsClick = (event) => {
+    console.log("Event details clicked:", event);
+  };
+
   return (
-    <div className="p-8 min-h-screen">
-      <div className="text-3xl mb-3">
-        <span className="font-light">Welcome back,</span>{" "}
-        <span className="font-bold">{toSentenceCase(user?.name || "User")}</span>
-      </div>
+    <div className="p-6">
+      {/* Welcome Section */}
 
       {/* Dashboard Info Cards */}
       <DashboardInfoCards />
 
       {/* Charts Section */}
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Stock Price Chart */}
-        <div className="bg-white p-4 rounded-lg shadow-md h-[400px] flex flex-col">
-          <h2 className="text-xl font-semibold mb-3 text-center">Stock Price History</h2>
-          <div className="flex-grow">
-            <StockPriceChart stockData={stockHistory} />
-          </div>
+      <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-lg px-3 py-1 uppercase tracking-wide mt-2">
+        Latest Reports
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1 mt-1">
+        {/* Stock Price Overview */}
+        <div className="flex flex-col p-2">
+          <StockPriceOverview stockData={stockHistory} />
+        </div>
+
+        {/* Event Completion Chart */}
+        <div className="flex flex-col p-2">
+          <EventCompletionChart
+            completedEvents={completedEvents}
+            totalEvents={totalEvents}
+          />
         </div>
 
         {/* Borrower Frequency Chart */}
-        <div className="bg-white p-4 rounded-lg shadow-md h-[400px] flex flex-col">
-          <h2 className="text-xl font-semibold mb-3 text-center">Borrower Frequency</h2>
-          <div className="flex-grow">
-            <BorrowerFrequencyChart borrowerData={borrowerFrequency} />
-          </div>
+        <div className="flex flex-col lg:col-span-2 p-2">
+          <BorrowerFrequencyChart borrowerData={borrowerFrequency} />
         </div>
+      </div>
+
+      {/* Additional Widgets */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+        <UpcomingEvents
+          sortedEvents={recentEvents}
+          handleEventDetailsClick={handleEventDetailsClick}
+        />
+        <RecentlyAddedAssets
+          recentAssets={recentAssets}
+          handleAssetDetailsClick={handleAssetDetailsClick}
+        />
       </div>
     </div>
   );

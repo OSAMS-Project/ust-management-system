@@ -39,24 +39,23 @@ const CompletedEvents = ({ completedEvents, onEventDeleted }) => {
 
   return (
     <div className="mb-16">
-      <h2 className="text-2xl font-bold mb-4">Completed Events</h2>
       {sortedEvents.length === 0 ? (
         <p>No completed events to display.</p>
       ) : (
         <>
-          <table className="min-w-full bg-white border border-gray-300">
-            <thead className="bg-yellow-500">
+         <table className="min-w-full bg-white border-collapse">
+         <thead className="bg-black text-[#FEC00F]">
               <tr>
-                <th className="py-2 px-4 border-b text-white text-center">
+                <th className="py-2 px-4 border-b text-center">
                   Event Name
                 </th>
-                <th className="py-2 px-4 border-b text-white text-center">
+                <th className="py-2 px-4 border-b  text-center">
                   Event Date
                 </th>
-                <th className="py-2 px-4 border-b text-white text-center">
+                <th className="py-2 px-4 border-b  text-center">
                   Location
                 </th>
-                <th className="py-2 px-4 border-b text-white text-center">
+                <th className="py-2 px-4 border-b text-center">
                   Actions
                 </th>
               </tr>

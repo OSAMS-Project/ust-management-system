@@ -49,13 +49,17 @@ const NavItem = ({ to, text, icon, isActive, subItems }) => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
-  const isSubItemActive = subItems && subItems.some(item => {
-    if (item.subItems) {
-      return item.subItems.some(subItem => subItem.to === location.pathname);
-    }
-    return item.to === location.pathname;
-  });
-  
+  const isSubItemActive =
+    subItems &&
+    subItems.some((item) => {
+      if (item.subItems) {
+        return item.subItems.some(
+          (subItem) => subItem.to === location.pathname
+        );
+      }
+      return item.to === location.pathname;
+    });
+
   const shouldHighlight = isActive || isSubItemActive;
 
   const toggleSubmenu = (e) => {
@@ -123,14 +127,18 @@ const MENU_LIST = [
       { text: "Asset Repair", to: "/asset-repair", icon: faTools },
       { text: "Asset Issues", to: "/asset-issue", icon: faExclamationTriangle },
       { text: "Asset Request", to: "/asset-request", icon: faBoxOpen },
-      { text: "Archived Requests", to: "/archived-requests", icon: faClipboardList },
+      {
+        text: "Archived Requests",
+        to: "/archived-requests",
+        icon: faClipboardList,
+      },
       { text: "Incoming Assets", to: "/incoming-assets", icon: faTruckFast },
       { text: "Asset Maintenance", to: "/asset-maintenance", icon: faWrench },
     ],
   },
-  { 
-    text: "Borrowing Request", 
-    to: "/borrowingrequest", 
+  {
+    text: "Borrowing Request",
+    to: "/borrowingrequest",
     icon: faClipboardList,
     subItems: [
       { text: "Borrowing History", to: "/borrowing-history", icon: faHistory },
@@ -143,16 +151,18 @@ const MENU_LIST = [
     icon: faCalendarAlt,
     subItems: [
       { text: "Upcoming Events", to: "/events", icon: faCalendarAlt },
-      { text: "Completed Events", to: "/completed-events", icon: faClipboardList },
+      {
+        text: "Completed Events",
+        to: "/completed-events",
+        icon: faClipboardList,
+      },
     ],
   },
-  { 
-    text: "User Management", 
-    to: "/users", 
+  {
+    text: "User Management",
+    to: "/users",
     icon: faUserCog,
-    subItems: [
-      { text: "Role Management", to: "/roles", icon: faUsers },
-    ],
+    subItems: [{ text: "Role Management", to: "/roles", icon: faUsers }],
   },
 ];
 
@@ -168,7 +178,7 @@ const Sidebar = ({ user, onLogout }) => {
     const resetTimeout = () => {
       if (timeoutId) clearTimeout(timeoutId);
       if (warningTimeoutId) clearTimeout(warningTimeoutId);
-      
+
       // Show warning 30 seconds before timeout (9.5 minutes)
       warningTimeoutId = setTimeout(() => {
         setIsTimeoutModalOpen(true);
@@ -180,8 +190,14 @@ const Sidebar = ({ user, onLogout }) => {
       }, 600000); // 10 minutes
     };
 
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
-    events.forEach(event => {
+    const events = [
+      "mousedown",
+      "mousemove",
+      "keypress",
+      "scroll",
+      "touchstart",
+    ];
+    events.forEach((event) => {
       document.addEventListener(event, resetTimeout);
     });
 
@@ -190,7 +206,7 @@ const Sidebar = ({ user, onLogout }) => {
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
       if (warningTimeoutId) clearTimeout(warningTimeoutId);
-      events.forEach(event => {
+      events.forEach((event) => {
         document.removeEventListener(event, resetTimeout);
       });
     };
@@ -263,9 +279,12 @@ const Sidebar = ({ user, onLogout }) => {
       {isTimeoutModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4 text-red-600">Session Timeout Warning</h2>
+            <h2 className="text-xl font-bold mb-4 text-red-600">
+              Session Timeout Warning
+            </h2>
             <p className="mb-6 text-gray-700">
-              Your session will expire in a few seconds due to inactivity. Please click continue to stay logged in.
+              Your session will expire in a few seconds due to inactivity.
+              Please click continue to stay logged in.
             </p>
             <div className="flex justify-end space-x-4">
               <button

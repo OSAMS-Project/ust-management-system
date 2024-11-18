@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 import "./App.css";
 import Events from "./pages/EventsList";
 import AssetList from "./pages/AssetList";
@@ -22,24 +28,28 @@ import IncomingAssets from "./pages/IncomingAssets";
 import BorrowingHistory from "./pages/BorrowingHistory";
 import RoleManagement from "./pages/RoleManagement";
 import ScanRedirect from "./components/scan/ScanRedirect";
-import AssetDetailsPage from './pages/AssetDetailsPage';
+import AssetDetailsPage from "./pages/AssetDetailsPage";
 import AssetMaintenance from "./pages/AssetMaintenance";
 
-console.log('Supabase URL:', process.env.REACT_APP_SUPABASE_URL);
-console.log('API URL:', process.env.REACT_APP_API_URL);
+console.log("Supabase URL:", process.env.REACT_APP_SUPABASE_URL);
+console.log("API URL:", process.env.REACT_APP_API_URL);
 
 function App() {
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    const adminToken = sessionStorage.getItem('adminToken');
-    return savedUser ? JSON.parse(savedUser) : (adminToken ? { role: 'admin' } : null);
+    const savedUser = localStorage.getItem("user");
+    const adminToken = sessionStorage.getItem("adminToken");
+    return savedUser
+      ? JSON.parse(savedUser)
+      : adminToken
+      ? { role: "admin" }
+      : null;
   });
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(user));
     } else {
-      localStorage.removeItem('user');
+      localStorage.removeItem("user");
     }
   }, [user]);
 
@@ -52,11 +62,17 @@ function App() {
 
 function AppContent({ user, setUser }) {
   const location = useLocation();
-  const isPublicRoute = ["/", "/login", "/request", "/borrow", "/admin"].includes(location.pathname);
+  const isPublicRoute = [
+    "/",
+    "/login",
+    "/request",
+    "/borrow",
+    "/admin",
+  ].includes(location.pathname);
 
   const handleLogout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    localStorage.removeItem("user");
   };
 
   // Redirect logged-in users to dashboard if they try to access public routes
@@ -65,43 +81,197 @@ function AppContent({ user, setUser }) {
   }
 
   return (
-    <div className="app-container">
+    <div className="app-container flex h-screen">
       {user && <Sidebar user={user} onLogout={handleLogout} />}
-      <div className="main-content">
+      <div className="main-content flex-1 overflow-auto">
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<PublicRoute user={user}><SignIn setUser={setUser} /></PublicRoute>} />
-          <Route path="/login" element={<PublicRoute user={user}><SignIn setUser={setUser} /></PublicRoute>} />
-          <Route path="/request" element={<PublicRoute user={user}><EmailRequestForm /></PublicRoute>} />
-          <Route path="/borrow" element={<PublicRoute user={user}><BorrowerForm /></PublicRoute>} />
-          <Route path="/admin" element={<PublicRoute user={user}><AdminForm setUser={setUser} /></PublicRoute>} />
-          
+          <Route
+            path="/"
+            element={
+              <PublicRoute user={user}>
+                <SignIn setUser={setUser} />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute user={user}>
+                <SignIn setUser={setUser} />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/request"
+            element={
+              <PublicRoute user={user}>
+                <EmailRequestForm />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/borrow"
+            element={
+              <PublicRoute user={user}>
+                <BorrowerForm />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <PublicRoute user={user}>
+                <AdminForm setUser={setUser} />
+              </PublicRoute>
+            }
+          />
+
           {/* Private Routes */}
-          <Route path="/dashboard" element={<PrivateRoute user={user}><Dashboard user={user} /></PrivateRoute>} />
-          <Route path="/events" element={<PrivateRoute user={user}><Events /></PrivateRoute>} />
-          <Route path="/completed-events" element={<PrivateRoute user={user}><CompletedEvents /></PrivateRoute>} />
-          <Route path="/assets" element={<PrivateRoute user={user}><AssetList user={user} /></PrivateRoute>} />
-          <Route path="/asset-repair" element={<PrivateRoute user={user}><AssetRepair /></PrivateRoute>} />
-          <Route path="/asset-issue" element={<PrivateRoute user={user}><AssetIssue user={user} /></PrivateRoute>} />
-          <Route path="/borrowingrequest" element={<PrivateRoute user={user}><BorrowingRequest /></PrivateRoute>} />
-          <Route path="/users" element={<PrivateRoute user={user}><UserManagement /></PrivateRoute>} />
-          <Route path="/roles" element={<PrivateRoute user={user}><RoleManagement /></PrivateRoute>} />
-          <Route path="/profile" element={<PrivateRoute user={user}><ProfilePage user={user} /></PrivateRoute>} />
-          <Route path="/supplierlist" element={<PrivateRoute user={user}><SupplierList /></PrivateRoute>} />
-          <Route path="/asset-request" element={<PrivateRoute user={user}><AssetRequest user={user} /></PrivateRoute>} />
-          <Route path="/archived-requests" element={<PrivateRoute user={user}><ArchivedRequests user={user} /></PrivateRoute>} />
-          <Route path="/incoming-assets" element={<PrivateRoute user={user}><IncomingAssets /></PrivateRoute>} />
-          <Route path="/borrowing-history" element={<PrivateRoute user={user}><BorrowingHistory /></PrivateRoute>} />
-          <Route path="/repair" element={<PrivateRoute user={user}><AssetRepair /></PrivateRoute>} />
-          <Route path="/asset-maintenance" element={<PrivateRoute user={user}><AssetMaintenance user={user} /></PrivateRoute>} />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute user={user}>
+                <Dashboard user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/events"
+            element={
+              <PrivateRoute user={user}>
+                <Events />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/completed-events"
+            element={
+              <PrivateRoute user={user}>
+                <CompletedEvents />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/assets"
+            element={
+              <PrivateRoute user={user}>
+                <AssetList user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/asset-repair"
+            element={
+              <PrivateRoute user={user}>
+                <AssetRepair />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/asset-issue"
+            element={
+              <PrivateRoute user={user}>
+                <AssetIssue user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/borrowingrequest"
+            element={
+              <PrivateRoute user={user}>
+                <BorrowingRequest />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <PrivateRoute user={user}>
+                <UserManagement />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/roles"
+            element={
+              <PrivateRoute user={user}>
+                <RoleManagement />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute user={user}>
+                <ProfilePage user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/supplierlist"
+            element={
+              <PrivateRoute user={user}>
+                <SupplierList />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/asset-request"
+            element={
+              <PrivateRoute user={user}>
+                <AssetRequest user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/archived-requests"
+            element={
+              <PrivateRoute user={user}>
+                <ArchivedRequests user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/incoming-assets"
+            element={
+              <PrivateRoute user={user}>
+                <IncomingAssets />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/borrowing-history"
+            element={
+              <PrivateRoute user={user}>
+                <BorrowingHistory />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/repair"
+            element={
+              <PrivateRoute user={user}>
+                <AssetRepair />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/asset-maintenance"
+            element={
+              <PrivateRoute user={user}>
+                <AssetMaintenance user={user} />
+              </PrivateRoute>
+            }
+          />
           <Route path="/scan/:assetId" element={<ScanRedirect />} />
-          <Route 
-            path="/assets/details/:assetId" 
+          <Route
+            path="/assets/details/:assetId"
             element={
               <PrivateRoute user={user}>
                 <AssetDetailsPage />
               </PrivateRoute>
-            } 
+            }
           />
         </Routes>
       </div>

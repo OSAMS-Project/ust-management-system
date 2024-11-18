@@ -1,5 +1,5 @@
-const pool = require('../config/database');
-const { executeTransaction } = require('../utils/queryExecutor');
+const pool = require("../config/database");
+const { executeTransaction } = require("../utils/queryExecutor");
 
 const Repair = {
   getAllRepairRecords: async () => {
@@ -32,7 +32,7 @@ const Repair = {
       const result = await executeTransaction([{ query, params: [assetId] }]);
       return result;
     } catch (error) {
-      console.error('Error in getRepairRecordsByAsset:', error);
+      console.error("Error in getRepairRecordsByAsset:", error);
       throw error;
     }
   },
@@ -44,7 +44,7 @@ const Repair = {
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     `;
-    
+
     const values = [
       data.asset_id,
       data.repair_type,
@@ -52,19 +52,19 @@ const Repair = {
       data.date || new Date(),
       parseFloat(data.cost),
       data.performed_by,
-      'Pending',
+      "Pending",
       parseInt(data.repair_quantity) || 1,
-      data.issue_id ? parseInt(data.issue_id) : null
+      data.issue_id ? parseInt(data.issue_id) : null,
     ];
-    
-    console.log('Creating repair record with values:', values);
+
+    console.log("Creating repair record with values:", values);
     return executeTransaction([{ query, params: values }]);
   },
 
   completeRepairRecord: async (id) => {
     const client = await pool.connect();
     try {
-      await client.query('BEGIN');
+      await client.query("BEGIN");
 
       // Get repair record details
       const getRepairQuery = `
@@ -74,7 +74,7 @@ const Repair = {
       const repairRecord = (await client.query(getRepairQuery, [id])).rows[0];
 
       if (!repairRecord) {
-        throw new Error('Repair record not found');
+        throw new Error("Repair record not found");
       }
 
       // Update repair record status
@@ -96,12 +96,15 @@ const Repair = {
         WHERE asset_id = $2 
         RETURNING *
       `;
-      await client.query(updateAssetQuery, [repairRecord.repair_quantity, repairRecord.asset_id]);
+      await client.query(updateAssetQuery, [
+        repairRecord.repair_quantity,
+        repairRecord.asset_id,
+      ]);
 
-      await client.query('COMMIT');
+      await client.query("COMMIT");
       return result.rows;
     } catch (error) {
-      await client.query('ROLLBACK');
+      await client.query("ROLLBACK");
       throw error;
     } finally {
       client.release();
@@ -109,9 +112,21 @@ const Repair = {
   },
 
   deleteRepairRecord: async (id) => {
-    const query = 'DELETE FROM repair_records WHERE id = $1 RETURNING *';
+    const query = "DELETE FROM repair_records WHERE id = $1 RETURNING *";
     return executeTransaction([{ query, params: [parseInt(id)] }]);
-  }
+  },
+
+  getTotalRepairs: async () => {
+    try {
+      const result = await pool.query(
+        "SELECT COUNT(*) AS total FROM repair_records WHERE status != 'Completed'"
+      );
+      return result.rows[0].total; // Return the total count
+    } catch (error) {
+      console.error("Error getting total repairs:", error);
+      throw error;
+    }
+  },
 };
 
 module.exports = Repair;
