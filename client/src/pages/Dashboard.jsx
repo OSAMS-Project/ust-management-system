@@ -121,7 +121,7 @@ const Dashboard = ({ user }) => {
       </div>
 
       {/* Additional Widgets */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-1">
         <UpcomingEvents
           sortedEvents={recentEvents}
           handleEventDetailsClick={handleEventDetailsClick}
