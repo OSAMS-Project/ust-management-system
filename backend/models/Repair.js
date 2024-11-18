@@ -62,14 +62,50 @@ const Repair = {
   },
 
   completeRepairRecord: async (id) => {
-    const query = `
-      UPDATE repair_records 
-      SET status = 'Completed',
-          completion_date = CURRENT_TIMESTAMP
-      WHERE id = $1 
-      RETURNING *
-    `;
-    return executeTransaction([{ query, params: [parseInt(id)] }]);
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // Get repair record details
+      const getRepairQuery = `
+        SELECT * FROM repair_records 
+        WHERE id = $1
+      `;
+      const repairRecord = (await client.query(getRepairQuery, [id])).rows[0];
+
+      if (!repairRecord) {
+        throw new Error('Repair record not found');
+      }
+
+      // Update repair record status
+      const updateRepairQuery = `
+        UPDATE repair_records 
+        SET status = 'Completed',
+            completion_date = CURRENT_TIMESTAMP
+        WHERE id = $1 
+        RETURNING *
+      `;
+      const result = await client.query(updateRepairQuery, [id]);
+
+      // Restore asset quantity
+      const updateAssetQuery = `
+        UPDATE assets 
+        SET quantity = quantity + $1,
+            under_repair = false,
+            has_issue = false
+        WHERE asset_id = $2 
+        RETURNING *
+      `;
+      await client.query(updateAssetQuery, [repairRecord.repair_quantity, repairRecord.asset_id]);
+
+      await client.query('COMMIT');
+      return result.rows;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
   },
 
   deleteRepairRecord: async (id) => {

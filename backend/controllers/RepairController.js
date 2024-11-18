@@ -76,10 +76,8 @@ const RepairController = {
       if (!record) {
         return res.status(404).json({ error: 'Repair record not found' });
       }
-      
-      // Restore asset from repair
-      await Asset.updateRepairStatus(record.asset_id, false);
-      
+
+      // Asset status update is now handled within completeRepairRecord
       res.json(record);
     } catch (error) {
       console.error('Error completing repair record:', error);

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AssetDetailsModal from '../assetlists/AssetDetailsModal';
 import moment from 'moment';
 
-const RepairTable = ({ repairRecords, assets = [], onCompleteRecord, onRemoveRecord, onViewLogs }) => {
+const RepairTable = ({ repairRecords, assets = [], onCompleteRecord, onRemoveRecord }) => {
   const [selectedAsset, setSelectedAsset] = useState(null);
 
   const handleRowClick = (assetId) => {
@@ -59,21 +59,12 @@ const RepairTable = ({ repairRecords, assets = [], onCompleteRecord, onRemoveRec
                   <td className="px-4 py-2 text-center">₱{record.cost}</td>
                   <td className="px-4 py-2 text-center">{record.performed_by}</td>
                   <td className="px-4 py-2">
-                    <div className="flex space-x-2 justify-center">
+                    <div className="flex justify-center">
                       <button
                         onClick={(e) => handleComplete(e, record)}
-                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 mr-2"
+                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
                       >
                         Complete
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onViewLogs(record.asset_id);
-                        }}
-                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                      >
-                        View Logs
                       </button>
                     </div>
                   </td>
