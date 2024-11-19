@@ -7,7 +7,7 @@ const PendingAssetsTable = ({
 }) => {
   return (
     <div className="mt-2">
-      <h2 className="text-2xl font-bold mb-4">Pending Assets ({pendingAssets.length})</h2>
+      <h2 className="text-2xl font-bold mb-4">Pending Assets </h2>
       <table className="min-w-full bg-white border-collapse">
         <thead className="bg-black text-[#FEC00F]">
           <tr>

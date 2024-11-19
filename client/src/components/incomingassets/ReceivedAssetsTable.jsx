@@ -6,7 +6,7 @@ const ReceivedAssetsTable = ({
 }) => {
   return (
     <div className="mt-8">
-      <h2 className="text-2xl font-bold mb-4">Received Assets ({receivedAssets.length})</h2>
+      <h2 className="text-2xl font-bold mb-4">Received Assets </h2>
       <table className="min-w-full bg-white border-collapse">
         <thead className="bg-black text-[#FEC00F]">
           <tr>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import PendingAssetsTable from './PendingAssetsTable';
 import ReceivedAssetsTable from './ReceivedAssetsTable';
 
@@ -13,8 +13,8 @@ const Pagination = ({ currentPage, setCurrentPage, totalPages }) => {
           onClick={() => setCurrentPage(pageNum)}
           className={`px-3 py-1 mx-1 rounded ${
             currentPage === pageNum
-              ? 'bg-yellow-500 text-black' // Active page
-              : 'bg-gray-200 hover:bg-gray-300 text-gray-700' // Inactive pages
+              ? 'bg-yellow-500 text-black'
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
           }`}
         >
           {pageNum}
@@ -51,22 +51,10 @@ const IncomingAssetsTable = ({
     return receivedAssets.slice(startIndex, startIndex + itemsPerPage);
   };
 
-  // Reset page when data changes
-  useEffect(() => {
-    setPendingCurrentPage(1);
-  }, [assets.length, setPendingCurrentPage]);
-
-  useEffect(() => {
-    setReceivedCurrentPage(1);
-  }, [assets.length, setReceivedCurrentPage]);
-
   return (
     <div className="overflow-x-auto">
       {/* Pending Assets Section */}
       <div id="recipients" className="p-4 mt-4 lg:mt-0 rounded shadow bg-white">
-        <h2 className="text-xl font-semibold mb-4">
-          Pending Assets ({pendingAssets.length})
-        </h2>
         <PendingAssetsTable
           pendingAssets={getPendingPageData()}
           handleStatusUpdate={handleStatusUpdate}
@@ -80,9 +68,6 @@ const IncomingAssetsTable = ({
 
       {/* Received Assets Section */}
       <div id="recipients" className="p-4 mt-4 lg:mt-0 rounded shadow bg-white">
-        <h2 className="text-xl font-semibold mb-4">
-          Received Assets ({receivedAssets.length})
-        </h2>
         <ReceivedAssetsTable receivedAssets={getReceivedPageData()} />
         <Pagination
           currentPage={receivedCurrentPage}
