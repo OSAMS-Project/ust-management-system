@@ -45,6 +45,7 @@
     "react-modal": "^3.16.1",
     "react-router-dom": "^6.26.2",
     "react-to-print": "^3.0.2",
+    "supabase": "^1.223.10",
     "twilio": "^5.3.5",
     "uuid": "^10.0.0"
   },
