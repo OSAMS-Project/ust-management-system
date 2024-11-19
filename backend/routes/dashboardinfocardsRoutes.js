@@ -23,9 +23,9 @@ router.get(
   dashboardInfoCardsController.getTotalAcceptedRequests
 );
 router.get(
-    "/total-incoming-assets",
-    dashboardInfoCardsController.getTotalIncomingAssets // Add this line
-  );
+  "/total-incoming-assets",
+  dashboardInfoCardsController.getTotalIncomingAssets // Add this line
+);
 router.get("/total-repairs", dashboardInfoCardsController.getTotalRepairs);
 
 module.exports = router;
