@@ -1,16 +1,16 @@
 const pool = require('../config/database');
 const { executeTransaction } = require('../utils/queryExecutor');
 
-class BorrowingRequest {
-  static async addDateReturnedColumn() {
+const BorrowingRequest = {
+  addDateReturnedColumn: async () => {
     const query = `
       ALTER TABLE borrowing_requests 
       ADD COLUMN IF NOT EXISTS date_returned TIMESTAMP;
     `;
     return executeTransaction([{ query }]);
-  }
+  },
 
-  static async createBorrowingRequestTable() {
+  createBorrowingRequestTable: async () => {
     const query = `
       CREATE TABLE IF NOT EXISTS borrowing_requests (
         id SERIAL PRIMARY KEY,
@@ -33,11 +33,10 @@ class BorrowingRequest {
     `;
     await executeTransaction([{ query }]);
     return true;
-  }
+  },
 
-  static async createBorrowingRequest(requestData) {
+  createBorrowingRequest: async (requestData) => {
     try {
-      // First, insert the borrowing request
       const borrowingRequestQuery = `
         INSERT INTO borrowing_requests (
           name, 
@@ -57,7 +56,6 @@ class BorrowingRequest {
         RETURNING id;
       `;
 
-      // Convert selectedAssets array to JSONB string
       const selectedAssetsJson = JSON.stringify(requestData.selectedAssets || []);
 
       const borrowingValues = [
@@ -73,11 +71,9 @@ class BorrowingRequest {
         selectedAssetsJson
       ];
 
-      // Insert the borrowing request and get its ID
       const borrowingResult = await pool.query(borrowingRequestQuery, borrowingValues);
       const requestId = borrowingResult.rows[0].id;
 
-      // Then, insert the borrowed assets
       if (requestData.selectedAssets && requestData.selectedAssets.length > 0) {
         const borrowedAssetsQuery = `
           INSERT INTO borrowed_assets (
@@ -88,7 +84,6 @@ class BorrowingRequest {
           VALUES ($1, $2, $3);
         `;
 
-        // Insert each selected asset
         for (const asset of requestData.selectedAssets) {
           await pool.query(borrowedAssetsQuery, [
             requestId,
@@ -104,9 +99,9 @@ class BorrowingRequest {
       console.error('Error in createBorrowingRequest:', error);
       throw error;
     }
-  }
+  },
 
-  static async getAllBorrowingRequests() {
+  getAllBorrowingRequests: async () => {
     try {
       const query = `
         SELECT 
@@ -144,11 +139,11 @@ class BorrowingRequest {
       console.error('Model Error:', error);
       throw error;
     }
-  }
+  },
 
-  static async updateBorrowingRequestStatus(requestId, status) {
+  updateBorrowingRequestStatus: async (requestId, status) => {
     try {
-      console.log('Model: Updating status:', { requestId, status }); // Debug log
+      console.log('Model: Updating status:', { requestId, status });
 
       const updateQuery = `
         UPDATE borrowing_requests 
@@ -160,7 +155,7 @@ class BorrowingRequest {
       
       const result = await pool.query(updateQuery, [status, requestId]);
       
-      console.log('Database update result:', result.rows[0]); // Debug log
+      console.log('Database update result:', result.rows[0]);
 
       if (result.rows.length === 0) {
         throw new Error('Borrowing request not found');
@@ -171,39 +166,39 @@ class BorrowingRequest {
       console.error('Model Error:', error);
       throw error;
     }
-  }
+  },
 
-  static async getBorrowingRequestById(id) {
+  getBorrowingRequestById: async (id) => {
     const query = 'SELECT * FROM borrowing_requests WHERE id = $1';
     const result = await executeTransaction([{ query, params: [id] }]);
     return result[0];
-  }
+  },
 
-  static async deleteBorrowingRequest(requestId) {
+  deleteBorrowingRequest: async (requestId) => {
     const query = 'DELETE FROM borrowing_requests WHERE id = $1 RETURNING *';
     const params = [requestId];
     try {
       const result = await executeTransaction([{ query, params }]);
-      return result[0]; // Return the deleted request data if needed
+      return result[0];
     } catch (error) {
       console.error('Error in deleteBorrowingRequest:', error);
       throw error;
     }
-  }
+  },
 
-  static async getTotalPendingRequests() {
+  getTotalPendingRequests: async () => {
     const query = "SELECT COUNT(*) as count FROM borrowing_requests WHERE status = 'Pending'";
     const result = await executeTransaction([{ query, params: [] }]);
     return parseInt(result[0].count, 10);
-  }
+  },
 
-  static async getTotalAcceptedRequests() {
+  getTotalAcceptedRequests: async () => {
     const query = "SELECT COUNT(*) as count FROM borrowing_requests WHERE status = 'Approved'";
     const result = await executeTransaction([{ query, params: [] }]);
     return parseInt(result[0].count, 10);
-  }
+  },
 
-  static async getBorrowingHistory() {
+  getBorrowingHistory: async () => {
     const query = `
       SELECT *
       FROM borrowing_requests
@@ -219,9 +214,9 @@ class BorrowingRequest {
       expectedReturnDate: row.expected_return_date,
       notes: row.notes
     }));
-  }
+  },
 
-  static async createBorrowedAssetsTable() {
+  createBorrowedAssetsTable: async () => {
     const query = `
       CREATE TABLE IF NOT EXISTS borrowed_assets (
         id SERIAL PRIMARY KEY,
@@ -239,9 +234,9 @@ class BorrowingRequest {
       console.error('Error creating borrowed assets table:', error);
       throw error;
     }
-  }
+  },
 
-  static async createBorrowedAsset({ requestId, assetId, quantity }) {
+  createBorrowedAsset: async ({ requestId, assetId, quantity }) => {
     const query = `
       INSERT INTO borrowed_assets (request_id, asset_id, quantity)
       VALUES ($1, $2, $3)
@@ -257,9 +252,9 @@ class BorrowingRequest {
       console.error('Error creating borrowed asset:', error);
       throw error;
     }
-  }
+  },
 
-  static async checkTableExists() {
+  checkTableExists: async () => {
     try {
       const query = `
         SELECT EXISTS (
@@ -275,9 +270,9 @@ class BorrowingRequest {
       console.error('Error checking table:', error);
       return false;
     }
-  }
+  },
 
-  static async getTableCount() {
+  getTableCount: async () => {
     try {
       const query = `SELECT COUNT(*) FROM borrowing_requests;`;
       const result = await pool.query(query);
@@ -288,9 +283,9 @@ class BorrowingRequest {
       console.error('Error counting rows:', error);
       return 0;
     }
-  }
+  },
 
-  static async returnBorrowingRequest(requestId) {
+  returnBorrowingRequest: async (requestId) => {
     const query = {
       text: `
         UPDATE borrowing_requests 
@@ -306,6 +301,6 @@ class BorrowingRequest {
     const result = await pool.query(query);
     return result.rows[0];
   }
-}
+};
 
 module.exports = BorrowingRequest;
