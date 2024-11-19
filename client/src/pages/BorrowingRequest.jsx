@@ -70,13 +70,6 @@ const BorrowingRequest = () => {
 
       console.log('API Response:', response.data);
 
-      if (status === "Approved") {
-        const request = requests.find(req => req.id === id);
-        if (request) {
-          await handleSendEmail(request.email, request.name, "Approved");
-        }
-      }
-
       // Refresh the requests list
       const updatedResponse = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/borrowing-requests`

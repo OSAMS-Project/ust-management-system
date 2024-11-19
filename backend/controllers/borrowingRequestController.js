@@ -123,10 +123,17 @@ exports.updateBorrowingRequestStatus = async (req, res) => {
           });
         }
 
-        // Send approval email
+        // Send approval email only here, not in frontend
         await emailService.sendApprovalEmail(
           updatedRequest.email,
           updatedRequest.name
+        );
+      } else if (status === "Rejected" && req.body.rejectionReason) {
+        // Send rejection email with reason if status is rejected
+        await emailService.sendRejectionEmail(
+          updatedRequest.email,
+          updatedRequest.name,
+          req.body.rejectionReason
         );
       }
 
