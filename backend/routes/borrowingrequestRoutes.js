@@ -49,6 +49,9 @@ router.get('/pending/:assetId', async (req, res) => {
   }
 });
 
+// Add this new route after your history route
+router.get('/:id', borrowingRequestController.getSingleBorrowingRequest);
+
 // Error handling middleware
 router.use((err, req, res, next) => {
   console.error('Error in borrowing request routes:', err);

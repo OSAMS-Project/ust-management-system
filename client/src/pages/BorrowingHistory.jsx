@@ -4,6 +4,8 @@ import moment from "moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHistory, faSearch } from "@fortawesome/free-solid-svg-icons";
 import PaginationControls from '../components/assetlists/PaginationControls';
+import { toast } from 'react-hot-toast';
+import supabase from '../config/supabaseClient';
 
 const BorrowingHistory = () => {
   const [history, setHistory] = useState([]);
@@ -125,6 +127,22 @@ const BorrowingHistory = () => {
     currentPage * itemsPerPage
   );
 
+  const handleViewCoverLetter = async (requestId) => {
+    try {
+      console.log('Opening cover letter for request ID:', requestId);
+      
+      // Use the API URL directly
+      const coverLetterUrl = `${process.env.REACT_APP_API_URL}/api/borrowing-requests/${requestId}/cover-letter`;
+      
+      // Open the URL in a new tab
+      window.open(coverLetterUrl, '_blank');
+      
+    } catch (error) {
+      console.error('Error opening cover letter:', error);
+      toast.error('Failed to open cover letter');
+    }
+  };
+
   if (loading) return <div className="text-center py-4">Loading...</div>;
   if (error)
     return <div className="text-center py-4 text-red-500">{error}</div>;
@@ -216,79 +234,83 @@ const BorrowingHistory = () => {
                 </tr>
               </thead>
               <tbody>
-                {paginatedHistory.map((record, index) => (
-                  <tr
-                    key={record.id}
-                    className={`${
-                      index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
-                    } hover:bg-gray-50 transition duration-150`}
-                  >
-                    <td className="py-2 px-4 border-b text-center">
-                      {record.name}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">
-                      {record.email}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">
-                      {record.contact_no}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">
-                      {record.department}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">
-                      {record.purpose}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">
-                      {record.borrowed_asset_names}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">
-                      {record.borrowed_asset_quantities}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">
-                      {moment(record.date_requested).format("MM/DD/YYYY")}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">
-                      {record.date_to_be_collected ? moment(record.date_to_be_collected).format("MM/DD/YYYY") : 'Not yet collected'}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">
-                      {record.cover_letter_url ? (
-                        <a
-                          href={`${process.env.REACT_APP_API_URL}${record.cover_letter_url}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
+                {paginatedHistory.map((record, index) => {
+                  console.log('Record data:', record);
+                  return (
+                    <tr
+                      key={record.id}
+                      className={`${
+                        index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
+                      } hover:bg-gray-50 transition duration-150`}
+                    >
+                      <td className="py-2 px-4 border-b text-center">
+                        {record.name}
+                      </td>
+                      <td className="py-2 px-4 border-b text-center">
+                        {record.email}
+                      </td>
+                      <td className="py-2 px-4 border-b text-center">
+                        {record.contact_no}
+                      </td>
+                      <td className="py-2 px-4 border-b text-center">
+                        {record.department}
+                      </td>
+                      <td className="py-2 px-4 border-b text-center">
+                        {record.purpose}
+                      </td>
+                      <td className="py-2 px-4 border-b text-center">
+                        {record.borrowed_asset_names}
+                      </td>
+                      <td className="py-2 px-4 border-b text-center">
+                        {record.borrowed_asset_quantities}
+                      </td>
+                      <td className="py-2 px-4 border-b text-center">
+                        {moment(record.date_requested).format("MM/DD/YYYY")}
+                      </td>
+                      <td className="py-2 px-4 border-b text-center">
+                        {record.date_to_be_collected ? moment(record.date_to_be_collected).format("MM/DD/YYYY") : 'Not yet collected'}
+                      </td>
+                      <td className="py-2 px-4 border-b text-center">
+                        {record.cover_letter_url ? (
+                          <button
+                            onClick={() => {
+                              console.log('Clicked record:', record);
+                              handleViewCoverLetter(record.id);
+                            }}
+                            className="text-blue-600 hover:underline"
+                          >
+                            View Cover Letter
+                          </button>
+                        ) : (
+                          "No cover letter"
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b text-center">
+                        {moment(record.expected_return_date).format("MM/DD/YYYY")}
+                      </td>
+                      <td className="py-2 px-4 border-b text-center">
+                        {record.status === "Rejected"
+                          ? "N/A"
+                          : record.status === "Returned" && record.date_returned
+                          ? moment(record.date_returned).format("MM/DD/YYYY")
+                          : "N/A"}
+                      </td>
+                      <td className="py-2 px-4 border-b text-center">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            record.status === "Returned"
+                              ? "bg-green-100 text-green-800"
+                              : record.status === "Rejected"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
                         >
-                          View Cover Letter
-                        </a>
-                      ) : (
-                        "No cover letter"
-                      )}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">
-                      {moment(record.expected_return_date).format("MM/DD/YYYY")}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">
-                      {record.status === "Rejected"
-                        ? "N/A"
-                        : record.status === "Returned" && record.date_returned
-                        ? moment(record.date_returned).format("MM/DD/YYYY")
-                        : "N/A"}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          record.status === "Returned"
-                            ? "bg-green-100 text-green-800"
-                            : record.status === "Rejected"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {record.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                          {record.status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

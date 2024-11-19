@@ -231,26 +231,63 @@ exports.sendSMSReminder = async (req, res) => {
 
 exports.getCoverLetter = async (req, res) => {
   try {
-    const request = await BorrowingRequest.getBorrowingRequestById(
-      req.params.id
-    );
-    if (!request || !request.cover_letter_path) {
-      return res.status(404).json({ message: "Cover letter not found" });
-    }
-    const absolutePath = path.resolve(request.cover_letter_path);
+    const { id } = req.params;
+    console.log('Fetching cover letter for request ID:', id);
 
-    if (!fsSync.existsSync(absolutePath)) {
-      return res.status(404).json({ message: "Cover letter file not found" });
+    const query = {
+      text: `
+        SELECT cover_letter_path, cover_letter_url
+        FROM borrowing_requests 
+        WHERE id = $1
+      `,
+      values: [id]
+    };
+
+    const result = await pool.query(query);
+    console.log('Database result:', result.rows);
+
+    if (!result.rows || result.rows.length === 0) {
+      console.log('No record found for ID:', id);
+      return res.status(404).json({ message: 'Cover letter not found' });
     }
 
-    res.contentType("application/pdf");
-    const fileStream = fsSync.createReadStream(absolutePath);
-    fileStream.pipe(res);
+    const record = result.rows[0];
+    console.log('Cover letter record:', record);
+
+    if (!record.cover_letter_path && !record.cover_letter_url) {
+      console.log('No cover letter path or URL found');
+      return res.status(404).json({ message: 'Cover letter not found' });
+    }
+
+    // If we have a URL, redirect to it
+    if (record.cover_letter_url) {
+      return res.redirect(record.cover_letter_url);
+    }
+
+    // Otherwise, try to send the file
+    if (record.cover_letter_path) {
+      const filePath = path.resolve(record.cover_letter_path);
+      console.log('Resolved file path:', filePath);
+
+      if (!fsSync.existsSync(filePath)) {
+        console.log('File does not exist at path:', filePath);
+        return res.status(404).json({ message: 'Cover letter file not found' });
+      }
+
+      return res.sendFile(filePath, (err) => {
+        if (err) {
+          console.error('Error sending file:', err);
+          res.status(500).json({ message: 'Error sending cover letter' });
+        }
+      });
+    }
+
   } catch (error) {
-    console.error("Error fetching cover letter:", error);
-    res
-      .status(500)
-      .json({ message: "Error fetching cover letter", error: error.message });
+    console.error('Error in getCoverLetter:', error);
+    res.status(500).json({ 
+      message: 'Failed to retrieve cover letter',
+      error: error.message 
+    });
   }
 };
 
@@ -386,6 +423,31 @@ exports.getBorrowingHistory = async (req, res) => {
     res.status(500).json({
       message: 'Error fetching borrowing history',
       error: error.message
+    });
+  }
+};
+
+exports.getSingleBorrowingRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const query = `
+      SELECT * FROM borrowing_request 
+      WHERE id = $1
+    `;
+    
+    const result = await executeTransaction([{ query, params: [id] }]);
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({ message: 'Borrowing request not found' });
+    }
+
+    res.json(result[0]);
+  } catch (error) {
+    console.error('Error fetching single borrowing request:', error);
+    res.status(500).json({ 
+      message: 'Error fetching borrowing request', 
+      error: error.message 
     });
   }
 };
