@@ -166,13 +166,13 @@ function AssetIssue({ user }) {
       
       setNotification({
         type: 'success',
-        message: 'Issue removed successfully'
+        message: 'Issue deleted successfully'
       });
     } catch (error) {
       console.error('Error removing issue:', error);
       setNotification({
         type: 'error',
-        message: 'Failed to remove issue'
+        message: 'Failed to delete issue'
       });
     }
   };

@@ -67,10 +67,12 @@ const readAssets = async () => {
 const updateAsset = async (id, updates) => {
 	try {
 		// If trying to change to Consumable type, verify no borrowing quantity
-		if (updates.type === 'Consumable') {
+		if (updates.type === "Consumable") {
 			const currentAsset = await readAsset(id);
 			if (currentAsset && currentAsset.quantity_for_borrowing > 0) {
-				throw new Error('Cannot change to Consumable while asset has borrowing quantity');
+				throw new Error(
+					"Cannot change to Consumable while asset has borrowing quantity"
+				);
 			}
 		}
 
@@ -87,19 +89,19 @@ const updateAsset = async (id, updates) => {
 			totalCost: '"totalCost"',
 			createdDate: '"createdDate"',
 			lastUpdated: '"lastUpdated"',
-			quantity_for_borrowing: 'quantity_for_borrowing',
-			is_active: 'is_active',
-			under_repair: 'under_repair',
-			has_issue: 'has_issue'
+			quantity_for_borrowing: "quantity_for_borrowing",
+			is_active: "is_active",
+			under_repair: "under_repair",
+			has_issue: "has_issue",
 		};
 
 		Object.entries(updates).forEach(([key, value]) => {
 			// Skip undefined values and totalCost
-			if (value === undefined || key === 'totalCost') return;
+			if (value === undefined || key === "totalCost") return;
 
 			// Use mapped column name if it exists, otherwise use the key
 			const columnName = columnMapping[key] || key;
-			
+
 			setClause.push(`${columnName} = $${paramCount}`);
 			values.push(value);
 			paramCount++;
@@ -110,18 +112,18 @@ const updateAsset = async (id, updates) => {
 
 		const query = `
       UPDATE assets 
-      SET ${setClause.join(', ')}
+      SET ${setClause.join(", ")}
       WHERE asset_id = $${paramCount}
       RETURNING *
     `;
 
-		console.log('Update Query:', query);
-		console.log('Update Values:', values);
+		console.log("Update Query:", query);
+		console.log("Update Values:", values);
 
 		const result = await executeTransaction([{ query, params: values }]);
 		return result[0];
 	} catch (error) {
-		console.error('Error in updateAsset:', error);
+		console.error("Error in updateAsset:", error);
 		throw error;
 	}
 };
@@ -145,12 +147,10 @@ const deleteAsset = async (id) => {
 				query: "DELETE FROM maintenance_records WHERE asset_id = $1",
 				params: [id],
 			},
-
 			{
 				query: "DELETE FROM repair_records WHERE asset_id = $1",
 				params: [id],
 			},
-
 
 			{
 				query: "DELETE FROM asset_issues WHERE asset_id = $1",
@@ -300,11 +300,11 @@ const updateAssetQuantity = async (assetId, quantityChange) => {
   `;
 	const params = [quantityChange, assetId];
 	const result = await executeTransaction([{ query, params }]);
-	
+
 	if (result.length === 0) {
-		throw new Error('Update would result in negative quantity for borrowing');
+		throw new Error("Update would result in negative quantity for borrowing");
 	}
-	
+
 	return result;
 };
 

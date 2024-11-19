@@ -39,19 +39,7 @@ const ArchivedRequests = ({ user }) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
-        <h1 className="text-5xl font-extrabold text-black">
-          Archived Requests
-        </h1>
-        <FontAwesomeIcon
-          icon={faArchive}
-          className="text-black text-5xl transform"
-        />
-      </div>
-
-     
-
+    <>
       <div id='recipients' className="p-4 mt-4 lg:mt-0 rounded shadow bg-white">
         <ArchivedRequestTable 
           archivedRequests={archivedRequests}
@@ -59,7 +47,7 @@ const ArchivedRequests = ({ user }) => {
           onDelete={handleDelete}
         />
       </div>
-    </div>
+    </>
   );
 };
 

@@ -12,6 +12,7 @@ const AssetDetailsPage = () => {
     const fetchAsset = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/Assets/${assetId}`);
+        console.log('Fetched asset:', response.data);
         setAsset(response.data);
       } catch (error) {
         console.error('Error fetching asset:', error);

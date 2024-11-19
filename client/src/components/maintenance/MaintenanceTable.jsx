@@ -131,7 +131,7 @@ const MaintenanceTable = ({ maintenances, assets, loading, onEditMaintenance, on
       </table>
       {maintenances.length === 0 && (
         <div className="text-center py-4 text-gray-500">
-          No maintenance records found
+          No active maintenance found
         </div>
       )}
     </div>

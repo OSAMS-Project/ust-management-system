@@ -75,7 +75,7 @@ const RepairTable = ({ repairRecords, assets = [], onCompleteRecord, onRemoveRec
       </table>
       {repairRecords.filter(record => record.status !== 'Completed').length === 0 && (
         <div className="text-center py-4 text-gray-500">
-          No pending repair records found
+          No active repair issues found
         </div>
       )}
     </div>

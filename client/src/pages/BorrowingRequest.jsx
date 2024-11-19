@@ -266,35 +266,34 @@ const BorrowingRequest = () => {
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-black text-[#FEC00F]">
               <tr>
-                <th className="py-2 px-3 border-b text-center whitespace-nowrap">Name</th>
-                <th className="py-2 px-3 border-b text-center whitespace-nowrap">Email</th>
-                <th className="py-2 px-3 border-b text-center whitespace-nowrap">Contact No.</th>
-                <th className="py-2 px-3 border-b text-center whitespace-nowrap">Department</th>
-                <th className="py-2 px-3 border-b text-center whitespace-nowrap">Purpose</th>
-                <th className="py-2 px-3 border-b text-center whitespace-nowrap">Borrowed Asset</th>
-                <th className="py-2 px-3 border-b text-center whitespace-nowrap">Quantity</th>
-                <th className="py-2 px-3 border-b text-center whitespace-nowrap">Date Requested</th>
-                <th className="py-2 px-3 border-b text-center whitespace-nowrap">Date to be Collected</th>
-                <th className="py-2 px-3 border-b text-center whitespace-nowrap">Cover Letter</th>
-                <th className="py-2 px-3 border-b text-center whitespace-nowrap">Expected Return Date</th>
-                <th className="py-2 px-3 border-b text-center whitespace-nowrap">Actions</th>
+                <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '10%' }}>Name</th>
+                <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '20%' }}>Email</th>
+                <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '15%' }}>Contact No.</th>
+                <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '15%' }}>Department</th>
+                <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '15%' }}>Purpose</th>
+                <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '15%' }}>Borrowed Asset</th>
+                <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '10%' }}>Quantity</th>
+                <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '10%' }}>Date Requested</th>
+                <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '10%' }}>Date to be Collected</th>
+                <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '10%' }}>Cover Letter</th>
+                <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '10%' }}>Expected Return Date</th>
+                {showActions && <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '10%' }}>Actions</th>}
               </tr>
             </thead>
             <tbody>
               {requests.map((request) => {
-                // Parse the selected_assets if it's a string
                 const selectedAssets = typeof request.selected_assets === 'string' 
                   ? JSON.parse(request.selected_assets) 
                   : request.selected_assets;
 
                 return (
                   <tr key={request.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-2 border-b text-center whitespace-nowrap">{request.name}</td>
-                    <td className="px-4 py-2 border-b text-center whitespace-nowrap">{request.email}</td>
-                    <td className="px-4 py-2 border-b text-center whitespace-nowrap">{request.contact_no}</td>
-                    <td className="px-4 py-2 border-b text-center whitespace-nowrap">{request.department}</td>
-                    <td className="px-4 py-2 border-b text-center whitespace-nowrap">{request.purpose}</td>
-                    <td className="px-4 py-2 border-b text-center">
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">{request.name}</td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">{request.email}</td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">{request.contact_no}</td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">{request.department}</td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">{request.purpose}</td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {selectedAssets && selectedAssets.length > 0 
                         ? selectedAssets.map((asset, index) => (
                           <div key={index} className="whitespace-nowrap">
@@ -304,19 +303,10 @@ const BorrowingRequest = () => {
                         ))
                         : 'N/A'}
                     </td>
-                    <td className="px-4 py-2 border-b text-center">
-                      {selectedAssets && selectedAssets.length > 0 
-                        ? selectedAssets.map((asset, index) => (
-                          <div key={index} className="whitespace-nowrap">
-                            {asset.quantity}
-                            {index < selectedAssets.length - 1 && <hr className="my-1 border-gray-200" />}
-                          </div>
-                        ))
-                        : 'N/A'}
-                    </td>
-                    <td className="px-4 py-2">{request.date_requested ? moment(request.date_requested).format("MM/DD/YYYY") : 'N/A'}</td>
-                    <td className="px-4 py-2">{request.date_to_be_collected ? moment(request.date_to_be_collected).format("MM/DD/YYYY") : 'N/A'}</td>
-                    <td className="px-4 py-2">
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">{selectedAssets ? selectedAssets.reduce((total, asset) => total + asset.quantity, 0) : 'N/A'}</td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">{request.date_requested ? moment(request.date_requested).format("MM/DD/YYYY") : 'N/A'}</td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">{request.date_to_be_collected ? moment(request.date_to_be_collected).format("MM/DD/YYYY") : 'N/A'}</td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {request.cover_letter_url ? (
                         <a
                           href={request.cover_letter_url}
@@ -330,52 +320,54 @@ const BorrowingRequest = () => {
                         'N/A'
                       )}
                     </td>
-                    <td className="px-4 py-2">{request.date_to_be_collected ? moment(request.expected_return_date).format("MM/DD/YYYY") : 'N/A'}</td>
-                    <td className="py-2 px-3 border-b text-center">
-                      <div className="flex gap-1 justify-center">
-                        {request.status === "Pending" ? (
-                          <>
-                            <button
-                              onClick={() => handleStatusUpdate(request.id, "Approved")}
-                              title="Approve"
-                              className="bg-green-500 text-white p-1.5 rounded hover:bg-green-600 transition duration-300"
-                            >
-                              <Check size={14} />
-                            </button>
-                            <button
-                              onClick={() => handleReject(request)}
-                              title="Reject"
-                              className="bg-red-500 text-white p-1.5 rounded hover:bg-red-600 transition duration-300"
-                            >
-                              <X size={14} />
-                            </button>
-                          </>
-                        ) : request.status === "Approved" ? (
-                          <>
-                            <button
-                              onClick={() => handleReturnAsset(request.id)}
-                              title="Return"
-                              className="bg-blue-500 text-white p-1.5 rounded hover:bg-blue-600 transition duration-300"
-                            >
-                              <RotateCcw size={14} />
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleNotifyUser(
-                                  request.contact_no,
-                                  request.name,
-                                  moment(request.expectedReturnDate).format("MMMM Do YYYY")
-                                )
-                              }
-                              title="Notify"
-                              className="bg-yellow-500 text-white p-1.5 rounded hover:bg-yellow-600 transition duration-300"
-                            >
-                              <Bell size={14} />
-                            </button>
-                          </>
-                        ) : null}
-                      </div>
-                    </td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">{request.expected_return_date ? moment(request.expected_return_date).format("MM/DD/YYYY") : 'N/A'}</td>
+                    {showActions && (
+                      <td className="py-2 px-3 border-b text-center">
+                        <div className="flex gap-1 justify-center">
+                          {request.status === "Pending" ? (
+                            <>
+                              <button
+                                onClick={() => handleStatusUpdate(request.id, "Approved")}
+                                title="Approve"
+                                className="bg-green-500 text-white p-1.5 rounded hover:bg-green-600 transition duration-300"
+                              >
+                                <Check size={14} />
+                              </button>
+                              <button
+                                onClick={() => handleReject(request)}
+                                title="Reject"
+                                className="bg-red-500 text-white p-1.5 rounded hover:bg-red-600 transition duration-300"
+                              >
+                                <X size={14} />
+                              </button>
+                            </>
+                          ) : request.status === "Approved" ? (
+                            <>
+                              <button
+                                onClick={() => handleReturnAsset(request.id)}
+                                title="Return"
+                                className="bg-blue-500 text-white p-1.5 rounded hover:bg-blue-600 transition duration-300"
+                              >
+                                <RotateCcw size={14} />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleNotifyUser(
+                                    request.contact_no,
+                                    request.name,
+                                    moment(request.expectedReturnDate).format("MMMM Do YYYY")
+                                  )
+                                }
+                                title="Notify"
+                                className="bg-yellow-500 text-white p-1.5 rounded hover:bg-yellow-600 transition duration-300"
+                              >
+                                <Bell size={14} />
+                              </button>
+                            </>
+                          ) : null}
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
