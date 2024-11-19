@@ -213,7 +213,7 @@ function AssetMaintenance({ user }) {
     <div className="space-y-6 ">
       {/* Header Section */}
       <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
-        <h1 className="text-5xl font-extrabold text-black">Asset Repair</h1>
+        <h1 className="text-5xl font-extrabold text-black">Asset Maintenance</h1>
         <FontAwesomeIcon
           icon={faTools}
           className="text-black text-5xl transform"
