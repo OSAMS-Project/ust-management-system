@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import RepairModal from '../components/repair/RepairModal';
-import RepairTable from '../components/repair/RepairTable';
-import RepairLogs from '../components/repair/RepairLogs';
-import PaginationControls from '../components/assetlists/PaginationControls';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import RepairModal from "../components/repair/RepairModal";
+import RepairTable from "../components/repair/RepairTable";
+import RepairLogs from "../components/repair/RepairLogs";
+import PaginationControls from "../components/assetlists/PaginationControls";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faToolbox } from "@fortawesome/free-solid-svg-icons";
 
 function AssetRepair() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,80 +23,92 @@ function AssetRepair() {
 
   const fetchRepairRecords = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/repair/read`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/repair/read`
+      );
       setRepairRecords(response.data);
     } catch (error) {
-      console.error('Error fetching repair records:', error);
+      console.error("Error fetching repair records:", error);
     }
   };
 
   const fetchAssets = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/Assets/read`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/Assets/read`
+      );
       setAssets(response.data);
     } catch (error) {
-      console.error('Error fetching assets:', error);
+      console.error("Error fetching assets:", error);
       setAssets([]);
     }
   };
 
   const handleAddRepair = async (formData) => {
     try {
-      console.log('Sending repair data:', formData);
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/repair/create`, formData);
-      setRepairRecords(prevRecords => [...prevRecords, response.data]);
+      console.log("Sending repair data:", formData);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/repair/create`,
+        formData
+      );
+      setRepairRecords((prevRecords) => [...prevRecords, response.data]);
       setIsModalOpen(false);
     } catch (error) {
-      console.error('Error adding repair record:', error);
+      console.error("Error adding repair record:", error);
       throw error;
     }
   };
 
   const handleCompleteRecord = async (record) => {
     try {
-      console.log('Completing repair record:', record);
+      console.log("Completing repair record:", record);
 
       if (!record.id) {
-        console.error('No repair ID found:', record);
+        console.error("No repair ID found:", record);
         return;
       }
 
-      await axios.put(`${process.env.REACT_APP_API_URL}/api/repair/${record.id}/complete`);
-      
-      setRepairRecords(prevRecords => 
-        prevRecords.map(r => 
-          r.id === record.id ? { ...r, status: 'Completed' } : r
+      await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/repair/${record.id}/complete`
+      );
+
+      setRepairRecords((prevRecords) =>
+        prevRecords.map((r) =>
+          r.id === record.id ? { ...r, status: "Completed" } : r
         )
       );
 
       try {
         await axios.put(
           `${process.env.REACT_APP_API_URL}/api/asset-issues/resolve-by-asset/${record.asset_id}`,
-          { status: 'Resolved' }
+          { status: "Resolved" }
         );
 
         await axios.put(
           `${process.env.REACT_APP_API_URL}/api/Assets/${record.asset_id}/status`,
-          { 
+          {
             under_repair: false,
-            has_issue: false
+            has_issue: false,
           }
         );
-
       } catch (error) {
-        console.error('Error updating related records:', error);
+        console.error("Error updating related records:", error);
       }
     } catch (error) {
-      console.error('Error completing repair record:', error);
+      console.error("Error completing repair record:", error);
     }
   };
 
   const handleRemoveRecord = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/repair/delete/${id}`);
-      setRepairRecords(prevRecords => prevRecords.filter(record => record.id !== id));
+      await axios.delete(
+        `${process.env.REACT_APP_API_URL}/api/repair/delete/${id}`
+      );
+      setRepairRecords((prevRecords) =>
+        prevRecords.filter((record) => record.id !== id)
+      );
     } catch (error) {
-      console.error('Error removing repair record:', error);
+      console.error("Error removing repair record:", error);
     }
   };
 
@@ -113,7 +127,8 @@ function AssetRepair() {
   };
 
   const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
-  const calculateEndIndex = () => Math.min(calculateStartIndex() + itemsPerPage - 1, repairRecords.length);
+  const calculateEndIndex = () =>
+    Math.min(calculateStartIndex() + itemsPerPage - 1, repairRecords.length);
   const totalPages = Math.ceil(repairRecords.length / itemsPerPage);
 
   const renderPageNumbers = () => {
@@ -156,16 +171,25 @@ function AssetRepair() {
   );
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Asset Repair</h1>
-      <RepairModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+    <div className="space-y-6 ">
+    {/* Header Section */}
+    <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
+      <h1 className="text-5xl font-extrabold text-black">Asset Repair</h1>
+      <FontAwesomeIcon
+        icon={faToolbox}
+        className="text-black text-5xl transform"
+      />
+    </div>
+
+    <div className="px-4">
+      <RepairModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         onAddRepair={handleAddRepair}
         assets={assets}
       />
       <div className="mt-6">
-        <RepairTable 
+        <RepairTable
           repairRecords={paginatedRepairRecords}
           assets={assets}
           onCompleteRecord={handleCompleteRecord}
@@ -193,6 +217,7 @@ function AssetRepair() {
         />
       )}
     </div>
+  </div>
   );
 }
 

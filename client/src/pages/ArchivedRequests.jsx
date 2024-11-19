@@ -4,6 +4,7 @@ import ArchivedRequestTable from '../components/assetrequest/ArchivedRequestTabl
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArchive } from "@fortawesome/free-solid-svg-icons";
 
+
 const ArchivedRequests = ({ user }) => {
   const [archivedRequests, setArchivedRequests] = useState([]);
 
@@ -39,15 +40,24 @@ const ArchivedRequests = ({ user }) => {
   };
 
   return (
-    <>
-      <div id='recipients' className="p-4 mt-4 lg:mt-0 rounded shadow bg-white">
+      <div id='recipients' className="space-y-6 ">
+    {/* Header Section */}
+    <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
+      <h1 className="text-5xl font-extrabold text-black">Asset Repair</h1>
+      <FontAwesomeIcon
+        icon={faArchive}
+        className="text-black text-5xl transform"
+      />
+    </div>
+
+    <div className="px-4">
         <ArchivedRequestTable 
           archivedRequests={archivedRequests}
           onRestore={handleRestore}
           onDelete={handleDelete}
         />
       </div>
-    </>
+    </div>
   );
 };
 

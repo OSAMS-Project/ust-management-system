@@ -160,7 +160,7 @@ const BorrowingHistory = () => {
       {/* Add margin to the content container */}
       <div className="mx-6">
         {/* Utility Controls */}
-        <div className="mb-6 flex flex-wrap gap-4 items-center justify-between bg-white p-4 rounded-lg shadow">
+        <div className="mb-6 flex flex-wrap gap-4 items-center justify-between bg-white p-4">
           {/* Search Bar */}
           <div className="relative flex-1 min-w-[200px]">
             <input
@@ -205,7 +205,7 @@ const BorrowingHistory = () => {
 
         {/* No Results Message */}
         {filteredHistory.length === 0 && (
-          <div className="text-center py-8 bg-white rounded-lg shadow">
+          <div className="text-center py-8 bg-white">
             <p className="text-gray-500">
               No records found matching your criteria
             </p>
@@ -215,7 +215,7 @@ const BorrowingHistory = () => {
         {/* Table */}
         {filteredHistory.length > 0 && (
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border-collapse shadow-lg rounded-lg">
+            <table className="min-w-full bg-white border-collapse">
               <thead className="bg-black text-[#FEC00F]">
                 <tr>
                   <th className="py-3 px-4 border-b text-center">Name</th>

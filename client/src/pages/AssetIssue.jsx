@@ -7,6 +7,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import EditIssueModal from '../components/issue/EditIssueModal';
 import PaginationControls from '../components/assetlists/PaginationControls';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faToolbox } from '@fortawesome/free-solid-svg-icons';
 
 function AssetIssue({ user }) {
   const [issues, setIssues] = useState([]);
@@ -262,11 +264,17 @@ function AssetIssue({ user }) {
   );
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Asset Issues</h1>
-        </div>
+    <div className="space-y-6 ">
+    {/* Header Section */}
+    <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
+      <h1 className="text-5xl font-extrabold text-black">Asset Repair</h1>
+      <FontAwesomeIcon
+        icon={faToolbox}
+        className="text-black text-5xl transform"
+      />
+    </div>
+
+    <div className="px-4">
         <AddAssetIssue
           onAddIssue={handleAddIssue}
           assets={assets}
@@ -275,7 +283,6 @@ function AssetIssue({ user }) {
           onOpenModal={() => setIsModalOpen(true)}
           user={user}
         />
-      </div>
 
       <IssueTable 
         issues={paginatedIssues}
@@ -327,6 +334,7 @@ function AssetIssue({ user }) {
         notification={notification}
         onClose={() => setNotification(null)}
       />
+    </div>
     </div>
   );
 }

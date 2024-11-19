@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import AddMaintenance from '../components/maintenance/AddMaintenance';
-import MaintenanceTable from '../components/maintenance/MaintenanceTable';
-import EditMaintenanceModal from '../components/maintenance/EditMaintenanceModal';
-import NotificationPopup from '../components/utils/NotificationsPopup';
-import PaginationControls from '../components/assetlists/PaginationControls';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import AddMaintenance from "../components/maintenance/AddMaintenance";
+import MaintenanceTable from "../components/maintenance/MaintenanceTable";
+import EditMaintenanceModal from "../components/maintenance/EditMaintenanceModal";
+import NotificationPopup from "../components/utils/NotificationsPopup";
+import PaginationControls from "../components/assetlists/PaginationControls";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTools } from "@fortawesome/free-solid-svg-icons";
 
 function AssetMaintenance({ user }) {
   const [maintenances, setMaintenances] = useState([]);
@@ -24,52 +26,63 @@ function AssetMaintenance({ user }) {
 
   const fetchMaintenances = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/maintenance`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/maintenance`
+      );
       setMaintenances(response.data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching maintenances:', error);
+      console.error("Error fetching maintenances:", error);
       setLoading(false);
       setNotification({
-        type: 'error',
-        message: 'Failed to fetch maintenance records. Please try again.'
+        type: "error",
+        message: "Failed to fetch maintenance records. Please try again.",
       });
     }
   };
 
   const fetchAssets = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/Assets/read`);
-      const nonConsumableAssets = response.data.filter(asset => asset.type === 'Non-Consumable');
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/Assets/read`
+      );
+      const nonConsumableAssets = response.data.filter(
+        (asset) => asset.type === "Non-Consumable"
+      );
       setAssets(nonConsumableAssets);
     } catch (error) {
-      console.error('Error fetching assets:', error);
+      console.error("Error fetching assets:", error);
       setNotification({
-        type: 'error',
-        message: 'Failed to fetch assets. Please try again.'
+        type: "error",
+        message: "Failed to fetch assets. Please try again.",
       });
     }
   };
 
   const handleAddMaintenance = async (maintenanceData) => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/maintenance`, {
-        ...maintenanceData,
-        scheduled_by: user?.name,
-        user_picture: user?.picture
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/maintenance`,
+        {
+          ...maintenanceData,
+          scheduled_by: user?.name,
+          user_picture: user?.picture,
+        }
+      );
 
       setMaintenances([response.data, ...maintenances]);
       setIsModalOpen(false);
       setNotification({
-        type: 'success',
-        message: 'Maintenance scheduled successfully!'
+        type: "success",
+        message: "Maintenance scheduled successfully!",
       });
     } catch (error) {
-      console.error('Error adding maintenance:', error);
+      console.error("Error adding maintenance:", error);
       setNotification({
-        type: 'error',
-        message: error.response?.data?.error || 'Failed to schedule maintenance. Please try again.'
+        type: "error",
+        message:
+          error.response?.data?.error ||
+          "Failed to schedule maintenance. Please try again.",
       });
     }
   };
@@ -82,10 +95,10 @@ function AssetMaintenance({ user }) {
           { completion_date: editData.completion_date }
         );
 
-        setMaintenances(maintenances.filter(m => m.id !== maintenanceId));
+        setMaintenances(maintenances.filter((m) => m.id !== maintenanceId));
         setNotification({
-          type: 'success',
-          message: 'Maintenance marked as completed'
+          type: "success",
+          message: "Maintenance marked as completed",
         });
       } else {
         const response = await axios.put(
@@ -93,38 +106,46 @@ function AssetMaintenance({ user }) {
           editData
         );
 
-        setMaintenances(maintenances.map(maintenance => 
-          maintenance.id === maintenanceId ? { ...maintenance, ...editData } : maintenance
-        ));
+        setMaintenances(
+          maintenances.map((maintenance) =>
+            maintenance.id === maintenanceId
+              ? { ...maintenance, ...editData }
+              : maintenance
+          )
+        );
         setIsEditModalOpen(false);
         setSelectedMaintenance(null);
         setNotification({
-          type: 'success',
-          message: 'Maintenance record updated successfully'
+          type: "success",
+          message: "Maintenance record updated successfully",
         });
       }
     } catch (error) {
-      console.error('Error updating maintenance:', error);
+      console.error("Error updating maintenance:", error);
       setNotification({
-        type: 'error',
-        message: 'Failed to update maintenance record'
+        type: "error",
+        message: "Failed to update maintenance record",
       });
     }
   };
 
   const handleRemoveMaintenance = async (maintenanceId) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/maintenance/${maintenanceId}`);
-      setMaintenances(maintenances.filter(maintenance => maintenance.id !== maintenanceId));
+      await axios.delete(
+        `${process.env.REACT_APP_API_URL}/api/maintenance/${maintenanceId}`
+      );
+      setMaintenances(
+        maintenances.filter((maintenance) => maintenance.id !== maintenanceId)
+      );
       setNotification({
-        type: 'success',
-        message: 'Maintenance record removed successfully'
+        type: "success",
+        message: "Maintenance record removed successfully",
       });
     } catch (error) {
-      console.error('Error removing maintenance:', error);
+      console.error("Error removing maintenance:", error);
       setNotification({
-        type: 'error',
-        message: 'Failed to remove maintenance record'
+        type: "error",
+        message: "Failed to remove maintenance record",
       });
     }
   };
@@ -145,7 +166,8 @@ function AssetMaintenance({ user }) {
   };
 
   const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
-  const calculateEndIndex = () => Math.min(calculateStartIndex() + itemsPerPage - 1, maintenances.length);
+  const calculateEndIndex = () =>
+    Math.min(calculateStartIndex() + itemsPerPage - 1, maintenances.length);
   const totalPages = Math.ceil(maintenances.length / itemsPerPage);
 
   const paginatedMaintenances = maintenances.slice(
@@ -188,11 +210,17 @@ function AssetMaintenance({ user }) {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Asset Maintenance</h1>
-        </div>
+    <div className="space-y-6 ">
+      {/* Header Section */}
+      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
+        <h1 className="text-5xl font-extrabold text-black">Asset Repair</h1>
+        <FontAwesomeIcon
+          icon={faTools}
+          className="text-black text-5xl transform"
+        />
+      </div>
+
+      <div className="px-4">
         <AddMaintenance
           onAddMaintenance={handleAddMaintenance}
           assets={assets}
@@ -201,47 +229,47 @@ function AssetMaintenance({ user }) {
           onOpenModal={() => setIsModalOpen(true)}
           user={user}
         />
-      </div>
 
-      <MaintenanceTable 
-        maintenances={paginatedMaintenances}
-        assets={assets}
-        loading={loading}
-        onEditMaintenance={handleEditMaintenance}
-        onRemoveMaintenance={handleRemoveMaintenance}
-      />
-
-      {maintenances.length > 0 && (
-        <PaginationControls
-          itemsPerPage={itemsPerPage}
-          handleItemsPerPageChange={handleItemsPerPageChange}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          handlePageChange={handlePageChange}
-          calculateStartIndex={calculateStartIndex}
-          calculateEndIndex={calculateEndIndex}
-          totalItems={maintenances.length}
-          renderPageNumbers={renderPageNumbers}
-        />
-      )}
-
-      {isEditModalOpen && selectedMaintenance && (
-        <EditMaintenanceModal
-          isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setSelectedMaintenance(null);
-          }}
-          onEditMaintenance={handleEditMaintenance}
-          maintenance={selectedMaintenance}
+        <MaintenanceTable
+          maintenances={paginatedMaintenances}
           assets={assets}
+          loading={loading}
+          onEditMaintenance={handleEditMaintenance}
+          onRemoveMaintenance={handleRemoveMaintenance}
         />
-      )}
 
-      <NotificationPopup 
-        notification={notification}
-        onClose={() => setNotification(null)}
-      />
+        {maintenances.length > 0 && (
+          <PaginationControls
+            itemsPerPage={itemsPerPage}
+            handleItemsPerPageChange={handleItemsPerPageChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            handlePageChange={handlePageChange}
+            calculateStartIndex={calculateStartIndex}
+            calculateEndIndex={calculateEndIndex}
+            totalItems={maintenances.length}
+            renderPageNumbers={renderPageNumbers}
+          />
+        )}
+
+        {isEditModalOpen && selectedMaintenance && (
+          <EditMaintenanceModal
+            isOpen={isEditModalOpen}
+            onClose={() => {
+              setIsEditModalOpen(false);
+              setSelectedMaintenance(null);
+            }}
+            onEditMaintenance={handleEditMaintenance}
+            maintenance={selectedMaintenance}
+            assets={assets}
+          />
+        )}
+
+        <NotificationPopup
+          notification={notification}
+          onClose={() => setNotification(null)}
+        />
+      </div>
     </div>
   );
 }
