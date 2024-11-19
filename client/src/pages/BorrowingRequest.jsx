@@ -6,7 +6,6 @@ import RejectionReasonModal from "../components/borrower/RejectionReasonModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import { Check, X, RotateCcw, Bell } from 'lucide-react'; // Import Lucide icons
-import { createClient } from '@supabase/supabase-js'
 import { toast } from 'react-hot-toast'
 import supabase from '../config/supabaseClient';  // Import the configured client
 
@@ -351,8 +350,8 @@ const BorrowingRequest = () => {
                               <X size={14} />
                             </button>
                           </>
-                        ) : (
-                          request.status === "Approved" && (
+                        ) : request.status === "Approved" ? (
+                          <>
                             <button
                               onClick={() => handleReturnAsset(request.id)}
                               title="Return"
@@ -360,21 +359,21 @@ const BorrowingRequest = () => {
                             >
                               <RotateCcw size={14} />
                             </button>
-                          )
-                        )}
-                        <button
-                          onClick={() =>
-                            handleNotifyUser(
-                              request.contact_no,
-                              request.name,
-                              moment(request.expectedReturnDate).format("MMMM Do YYYY")
-                            )
-                          }
-                          title="Notify"
-                          className="bg-yellow-500 text-white p-1.5 rounded hover:bg-yellow-600 transition duration-300"
-                        >
-                          <Bell size={14} />
-                        </button>
+                            <button
+                              onClick={() =>
+                                handleNotifyUser(
+                                  request.contact_no,
+                                  request.name,
+                                  moment(request.expectedReturnDate).format("MMMM Do YYYY")
+                                )
+                              }
+                              title="Notify"
+                              className="bg-yellow-500 text-white p-1.5 rounded hover:bg-yellow-600 transition duration-300"
+                            >
+                              <Bell size={14} />
+                            </button>
+                          </>
+                        ) : null}
                       </div>
                     </td>
                   </tr>
