@@ -142,9 +142,16 @@ const deleteAsset = async (id) => {
 		// Create an array of delete operations for all associated tables
 		const deleteQueries = [
 			{
+				query: "DELETE FROM maintenance_records WHERE asset_id = $1",
+				params: [id],
+			},
+
+			{
 				query: "DELETE FROM repair_records WHERE asset_id = $1",
 				params: [id],
 			},
+
+
 			{
 				query: "DELETE FROM asset_issues WHERE asset_id = $1",
 				params: [id],
