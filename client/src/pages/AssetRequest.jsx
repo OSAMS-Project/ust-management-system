@@ -192,12 +192,12 @@ const AssetRequest = ({ user }) => {
           onApprove={handleApprove}
           onDecline={handleDecline}
         />
-        <DeclinedRequestTable 
-          declinedRequests={declinedRequests} 
-          onArchive={handleArchive}
-        />
         <ApprovedRequestTable 
           approvedRequests={approvedRequests} 
+          onArchive={handleArchive}
+        />
+        <DeclinedRequestTable 
+          declinedRequests={declinedRequests} 
           onArchive={handleArchive}
         />
       </div>

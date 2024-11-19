@@ -248,7 +248,7 @@ const BorrowingHistory = () => {
                       {moment(record.date_requested).format("MM/DD/YYYY")}
                     </td>
                     <td className="py-2 px-4 border-b text-center">
-                      {record.date_collected ? moment(record.date_collected).format("MM/DD/YYYY") : 'Not yet collected'}
+                      {record.date_to_be_collected ? moment(record.date_to_be_collected).format("MM/DD/YYYY") : 'Not yet collected'}
                     </td>
                     <td className="py-2 px-4 border-b text-center">
                       {record.cover_letter_url ? (
