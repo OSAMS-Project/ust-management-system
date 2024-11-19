@@ -151,7 +151,6 @@ const deleteAsset = async (id) => {
 				query: "DELETE FROM repair_records WHERE asset_id = $1",
 				params: [id],
 			},
-
 			{
 				query: "DELETE FROM asset_issues WHERE asset_id = $1",
 				params: [id],
@@ -169,8 +168,16 @@ const deleteAsset = async (id) => {
 				params: [id],
 			},
 			{
+				query: `DELETE FROM borrowed_assets 
+                        WHERE request_id IN (
+                            SELECT id FROM borrowing_requests 
+                            WHERE selected_assets @> '[{"asset_id": "${id}"}]'::jsonb
+                        )`,
+				params: [],
+			},
+			{
 				query: `DELETE FROM borrowing_requests 
-                WHERE selected_assets @> '[{"asset_id": "${id}"}]'::jsonb`,
+                        WHERE selected_assets @> '[{"asset_id": "${id}"}]'::jsonb`,
 				params: [],
 			},
 			{

@@ -1,19 +1,61 @@
 import React, { useState } from 'react';
 import moment from 'moment';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
-import ViewRequestModal from './ViewRequestModal';
+import PaginationControls from '../assetlists/PaginationControls';
 
 const ArchivedRequestTable = ({ archivedRequests, onRestore, onDelete }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedRequest, setSelectedRequest] = useState(null);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const itemsPerPage = 5;
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const totalPages = Math.ceil(archivedRequests.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentRequests = archivedRequests.slice(startIndex, endIndex);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleItemsPerPageChange = (e) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1); // Reset to first page on items per page change
+  };
+
+  const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
+  const calculateEndIndex = () => Math.min(calculateStartIndex() + itemsPerPage - 1, archivedRequests.length);
+
+  const renderPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    const halfVisible = Math.floor(maxVisiblePages / 2);
+
+    let startPage = Math.max(currentPage - halfVisible, 1);
+    let endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(endPage - maxVisiblePages + 1, 1);
+    }
+
+    pageNumbers.push(
+      ...Array.from(
+        { length: endPage - startPage + 1 },
+        (_, index) => startPage + index
+      ).map((i) => (
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+            i === currentPage
+              ? "z-10 bg-[#FEC00F] text-black font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FEC00F]"
+              : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+          }`}
+        >
+          {i}
+        </button>
+      ))
+    );
+
+    return pageNumbers;
+  };
 
   return (
     <div className="mt-8">
@@ -67,15 +109,6 @@ const ArchivedRequestTable = ({ archivedRequests, onRestore, onDelete }) => {
               </td>
               <td className="py-2 px-4 border-b text-center">
                 <button
-                  onClick={() => {
-                    setSelectedRequest(asset);
-                    setIsViewModalOpen(true);
-                  }}
-                  className="bg-blue-500 text-white px-2 py-1 rounded mr-2 text-xs hover:bg-blue-600 transition duration-300"
-                >
-                  <FontAwesomeIcon icon={faEye} />
-                </button>
-                <button
                   onClick={() => onRestore(asset.id)}
                   className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs hover:bg-green-600 transition duration-300"
                 >
@@ -92,27 +125,19 @@ const ArchivedRequestTable = ({ archivedRequests, onRestore, onDelete }) => {
           ))}
         </tbody>
       </table>
-      
-      <div className="mt-4 mb-8 flex justify-center">
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrentPage(i + 1)}
-            className={`mx-1 px-3 py-1 rounded ${
-              currentPage === i + 1
-                ? "bg-yellow-500 text-white"
-                : "bg-gray-200"
-            }`}
-          >
-            {i + 1}
-          </button>
-        ))}
-      </div>
-      <ViewRequestModal
-        isOpen={isViewModalOpen}
-        onClose={() => setIsViewModalOpen(false)}
-        request={selectedRequest}
-      />
+      {archivedRequests.length > 0 && (
+        <PaginationControls
+          itemsPerPage={itemsPerPage}
+          handleItemsPerPageChange={handleItemsPerPageChange}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          handlePageChange={handlePageChange}
+          calculateStartIndex={calculateStartIndex}
+          calculateEndIndex={calculateEndIndex}
+          totalItems={archivedRequests.length}
+          renderPageNumbers={renderPageNumbers}
+        />
+      )}
     </div>
   );
 };
