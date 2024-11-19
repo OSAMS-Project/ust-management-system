@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../config/database');
-const Repair = require('../models/repair');
+const Repair = require('../models/Repair');
 
 router.post('/create', async (req, res) => {
   try {

@@ -1,4 +1,4 @@
-const Repair = require('../models/repair');
+const Repair = require('../models/Repair');
 const Asset = require('../models/assets');
 
 const getAllRepairRecords = async (req, res) => {
