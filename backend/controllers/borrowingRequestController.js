@@ -90,6 +90,36 @@ exports.updateBorrowingRequestStatus = async (req, res) => {
     const { status } = req.body;
     const requestId = req.params.id;
 
+    // Get the borrowing request details first
+    const request = await BorrowingRequest.getBorrowingRequestById(requestId);
+    if (!request) {
+      return res.status(404).json({ message: "Borrowing request not found" });
+    }
+
+    // If approving the request, check quantities first
+    if (status === "Approved") {
+      const selectedAssets = typeof request.selected_assets === 'string' 
+        ? JSON.parse(request.selected_assets) 
+        : request.selected_assets;
+
+      // Check each asset's available quantity
+      for (const asset of selectedAssets) {
+        const assetDetails = await Asset.readAsset(asset.asset_id);
+        if (!assetDetails) {
+          return res.status(400).json({ 
+            message: `Asset ${asset.asset_id} not found` 
+          });
+        }
+
+        // Check if requested quantity exceeds available quantity
+        if (asset.quantity > assetDetails.quantity_for_borrowing) {
+          return res.status(400).json({
+            message: `Cannot approve request. Requested quantity (${asset.quantity}) exceeds available quantity (${assetDetails.quantity_for_borrowing}) for asset ${assetDetails.assetName}`
+          });
+        }
+      }
+    }
+
     // Update the request status
     const updatedRequest = await BorrowingRequest.updateBorrowingRequestStatus(
       requestId,

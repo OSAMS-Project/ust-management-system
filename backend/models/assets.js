@@ -288,10 +288,17 @@ const updateAssetQuantity = async (assetId, quantityChange) => {
     UPDATE Assets 
     SET quantity_for_borrowing = quantity_for_borrowing + $1 
     WHERE asset_id = $2 
+      AND (quantity_for_borrowing + $1) >= 0  -- Prevent negative quantity
     RETURNING *
   `;
 	const params = [quantityChange, assetId];
-	return executeTransaction([{ query, params }]);
+	const result = await executeTransaction([{ query, params }]);
+	
+	if (result.length === 0) {
+		throw new Error('Update would result in negative quantity for borrowing');
+	}
+	
+	return result;
 };
 
 const readAsset = async (assetId) => {
