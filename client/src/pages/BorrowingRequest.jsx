@@ -75,11 +75,27 @@ const BorrowingRequest = () => {
       );
       setRequests(updatedResponse.data);
 
-      toast.success(`Request ${status.toLowerCase()} successfully`);
+      // Add notifications for approval
+      if (status === "Approved") {
+        // Toast notification
+        toast.success("Request approved successfully");
+        
+        // Popup notification
+        setNotification({
+          type: "success",
+          message: "Request approved successfully! An email has been sent to the borrower.",
+          duration: 3000
+        })
+      }
 
     } catch (err) {
       console.error("Error updating request status:", err);
       toast.error("Failed to update request status");
+      setNotification({
+        type: "error",
+        message: "Failed to update request status. Please try again.",
+        duration: 3000
+      });
     }
   };
 
