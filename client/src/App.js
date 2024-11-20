@@ -30,21 +30,42 @@ import RoleManagement from "./pages/RoleManagement";
 import ScanRedirect from "./components/scan/ScanRedirect";
 import AssetDetailsPage from "./pages/AssetDetailsPage";
 import AssetMaintenance from "./pages/AssetMaintenance";
-import FileUpload from './components/FileUpload';
-
+import FileUpload from "./components/FileUpload";
 console.log("Supabase URL:", process.env.REACT_APP_SUPABASE_URL);
 console.log("API URL:", process.env.REACT_APP_API_URL);
 
 function App() {
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
-    const adminToken = sessionStorage.getItem("adminToken");
-    return savedUser
-      ? JSON.parse(savedUser)
-      : adminToken
-      ? { role: "admin" }
-      : null;
+    return savedUser ? JSON.parse(savedUser) : null;
   });
+
+  const [isAdmin, setIsAdmin] = useState(() => {
+    return sessionStorage.getItem("adminToken") === "admin-logged-in";
+  });
+
+  useEffect(() => {
+    const fetchPermissionsForUser = async () => {
+      if (!user || !user.id || user.permissions) {
+        return; // Don't fetch if permissions already exist or user ID is missing
+      }
+
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/users/${user.id}/permissions`
+        );
+        if (!response.ok) throw new Error("Failed to fetch permissions.");
+
+        const data = await response.json();
+        console.log("Fetched Permissions:", data.permissions);
+        setUser((prevUser) => ({ ...prevUser, permissions: data.permissions }));
+      } catch (err) {
+        console.error("Failed to fetch permissions:", err);
+      }
+    };
+
+    fetchPermissionsForUser();
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -79,6 +100,24 @@ function AppContent({ user, setUser }) {
   // Redirect logged-in users to dashboard if they try to access public routes
   if (user && isPublicRoute) {
     return <Navigate to="/dashboard" replace />;
+  }
+
+  // Enhanced PrivateRoute with permission checks
+  function PrivateRoute({ user, requiredPermissions = [], children }) {
+    const isAdmin = user?.role === "admin"; // Check if user is admin
+    const hasPermission =
+      isAdmin ||
+      requiredPermissions.every((perm) => user?.permissions?.includes(perm));
+
+    if (!user) {
+      return <Navigate to="/login" />;
+    }
+
+    if (requiredPermissions.length > 0 && !hasPermission) {
+      return <Navigate to="/dashboard" />;
+    }
+
+    return children;
   }
 
   return (
@@ -119,6 +158,7 @@ function AppContent({ user, setUser }) {
               </PublicRoute>
             }
           />
+
           <Route
             path="/admin"
             element={
@@ -128,75 +168,43 @@ function AppContent({ user, setUser }) {
             }
           />
 
-          {/* Private Routes */}
           <Route
-            path="/dashboard"
+            path="/users"
             element={
-              <PrivateRoute user={user}>
-                <Dashboard user={user} />
+              <PrivateRoute
+                user={user}
+                requiredPermissions={["User Management"]}
+              >
+                <UserManagement user={user} />
               </PrivateRoute>
             }
           />
           <Route
             path="/events"
             element={
-              <PrivateRoute user={user}>
+              <PrivateRoute
+                user={user}
+                requiredPermissions={["Events Management"]}
+              >
                 <Events />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/completed-events"
-            element={
-              <PrivateRoute user={user}>
-                <CompletedEvents />
               </PrivateRoute>
             }
           />
           <Route
             path="/assets"
             element={
-              <PrivateRoute user={user}>
+              <PrivateRoute user={user} requiredPermissions={["Asset Lists"]}>
                 <AssetList user={user} />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/asset-repair"
-            element={
-              <PrivateRoute user={user}>
-                <AssetRepair />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/asset-issue"
-            element={
-              <PrivateRoute user={user}>
-                <AssetIssue user={user} />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/borrowingrequest"
-            element={
-              <PrivateRoute user={user}>
-                <BorrowingRequest />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/users"
-            element={
-              <PrivateRoute user={user}>
-                <UserManagement />
               </PrivateRoute>
             }
           />
           <Route
             path="/roles"
             element={
-              <PrivateRoute user={user}>
+              <PrivateRoute
+                user={user}
+                requiredPermissions={["Role Management"]}
+              >
                 <RoleManagement />
               </PrivateRoute>
             }
@@ -210,9 +218,33 @@ function AppContent({ user, setUser }) {
             }
           />
           <Route
-            path="/supplierlist"
+            path="/dashboard"
             element={
               <PrivateRoute user={user}>
+                <Dashboard user={user} />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/completed-events"
+            element={
+              <PrivateRoute
+                user={user}
+                requiredPermissions={["Completed Events"]}
+              >
+                <CompletedEvents />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/supplierlist"
+            element={
+              <PrivateRoute
+                user={user}
+                requiredPermissions={["Supplier Lists"]}
+              >
                 <SupplierList />
               </PrivateRoute>
             }
@@ -220,15 +252,27 @@ function AppContent({ user, setUser }) {
           <Route
             path="/asset-request"
             element={
-              <PrivateRoute user={user}>
+              <PrivateRoute user={user} requiredPermissions={["Asset Request"]}>
                 <AssetRequest user={user} />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/asset-issue"
+            element={
+              <PrivateRoute user={user} requiredPermissions={["Asset Issue"]}>
+                <AssetIssue />
               </PrivateRoute>
             }
           />
           <Route
             path="/archived-requests"
             element={
-              <PrivateRoute user={user}>
+              <PrivateRoute
+                user={user}
+                requiredPermissions={["Archived Requests"]}
+              >
                 <ArchivedRequests user={user} />
               </PrivateRoute>
             }
@@ -236,7 +280,10 @@ function AppContent({ user, setUser }) {
           <Route
             path="/incoming-assets"
             element={
-              <PrivateRoute user={user}>
+              <PrivateRoute
+                user={user}
+                requiredPermissions={["Incoming Assets"]}
+              >
                 <IncomingAssets />
               </PrivateRoute>
             }
@@ -244,15 +291,29 @@ function AppContent({ user, setUser }) {
           <Route
             path="/borrowing-history"
             element={
-              <PrivateRoute user={user}>
+              <PrivateRoute
+                user={user}
+                requiredPermissions={["Borrowing History"]}
+              >
                 <BorrowingHistory />
               </PrivateRoute>
             }
           />
           <Route
-            path="/repair"
+            path="/borrowingrequest"
             element={
-              <PrivateRoute user={user}>
+              <PrivateRoute
+                user={user}
+                requiredPermissions={["Borrowing Requests"]}
+              >
+                <BorrowingRequest />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/asset-repair"
+            element={
+              <PrivateRoute user={user} requiredPermissions={["Asset Repair"]}>
                 <AssetRepair />
               </PrivateRoute>
             }
@@ -260,7 +321,10 @@ function AppContent({ user, setUser }) {
           <Route
             path="/asset-maintenance"
             element={
-              <PrivateRoute user={user}>
+              <PrivateRoute
+                user={user}
+                requiredPermissions={["Asset Maintenance"]}
+              >
                 <AssetMaintenance user={user} />
               </PrivateRoute>
             }
@@ -269,21 +333,23 @@ function AppContent({ user, setUser }) {
           <Route
             path="/assets/details/:assetId"
             element={
-              <PrivateRoute user={user}>
+              <PrivateRoute user={user} requiredPermissions={["Asset List"]}>
                 <AssetDetailsPage />
               </PrivateRoute>
             }
           />
-          <Route path="/file-upload" element={<PrivateRoute user={user}><FileUpload /></PrivateRoute>} />
+          <Route
+            path="/file-upload"
+            element={
+              <PrivateRoute user={user}>
+                <FileUpload />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </div>
     </div>
   );
-}
-
-// Private Route Component
-function PrivateRoute({ user, children }) {
-  return user ? children : <Navigate to="/login" />;
 }
 
 function PublicRoute({ user, children }) {

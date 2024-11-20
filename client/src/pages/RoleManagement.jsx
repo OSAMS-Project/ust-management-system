@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUsers, faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { faUsers, faChevronDown, faChevronUp, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
 const RoleManagement = () => {
   const [roles, setRoles] = useState([]);
@@ -11,7 +11,40 @@ const RoleManagement = () => {
   const [totalRoles, setTotalRoles] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState({});
 
-  const predefinedPermissions = ["Read", "Write", "Edit", "Delete"];
+  const permissionDependencies = {
+    "Asset Lists": [
+      "Asset Repair",
+      "Asset Issues",
+      "Asset Request",
+      "Archived Requests",
+      "Incoming Assets",
+      "Asset Maintenance",
+      "Asset Details",
+    ],
+    "Borrowing Requests": ["Borrowing History"],
+    "Events Management": ["Completed Events"],
+    "User Management": ["Role Management"],
+  };
+
+  const predefinedPages = [
+    "Dashboard",
+    "Asset Lists",
+    "Borrowing Requests",
+    "Supplier Lists",
+    "Events Management",
+    "User Management",
+    "Role Management",
+    "Asset Management",
+    "Asset Request",
+    "Asset Repair",
+    "Asset Issues",
+    "Asset Maintenance",
+    "Asset Details",
+    "Incoming Assets",
+    "Completed Events",
+    "Archived Requests",
+    "Borrowing History",
+  ];
 
   const API_URL = `${process.env.REACT_APP_API_URL}/api/roles`;
 
@@ -19,8 +52,14 @@ const RoleManagement = () => {
     try {
       setLoading(true);
       const response = await axios.get(API_URL);
-      setRoles(response.data.map((role) => ({ ...role, permissions: [] }))); // Initialize with empty permissions
-      setTotalRoles(response.data.length);
+
+      const rolesWithPermissions = response.data.map((role) => ({
+        ...role,
+        permissions: role.permissions || [],
+      }));
+
+      setRoles(rolesWithPermissions);
+      setTotalRoles(rolesWithPermissions.length);
       setLoading(false);
     } catch (err) {
       setLoading(false);
@@ -53,19 +92,45 @@ const RoleManagement = () => {
     }
   };
 
-  const handlePermissionChange = (roleName, permission) => {
-    setRoles((prevRoles) =>
-      prevRoles.map((role) =>
-        role.role_name === roleName
-          ? {
-              ...role,
-              permissions: role.permissions.includes(permission)
-                ? role.permissions.filter((perm) => perm !== permission)
-                : [...role.permissions, permission],
-            }
-          : role
-      )
-    );
+  const handlePermissionChange = async (roleName, page) => {
+    const role = roles.find((r) => r.role_name === roleName);
+
+    let updatedPermissions = [];
+    if (role.permissions.includes(page)) {
+      // Uncheck the permission
+      updatedPermissions = role.permissions.filter((p) => p !== page);
+
+      // Remove dependent permissions if the parent is unchecked
+      if (permissionDependencies[page]) {
+        updatedPermissions = updatedPermissions.filter(
+          (perm) => !permissionDependencies[page].includes(perm)
+        );
+      }
+    } else {
+      // Check the permission
+      updatedPermissions = [...role.permissions, page];
+
+      // Add dependent permissions if the parent is checked
+      if (permissionDependencies[page]) {
+        updatedPermissions = [...new Set([...updatedPermissions, ...permissionDependencies[page]])];
+      }
+    }
+
+    try {
+      await axios.put(`${API_URL}/${roleName}/permissions`, {
+        permissions: updatedPermissions,
+      });
+
+      setRoles((prevRoles) =>
+        prevRoles.map((r) =>
+          r.role_name === roleName
+            ? { ...r, permissions: updatedPermissions }
+            : r
+        )
+      );
+    } catch (err) {
+      console.error("Error updating permissions:", err);
+    }
   };
 
   const toggleDropdown = (roleName) => {
@@ -81,54 +146,25 @@ const RoleManagement = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
-      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
-        <h1 className="text-5xl font-extrabold text-black">Role Management</h1>
-        <FontAwesomeIcon
-          icon={faUsers}
-          className="text-black text-5xl transform"
-        />
+      <div className="bg-yellow-400 py-6 flex items-center justify-between px-6">
+        <h1 className="text-3xl font-bold text-black">Role Management</h1>
+        <FontAwesomeIcon icon={faUsers} className="text-3xl text-black" />
       </div>
 
       <div className="px-4">
-        <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full px-5 py-1 text-center uppercase tracking-wider">
-          Roles Summary
-        </div>
-
-        {/* Total Roles Display */}
-        <div className="px-4 my-6">
-          <div
-            className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden"
-            style={{ backgroundImage: "url('ust-img-4.JPG')" }}
-          >
-            <div className="absolute inset-0 bg-black opacity-50"></div>
-            <div className="relative z-10 flex flex-col items-center text-center">
-              <h2 className="text-7xl font-bold text-yellow-400">
-                {totalRoles}
-              </h2>
-              <p className="text-2xl font-semibold text-white mt-2">
-                Total Roles
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Role Add Section */}
-      <div className="px-4 my-6">
-        <div className="bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500 transition-all duration-300 hover:shadow-lg">
-          <h2 className="text-2xl font-semibold text-gray-600 mb-4">Add New Role</h2>
-          <div className="flex items-center gap-4">
+        <div className="bg-yellow-200 p-4 rounded-md">
+          <h2 className="text-xl font-semibold">Add New Role</h2>
+          <div className="flex items-center mt-2">
             <input
               type="text"
               value={newRole}
               onChange={(e) => setNewRole(e.target.value)}
-              placeholder="Role Name"
-              className="border border-gray-300 rounded-lg p-2 w-full"
+              placeholder="Enter role name"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
             />
             <button
               onClick={handleAddRole}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
+              className="ml-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
             >
               Add Role
             </button>
@@ -137,71 +173,68 @@ const RoleManagement = () => {
         </div>
       </div>
 
-      {/* Roles Table */}
       <div className="px-4">
-        <div className="bg-white shadow-lg overflow-x-auto rounded-lg">
-          {loading ? (
-            <p className="text-center py-4">Loading roles...</p>
-          ) : (
-            <table className="min-w-full bg-white border-collapse">
-              <thead className="bg-black text-[#FEC00F]">
+        {loading ? (
+          <p>Loading roles...</p>
+        ) : (
+          <div className="bg-white rounded-md shadow-md overflow-hidden">
+            <table className="min-w-full text-left">
+              <thead className="bg-gray-800 text-white">
                 <tr>
-                  <th className="py-3 px-4 border-b text-center">Role Name</th>
-                  <th className="py-3 px-4 border-b text-center">Permissions</th>
-                  <th className="py-3 px-4 border-b text-center">Actions</th>
+                  <th className="px-6 py-3">Role Name</th>
+                  <th className="px-6 py-3">Permissions</th>
+                  <th className="px-6 py-3 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {roles.map((role) => (
-                  <tr
-                    key={role.role_name}
-                    className="hover:bg-gray-50 transition duration-150"
-                  >
-                    <td className="py-4 px-6 border-b text-center">
+                  <tr key={role.role_name} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 font-medium text-gray-800">
                       {role.role_name}
                     </td>
-                    <td className="py-4 px-6 border-b text-center relative">
-                      <div className="relative">
+                    <td className="px-6 py-4">
+                      <div>
                         <button
                           onClick={() => toggleDropdown(role.role_name)}
-                          className="bg-gray-100 text-black px-3 py-2 rounded-full shadow-md hover:bg-gray-200 focus:outline-none"
+                          className="flex items-center text-blue-500"
                         >
-                          Manage Permissions
+                          {dropdownOpen[role.role_name]
+                            ? "Hide Permissions"
+                            : "Manage Permissions"}
                           <FontAwesomeIcon
-                            icon={faChevronDown}
-                            className="ml-2 text-sm"
+                            icon={
+                              dropdownOpen[role.role_name]
+                                ? faChevronUp
+                                : faChevronDown
+                            }
+                            className="ml-2"
                           />
                         </button>
                         {dropdownOpen[role.role_name] && (
-                          <div className="absolute z-10 bg-white border rounded shadow-md mt-2 p-4 w-64">
-                            {predefinedPermissions.map((permission) => (
-                              <label
-                                key={permission}
-                                className="block text-sm font-medium text-gray-700"
-                              >
+                          <div className="mt-2 bg-gray-100 border rounded-md p-4">
+                            {predefinedPages.map((page) => (
+                              <label key={page} className="block">
                                 <input
                                   type="checkbox"
-                                  checked={role.permissions.includes(permission)}
+                                  checked={role.permissions.includes(page)}
                                   onChange={() =>
-                                    handlePermissionChange(
-                                      role.role_name,
-                                      permission
-                                    )
+                                    handlePermissionChange(role.role_name, page)
                                   }
                                   className="mr-2"
                                 />
-                                {permission}
+                                {page}
                               </label>
                             ))}
                           </div>
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-6 border-b text-center">
+                    <td className="px-6 py-4 text-center">
                       <button
                         onClick={() => handleDeleteRole(role.role_name)}
-                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300"
+                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
                       >
+                        <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
                         Delete
                       </button>
                     </td>
@@ -209,8 +242,8 @@ const RoleManagement = () => {
                 ))}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
