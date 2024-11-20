@@ -170,6 +170,31 @@ const Sidebar = ({ user, onLogout }) => {
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTimeoutModalOpen, setIsTimeoutModalOpen] = useState(false);
+  // Extract permissions from user
+  const permissions = user?.permissions || [];
+  const isAdmin = user?.role === "admin";
+
+  console.log("User Permissions:", permissions); // Debug permissions
+  console.log("Is Admin:", isAdmin); // Debug admin status
+
+  // Filter menu items based on permissions if not admin
+  const filteredMenuList = isAdmin
+    ? MENU_LIST // Admin sees full menu
+    : MENU_LIST.map((menu) => ({
+        ...menu,
+        subItems: menu.subItems
+          ? menu.subItems.filter((subItem) => permissions.includes(subItem.text))
+          : null,
+      })).filter(
+        (menu) =>
+          permissions.includes(menu.text) ||
+          (menu.subItems && menu.subItems.length > 0)
+      );
+
+  // Debug the filtered menu list
+  useEffect(() => {
+    console.log("Filtered Menu List:", filteredMenuList);
+  }, [permissions, isAdmin]);
 
   useEffect(() => {
     let timeoutId;
@@ -222,6 +247,12 @@ const Sidebar = ({ user, onLogout }) => {
     setIsModalOpen(false);
   };
 
+  // Log the user object for debugging
+  useEffect(() => {
+    console.log("User Object:", user);
+    console.log("User Permissions:", user?.permissions);
+  }, [user]);
+
   return (
     <>
       <div className="h-screen w-64 bg-[#202020] shadow-lg flex flex-col">
@@ -249,7 +280,7 @@ const Sidebar = ({ user, onLogout }) => {
         </Link>
 
         <nav className="flex-1 p-4 space-y-2">
-          {MENU_LIST.map((menu) => (
+          {filteredMenuList.map((menu) => (
             <NavItem
               key={menu.text}
               {...menu}
@@ -257,7 +288,6 @@ const Sidebar = ({ user, onLogout }) => {
             />
           ))}
         </nav>
-
         <div className="p-4 border-t border-gray-700">
           <NavItem to="/settings" text="Settings" icon={faCog} />
           <button

@@ -15,29 +15,40 @@ function SignIn({ setUser }) {
     try {
       const decoded = jwtDecode(credentialResponse.credential);
       console.log("Credential Response Decoded:", decoded);
-  
+
       // Check if the user exists in the database
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/users/check`, {
-        email: decoded.email
+        email: decoded.email,
       });
-  
+
       if (response.data.exists) {
         const user = response.data.user;
-  
+
         // Check if the user has access
         if (user.access) {
-          setUser(decoded);
-          
-          // Get the return URL from query parameters
-          const params = new URLSearchParams(location.search);
-          const returnUrl = params.get('returnUrl');
-          
+          // Fetch permissions for the user
+          const permissionsResponse = await axios.get(
+            `${process.env.REACT_APP_API_URL}/api/users/${user.id}/permissions`
+          );
+
+          const permissions = permissionsResponse.data.permissions || [];
+          console.log("Fetched Permissions:", permissions);
+
+          // Update user with permissions
+          const updatedUser = {
+            ...decoded,
+            id: user.id, // Ensure ID is included
+            role: user.role,
+            permissions,
+          };
+
+          setUser(updatedUser);
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+
           // Navigate to return URL if it exists, otherwise go to dashboard
-          if (returnUrl) {
-            navigate(returnUrl);
-          } else {
-            navigate('/dashboard');
-          }
+          const params = new URLSearchParams(location.search);
+          const returnUrl = params.get("returnUrl");
+          navigate(returnUrl || "/dashboard");
         } else {
           setError("Access denied. Please contact the administrator for access.");
         }
@@ -49,11 +60,12 @@ function SignIn({ setUser }) {
       setError("An error occurred during login. Please try again.");
     }
   };
-  
+
   const handleLoginFailure = (error) => {
     console.error("Error logging in:", error);
     setError("Login failed. Please try again.");
   };
+
   
 
   return (

@@ -1,17 +1,17 @@
 const Role = require('../models/role');
 
-// Get Roles Controller
+// Get all roles
 const getRoles = async (req, res) => {
   try {
     const result = await Role.getRoles();
     res.status(200).json(result);
   } catch (err) {
-    console.error('Error in getRoles controller:', err); // Debug log
+    console.error('Error in getRoles controller:', err);
     res.status(500).json({ error: "Error fetching roles", details: err.toString() });
   }
 };
 
-// Add Role Controller
+// Add a new role
 const addRole = async (req, res) => {
   const { roleName } = req.body;
   if (!roleName) {
@@ -21,12 +21,12 @@ const addRole = async (req, res) => {
     const result = await Role.addRole(roleName);
     res.status(201).json(result);
   } catch (err) {
-    console.error('Error in addRole controller:', err); // Debug log
+    console.error('Error in addRole controller:', err);
     res.status(500).json({ error: "Error adding role", details: err.toString() });
   }
 };
 
-// Delete Role Controller
+// Delete a role
 const deleteRole = async (req, res) => {
   const { roleName } = req.params;
   if (!roleName) {
@@ -34,19 +34,66 @@ const deleteRole = async (req, res) => {
   }
   try {
     const result = await Role.deleteRole(roleName);
-    if (result) {
-      res.status(200).json(result);
+    if (result.length) {
+      res.status(200).json(result[0]);
     } else {
       res.status(404).json({ error: "Role not found" });
     }
   } catch (err) {
-    console.error('Error in deleteRole controller:', err); // Debug log
+    console.error('Error in deleteRole controller:', err);
     res.status(500).json({ error: "Error deleting role", details: err.toString() });
   }
 };
 
+// Update role permissions
+const updateRolePermissions = async (req, res) => {
+  const { roleName } = req.params;
+  const { permissions } = req.body;
+
+  if (!roleName || !Array.isArray(permissions)) {
+    return res.status(400).json({ error: "Role name and permissions are required" });
+  }
+
+  try {
+    const result = await Role.updateRolePermissions(roleName, permissions);
+    res.status(200).json(result[0]);
+  } catch (err) {
+    console.error('Error in updateRolePermissions controller:', err);
+    res.status(500).json({ error: "Failed to update permissions", details: err.toString() });
+  }
+};
+
+const validatePermissions = (permissions) => {
+  if (!Array.isArray(permissions)) {
+    throw new Error("Permissions must be an array");
+  }
+  // Ensure all permissions are strings and not empty
+  return permissions.filter((perm) => typeof perm === "string" && perm.trim() !== "");
+};
+
+
+// Get permissions for a role
+const getRolePermissions = async (req, res) => {
+  const { roleName } = req.params;
+  if (!roleName) {
+    return res.status(400).json({ error: "Role name is required" });
+  }
+  try {
+    const permissions = await getRolePermissionsFromDB(roleName); // Fetch from the database
+    res.status(200).json({ permissions });
+  } catch (err) {
+    console.error("Error fetching role permissions:", err);
+    res.status(500).json({ error: "Failed to fetch permissions" });
+  }
+};
+
+
 module.exports = {
   getRoles,
   addRole,
-  deleteRole
+  deleteRole,
+  updateRolePermissions,
+  getRolePermissions,
+  validatePermissions,
+  
 };
