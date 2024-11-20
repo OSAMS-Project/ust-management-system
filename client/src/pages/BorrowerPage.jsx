@@ -51,21 +51,31 @@ function BorrowerForm() {
         const cleanFileName = coverLetter.name.replace(/[^a-zA-Z0-9]/g, '_');
         const fileName = `cover_letters/${timestamp}-${cleanFileName}`;
 
-        // Upload to Supabase
-        const { error: uploadError } = await supabase.storage
+        // Upload to Supabase with error handling
+        const { data: uploadData, error: uploadError } = await supabase.storage
           .from('samplebucket')
-          .upload(fileName, coverLetter);
+          .upload(fileName, coverLetter, {
+            cacheControl: '3600',
+            upsert: false
+          });
 
         if (uploadError) {
-          throw uploadError;
+          console.error('Supabase upload error:', uploadError);
+          toast.error('Failed to upload cover letter');
+          setIsSubmitting(false);
+          return;
         }
 
-        // Get public URL
-        const { data } = supabase.storage
+        // Get public URL after successful upload
+        const { data: urlData } = await supabase.storage
           .from('samplebucket')
           .getPublicUrl(fileName);
 
-        coverLetterUrl = data.publicUrl;
+        if (!urlData?.publicUrl) {
+          throw new Error('Failed to get public URL for uploaded file');
+        }
+
+        coverLetterUrl = urlData.publicUrl;
       }
 
       const requestBody = {
@@ -98,9 +108,8 @@ function BorrowerForm() {
       toast.success('Request submitted successfully!');
       resetForm();
     } catch (error) {
-      console.error('Error submitting borrowing request:', error.response?.data || error);
+      console.error('Error submitting borrowing request:', error);
       toast.error(error.response?.data?.message || 'Error submitting request');
-    } finally {
       setIsSubmitting(false);
     }
   };
