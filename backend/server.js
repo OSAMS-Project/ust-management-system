@@ -40,7 +40,7 @@ app.set("sse", sse);
 
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'https://osams.xyz'],
+    origin: ['http://localhost:3000', 'https://osams.xyz', 'https://uavbcuwklwnseoepnihz.supabase.co'],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
