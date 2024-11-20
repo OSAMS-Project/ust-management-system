@@ -68,7 +68,7 @@ const MaintenanceTable = ({ maintenances, assets, loading, onEditMaintenance, on
                       {maintenance.priority}
                     </span>
                   </td>
-                  <td className="px-4 py-2 text-center">{maintenance.quantity || 1}</td>
+                  <td className="px-4 py-2 text-center">{maintenance.maintenance_quantity}</td>
                   <td className="px-4 py-2 text-center">
                     {moment(maintenance.scheduled_date).format('MM/DD/YYYY HH:mm')}
                   </td>

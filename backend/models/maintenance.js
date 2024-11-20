@@ -124,6 +124,20 @@ const getMaintenanceHistory = async (assetId) => {
   }
 };
 
+const getMaintenanceRecordById = async (id) => {
+  try {
+    const query = `
+      SELECT * FROM maintenance_records 
+      WHERE id = $1
+    `;
+    const result = await pool.query(query, [id]);
+    return result.rows[0];
+  } catch (error) {
+    console.error('Error in getMaintenanceRecordById:', error);
+    throw error;
+  }
+};
+
 // Exporting the functions
 module.exports = {
   getAllMaintenanceRecords,
@@ -131,4 +145,5 @@ module.exports = {
   updateMaintenanceRecord,
   deleteMaintenanceRecord,
   getMaintenanceHistory,
+  getMaintenanceRecordById,
 }; 

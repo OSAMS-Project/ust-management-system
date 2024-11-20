@@ -16,7 +16,7 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
 
   const fetchLatestAssets = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/assets`);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/Assets/read`);
       console.log('Fetched assets:', response.data);
       setRefreshedAssets(response.data);
     } catch (error) {

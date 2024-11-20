@@ -24,18 +24,31 @@ const createMaintenanceRecord = async (req, res) => {
       });
     }
 
-    // Validate maintenance_quantity
-    if (maintenanceData.maintenance_quantity) {
-      const quantity = parseInt(maintenanceData.maintenance_quantity);
-      if (isNaN(quantity) || quantity < 1) {
-        return res.status(400).json({
-          error: 'Maintenance quantity must be a positive number'
-        });
-      }
-      maintenanceData.maintenance_quantity = quantity;
+    // Get the asset and verify quantity
+    const asset = await Asset.readAsset(maintenanceData.asset_id);
+    if (!asset) {
+      return res.status(404).json({ error: 'Asset not found' });
     }
 
-    const newRecord = await Maintenance.createMaintenanceRecord(maintenanceData);
+    const maintenanceQuantity = parseInt(maintenanceData.quantity) || 1;
+    if (maintenanceQuantity > asset.quantity) {
+      return res.status(400).json({
+        error: 'Maintenance quantity cannot exceed available asset quantity'
+      });
+    }
+
+    // Update asset quantity
+    await Asset.updateQuantity(
+      maintenanceData.asset_id, 
+      asset.quantity - maintenanceQuantity
+    );
+
+    // Create maintenance record with the quantity
+    const newRecord = await Maintenance.createMaintenanceRecord({
+      ...maintenanceData,
+      maintenance_quantity: maintenanceQuantity
+    });
+
     res.status(201).json(newRecord);
   } catch (error) {
     console.error('Error creating maintenance record:', error);
@@ -51,15 +64,21 @@ const updateMaintenanceRecord = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    // Validate maintenance_quantity if it's being updated
-    if (updateData.maintenance_quantity) {
-      const quantity = parseInt(updateData.maintenance_quantity);
-      if (isNaN(quantity) || quantity < 1) {
-        return res.status(400).json({
-          error: 'Maintenance quantity must be a positive number'
+    // If marking as completed
+    if (updateData.completion_date) {
+      const maintenanceRecord = await Maintenance.getMaintenanceRecordById(id);
+      if (maintenanceRecord) {
+        // Update the asset quantity directly using updateMainAssetQuantity from events model
+        await Asset.updateMainAssetQuantity(
+          maintenanceRecord.asset_id,
+          -maintenanceRecord.maintenance_quantity  // Negative because we want to add back
+        );
+
+        await Asset.updateAssetStatus(maintenanceRecord.asset_id, {
+          under_repair: false,
+          has_issue: false
         });
       }
-      updateData.maintenance_quantity = quantity;
     }
 
     const updatedRecord = await Maintenance.updateMaintenanceRecord(id, updateData);

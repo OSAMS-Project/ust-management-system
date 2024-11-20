@@ -385,6 +385,26 @@ const updateAssetIssueStatus = async (assetId, hasIssue) => {
 	return executeTransaction([{ query, params: [hasIssue, assetId] }]);
 };
 
+const updateMainAssetQuantity = async (assetId, quantityDifference) => {
+	const query = `
+    UPDATE assets
+    SET quantity = quantity - $1
+    WHERE asset_id = $2
+    RETURNING quantity
+  `;
+	
+	try {
+		const result = await executeTransaction([{
+			query,
+			params: [quantityDifference, assetId]
+		}]);
+		return result[0].quantity;
+	} catch (error) {
+		console.error('Error updating main asset quantity:', error);
+		throw error;
+	}
+};
+
 module.exports = {
 	createAssetsTable,
 	createAsset,
@@ -406,4 +426,5 @@ module.exports = {
 	updateAssetStatus,
 	updateAssetIssueStatus,
 	checkActiveBorrowings,
+	updateMainAssetQuantity,
 };

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, assets, user }) => {
+  const [selectedAsset, setSelectedAsset] = useState(null);
   const [maintenanceData, setMaintenanceData] = useState({
     asset_id: '',
     maintenance_type: '',
@@ -17,6 +18,13 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, assets, user }) =
     scheduled_by: user?.name || '',
     user_picture: user?.picture || ''
   });
+
+  useEffect(() => {
+    if (maintenanceData.asset_id) {
+      const asset = assets.find(a => a.asset_id === maintenanceData.asset_id);
+      setSelectedAsset(asset);
+    }
+  }, [maintenanceData.asset_id, assets]);
 
   const maintenanceTypes = [
     'Preventive',
@@ -125,7 +133,7 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, assets, user }) =
             {/* Quantity */}
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                Quantity *
+                Quantity * (Available: {selectedAsset?.quantity || 0})
               </label>
               <input
                 type="number"
@@ -135,6 +143,7 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, assets, user }) =
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter quantity"
                 min="1"
+                max={selectedAsset?.quantity || 1}
                 required
               />
             </div>

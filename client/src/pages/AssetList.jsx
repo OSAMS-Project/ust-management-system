@@ -140,7 +140,7 @@ const AssetList = () => {
     try {
       // Get all assets
       const assetsResponse = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/Assets/read`
+        `${process.env.REACT_APP_API_URL}/api/assets/read`
       );
       
       // Remove the filtering of assets with issues
