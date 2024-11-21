@@ -1,9 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import moment from "moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBox, faEye } from "@fortawesome/free-solid-svg-icons";
+import AssetDetailsModal from "../assetlists/AssetDetailsModal";
 
 const RecentlyAddedAssets = ({ recentAssets = [], handleAssetDetailsClick }) => {
+  const [selectedAsset, setSelectedAsset] = useState(null);
+
+  const handleViewClick = (asset) => {
+    setSelectedAsset(asset);
+    if (handleAssetDetailsClick) {
+      handleAssetDetailsClick(asset);
+    }
+  };
+
   return (
     <div>
       <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-lg px-3 py-1 uppercase tracking-wide mb-2">
@@ -40,7 +50,7 @@ const RecentlyAddedAssets = ({ recentAssets = [], handleAssetDetailsClick }) => 
                   </div>
                   <button
                     className="bg-black text-white px-2 py-0.5 rounded-full flex items-center"
-                    onClick={() => handleAssetDetailsClick(asset)}
+                    onClick={() => handleViewClick(asset)}
                   >
                     <FontAwesomeIcon icon={faEye} className="mr-1 text-xs" />
                     View
@@ -51,6 +61,13 @@ const RecentlyAddedAssets = ({ recentAssets = [], handleAssetDetailsClick }) => 
           ))
         )}
       </div>
+
+      {selectedAsset && (
+        <AssetDetailsModal
+          selectedAsset={selectedAsset}
+          onClose={() => setSelectedAsset(null)}
+        />
+      )}
     </div>
   );
 };

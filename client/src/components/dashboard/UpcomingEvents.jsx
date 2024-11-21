@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import moment from "moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarAlt, faEye } from "@fortawesome/free-solid-svg-icons";
+import EventDetailsModal from "../events/EventDetailsModal";
 
 const UpcomingEvents = ({ sortedEvents = [], handleEventDetailsClick }) => {
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
   const formatTime = (time) => {
     if (!time) return "";
     const [hours, minutes] = time.split(":");
@@ -11,6 +14,14 @@ const UpcomingEvents = ({ sortedEvents = [], handleEventDetailsClick }) => {
     date.setHours(hours, minutes);
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
+
+  const handleViewClick = (event) => {
+    setSelectedEvent(event);
+    if (handleEventDetailsClick) {
+      handleEventDetailsClick(event);
+    }
+  };
+
   return (
     <div>
       <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full text-lg px-3 py-1 uppercase tracking-wide mb-2">
@@ -46,7 +57,7 @@ const UpcomingEvents = ({ sortedEvents = [], handleEventDetailsClick }) => {
                   </div>
                   <button
                     className="bg-black text-white px-2 py-0.5 rounded-full flex items-center"
-                    onClick={() => handleEventDetailsClick(event)}
+                    onClick={() => handleViewClick(event)}
                   >
                     <FontAwesomeIcon icon={faEye} className="mr-1 text-xs" />
                     View
@@ -57,6 +68,14 @@ const UpcomingEvents = ({ sortedEvents = [], handleEventDetailsClick }) => {
           ))
         )}
       </div>
+
+      {selectedEvent && (
+        <EventDetailsModal
+          selectedEvent={selectedEvent}
+          onClose={() => setSelectedEvent(null)}
+          formatTime={formatTime}
+        />
+      )}
     </div>
   );
 };
