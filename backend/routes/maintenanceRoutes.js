@@ -17,4 +17,8 @@ router.delete('/:id', maintenanceController.deleteMaintenanceRecord);
 // Get maintenance history for an asset
 router.get('/history/:assetId', maintenanceController.getMaintenanceHistory);
 
+// Update the route to match the frontend request
+router.put('/mark-complete/:id', maintenanceController.markMaintenanceComplete);
+router.delete('/:id', maintenanceController.deleteMaintenanceRecord);
+
 module.exports = router; 

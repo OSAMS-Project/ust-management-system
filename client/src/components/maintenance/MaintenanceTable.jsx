@@ -1,8 +1,9 @@
 import React from 'react';
 import moment from 'moment';
-import { ClipboardEdit, Trash2, CheckCircle, History } from 'lucide-react';
+import { Trash2, CheckCircle, History } from 'lucide-react';
+import axios from 'axios';
 
-const MaintenanceTable = ({ maintenances, assets, loading, onEditMaintenance, onRemoveMaintenance, onViewHistory }) => {
+const MaintenanceTable = ({ maintenances, assets, loading, onRemoveMaintenance, onViewHistory }) => {
   if (loading) {
     return <div className="flex justify-center items-center h-32">Loading...</div>;
   }
@@ -30,10 +31,23 @@ const MaintenanceTable = ({ maintenances, assets, loading, onEditMaintenance, on
     })}`;
   };
 
-  const handleMarkAsComplete = (maintenance) => {
-    onEditMaintenance(maintenance.id, {
-      completion_date: new Date().toISOString()
-    });
+  const handleMarkAsComplete = async (maintenance) => {
+    if (!maintenance || !maintenance.id) {
+      console.error('Invalid maintenance record');
+      return;
+    }
+
+    try {
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/maintenance/mark-complete/${maintenance.id}`
+      );
+      
+      if (response.data) {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error marking maintenance as complete:', error);
+    }
   };
 
   return (
@@ -92,13 +106,6 @@ const MaintenanceTable = ({ maintenances, assets, loading, onEditMaintenance, on
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex space-x-2 justify-center">
-                      <button
-                        onClick={() => onEditMaintenance(maintenance)}
-                        className="bg-yellow-500 text-white p-1.5 rounded hover:bg-yellow-600"
-                        title="Edit"
-                      >
-                        <ClipboardEdit className="w-4 h-4" />
-                      </button>
                       <button
                         onClick={() => handleMarkAsComplete(maintenance)}
                         className="bg-green-500 text-white p-1.5 rounded hover:bg-green-600"

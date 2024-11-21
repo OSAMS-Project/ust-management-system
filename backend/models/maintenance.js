@@ -73,16 +73,23 @@ const createMaintenanceRecord = async (maintenanceData) => {
 
 const updateMaintenanceRecord = async (id, updateData) => {
   try {
-    const fields = Object.keys(updateData)
-      .map((key, index) => `${key} = $${index + 1}`)
-      .join(', ');
+    const updates = [];
+    const values = [];
+    let paramCount = 1;
 
-    const values = [...Object.values(updateData), id];
+    Object.entries(updateData).forEach(([key, value]) => {
+      updates.push(`${key} = $${paramCount}`);
+      values.push(value);
+      paramCount++;
+    });
+
+    values.push(id);
 
     const query = `
       UPDATE maintenance_records 
-      SET ${fields}, updated_at = CURRENT_TIMESTAMP 
-      WHERE id = $${values.length} 
+      SET ${updates.join(', ')}, 
+          updated_at = CURRENT_TIMESTAMP 
+      WHERE id = $${paramCount} 
       RETURNING *
     `;
 
@@ -126,10 +133,7 @@ const getMaintenanceHistory = async (assetId) => {
 
 const getMaintenanceRecordById = async (id) => {
   try {
-    const query = `
-      SELECT * FROM maintenance_records 
-      WHERE id = $1
-    `;
+    const query = 'SELECT * FROM maintenance_records WHERE id = $1';
     const result = await pool.query(query, [id]);
     return result.rows[0];
   } catch (error) {

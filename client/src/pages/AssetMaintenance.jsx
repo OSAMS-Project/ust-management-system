@@ -89,37 +89,27 @@ function AssetMaintenance({ user }) {
 
   const handleEditMaintenance = async (maintenanceId, editData) => {
     try {
-      if (editData.completion_date) {
-        const response = await axios.put(
-          `${process.env.REACT_APP_API_URL}/api/maintenance/${maintenanceId}`,
-          { completion_date: editData.completion_date }
-        );
+      console.log("Maintenance ID:", maintenanceId);
+      console.log("Edit data received:", editData);
 
-        setMaintenances(maintenances.filter((m) => m.id !== maintenanceId));
-        setNotification({
-          type: "success",
-          message: "Maintenance marked as completed",
-        });
-      } else {
-        const response = await axios.put(
-          `${process.env.REACT_APP_API_URL}/api/maintenance/${maintenanceId}`,
-          editData
-        );
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/maintenance/${maintenanceId}`,
+        editData
+      );
 
-        setMaintenances(
-          maintenances.map((maintenance) =>
-            maintenance.id === maintenanceId
-              ? { ...maintenance, ...editData }
-              : maintenance
-          )
-        );
-        setIsEditModalOpen(false);
-        setSelectedMaintenance(null);
-        setNotification({
-          type: "success",
-          message: "Maintenance record updated successfully",
-        });
-      }
+      setMaintenances(
+        maintenances.map((maintenance) =>
+          maintenance.id === maintenanceId
+            ? { ...maintenance, ...editData }
+            : maintenance
+        )
+      );
+      setIsEditModalOpen(false);
+      setSelectedMaintenance(null);
+      setNotification({
+        type: "success",
+        message: "Maintenance record updated successfully",
+      });
     } catch (error) {
       console.error("Error updating maintenance:", error);
       setNotification({

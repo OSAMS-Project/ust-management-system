@@ -1,5 +1,5 @@
 const Maintenance = require('../models/maintenance');
-const Asset = require('../models/assets');
+const pool = require('../config/database');
 
 const getAllMaintenanceRecords = async (req, res) => {
   try {
@@ -24,8 +24,11 @@ const createMaintenanceRecord = async (req, res) => {
       });
     }
 
-    // Get the asset and verify quantity
-    const asset = await Asset.readAsset(maintenanceData.asset_id);
+    // Get the asset and verify quantity using direct query
+    const assetQuery = 'SELECT * FROM assets WHERE asset_id = $1';
+    const assetResult = await pool.query(assetQuery, [maintenanceData.asset_id]);
+    const asset = assetResult.rows[0];
+
     if (!asset) {
       return res.status(404).json({ error: 'Asset not found' });
     }
@@ -38,10 +41,9 @@ const createMaintenanceRecord = async (req, res) => {
     }
 
     // Update asset quantity
-    await Asset.updateQuantity(
-      maintenanceData.asset_id, 
-      asset.quantity - maintenanceQuantity
-    );
+    const newQuantity = asset.quantity - maintenanceQuantity;
+    const updateQuantityQuery = 'UPDATE assets SET quantity = $1 WHERE asset_id = $2 RETURNING *';
+    await pool.query(updateQuantityQuery, [newQuantity, maintenanceData.asset_id]);
 
     // Create maintenance record with the quantity
     const newRecord = await Maintenance.createMaintenanceRecord({
@@ -133,11 +135,81 @@ const getMaintenanceHistory = async (req, res) => {
   }
 };
 
+const markMaintenanceComplete = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // First get the maintenance record
+    const maintenanceRecord = await Maintenance.getMaintenanceRecordById(id);
+    if (!maintenanceRecord) {
+      return res.status(404).json({ error: 'Maintenance record not found' });
+    }
+
+    // Check if maintenance is already completed
+    if (maintenanceRecord.status === 'Completed' || maintenanceRecord.completion_date) {
+      return res.status(400).json({ 
+        error: 'Maintenance record is already completed'
+      });
+    }
+
+    // Get the current asset using direct query
+    const assetQuery = 'SELECT * FROM assets WHERE asset_id = $1';
+    const assetResult = await pool.query(assetQuery, [maintenanceRecord.asset_id]);
+    const asset = assetResult.rows[0];
+
+    if (!asset) {
+      return res.status(404).json({ error: 'Asset not found' });
+    }
+
+    // Get the maintenance quantity
+    const maintenanceQuantity = parseInt(maintenanceRecord.maintenance_quantity) || 0;
+
+    // Update the asset quantity - add back the maintenance quantity to main quantity
+    const updateQuantityQuery = `
+      UPDATE assets 
+      SET quantity = quantity + $1
+      WHERE asset_id = $2 
+      RETURNING *
+    `;
+    await pool.query(updateQuantityQuery, [maintenanceQuantity, maintenanceRecord.asset_id]);
+
+    // Update asset status
+    const updateStatusQuery = `
+      UPDATE assets 
+      SET under_repair = false, 
+          has_issue = false 
+      WHERE asset_id = $1 
+      RETURNING *
+    `;
+    await pool.query(updateStatusQuery, [maintenanceRecord.asset_id]);
+
+    // Mark maintenance as complete
+    const updatedRecord = await Maintenance.updateMaintenanceRecord(id, {
+      status: 'Completed',
+      completion_date: new Date().toISOString()
+    });
+
+    res.json({
+      success: true,
+      message: 'Maintenance completed and quantity restored',
+      maintenance: updatedRecord
+    });
+
+  } catch (error) {
+    console.error('Error marking maintenance as complete:', error);
+    res.status(500).json({ 
+      error: 'Failed to complete maintenance record',
+      details: error.message 
+    });
+  }
+};
+
 // Exporting all methods as individual constants
 module.exports = {
   getAllMaintenanceRecords,
   createMaintenanceRecord,
   updateMaintenanceRecord,
   deleteMaintenanceRecord,
-  getMaintenanceHistory
+  getMaintenanceHistory,
+  markMaintenanceComplete
 }; 
