@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import PaginationControls from '../assetlists/PaginationControls';
+import { faHistory, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const RepairLogs = ({ assetId, onClose }) => {
   const [logs, setLogs] = useState([]);
@@ -146,8 +148,12 @@ const RepairLogs = ({ assetId, onClose }) => {
             </tbody>
           </table>
           {logs.length === 0 && (
-            <div className="text-center py-4 text-gray-500">
-              No repair logs found for this asset.
+            <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+              <FontAwesomeIcon icon={faHistory} className="text-4xl mb-3" />
+              <p className="text-lg font-semibold">No Repair Logs Found</p>
+              <p className="text-sm text-center mt-2">
+                There are no recorded repair activities for this asset yet.
+              </p>
             </div>
           )}
           {logs.length > 0 && (

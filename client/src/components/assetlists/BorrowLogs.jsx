@@ -4,6 +4,7 @@ import moment from 'moment';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import PaginationControls from '../assetlists/PaginationControls';
+import { faHistory } from "@fortawesome/free-solid-svg-icons";
 
 const formatDate = (date) => {
   return date ? moment(date).format("MM/DD/YYYY") : 'Not yet returned';
@@ -124,8 +125,12 @@ const BorrowLogs = ({ assetId, onClose }) => {
             </table>
           )}
           {logs.length === 0 && !isLoading && !error && (
-            <div className="text-center py-4 text-gray-500">
-              No borrow logs found for this asset.
+            <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+              <FontAwesomeIcon icon={faHistory} className="text-4xl mb-3" />
+              <p className="text-lg font-semibold">No Borrow Logs Found</p>
+              <p className="text-sm text-center mt-2">
+                There are no recorded borrowing activities for this asset yet.
+              </p>
             </div>
           )}
           {logs.length > 0 && (
