@@ -114,7 +114,7 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
   };
 
   return (
-    <div className="relative overflow-hidden rounded-lg shadow-lg w-80 h-[32rem] group">
+    <div className="relative overflow-hidden rounded-lg shadow-lg w-80 h-[32rem] group font-quicksand font-semibold">
       {/* Background image */}
       <div 
         className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
@@ -127,12 +127,12 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
       {/* Content */}
       <div className="relative flex flex-col justify-between p-6 text-white h-full">
         <div className="flex-grow">
-          <h2 className="font-bold text-yellow-400 text-3xl mb-4 text-center truncate">{item.event_name}</h2>
-          <p className="text-sm mb-4 line-clamp-3">{item.description}</p>
-          <div className="text-xs space-y-2">
-            <p>Event Date: {new Date(item.event_date).toLocaleDateString()}</p>
-            <p>Event Time: {formatTime(item.event_start_time)} - {formatTime(item.event_end_time)}</p>
-            <p>Event Location: {item.event_location}</p>
+          <h2 className="font-quicksand font-semibold text-yellow-400 text-4xl mb-4 text-center truncate">{item.event_name}</h2>
+          <p className="text-base mb-4 line-clamp-3">{item.description}</p>
+          <div className="text-sm space-y-2">
+            <p className="font-semibold">Event Date: {new Date(item.event_date).toLocaleDateString()}</p>
+            <p className="font-semibold">Event Time: {formatTime(item.event_start_time)} - {formatTime(item.event_end_time)}</p>
+            <p className="font-semibold">Event Location: {item.event_location}</p>
           </div>
         </div>
 
@@ -186,7 +186,7 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
             className="fixed inset-0 bg-black bg-opacity-50 z-50" 
             onClick={() => setShowConfirmDialog(false)}
           />
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 max-w-sm w-full mx-auto z-50">
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 max-w-sm w-full mx-auto z-50 font-quicksand font-semibold">
             <h2 className="text-lg font-bold mb-2 text-gray-800">Confirm Completion</h2>
             <p className="mb-4 text-sm text-gray-600">Are you sure you want to mark this event as completed?</p>
             <div className="flex justify-end gap-2">
@@ -213,7 +213,7 @@ function EventCard({ item, handleExplore, handleComplete, handleEdit, formatTime
           <div 
             className="fixed inset-0 bg-black bg-opacity-50 z-50"
           />
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 max-w-md w-full mx-auto z-50">
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg p-6 max-w-md w-full mx-auto z-50 font-quicksand font-semibold">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-gray-800">Return Unused Consumables</h2>
               <button 
