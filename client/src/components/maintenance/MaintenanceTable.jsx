@@ -67,12 +67,15 @@ const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRe
 
   const handleRemoveMaintenance = async (maintenance) => {
     try {
+      // Ensure we're using the correct maintenance quantity
+      const maintenanceQuantity = parseInt(maintenance.maintenance_quantity || maintenance.quantity);
+      
       // First restore the quantity
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/maintenance/restore-quantity/${maintenance.id}`,
         {
           asset_id: maintenance.asset_id,
-          maintenance_quantity: maintenance.maintenance_quantity
+          maintenance_quantity: maintenanceQuantity
         }
       );
 

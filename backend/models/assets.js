@@ -385,7 +385,7 @@ const updateAssetIssueStatus = async (assetId, hasIssue) => {
 const updateMainAssetQuantity = async (assetId, quantityDifference) => {
 	const query = `
     UPDATE assets
-    SET quantity = quantity - $1
+    SET quantity = quantity + $1
     WHERE asset_id = $2
     RETURNING quantity
   `;
