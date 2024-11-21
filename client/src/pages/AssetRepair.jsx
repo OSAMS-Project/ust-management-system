@@ -126,10 +126,12 @@ function AssetRepair() {
     setCurrentPage(1);
   };
 
+  const activeRepairs = repairRecords.filter(record => record.status !== 'Completed');
+
   const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
   const calculateEndIndex = () =>
-    Math.min(calculateStartIndex() + itemsPerPage - 1, repairRecords.length);
-  const totalPages = Math.ceil(repairRecords.length / itemsPerPage);
+    Math.min(calculateStartIndex() + itemsPerPage - 1, activeRepairs.length);
+  const totalPages = Math.ceil(activeRepairs.length / itemsPerPage);
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
@@ -165,7 +167,7 @@ function AssetRepair() {
     return pageNumbers;
   };
 
-  const paginatedRepairRecords = repairRecords.slice(
+  const paginatedRepairRecords = activeRepairs.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -196,7 +198,7 @@ function AssetRepair() {
           onRemoveRecord={handleRemoveRecord}
           onViewLogs={handleViewLogs}
         />
-        {repairRecords.length > 0 && (
+        {activeRepairs.length > 0 && (
           <PaginationControls
             itemsPerPage={itemsPerPage}
             handleItemsPerPageChange={handleItemsPerPageChange}
@@ -205,7 +207,8 @@ function AssetRepair() {
             handlePageChange={handlePageChange}
             calculateStartIndex={calculateStartIndex}
             calculateEndIndex={calculateEndIndex}
-            totalItems={repairRecords.length}
+            totalItems={activeRepairs.length}
+            itemName="repairs"
             renderPageNumbers={renderPageNumbers}
           />
         )}

@@ -165,12 +165,15 @@ function AssetMaintenance({ user }) {
     setCurrentPage(1);
   };
 
+  // Update this to only count active maintenance tasks
+  const activeMaintenances = maintenances.filter(maintenance => !maintenance.completion_date);
+
   const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
   const calculateEndIndex = () =>
-    Math.min(calculateStartIndex() + itemsPerPage - 1, maintenances.length);
-  const totalPages = Math.ceil(maintenances.length / itemsPerPage);
+    Math.min(calculateStartIndex() + itemsPerPage - 1, activeMaintenances.length);
+  const totalPages = Math.ceil(activeMaintenances.length / itemsPerPage);
 
-  const paginatedMaintenances = maintenances.slice(
+  const paginatedMaintenances = activeMaintenances.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -238,7 +241,7 @@ function AssetMaintenance({ user }) {
           onRemoveMaintenance={handleRemoveMaintenance}
         />
 
-        {maintenances.length > 0 && (
+        {activeMaintenances.length > 0 && (
           <PaginationControls
             itemsPerPage={itemsPerPage}
             handleItemsPerPageChange={handleItemsPerPageChange}
@@ -247,7 +250,8 @@ function AssetMaintenance({ user }) {
             handlePageChange={handlePageChange}
             calculateStartIndex={calculateStartIndex}
             calculateEndIndex={calculateEndIndex}
-            totalItems={maintenances.length}
+            totalItems={activeMaintenances.length}
+            itemName="maintenance"
             renderPageNumbers={renderPageNumbers}
           />
         )}
