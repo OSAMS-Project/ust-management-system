@@ -125,7 +125,7 @@ function AssetIssue({ user }) {
         repairData
       );
 
-      // Update asset status to under repair
+      // Update asset status to under repair but don't affect borrowing status
       await axios.put(
         `${process.env.REACT_APP_API_URL}/api/Assets/${formData.asset_id}/status`,
         { 

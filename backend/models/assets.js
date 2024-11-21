@@ -332,13 +332,11 @@ const getTotalAssetsForBorrowing = async () => {
 // Add this function
 const updateRepairStatus = async (assetId, isUnderRepair) => {
 	try {
-		console.log("Updating repair status:", { assetId, isUnderRepair }); // Debug log
+		console.log("Updating repair status:", { assetId, isUnderRepair });
 
 		const query = `
       UPDATE assets 
-      SET under_repair = $1,
-          is_active = CASE WHEN $1 = true THEN false ELSE is_active END,
-          quantity_for_borrowing = CASE WHEN $1 = true THEN 0 ELSE quantity_for_borrowing END
+      SET under_repair = $1
       WHERE asset_id = $2 
       RETURNING *
     `;
@@ -359,10 +357,9 @@ const updateRepairStatus = async (assetId, isUnderRepair) => {
 const updateAssetStatus = async (assetId, statusData) => {
 	const query = `
     UPDATE Assets 
-    SET under_repair = $1,
-        has_issue = $2,
-        is_active = CASE WHEN $1 = true THEN false ELSE is_active END,
-        quantity_for_borrowing = CASE WHEN $1 = true THEN 0 ELSE quantity_for_borrowing END
+    SET 
+      under_repair = $1,
+      has_issue = $2
     WHERE asset_id = $3 
     RETURNING *
   `;

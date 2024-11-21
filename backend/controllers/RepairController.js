@@ -34,23 +34,14 @@ const createRepairRecord = async (req, res) => {
       return res.status(400).json({ error: 'Quantity must be a valid positive number' });
     }
 
-    // First deactivate borrowing if asset is active
-    const asset = await Asset.readAsset(req.body.asset_id);
-    if (!asset) {
-      return res.status(404).json({ error: 'Asset not found' });
-    }
-
-    if (asset.is_active) {
-      await Asset.updateAssetActiveStatus(req.body.asset_id, false);
-    }
-    
-    // Then create repair record and update repair status
+    // Create repair record and update repair status only
     const [newRecord] = await Repair.createRepairRecord({
       ...req.body,
       cost: cost,
       quantity: quantity
     });
     
+    // Only update the repair status, don't touch borrowing status
     await Asset.updateRepairStatus(req.body.asset_id, true);
     
     res.status(201).json(newRecord);
