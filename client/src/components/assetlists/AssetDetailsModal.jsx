@@ -63,44 +63,46 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
             )}
           </div>
 
-          <div className="flex justify-between gap-4 mt-8">
+          <div className="grid grid-cols-3 gap-4 mt-8">
             <button
               onClick={() => setShowActivityLogs(true)}
-              className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition-transform transform hover:scale-105"
+              className="bg-green-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-green-700 transition-transform transform hover:scale-105 flex items-center justify-center"
             >
               View Activity Logs
             </button>
+
             {selectedAsset.type === 'Non-Consumable' && (
               <>
                 <button
                   onClick={() => setShowBorrowLogs(true)}
-                  className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-purple-700 transition-transform transform hover:scale-105"
+                  className="bg-purple-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-purple-700 transition-transform transform hover:scale-105 flex items-center justify-center"
                 >
                   Borrow Logs
                 </button>
                 <button
                   onClick={() => setShowMaintenanceLogs(true)}
-                  className="flex-1 bg-orange-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-orange-600 transition-transform transform hover:scale-105"
+                  className="bg-orange-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-orange-600 transition-transform transform hover:scale-105 flex items-center justify-center"
                 >
                   Maintenance Logs
                 </button>
                 <button
                   onClick={() => setShowRepairLogs(true)}
-                  className="flex-1 bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-yellow-600 transition-transform transform hover:scale-105"
+                  className="bg-yellow-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-yellow-600 transition-transform transform hover:scale-105 flex items-center justify-center"
                 >
                   Repair Logs
                 </button>
                 <button
                   onClick={() => setShowIssueLogs(true)}
-                  className="flex-1 bg-red-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-red-600 transition-transform transform hover:scale-105"
+                  className="bg-red-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-red-600 transition-transform transform hover:scale-105 flex items-center justify-center"
                 >
                   Issue Logs
                 </button>
               </>
             )}
+
             <button
               onClick={() => setShowQRCode(true)}
-              className="flex-1 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 transition-transform transform hover:scale-105"
+              className="bg-blue-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-600 transition-transform transform hover:scale-105 flex items-center justify-center"
             >
               <FontAwesomeIcon icon={faQrcode} className="mr-2" />
               QR Code

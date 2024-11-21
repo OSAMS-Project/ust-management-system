@@ -97,7 +97,7 @@ const MaintenanceLogs = ({ assetId, onClose }) => {
               {logs.map((log) => (
                 <tr key={log.id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-2 text-center">
-                    {moment(log.scheduled_date).format('MM/DD/YYYY HH:mm')}
+                    {moment(log.scheduled_date).format('MM/DD/YYYY')}
                   </td>
                   <td className="px-4 py-2 text-center">{log.maintenance_type}</td>
                   <td className="px-4 py-2 text-center">{log.description}</td>
@@ -126,7 +126,7 @@ const MaintenanceLogs = ({ assetId, onClose }) => {
                   </td>
                   <td className="px-4 py-2 text-center">
                     {log.completion_date 
-                      ? moment(log.completion_date).format('MM/DD/YYYY HH:mm')
+                      ? moment(log.completion_date).format('MM/DD/YYYY')
                       : 'Not Completed'
                     }
                   </td>
