@@ -21,4 +21,7 @@ router.get('/history/:assetId', maintenanceController.getMaintenanceHistory);
 router.put('/mark-complete/:id', maintenanceController.markMaintenanceComplete);
 router.delete('/:id', maintenanceController.deleteMaintenanceRecord);
 
+// Restore quantity and delete maintenance record
+router.put('/restore-quantity/:id', maintenanceController.restoreQuantityAndDelete);
+
 module.exports = router; 

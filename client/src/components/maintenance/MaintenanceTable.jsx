@@ -65,6 +65,40 @@ const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRe
     }
   };
 
+  const handleRemoveMaintenance = async (maintenance) => {
+    try {
+      // First restore the quantity
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/maintenance/restore-quantity/${maintenance.id}`,
+        {
+          asset_id: maintenance.asset_id,
+          maintenance_quantity: maintenance.maintenance_quantity
+        }
+      );
+
+      if (response.data) {
+        // Then delete the maintenance record
+        await onRemoveMaintenance(maintenance.id);
+        
+        // Update local state
+        setMaintenances(prevMaintenances => 
+          prevMaintenances.filter(m => m.id !== maintenance.id)
+        );
+
+        setNotification({
+          type: 'success',
+          message: 'Maintenance record deleted and quantity restored successfully'
+        });
+      }
+    } catch (error) {
+      console.error('Error removing maintenance:', error);
+      setNotification({
+        type: 'error',
+        message: error.response?.data?.error || 'Failed to remove maintenance record'
+      });
+    }
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border rounded-lg">
@@ -138,7 +172,7 @@ const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRe
                         </button>
                       )}
                       <button
-                        onClick={() => onRemoveMaintenance(maintenance.id)}
+                        onClick={() => handleRemoveMaintenance(maintenance)}
                         className="bg-red-500 text-white p-1.5 rounded hover:bg-red-600"
                         title="Delete"
                       >

@@ -204,6 +204,66 @@ const markMaintenanceComplete = async (req, res) => {
   }
 };
 
+const restoreQuantityAndDelete = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { asset_id, maintenance_quantity } = req.body;
+
+    console.log('Restoration Process Started:');
+    console.log('Maintenance Quantity to restore:', maintenance_quantity);
+
+    // Get the original maintenance record
+    const maintenanceQuery = 'SELECT * FROM maintenance_records WHERE id = $1';
+    const maintenanceResult = await pool.query(maintenanceQuery, [id]);
+    const maintenanceRecord = maintenanceResult.rows[0];
+
+    if (!maintenanceRecord) {
+      return res.status(404).json({ error: 'Maintenance record not found' });
+    }
+
+    // Get current asset
+    const assetQuery = 'SELECT * FROM assets WHERE asset_id = $1';
+    const assetResult = await pool.query(assetQuery, [asset_id]);
+    const asset = assetResult.rows[0];
+    
+    if (!asset) {
+      return res.status(404).json({ error: 'Asset not found' });
+    }
+
+    console.log('Current asset quantity:', asset.quantity);
+
+    // Calculate the original quantity
+    const maintenanceQty = parseInt(maintenance_quantity);
+    const currentQty = asset.quantity;
+    const originalQuantity = currentQty + maintenanceQty;
+
+    console.log('Calculated original quantity:', originalQuantity);
+
+    // Update asset with original quantity
+    const updateQuery = 'UPDATE assets SET quantity = $1 WHERE asset_id = $2 RETURNING *';
+    const updateResult = await pool.query(updateQuery, [originalQuantity, asset_id]);
+
+    // Delete maintenance record
+    const deleteQuery = 'DELETE FROM maintenance_records WHERE id = $1';
+    await pool.query(deleteQuery, [id]);
+
+    console.log('Final quantity after update:', updateResult.rows[0].quantity);
+
+    res.json({ 
+      success: true, 
+      message: 'Maintenance record deleted and quantity restored',
+      updatedAsset: updateResult.rows[0]
+    });
+
+  } catch (error) {
+    console.error('Error in restoreQuantityAndDelete:', error);
+    res.status(500).json({ 
+      error: 'Failed to restore quantity and delete maintenance record',
+      details: error.message 
+    });
+  }
+};
+
 // Exporting all methods as individual constants
 module.exports = {
   getAllMaintenanceRecords,
@@ -211,5 +271,6 @@ module.exports = {
   updateMaintenanceRecord,
   deleteMaintenanceRecord,
   getMaintenanceHistory,
-  markMaintenanceComplete
+  markMaintenanceComplete,
+  restoreQuantityAndDelete
 }; 
