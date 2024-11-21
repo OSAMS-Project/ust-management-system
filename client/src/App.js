@@ -259,10 +259,10 @@ function AppContent({ user, setUser }) {
           />
 
           <Route
-            path="/asset-issue"
+            path="/asset-issues"
             element={
-              <PrivateRoute user={user} requiredPermissions={["Asset Issue"]}>
-                <AssetIssue />
+              <PrivateRoute user={user} requiredPermissions={["Asset Issues"]}>
+                <AssetIssue user={user} />
               </PrivateRoute>
             }
           />
