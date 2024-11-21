@@ -160,49 +160,177 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
   }, [totalCost]);
 
   const handleDownloadPDF = () => {
-    const doc = new jsPDF();
-    const lineHeight = 10;
-    let yPosition = 20;
-
-    doc.setFontSize(18);
-    doc.text('Event Details', 20, yPosition);
-    yPosition += lineHeight * 2;
-
-    doc.setFontSize(12);
-    doc.text(`Unique ID: ${selectedEvent.unique_id}`, 20, yPosition);
-    yPosition += lineHeight;
-    doc.text(`Event Name: ${selectedEvent.event_name}`, 20, yPosition);
-    yPosition += lineHeight;
-    doc.text(`Event Location: ${selectedEvent.event_location}`, 20, yPosition);
-    yPosition += lineHeight;
-    doc.text(`Description: ${selectedEvent.description}`, 20, yPosition);
-    yPosition += lineHeight;
-    doc.text(`Date: ${new Date(selectedEvent.event_date).toLocaleDateString()}`, 20, yPosition);
-    yPosition += lineHeight;
-    doc.text(`Created At: ${new Date(selectedEvent.created_at).toLocaleDateString()}`, 20, yPosition);
-    yPosition += lineHeight;
-    doc.text(`Start Time: ${selectedEvent.event_start_time}`, 20, yPosition);
-    yPosition += lineHeight;
-    doc.text(`End Time: ${selectedEvent.event_end_time}`, 20, yPosition);
-    yPosition += lineHeight * 2;
-
+    // Create new document with landscape orientation for better layout
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+  
+    // Add some styling variables
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    const margin = 20;
+    const lineHeight = 8;
+    let yPosition = margin;
+  
+    // Add header with background
+    doc.setFillColor(255, 193, 7); // Yellow color
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    
+    // Add title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(24);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Event Details', pageWidth/2, 25, { align: 'center' });
+  
+    yPosition = 50; // Start content below header
+  
+    // Add event basic info section
+    doc.setFillColor(240, 240, 240);
+    doc.rect(margin, yPosition, pageWidth - (margin * 2), 65, 'F');
+    
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text('Event Assets:', 20, yPosition);
-    yPosition += lineHeight;
-
+    doc.setTextColor(51, 51, 51);
+    yPosition += 10;
+    
+    // Two-column layout for basic info
+    const leftCol = margin + 5;
+    const rightCol = pageWidth/2 + 10;
+    
+    // Left column
+    doc.text('Event Information:', leftCol, yPosition);
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
+    yPosition += lineHeight * 2;
+    doc.text(`Event Name: ${selectedEvent.event_name}`, leftCol, yPosition);
+    yPosition += lineHeight;
+    doc.text(`Location: ${selectedEvent.event_location}`, leftCol, yPosition);
+    yPosition += lineHeight;
+    doc.text(`Date: ${new Date(selectedEvent.event_date).toLocaleDateString()}`, leftCol, yPosition);
+    
+    // Right column (reset yPosition)
+    yPosition -= lineHeight * 2;
+    doc.text(`Start Time: ${selectedEvent.event_start_time}`, rightCol, yPosition);
+    yPosition += lineHeight;
+    doc.text(`End Time: ${selectedEvent.event_end_time}`, rightCol, yPosition);
+    yPosition += lineHeight;
+    doc.text(`ID: ${selectedEvent.unique_id}`, rightCol, yPosition);
+  
+    // Description section
+    yPosition += lineHeight * 4;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text('Description:', margin, yPosition);
+    yPosition += lineHeight * 1;
+    
+    // Description box with adjusted positioning
+    doc.setFillColor(245, 245, 245);
+    doc.rect(margin, yPosition, pageWidth - (margin * 2), 20, 'F');
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    yPosition += 6;
+    
+    // Handle long descriptions with text wrapping
+    const splitDescription = doc.splitTextToSize(selectedEvent.description || '', pageWidth - (margin * 2) - 10);
+    doc.text(splitDescription, margin + 5, yPosition);
+    
+    // Adjust spacing after description box
+    yPosition += Math.max(25, splitDescription.length * 6);
+  
+    // Assets section
+    yPosition += 15;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text('Event Assets', margin, yPosition);
+    yPosition += lineHeight;
+  
+    // Assets table header
+    doc.setFillColor(255, 193, 7);
+    doc.rect(margin, yPosition, pageWidth - (margin * 2), 8, 'F');
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    yPosition += 6;
+    doc.text('Asset Name', margin + 5, yPosition);
+    doc.text('Quantity', pageWidth - margin - 30, yPosition);
+  
+    // Assets table content with pagination
+    doc.setFont("helvetica", "normal");
     localAssets.forEach((asset) => {
-      doc.text(`${asset.assetName} - Quantity: ${asset.quantity}`, 30, yPosition);
+      // Check if we need a new page
+      if (yPosition > pageHeight - margin * 2) {
+        // Add a new page
+        doc.addPage();
+        // Reset yPosition to top of new page
+        yPosition = margin;
+        
+        // Redraw the table header on new page
+        doc.setFillColor(255, 193, 7);
+        doc.rect(margin, yPosition, pageWidth - (margin * 2), 8, 'F');
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        yPosition += 6;
+        doc.text('Asset Name', margin + 5, yPosition);
+        doc.text('Quantity', pageWidth - margin - 30, yPosition);
+        yPosition += lineHeight;
+        doc.setFont("helvetica", "normal");
+      }
+
+      // Add zebra striping
+      if ((yPosition/lineHeight) % 2 === 0) {
+        doc.setFillColor(245, 245, 245);
+        doc.rect(margin, yPosition - 5, pageWidth - (margin * 2), 8, 'F');
+      }
+      doc.text(asset.assetName, margin + 5, yPosition);
+      doc.text(asset.quantity.toString(), pageWidth - margin - 30, yPosition);
       yPosition += lineHeight;
     });
-
+  
+    // Check if total cost section needs a new page
+    if (yPosition > pageHeight - margin * 4) {
+      doc.addPage();
+      yPosition = margin;
+    }
+  
+    // Total cost section
+    yPosition += lineHeight * 3;
+    doc.setFillColor(240, 240, 240);
+    doc.rect(pageWidth - margin - 80, yPosition - 8, 80, 20, 'F');
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text('Total Cost:', 20, yPosition);
-    yPosition += lineHeight;
-    doc.setFontSize(12);
-    doc.text(`₱${totalCost.toLocaleString()}`, 30, yPosition);
-    yPosition += lineHeight * 2;
+    doc.text('Total Cost:', pageWidth - margin - 75, yPosition);
 
+    const formattedCost = `PHP ${totalCost.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+      useGrouping: true
+    })}`;
+    doc.text(formattedCost, pageWidth - margin - 75, yPosition + 8);
+  
+    // Add footer to each page
+    const pageCount = doc.internal.getNumberOfPages();
+    for(let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(10);
+      doc.setTextColor(128, 128, 128);
+      doc.text(
+        `Page ${i} of ${pageCount}`,
+        pageWidth/2,
+        pageHeight - 10,
+        { align: 'center' }
+      );
+      doc.text(
+        `Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`,
+        pageWidth/2,
+        pageHeight - 20,
+        { align: 'center' }
+      );
+    }
+  
+    // Save the PDF
     doc.save(`${selectedEvent.event_name}_details.pdf`);
   };
 
