@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
+import PaginationControls from '../assetlists/PaginationControls';
 
 const MaintenanceLogs = ({ assetId, onClose }) => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   useEffect(() => {
     fetchMaintenanceLogs();
@@ -54,6 +57,51 @@ const MaintenanceLogs = ({ assetId, onClose }) => {
     );
   };
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handleItemsPerPageChange = (event) => {
+    setItemsPerPage(Number(event.target.value));
+    setCurrentPage(1);
+  };
+
+  const calculateStartIndex = () => {
+    return (currentPage - 1) * itemsPerPage + 1;
+  };
+
+  const calculateEndIndex = () => {
+    const endIndex = currentPage * itemsPerPage;
+    return endIndex > logs.length ? logs.length : endIndex;
+  };
+
+  const totalPages = Math.ceil(logs.length / itemsPerPage);
+
+  const renderPageNumbers = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+            currentPage === i
+              ? 'bg-[#FEC00F] text-black focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2'
+              : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+    return pageNumbers;
+  };
+
+  const paginatedLogs = logs.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   if (loading) {
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
@@ -94,7 +142,7 @@ const MaintenanceLogs = ({ assetId, onClose }) => {
               </tr>
             </thead>
             <tbody>
-              {logs.map((log) => (
+              {paginatedLogs.map((log) => (
                 <tr key={log.id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-2 text-center">
                     {moment(log.scheduled_date).format('MM/DD/YYYY')}
@@ -138,6 +186,19 @@ const MaintenanceLogs = ({ assetId, onClose }) => {
             <div className="text-center py-8 text-gray-500">
               No maintenance history found for this asset.
             </div>
+          )}
+          {logs.length > 0 && (
+            <PaginationControls
+              itemsPerPage={itemsPerPage}
+              handleItemsPerPageChange={handleItemsPerPageChange}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              handlePageChange={handlePageChange}
+              calculateStartIndex={calculateStartIndex}
+              calculateEndIndex={calculateEndIndex}
+              totalItems={logs.length}
+              renderPageNumbers={renderPageNumbers}
+            />
           )}
         </div>
       </div>

@@ -5,6 +5,7 @@ import AddSupplier from '../components/supplier/AddSupplier';
 import EditSupplier from '../components/supplier/EditSupplier';
 import SupplierSearch from '../components/supplier/SupplierSearch';
 import NotificationPopup from '../components/utils/NotificationsPopup';
+import PaginationControls from '../components/assetlists/PaginationControls';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
 
@@ -16,6 +17,8 @@ const SupplierList = () => {
   const [totalSuppliers, setTotalSuppliers] = useState(0);
   const [notification, setNotification] = useState(null);
   const [isAddSupplierModalOpen, setIsAddSupplierModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   useEffect(() => {
     fetchSuppliers();
@@ -81,6 +84,57 @@ const SupplierList = () => {
     setFilteredSuppliers(filtered);
   };
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handleItemsPerPageChange = (event) => {
+    setItemsPerPage(Number(event.target.value));
+    setCurrentPage(1);
+  };
+
+  const calculateStartIndex = () => {
+    return (currentPage - 1) * itemsPerPage + 1;
+  };
+
+  const calculateEndIndex = () => {
+    const endIndex = currentPage * itemsPerPage;
+    const currentSuppliers = filteredSuppliers.length > 0 ? filteredSuppliers : suppliers;
+    return endIndex > currentSuppliers.length ? currentSuppliers.length : endIndex;
+  };
+
+  const totalPages = Math.ceil(
+    (filteredSuppliers.length > 0 ? filteredSuppliers.length : suppliers.length) / itemsPerPage
+  );
+
+  const renderPageNumbers = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+            currentPage === i
+              ? 'bg-[#FEC00F] text-black focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2'
+              : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+    return pageNumbers;
+  };
+
+  // Get current suppliers
+  const getCurrentSuppliers = () => {
+    const currentSuppliers = filteredSuppliers.length > 0 ? filteredSuppliers : suppliers;
+    const indexOfLastSupplier = currentPage * itemsPerPage;
+    const indexOfFirstSupplier = indexOfLastSupplier - itemsPerPage;
+    return currentSuppliers.slice(indexOfFirstSupplier, indexOfLastSupplier);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Section */}
@@ -129,13 +183,28 @@ const SupplierList = () => {
         />
       </div>
 
-      {/* Supplier Table */}
+      {/* Supplier Table with Pagination */}
       <div className="px-4">
         <SupplierTable 
-          suppliers={filteredSuppliers.length > 0 ? filteredSuppliers : suppliers} 
+          suppliers={getCurrentSuppliers()} 
           onDelete={handleDelete} 
           onEdit={handleEdit} 
         />
+        
+        {/* Add Pagination Controls */}
+        {(suppliers.length > 0 || filteredSuppliers.length > 0) && (
+          <PaginationControls
+            itemsPerPage={itemsPerPage}
+            handleItemsPerPageChange={handleItemsPerPageChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            handlePageChange={handlePageChange}
+            calculateStartIndex={calculateStartIndex}
+            calculateEndIndex={calculateEndIndex}
+            totalItems={filteredSuppliers.length > 0 ? filteredSuppliers.length : suppliers.length}
+            renderPageNumbers={renderPageNumbers}
+          />
+        )}
       </div>
 
       {/* Edit Supplier Modal */}

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHistory, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 const SupplierActivityLogs = ({ supplierId, onClose }) => {
   const [logs, setLogs] = useState([]);
@@ -21,18 +23,12 @@ const SupplierActivityLogs = ({ supplierId, onClose }) => {
   useEffect(() => {
     const fetchLogs = async () => {
       try {
-        console.log('Fetching logs for supplier ID:', supplierId);
         setIsLoading(true);
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/supplier-activity-logs/${supplierId}`);
-        console.log('Received logs:', response.data);
         setLogs(response.data);
         setIsLoading(false);
       } catch (error) {
-        console.error("Error details:", {
-          message: error.message,
-          response: error.response?.data,
-          status: error.response?.status
-        });
+        console.error("Error fetching logs:", error);
         setError("Failed to fetch activity logs. Please try again later.");
         setIsLoading(false);
       }
@@ -53,31 +49,57 @@ const SupplierActivityLogs = ({ supplierId, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">Supplier Activity Logs</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Supplier Activity Logs</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full p-1 transition-colors duration-200"
+          >
+            <FontAwesomeIcon icon={faTimes} className="text-xl" />
+          </button>
+        </div>
+
         {isLoading ? (
-          <p>Loading activity logs...</p>
+          <div className="flex justify-center items-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
         ) : error ? (
-          <p className="text-red-500">{error}</p>
+          <div className="text-red-500 text-center py-4">{error}</div>
+        ) : logs.length === 0 || (logs.length === 1 && logs[0].action === 'No Activity') ? (
+          <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+            <FontAwesomeIcon icon={faHistory} className="text-4xl mb-3" />
+            <p className="text-lg font-semibold">No Activity Logs Found</p>
+            <p className="text-sm text-center mt-2">
+              There are no recorded activities for this supplier yet.
+            </p>
+          </div>
         ) : (
           <div className="space-y-4">
             {Object.entries(groupedLogs).map(([timestamp, logGroup]) => (
               <div key={timestamp} className="bg-gray-100 p-3 rounded-lg">
-                <p className="font-semibold text-sm text-gray-700 mb-2">Update on {timestamp}</p>
+                <p className="font-semibold text-sm text-gray-700 mb-2">
+                  Update on {timestamp}
+                </p>
                 {logGroup.map((log, index) => (
                   <p key={index} className="text-sm text-gray-600 mb-1">
-                    <strong className="text-black">{fieldNameMapping[log.field_name] || log.field_name}</strong>: "<strong className="text-blue-600">{log.old_value || '(empty)'}</strong>" → "<strong className="text-green-600">{log.new_value}</strong>"
+                    <strong className="text-black">
+                      {fieldNameMapping[log.field_name] || log.field_name}
+                    </strong>
+                    : "
+                    <strong className="text-blue-600">
+                      {log.old_value || '(empty)'}
+                    </strong>
+                    " → "
+                    <strong className="text-green-600">
+                      {log.new_value}
+                    </strong>
+                    "
                   </p>
                 ))}
               </div>
             ))}
           </div>
         )}
-        <button
-          onClick={onClose}
-          className="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-        >
-          Close
-        </button>
       </div>
     </div>
   );

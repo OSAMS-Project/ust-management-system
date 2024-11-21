@@ -54,7 +54,7 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
             <DetailItem label="Cost per Unit" value={`₱${parseFloat(selectedAsset.cost).toFixed(2)}`} />
             <DetailItem label="Total Cost" value={`₱${totalCost.toFixed(2)}`} />
             <DetailItem label="Type" value={selectedAsset.type} />
-            <DetailItem label="Status" value={selectedAsset.is_active ? "Active" : "Inactive"} />
+            <DetailItem label="Borrowing Status" value={selectedAsset.is_active ? "Active" : "Inactive"} />
             {selectedAsset.is_active && (
               <DetailItem 
                 label="Quantity for Borrowing" 

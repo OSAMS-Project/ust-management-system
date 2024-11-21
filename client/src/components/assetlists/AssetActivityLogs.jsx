@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faTimes, faHistory } from "@fortawesome/free-solid-svg-icons";
 
 const AssetActivityLogs = ({ assetId, onClose }) => {
   const [logs, setLogs] = useState([]);
@@ -87,26 +87,37 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200"
-          aria-label="Close"
-        >
-          <FontAwesomeIcon icon={faTimes} className="text-xl" />
-        </button>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Asset Activity Logs</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700 text-xl"
+          >
+            ×
+          </button>
+        </div>
 
-        <h2 className="text-xl font-bold mb-4">Asset Activity Logs</h2>
         {isLoading ? (
-          <p>Loading activity logs...</p>
+          <div className="flex justify-center items-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
         ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : logs.length === 0 ? (
-          <p>No activity logs found for this asset.</p>
+          <div className="text-red-500 text-center py-4">{error}</div>
+        ) : logs.length === 0 || (logs.length === 1 && logs[0].action === 'No Activity') ? (
+          <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+            <FontAwesomeIcon icon={faHistory} className="text-4xl mb-3" />
+            <p className="text-lg font-semibold">No Activity Logs Found</p>
+            <p className="text-sm text-center mt-2">
+              There are no recorded activities for this asset yet.
+            </p>
+          </div>
         ) : (
           <div className="space-y-4">
             {Object.entries(groupedLogs).map(([timestamp, logGroup]) => (
               <div key={timestamp} className="bg-gray-100 p-3 rounded-lg">
-                <p className="font-semibold text-sm text-gray-700 mb-2">Update on {timestamp}</p>
+                <p className="font-semibold text-sm text-gray-700 mb-2">
+                  Update on {timestamp}
+                </p>
                 <div className="flex items-center mb-3 text-xs text-gray-500">
                   {logGroup[0].user_picture && (
                     <img 

@@ -3,6 +3,7 @@ import axios from 'axios';
 import moment from 'moment';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import PaginationControls from '../assetlists/PaginationControls';
 
 const formatDate = (date) => {
   return date ? moment(date).format("MM/DD/YYYY") : 'Not yet returned';
@@ -12,6 +13,8 @@ const BorrowLogs = ({ assetId, onClose }) => {
   const [logs, setLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   useEffect(() => {
     const fetchBorrowLogs = async () => {
@@ -30,6 +33,51 @@ const BorrowLogs = ({ assetId, onClose }) => {
 
     fetchBorrowLogs();
   }, [assetId]);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handleItemsPerPageChange = (event) => {
+    setItemsPerPage(Number(event.target.value));
+    setCurrentPage(1);
+  };
+
+  const calculateStartIndex = () => {
+    return (currentPage - 1) * itemsPerPage + 1;
+  };
+
+  const calculateEndIndex = () => {
+    const endIndex = currentPage * itemsPerPage;
+    return endIndex > logs.length ? logs.length : endIndex;
+  };
+
+  const totalPages = Math.ceil(logs.length / itemsPerPage);
+
+  const renderPageNumbers = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+            currentPage === i
+              ? 'bg-[#FEC00F] text-black focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2'
+              : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+    return pageNumbers;
+  };
+
+  const paginatedLogs = logs.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
@@ -60,7 +108,7 @@ const BorrowLogs = ({ assetId, onClose }) => {
                 </tr>
               </thead>
               <tbody>
-                {logs.map((log, index) => (
+                {paginatedLogs.map((log, index) => (
                   <tr key={index} className="border-b hover:bg-gray-50">
                     <td className="px-4 py-2 text-center">{formatDate(log.date_borrowed)}</td>
                     <td className="px-4 py-2 text-center">{log.borrower_name}</td>
@@ -79,6 +127,19 @@ const BorrowLogs = ({ assetId, onClose }) => {
             <div className="text-center py-4 text-gray-500">
               No borrow logs found for this asset.
             </div>
+          )}
+          {logs.length > 0 && (
+            <PaginationControls
+              itemsPerPage={itemsPerPage}
+              handleItemsPerPageChange={handleItemsPerPageChange}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              handlePageChange={handlePageChange}
+              calculateStartIndex={calculateStartIndex}
+              calculateEndIndex={calculateEndIndex}
+              totalItems={logs.length}
+              renderPageNumbers={renderPageNumbers}
+            />
           )}
         </div>
       </div>
