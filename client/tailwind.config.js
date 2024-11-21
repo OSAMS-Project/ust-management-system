@@ -8,6 +8,7 @@ module.exports = {
     extend: {
       fontFamily: {
         roboto: ['Roboto', 'sans-serif'],
+        quicksand: ['Quicksand', 'sans-serif'],
       },
       margin: {
         '-screen': '-100vw',

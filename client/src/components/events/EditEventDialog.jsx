@@ -266,17 +266,17 @@ const EditEventDialog = ({
             <div className="flex justify-end gap-4 pt-4 border-t">
               <button
                 type="button"
-                onClick={() => setShowDeleteConfirm(true)}
-                className="px-6 py-2 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
-              >
-                Delete
-              </button>
-              <button
-                type="button"
                 onClick={() => setShowDialog(false)}
                 className="px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-colors"
               >
                 Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="px-6 py-2 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
+              >
+                Delete
               </button>
               <button
                 type="submit"
