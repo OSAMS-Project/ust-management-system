@@ -69,12 +69,22 @@ const RoleManagement = () => {
   };
 
   const handleAddRole = async () => {
-    if (!newRole.trim()) return;
+    if (!newRole.trim()) {
+      setError("Role name cannot be empty.");
+      return;
+    }
+
     try {
       const response = await axios.post(`${API_URL}`, { roleName: newRole });
-      setRoles([...roles, { ...response.data, permissions: [] }]);
+      const newRoleData = {
+        role_name: response.data.role_name || newRole,
+        permissions: [],
+      };
+
+      setRoles((prevRoles) => [...prevRoles, newRoleData]);
       setNewRole("");
       setTotalRoles((prevTotal) => prevTotal + 1);
+      setError(null);
     } catch (err) {
       setError("Error adding role");
       console.error("Error adding role:", err);
@@ -84,7 +94,7 @@ const RoleManagement = () => {
   const handleDeleteRole = async (roleName) => {
     try {
       await axios.delete(`${API_URL}/${roleName}`);
-      setRoles(roles.filter((role) => role.role_name !== roleName));
+      setRoles((prevRoles) => prevRoles.filter((role) => role.role_name !== roleName));
       setTotalRoles((prevTotal) => prevTotal - 1);
     } catch (err) {
       setError("Error deleting role");
@@ -94,6 +104,11 @@ const RoleManagement = () => {
 
   const handlePermissionChange = async (roleName, page) => {
     const role = roles.find((r) => r.role_name === roleName);
+
+    if (!role) {
+      setError("Role not found.");
+      return;
+    }
 
     let updatedPermissions = [];
     if (role.permissions.includes(page)) {
@@ -128,8 +143,10 @@ const RoleManagement = () => {
             : r
         )
       );
+      setError(null);
     } catch (err) {
       console.error("Error updating permissions:", err);
+      setError("Error saving permissions. Please try again.");
     }
   };
 

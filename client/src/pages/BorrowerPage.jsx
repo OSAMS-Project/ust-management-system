@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import axios from 'axios';
-import BorrowSelectModal from '../components/borrower/BorrowSelectModal';
-import TermsAndConditionsModal from '../components/borrower/TermsAndConditionsModal';
-import supabase from '../config/supabaseClient';
-import { toast } from 'react-hot-toast';
+import axios from "axios";
+import BorrowSelectModal from "../components/borrower/BorrowSelectModal";
+import TermsAndConditionsModal from "../components/borrower/TermsAndConditionsModal";
+import supabase from "../config/supabaseClient";
+import { toast } from "react-hot-toast";
+import ReCAPTCHA from "react-google-recaptcha";
 
 function BorrowerForm() {
   const [email, setEmail] = useState("");
@@ -16,18 +17,29 @@ function BorrowerForm() {
   const [contactNo, setContactNo] = useState("");
   const [activeAssets, setActiveAssets] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [expectedReturnDate, setExpectedReturnDate] = useState(""); // New state for expected return date
+  const [expectedReturnDate, setExpectedReturnDate] = useState(
+    new Date().toISOString().split("T")[0] // Default to today's date
+  );
   const [notes, setNotes] = useState(""); // New state for notes
   const [isSubmitting, setIsSubmitting] = useState(false); // State to track submission status
   const [confirmationMessage, setConfirmationMessage] = useState(""); // State for confirmation message
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showTerms, setShowTerms] = useState(true);
+  const [recaptchaToken, setRecaptchaToken] = useState(null); // State for reCAPTCHA token
+  const [isVerified, setIsVerified] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationError, setVerificationError] = useState("");
+  const [verificationCodeSent, setVerificationCodeSent] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   const handleContactNumberChange = (e) => {
     const value = e.target.value;
     // Only allow digits
-    const numbersOnly = value.replace(/[^0-9]/g, '');
+    const numbersOnly = value.replace(/[^0-9]/g, "");
     setContactNo(numbersOnly);
+  };
+  const handleReCAPTCHAChange = (token) => {
+    setRecaptchaToken(token); // Store reCAPTCHA token
   };
 
   const handleSubmit = async (e) => {
@@ -35,9 +47,21 @@ function BorrowerForm() {
     setIsSubmitting(true);
     setConfirmationMessage("");
 
+    if (!recaptchaToken) {
+      toast.error("Please complete the reCAPTCHA.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!isVerified) {
+      toast.error("Please verify your email before submitting");
+      setIsSubmitting(false);
+      return;
+    }
+
     // Validate selected assets
     if (!selectedAssets || selectedAssets.length === 0) {
-      toast.error('Please select at least one asset');
+      toast.error("Please select at least one asset");
       setIsSubmitting(false);
       return;
     }
@@ -48,31 +72,31 @@ function BorrowerForm() {
       // Upload cover letter if exists
       if (coverLetter) {
         const timestamp = new Date().getTime();
-        const cleanFileName = coverLetter.name.replace(/[^a-zA-Z0-9]/g, '_');
+        const cleanFileName = coverLetter.name.replace(/[^a-zA-Z0-9]/g, "_");
         const fileName = `cover_letters/${timestamp}-${cleanFileName}`;
 
         // Upload to Supabase with error handling
         const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('samplebucket')
+          .from("samplebucket")
           .upload(fileName, coverLetter, {
-            cacheControl: '3600',
-            upsert: false
+            cacheControl: "3600",
+            upsert: false,
           });
 
         if (uploadError) {
-          console.error('Supabase upload error:', uploadError);
-          toast.error('Failed to upload cover letter');
+          console.error("Supabase upload error:", uploadError);
+          toast.error("Failed to upload cover letter");
           setIsSubmitting(false);
           return;
         }
 
         // Get public URL after successful upload
         const { data: urlData } = await supabase.storage
-          .from('samplebucket')
+          .from("samplebucket")
           .getPublicUrl(fileName);
 
         if (!urlData?.publicUrl) {
-          throw new Error('Failed to get public URL for uploaded file');
+          throw new Error("Failed to get public URL for uploaded file");
         }
 
         coverLetterUrl = urlData.publicUrl;
@@ -87,30 +111,34 @@ function BorrowerForm() {
         coverLetterUrl,
         selectedAssets,
         expectedReturnDate,
-        dateToBeCollected: selectedAssets[0]?.dateToBeCollected || '',
-        notes
+        dateToBeCollected: selectedAssets[0]?.dateToBeCollected || "",
+        notes,
+        recaptchaToken,
       };
 
-      console.log('Submitting request:', requestBody);
+      console.log("Submitting request:", requestBody);
 
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/borrowing-requests`,
         requestBody,
         {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
 
-      console.log('Response:', response.data);
-      setConfirmationMessage("Your borrowing request has been submitted successfully!");
-      toast.success('Request submitted successfully!');
+      console.log("Response:", response.data);
+      setConfirmationMessage(
+        "Your borrowing request has been submitted successfully!"
+      );
+      toast.success("Request submitted successfully!");
       resetForm();
     } catch (error) {
-      console.error('Error submitting borrowing request:', error);
-      toast.error(error.response?.data?.message || 'Error submitting request');
+      console.error("Error submitting borrowing request:", error);
+      toast.error(error.response?.data?.message || "Error submitting request");
       setIsSubmitting(false);
+      setRecaptchaToken(null);
     }
   };
 
@@ -122,7 +150,7 @@ function BorrowerForm() {
     setContactNo("");
     setCoverLetter(null);
     setSelectedAssets([]);
-    setExpectedReturnDate("");
+    setExpectedReturnDate(new Date().toISOString().split("T")[0]);
     setNotes("");
   };
 
@@ -138,10 +166,52 @@ function BorrowerForm() {
 
   const fetchActiveAssets = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/assets/active`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/assets/active`
+      );
       setActiveAssets(response.data);
     } catch (error) {
-      console.error('Error fetching active assets:', error);
+      console.error("Error fetching active assets:", error);
+    }
+  };
+
+  const sendVerificationCode = async () => {
+    if (!email.trim()) {
+      setEmailError("Email is required to send a verification code.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/borrowing-requests/send-verification-code`,
+        { email }
+      );
+      toast.success("Verification code sent to your email");
+      setVerificationCodeSent(true);
+      setEmailError(""); // Clear error on success
+    } catch (error) {
+      console.error("Error sending verification code:", error.response?.data);
+      toast.error("Failed to send verification code");
+      setEmailError("Error sending verification code. Please try again.");
+    }
+  };
+
+  const verifyCode = async () => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/borrowing-requests/verify-code`,
+        {
+          email,
+          code: verificationCode,
+        }
+      );
+      toast.success(response.data.message);
+      setIsVerified(true);
+      setVerificationError(""); // Clear error if successful
+    } catch (error) {
+      setVerificationError(
+        error.response?.data?.message || "Invalid or expired verification code"
+      );
     }
   };
 
@@ -152,7 +222,7 @@ function BorrowerForm() {
   return (
     <>
       {!agreedToTerms && (
-        <TermsAndConditionsModal 
+        <TermsAndConditionsModal
           onAccept={() => {
             setAgreedToTerms(true);
             setShowTerms(false);
@@ -161,13 +231,18 @@ function BorrowerForm() {
       )}
       {agreedToTerms && (
         <div className="flex min-h-screen w-screen overflow-hidden">
-          <div className="w-1/2 bg-cover bg-center hidden lg:block" style={{ backgroundImage: "url('./ust-image.JPG')" }}></div>
+          <div
+            className="w-1/2 bg-cover bg-center hidden lg:block"
+            style={{ backgroundImage: "url('./ust-image.JPG')" }}
+          ></div>
           <div className="w-full lg:w-1/2 flex flex-col justify-center p-6 bg-white">
-            <h1 className="text-3xl font-bold text-black mb-4 leading-snug">Asset Request Form</h1>
+            <h1 className="text-3xl font-bold text-black mb-4 leading-snug">
+              Asset Request Form
+            </h1>
             <p className="text-lg text-gray-600 mb-6 leading-relaxed">
               Borrow Materials from UST-OSA Asset Management System
             </p>
-        
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name Field */}
               <div className="relative">
@@ -188,7 +263,7 @@ function BorrowerForm() {
                   Enter your name
                 </label>
               </div>
-        
+
               {/* Email Field */}
               <div className="relative">
                 <input
@@ -197,9 +272,16 @@ function BorrowerForm() {
                   name="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (e.target.value.trim()) {
+                      setEmailError(""); // Clear error on valid input
+                    }
+                  }}
                   placeholder=" "
-                  className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
+                  className={`block w-full px-3 py-2 border-b-2 ${
+                    emailError ? "border-red-500" : "border-gray-300"
+                  } bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer`}
                 />
                 <label
                   htmlFor="email"
@@ -207,8 +289,13 @@ function BorrowerForm() {
                 >
                   Enter your email
                 </label>
+                {emailError && (
+                  <span className="text-red-500 text-sm mt-1">
+                    {emailError}
+                  </span>
+                )}
               </div>
-        
+
               {/* Department Field */}
               <div className="relative">
                 <input
@@ -228,18 +315,24 @@ function BorrowerForm() {
                   Enter your department
                 </label>
               </div>
-        
+
               {/* Selected Assets Display and Select Asset Button */}
               <div className="relative flex flex-col">
-                <h2 className="text-base font-semibold text-black mb-2">Selected Assets:</h2>
+                <h2 className="text-base font-semibold text-black mb-2">
+                  Selected Assets:
+                </h2>
                 {selectedAssets.length > 0 ? (
                   <ul className="list-disc pl-4 mb-2 text-gray-600 tracking-wide text-sm">
                     {selectedAssets.map((asset, index) => (
-                      <li key={index}>{asset.assetName} (Quantity: {asset.quantity})</li>
+                      <li key={index}>
+                        {asset.assetName} (Quantity: {asset.quantity})
+                      </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-gray-500 mb-2 text-sm">No assets selected.</p>
+                  <p className="text-gray-500 mb-2 text-sm">
+                    No assets selected.
+                  </p>
                 )}
                 <button
                   type="button"
@@ -249,7 +342,7 @@ function BorrowerForm() {
                   Select Asset
                 </button>
               </div>
-        
+
               {/* Purpose Field */}
               <div className="relative">
                 <input
@@ -269,7 +362,7 @@ function BorrowerForm() {
                   Enter the purpose of borrowing
                 </label>
               </div>
-        
+
               {/* Contact Number Field */}
               <div className="relative">
                 <input
@@ -292,10 +385,12 @@ function BorrowerForm() {
                   Enter your contact number
                 </label>
                 {contactNo && !/^[0-9]+$/.test(contactNo) && (
-                  <p className="text-red-500 text-sm mt-1">Please enter numbers only</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    Please enter numbers only
+                  </p>
                 )}
               </div>
-        
+
               {/* Expected Date of Return Field */}
               <div className="relative">
                 <input
@@ -314,7 +409,6 @@ function BorrowerForm() {
                   Expected Date of Return
                 </label>
               </div>
-        
               {/* Notes Field */}
               <div className="relative">
                 <textarea
@@ -332,7 +426,7 @@ function BorrowerForm() {
                   Additional Notes
                 </label>
               </div>
-        
+
               {/* Cover Letter Upload Field */}
               <div className="relative">
                 <label
@@ -360,29 +454,83 @@ function BorrowerForm() {
                   </div>
                 )}
               </div>
-        
-              {/* Submit Button */}
+
+              <ReCAPTCHA
+                sitekey="6LfFloUqAAAAANFY-Z9-_0ll6ISjSk9TmqFU3rmI"
+                onChange={handleReCAPTCHAChange}
+              />
+
+              {!isVerified && (
+                <div className="space-y-4">
+                  {/* Send Verification Code */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={sendVerificationCode}
+                      className={`bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-all ${
+                        isSubmitting && "opacity-50 pointer-events-none"
+                      }`}
+                    >
+                      {verificationCodeSent
+                        ? "Resend Code"
+                        : "Send Verification Code"}
+                    </button>
+                    <span className="text-gray-500 text-sm">
+                      Check your email for the code
+                    </span>
+                  </div>
+
+                  {/* Enter and Verify Code */}
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="text"
+                      placeholder="Enter verification code"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      className="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                    />
+                    {verificationError && (
+                      <span className="text-red-500 text-sm">
+                        {verificationError}
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={verifyCode}
+                      className={`bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-all ${
+                        isSubmitting && "opacity-50 pointer-events-none"
+                      }`}
+                    >
+                      Verify Code
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className={`w-full ${isSubmitting ? 'bg-gray-400' : 'bg-black'} text-white text-lg font-medium py-2 rounded-md hover:bg-gray-900 transition-colors duration-300 transform hover:scale-105 tracking-wider`}
+                disabled={isSubmitting || !isVerified || !recaptchaToken}
+                className={`w-full ${
+                  isSubmitting ? "bg-gray-400" : "bg-black"
+                } text-white text-lg font-medium py-2 rounded-md hover:bg-gray-900 transition-colors duration-300 transform hover:scale-105 tracking-wider`}
               >
-                {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                {isSubmitting ? "Submitting..." : "Submit Request"}
               </button>
             </form>
-        
+
             {/* Confirmation Message */}
             {confirmationMessage && (
-              <div className="mt-3 text-green-500">
-                {confirmationMessage}
-              </div>
+              <div className="mt-3 text-green-500">{confirmationMessage}</div>
             )}
-        
+
             {/* Back to Login */}
-            <Link to="/" className="mt-5 text-gray-600 hover:text-gray-500 transition-colors duration-300">
+            <Link
+              to="/"
+              className="mt-5 text-gray-600 hover:text-gray-500 transition-colors duration-300"
+            >
               ← Back to Login
             </Link>
-        
+
             {/* Modal */}
             <BorrowSelectModal
               isOpen={isModalOpen}
