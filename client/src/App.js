@@ -31,6 +31,7 @@ import ScanRedirect from "./components/scan/ScanRedirect";
 import AssetDetailsPage from "./pages/AssetDetailsPage";
 import AssetMaintenance from "./pages/AssetMaintenance";
 import FileUpload from "./components/FileUpload";
+import Settings from "./pages/Settings";
 console.log("Supabase URL:", process.env.REACT_APP_SUPABASE_URL);
 console.log("API URL:", process.env.REACT_APP_API_URL);
 
@@ -343,6 +344,14 @@ function AppContent({ user, setUser }) {
             element={
               <PrivateRoute user={user}>
                 <FileUpload />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <PrivateRoute user={user}>
+                <Settings user={user} />
               </PrivateRoute>
             }
           />
