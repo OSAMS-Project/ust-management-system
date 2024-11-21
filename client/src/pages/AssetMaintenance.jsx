@@ -224,11 +224,13 @@ function AssetMaintenance({ user }) {
         />
 
         <MaintenanceTable
-          maintenances={paginatedMaintenances}
+          maintenances={maintenances}
+          setMaintenances={setMaintenances}
           assets={assets}
           loading={loading}
           onEditMaintenance={handleEditMaintenance}
           onRemoveMaintenance={handleRemoveMaintenance}
+          setNotification={setNotification}
         />
 
         {activeMaintenances.length > 0 && (

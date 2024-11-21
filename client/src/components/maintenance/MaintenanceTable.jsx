@@ -3,7 +3,7 @@ import moment from 'moment';
 import { Trash2, CheckCircle, History } from 'lucide-react';
 import axios from 'axios';
 
-const MaintenanceTable = ({ maintenances, assets, loading, onRemoveMaintenance, onViewHistory }) => {
+const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRemoveMaintenance, onViewHistory, setNotification }) => {
   if (loading) {
     return <div className="flex justify-center items-center h-32">Loading...</div>;
   }
@@ -43,10 +43,25 @@ const MaintenanceTable = ({ maintenances, assets, loading, onRemoveMaintenance, 
       );
       
       if (response.data) {
-        window.location.reload();
+        setMaintenances(prevMaintenances => 
+          prevMaintenances.map(m => 
+            m.id === maintenance.id 
+              ? { ...m, completion_date: new Date().toISOString(), status: 'Completed' }
+              : m
+          )
+        );
+
+        setNotification({
+          type: 'success',
+          message: 'Maintenance marked as complete successfully'
+        });
       }
     } catch (error) {
       console.error('Error marking maintenance as complete:', error);
+      setNotification({
+        type: 'error',
+        message: error.response?.data?.error || 'Failed to mark maintenance as complete'
+      });
     }
   };
 
