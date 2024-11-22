@@ -221,6 +221,7 @@ function AssetMaintenance({ user }) {
           onCloseModal={() => setIsModalOpen(false)}
           onOpenModal={() => setIsModalOpen(true)}
           user={user}
+          maintenances={maintenances}
         />
 
         <MaintenanceTable

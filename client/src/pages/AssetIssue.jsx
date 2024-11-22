@@ -282,6 +282,7 @@ function AssetIssue({ user }) {
           onCloseModal={() => setIsModalOpen(false)}
           onOpenModal={() => setIsModalOpen(true)}
           user={user}
+          issues={issues}
         />  
 
       <IssueTable 

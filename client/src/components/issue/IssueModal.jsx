@@ -1,6 +1,6 @@
 import React, { useState,} from 'react';
 
-const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user }) => {
+const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user, issues = [] }) => {
   const [issueData, setIssueData] = useState({
     asset_id: '',
     issue_type: '',
@@ -26,6 +26,15 @@ const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user }) => {
     'High',
     'Critical'
   ];
+
+  const availableAssets = assets.filter(asset => {
+    const hasActiveIssue = issues.some(issue => 
+      issue.asset_id === asset.asset_id && 
+      issue.status !== 'Resolved' && 
+      issue.status !== 'In Repair'
+    );
+    return !hasActiveIssue;
+  });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -137,7 +146,7 @@ const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user }) => {
                 required
               >
                 <option value="">Select Asset</option>
-                {assets.map(asset => (
+                {availableAssets.map(asset => (
                   <option key={asset.asset_id} value={asset.asset_id}>
                     {asset.assetName}
                   </option>

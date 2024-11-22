@@ -223,17 +223,31 @@ function BorrowerForm() {
   useEffect(() => {
     const fetchTerms = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/terms-and-conditions');
-        if (response.data) {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/terms-and-conditions`);
+        if (response.data && response.data.borrowing_guidelines) {
           setTermsAndConditions({
             borrowingGuidelines: response.data.borrowing_guidelines || [],
             documentationRequirements: response.data.documentation_requirements || [],
             usagePolicy: response.data.usage_policy || []
           });
+        } else {
+          // Set default empty values if data is missing
+          setTermsAndConditions({
+            borrowingGuidelines: [],
+            documentationRequirements: [],
+            usagePolicy: []
+          });
+          console.warn('Terms and conditions data is incomplete or missing');
         }
       } catch (error) {
         console.error('Error fetching terms:', error);
         toast.error('Failed to load terms and conditions');
+        // Set default empty values on error
+        setTermsAndConditions({
+          borrowingGuidelines: [],
+          documentationRequirements: [],
+          usagePolicy: []
+        });
       }
     };
 

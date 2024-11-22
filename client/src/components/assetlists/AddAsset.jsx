@@ -59,6 +59,25 @@ const SelectField = ({ label, id, value, onChange, options, placeholder, shake }
   </div>
 );
 
+const ToggleButton = ({ label, checked, onChange }) => (
+  <div className="flex items-center space-x-3">
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+        checked ? 'bg-[#FEC000]' : 'bg-gray-200'
+      }`}
+    >
+      <span
+        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+          checked ? 'translate-x-5' : 'translate-x-0'
+        }`}
+      />
+    </button>
+    <span className="text-sm font-medium text-gray-700">{label}</span>
+  </div>
+);
+
 const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal, onOpenModal }) => {
   const [formData, setFormData] = useState({
     assetName: "",
@@ -72,6 +91,7 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
     image: null,
     type: "",
     productCode: "",
+    allowBorrowing: false,
   });
 
   const [shakeFields, setShakeFields] = useState([]);
@@ -90,6 +110,7 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
         image: null,
         type: "",
         productCode: "",
+        allowBorrowing: false,
       });
       setShakeFields([]);
     }
@@ -159,7 +180,8 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
       createdDate: formData.createdDate.format('YYYY-MM-DD'),
       image: formData.image,
       type: formData.type,
-      under_repair: false
+      under_repair: false,
+      allow_borrowing: formData.type === 'Consumable' ? formData.allowBorrowing : true,
     };
 
     try {
@@ -242,6 +264,16 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
                     shake={shakeFields.includes("type")}
                   />
                 </div>
+
+                {formData.type === 'Consumable' && (
+                  <div className="col-span-2">
+                    <ToggleButton
+                      label="Allow Borrowing for this Consumable Asset"
+                      checked={formData.allowBorrowing}
+                      onChange={(value) => handleInputChange('allowBorrowing', value)}
+                    />
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <InputField

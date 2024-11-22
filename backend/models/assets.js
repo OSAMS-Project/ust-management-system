@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS Assets (
       added_by VARCHAR(255),
       quantity_for_borrowing BIGINT DEFAULT 0,
       under_repair BOOLEAN DEFAULT false,
-      has_issue BOOLEAN DEFAULT false
+      has_issue BOOLEAN DEFAULT false,
+      allow_borrowing BOOLEAN DEFAULT false
     )
   `;
 	return executeTransaction([{ query, params: [] }]);
@@ -30,8 +31,8 @@ CREATE TABLE IF NOT EXISTS Assets (
 const getNextAssetId = async () => {
 	const result = await executeTransaction([
 		{
-			query: "SELECT asset_id FROM Assets ORDER BY asset_id DESC LIMIT 1",
-			params: [],
+				query: "SELECT asset_id FROM Assets ORDER BY asset_id DESC LIMIT 1",
+				params: [],
 		},
 	]);
 

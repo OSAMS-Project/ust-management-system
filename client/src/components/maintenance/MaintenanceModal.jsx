@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, assets, user }) => {
+const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, assets, user, maintenances = [] }) => {
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [maintenanceData, setMaintenanceData] = useState({
     asset_id: '',
@@ -17,6 +17,14 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, assets, user }) =
     quantity: 1,
     scheduled_by: user?.name || '',
     user_picture: user?.picture || ''
+  });
+
+  const availableAssets = assets.filter(asset => {
+    const hasPendingMaintenance = maintenances.some(maintenance => 
+      maintenance.asset_id === asset.asset_id && 
+      !maintenance.completion_date
+    );
+    return !hasPendingMaintenance;
   });
 
   useEffect(() => {
@@ -122,7 +130,7 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, assets, user }) =
                 required
               >
                 <option value="">Select Asset</option>
-                {assets.map(asset => (
+                {availableAssets.map(asset => (
                   <option key={asset.asset_id} value={asset.asset_id}>
                     {asset.assetName}
                   </option>

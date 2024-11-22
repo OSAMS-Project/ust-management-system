@@ -37,44 +37,78 @@ function Settings() {
 
   const handleSave = async () => {
     try {
-      const formattedTerms = {
-        borrowing_guidelines: terms.borrowingGuidelines.split('\n').filter(line => line.trim() !== ''),
-        documentation_requirements: terms.documentationRequirements.split('\n').filter(line => line.trim() !== ''),
-        usage_policy: terms.usagePolicy.split('\n').filter(line => line.trim() !== '')
-      };
-
-      // Get current terms from the database
-      const currentTerms = await axios.get('http://localhost:5000/api/terms-and-conditions');
-      
-      // Check if the data is identical
-      const isIdentical = 
-        JSON.stringify(currentTerms.data.borrowing_guidelines) === JSON.stringify(formattedTerms.borrowing_guidelines) &&
-        JSON.stringify(currentTerms.data.documentation_requirements) === JSON.stringify(formattedTerms.documentation_requirements) &&
-        JSON.stringify(currentTerms.data.usage_policy) === JSON.stringify(formattedTerms.usage_policy);
-
-      if (isIdentical) {
+      // Validate that terms object has content before proceeding
+      if (!terms || typeof terms !== 'object') {
         setNotification({
-          type: 'info',
-          message: 'No changes detected to save'
+          type: 'error',
+          message: 'Invalid terms data'
         });
-        setTimeout(() => setNotification(null), 3000);
         return;
       }
 
-      // If data is different, proceed with the update
-      await axios.put('http://localhost:5000/api/terms-and-conditions', formattedTerms);
-      
-      setNotification({
-        type: 'success',
-        message: 'Terms and conditions updated successfully'
-      });
-      setTimeout(() => setNotification(null), 3000);
+      const formattedTerms = {
+        borrowing_guidelines: terms.borrowingGuidelines?.split('\n').filter(line => line.trim() !== '') || [],
+        documentation_requirements: terms.documentationRequirements?.split('\n').filter(line => line.trim() !== '') || [],
+        usage_policy: terms.usagePolicy?.split('\n').filter(line => line.trim() !== '') || []
+      };
+
+      try {
+        // Get current terms from the database
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/terms-and-conditions`);
+        
+        if (!response || !response.data) {
+          // If no existing terms, just save the new ones
+          await axios.put(`${process.env.REACT_APP_API_URL}/api/terms-and-conditions`, formattedTerms);
+          setNotification({
+            type: 'success',
+            message: 'Terms and conditions created successfully'
+          });
+          setTimeout(() => setNotification(null), 3000);
+          return;
+        }
+
+        const currentTerms = response.data;
+
+        // Check if the data is identical
+        const isIdentical = 
+          JSON.stringify(currentTerms.borrowing_guidelines || []) === JSON.stringify(formattedTerms.borrowing_guidelines) &&
+          JSON.stringify(currentTerms.documentation_requirements || []) === JSON.stringify(formattedTerms.documentation_requirements) &&
+          JSON.stringify(currentTerms.usage_policy || []) === JSON.stringify(formattedTerms.usage_policy);
+
+        if (isIdentical) {
+          setNotification({
+            type: 'info',
+            message: 'No changes detected to save'
+          });
+          setTimeout(() => setNotification(null), 3000);
+          return;
+        }
+
+        // If data is different, proceed with the update
+        await axios.put(`${process.env.REACT_APP_API_URL}/api/terms-and-conditions`, formattedTerms);
+        
+        setNotification({
+          type: 'success',
+          message: 'Terms and conditions updated successfully'
+        });
+        setTimeout(() => setNotification(null), 3000);
+
+      } catch (fetchError) {
+        console.error('Error fetching or comparing terms:', fetchError);
+        // If we can't fetch current terms, try to save new ones anyway
+        await axios.put(`${process.env.REACT_APP_API_URL}/api/terms-and-conditions`, formattedTerms);
+        setNotification({
+          type: 'success',
+          message: 'Terms and conditions saved successfully'
+        });
+        setTimeout(() => setNotification(null), 3000);
+      }
 
     } catch (error) {
       console.error('Error saving settings:', error);
       setNotification({
         type: 'error',
-        message: 'Failed to update terms and conditions'
+        message: error.response?.data?.message || 'Failed to update terms and conditions'
       });
       setTimeout(() => setNotification(null), 3000);
     }

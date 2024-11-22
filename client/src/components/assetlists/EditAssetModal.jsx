@@ -60,6 +60,25 @@ const SelectField = ({ label, id, value, onChange, options, placeholder, shake, 
   </div>
 );
 
+const ToggleButton = ({ label, checked, onChange }) => (
+  <div className="flex items-center space-x-3">
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+        checked ? 'bg-[#FEC000]' : 'bg-gray-200'
+      }`}
+    >
+      <span
+        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+          checked ? 'translate-x-5' : 'translate-x-0'
+        }`}
+      />
+    </button>
+    <span className="text-sm font-medium text-gray-700">{label}</span>
+  </div>
+);
+
 const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [], onEditAsset }) => {
   const [editedAsset, setEditedAsset] = useState(null);
   const [newImage, setNewImage] = useState(null);
@@ -71,7 +90,10 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
 
   useEffect(() => {
     if (asset) {
-      setEditedAsset(asset);
+      setEditedAsset({
+        ...asset,
+        allow_borrowing: asset.allow_borrowing || false,
+      });
       setNewImage(null);
       calculateTotalCost(asset.quantity, asset.cost);
       setQuantityForBorrowing(asset.quantity_for_borrowing);
@@ -425,6 +447,16 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
                   onChange={(e) => handleQuantityForBorrowingChange(Math.max(1, Number(e.target.value)))}
                   min="1"
                 />
+              )}
+
+              {editedAsset.type === 'Consumable' && (
+                <div className="col-span-2">
+                  <ToggleButton
+                    label="Allow Borrowing for this Consumable Asset"
+                    checked={editedAsset.allow_borrowing}
+                    onChange={(value) => handleChange('allow_borrowing', value)}
+                  />
+                </div>
               )}
 
               <div className="space-y-2">
