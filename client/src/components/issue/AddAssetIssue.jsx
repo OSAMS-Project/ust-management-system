@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '../assetlists/Button';
 import IssueModal from './IssueModal';
 
-const AddAssetIssue = ({ onAddIssue, assets, isModalOpen, onCloseModal, onOpenModal, user }) => {
+const AddAssetIssue = ({ onAddIssue, assets, isModalOpen, onCloseModal, onOpenModal, user, issues }) => {
   return (
     <>
       <Button 
@@ -18,6 +18,7 @@ const AddAssetIssue = ({ onAddIssue, assets, isModalOpen, onCloseModal, onOpenMo
           onAddIssue={onAddIssue}
           assets={assets}
           user={user}
+          issues={issues}
         />
       )}
     </>
