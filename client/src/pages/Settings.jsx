@@ -1,154 +1,139 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faUser, 
-  faLock, 
-  faBell, 
-  faPalette, 
-  faUsers,
-  faSave,
-  faWrench
-} from '@fortawesome/free-solid-svg-icons';
-import { toast } from 'react-hot-toast';
+import { faSave } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
+import NotificationPopup from '../components/utils/NotificationsPopup';
 
 function Settings() {
-  const [activeTab, setActiveTab] = useState('profile');
-  const [settings, setSettings] = useState({
-    profile: {
-      name: 'John Doe',
-      email: 'john@example.com',
-      role: 'Admin'
-    },
-    notifications: {
-      emailNotifications: true,
-      pushNotifications: false,
-      eventReminders: true
-    },
-    appearance: {
-      theme: 'light',
-      fontSize: 'medium',
-      language: 'English'
-    }
+  const [terms, setTerms] = useState({
+    borrowingGuidelines: '',
+    documentationRequirements: '',
+    usagePolicy: ''
   });
+  const [notification, setNotification] = useState(null);
 
-  const handleSave = () => {
-    // Implement save functionality here
-    toast.success('Settings saved successfully');
+  useEffect(() => {
+    const fetchTerms = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/terms-and-conditions');
+        if (response.data) {
+          setTerms({
+            borrowingGuidelines: response.data.borrowing_guidelines.join('\n'),
+            documentationRequirements: response.data.documentation_requirements.join('\n'),
+            usagePolicy: response.data.usage_policy.join('\n')
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching terms:', error);
+        setNotification({
+          type: 'error',
+          message: 'Failed to load terms'
+        });
+      }
+    };
+
+    fetchTerms();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      const formattedTerms = {
+        borrowing_guidelines: terms.borrowingGuidelines.split('\n').filter(line => line.trim() !== ''),
+        documentation_requirements: terms.documentationRequirements.split('\n').filter(line => line.trim() !== ''),
+        usage_policy: terms.usagePolicy.split('\n').filter(line => line.trim() !== '')
+      };
+
+      // Get current terms from the database
+      const currentTerms = await axios.get('http://localhost:5000/api/terms-and-conditions');
+      
+      // Check if the data is identical
+      const isIdentical = 
+        JSON.stringify(currentTerms.data.borrowing_guidelines) === JSON.stringify(formattedTerms.borrowing_guidelines) &&
+        JSON.stringify(currentTerms.data.documentation_requirements) === JSON.stringify(formattedTerms.documentation_requirements) &&
+        JSON.stringify(currentTerms.data.usage_policy) === JSON.stringify(formattedTerms.usage_policy);
+
+      if (isIdentical) {
+        setNotification({
+          type: 'info',
+          message: 'No changes detected to save'
+        });
+        setTimeout(() => setNotification(null), 3000);
+        return;
+      }
+
+      // If data is different, proceed with the update
+      await axios.put('http://localhost:5000/api/terms-and-conditions', formattedTerms);
+      
+      setNotification({
+        type: 'success',
+        message: 'Terms and conditions updated successfully'
+      });
+      setTimeout(() => setNotification(null), 3000);
+
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      setNotification({
+        type: 'error',
+        message: 'Failed to update terms and conditions'
+      });
+      setTimeout(() => setNotification(null), 3000);
+    }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Section - matching the style from UserManagement.jsx */}
-      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
-        <h1 className="text-5xl font-extrabold text-black">Settings</h1>
-        <FontAwesomeIcon
-          icon={faWrench}
-          className="text-black text-5xl transform"
-        />
-      </div>
-
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="bg-white rounded-lg shadow-lg">
-          <div className="flex flex-col md:flex-row min-h-[600px]">
-            {/* Sidebar */}
-            <div className="w-full md:w-64 bg-gray-50 p-6 rounded-l-lg">
-              <nav className="space-y-2">
-                <button
-                  onClick={() => setActiveTab('profile')}
-                  className={`w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 ${
-                    activeTab === 'profile' ? 'bg-yellow-100 text-yellow-800' : 'hover:bg-gray-200'
-                  }`}
-                >
-                  <FontAwesomeIcon icon={faUser} />
-                  <span>Profile</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('security')}
-                  className={`w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 ${
-                    activeTab === 'security' ? 'bg-yellow-100 text-yellow-800' : 'hover:bg-gray-200'
-                  }`}
-                >
-                  <FontAwesomeIcon icon={faLock} />
-                  <span>Security</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('notifications')}
-                  className={`w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 ${
-                    activeTab === 'notifications' ? 'bg-yellow-100 text-yellow-800' : 'hover:bg-gray-200'
-                  }`}
-                >
-                  <FontAwesomeIcon icon={faBell} />
-                  <span>Notifications</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('appearance')}
-                  className={`w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 ${
-                    activeTab === 'appearance' ? 'bg-yellow-100 text-yellow-800' : 'hover:bg-gray-200'
-                  }`}
-                >
-                  <FontAwesomeIcon icon={faPalette} />
-                  <span>Appearance</span>
-                </button>
-              </nav>
-            </div>
-
-            {/* Main Content */}
-            <div className="flex-1 p-8">
-              {activeTab === 'profile' && (
-                <div className="space-y-6">
-                  <h3 className="text-2xl font-semibold mb-6">Profile Settings</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
-                        value={settings.profile.name}
-                        onChange={(e) => setSettings({
-                          ...settings,
-                          profile: { ...settings.profile, name: e.target.value }
-                        })}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                      <input
-                        type="email"
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
-                        value={settings.profile.email}
-                        onChange={(e) => setSettings({
-                          ...settings,
-                          profile: { ...settings.profile, email: e.target.value }
-                        })}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-2 border rounded-lg bg-gray-100"
-                        value={settings.profile.role}
-                        disabled
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Save Button */}
-              <div className="mt-6">
-                <button
-                  onClick={handleSave}
-                  className="flex items-center px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
-                >
-                  <FontAwesomeIcon icon={faSave} className="mr-2" />
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          </div>
+    <div className="p-6">
+      <div className="bg-white rounded-lg shadow-lg p-8">
+        <h3 className="text-2xl font-semibold mb-6">Terms and Conditions Settings</h3>
+        
+        {/* Borrowing Guidelines */}
+        <div className="mb-8">
+          <h4 className="text-lg font-semibold mb-4">1. Borrowing Guidelines</h4>
+          <textarea
+            value={terms.borrowingGuidelines}
+            onChange={(e) => setTerms({ ...terms, borrowingGuidelines: e.target.value })}
+            className="w-full p-3 border border-gray-300 rounded-md min-h-[150px]"
+            placeholder="Enter each guideline on a new line"
+          />
         </div>
+
+        {/* Documentation Requirements */}
+        <div className="mb-8">
+          <h4 className="text-lg font-semibold mb-4">2. Documentation Requirements</h4>
+          <textarea
+            value={terms.documentationRequirements}
+            onChange={(e) => setTerms({ ...terms, documentationRequirements: e.target.value })}
+            className="w-full p-3 border border-gray-300 rounded-md min-h-[150px]"
+            placeholder="Enter each requirement on a new line"
+          />
+        </div>
+
+        {/* Usage Policy */}
+        <div className="mb-8">
+          <h4 className="text-lg font-semibold mb-4">3. Usage Policy</h4>
+          <textarea
+            value={terms.usagePolicy}
+            onChange={(e) => setTerms({ ...terms, usagePolicy: e.target.value })}
+            className="w-full p-3 border border-gray-300 rounded-md min-h-[150px]"
+            placeholder="Enter each policy on a new line"
+          />
+        </div>
+
+        <button
+          onClick={handleSave}
+          className="bg-yellow-500 text-white px-6 py-2 rounded hover:bg-yellow-600 transition-colors flex items-center gap-2"
+        >
+          <FontAwesomeIcon icon={faSave} />
+          Save Changes
+        </button>
       </div>
+
+      {/* Add notification popup */}
+      {notification && (
+        <NotificationPopup
+          notification={notification}
+          onClose={() => setNotification(null)}
+        />
+      )}
     </div>
   );
 }

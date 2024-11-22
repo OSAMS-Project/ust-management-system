@@ -28,6 +28,7 @@ const incomingAssetsRouter = require("./routes/incomingAssetsRoutes");
 const IncomingAssets = require("./models/incomingassets");
 const maintenanceRoutes = require("./routes/maintenanceRoutes");
 const BorrowingRequest = require("./models/borrowingrequest");
+const termsAndConditionsRoutes = require('./routes/termsandconditionsroutes');
 
 const {
   createEventsTable,
@@ -80,6 +81,7 @@ app.use("/api/roles", roleRoutes);
 app.use("/api/supplier-activity-logs", supplierActivityLogRoutes);
 app.use("/api/incoming-assets", incomingAssetsRouter);
 app.use("/api/maintenance", maintenanceRoutes);
+app.use('/api/terms-and-conditions', termsAndConditionsRoutes);
 
 // SSE endpoint
 app.get("/api/assets/sse", (req, res) => {

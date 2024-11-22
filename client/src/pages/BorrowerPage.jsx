@@ -31,6 +31,7 @@ function BorrowerForm() {
   const [verificationError, setVerificationError] = useState("");
   const [verificationCodeSent, setVerificationCodeSent] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [termsAndConditions, setTermsAndConditions] = useState(null);
 
   const handleContactNumberChange = (e) => {
     const value = e.target.value;
@@ -219,14 +220,35 @@ function BorrowerForm() {
     fetchActiveAssets();
   }, []);
 
+  useEffect(() => {
+    const fetchTerms = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/terms-and-conditions');
+        if (response.data) {
+          setTermsAndConditions({
+            borrowingGuidelines: response.data.borrowing_guidelines || [],
+            documentationRequirements: response.data.documentation_requirements || [],
+            usagePolicy: response.data.usage_policy || []
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching terms:', error);
+        toast.error('Failed to load terms and conditions');
+      }
+    };
+
+    fetchTerms();
+  }, []);
+
   return (
     <>
-      {!agreedToTerms && (
+      {!agreedToTerms && termsAndConditions && (
         <TermsAndConditionsModal
           onAccept={() => {
             setAgreedToTerms(true);
             setShowTerms(false);
           }}
+          termsContent={termsAndConditions}
         />
       )}
       {agreedToTerms && (
