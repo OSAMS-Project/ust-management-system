@@ -407,9 +407,6 @@ const BorrowingRequest = () => {
     ? requests.filter(request => request.status === "Approved")
     : [];
     
-  const returnedRequests = Array.isArray(requests)
-    ? requests.filter(request => request.status === "Returned")
-    : [];
 
   return (
     <div className="space-y-6">
@@ -429,9 +426,6 @@ const BorrowingRequest = () => {
         
         {/* Approved Requests */}
         {renderTable("Approved Requests", approvedRequests, true)}
-        
-        {/* Returned Requests */}
-        {renderTable("Returned Requests", returnedRequests, false)}
 
         <NotificationPopup
           notification={notification}
