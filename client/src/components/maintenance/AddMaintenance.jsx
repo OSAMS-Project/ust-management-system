@@ -2,7 +2,7 @@ import React from 'react';
 import Button from '../assetlists/Button';
 import MaintenanceModal from './MaintenanceModal';
 
-const AddMaintenance = ({ onAddMaintenance, assets, isModalOpen, onCloseModal, onOpenModal, user, maintenances }) => {
+const AddMaintenance = ({ onAddMaintenance, assets, isModalOpen, onCloseModal, onOpenModal, user }) => {
   return (
     <>
       <Button 
@@ -18,7 +18,6 @@ const AddMaintenance = ({ onAddMaintenance, assets, isModalOpen, onCloseModal, o
           onAddMaintenance={onAddMaintenance}
           assets={assets}
           user={user}
-          maintenances={maintenances}
         />
       )}
     </>
