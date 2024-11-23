@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import moment from 'moment';
 import PaginationControls from '../assetlists/PaginationControls';
 
-const ArchivedRequestTable = ({ archivedRequests, onRestore, onDelete }) => {
+const ArchivedRequestTable = ({ archivedRequests, onDelete }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
@@ -107,12 +107,6 @@ const ArchivedRequestTable = ({ archivedRequests, onRestore, onDelete }) => {
                 </span>
               </td>
               <td className="py-2 px-4 border-b text-center">
-                <button
-                  onClick={() => onRestore(asset.id)}
-                  className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs hover:bg-green-600 transition duration-300"
-                >
-                  Restore
-                </button>
                 <button
                   onClick={() => onDelete(asset.id)}
                   className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300"

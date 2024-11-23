@@ -21,15 +21,6 @@ const ArchivedRequests = ({ user }) => {
     fetchArchivedRequests();
   }, []);
 
-  const handleRestore = async (id) => {
-    try {
-      await axios.put(`${process.env.REACT_APP_API_URL}/api/asset-request/${id}/restore`);
-      fetchArchivedRequests();
-    } catch (error) {
-      console.error('Error restoring request:', error);
-    }
-  };
-
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${process.env.REACT_APP_API_URL}/api/asset-request/${id}`);
@@ -53,7 +44,6 @@ const ArchivedRequests = ({ user }) => {
     <div className="px-4">
         <ArchivedRequestTable 
           archivedRequests={archivedRequests}
-          onRestore={handleRestore}
           onDelete={handleDelete}
         />
       </div>
