@@ -69,7 +69,9 @@ function BorrowSelectModal({
           </div>
         </div>
         <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-          {activeAssets.map((asset) => (
+          {activeAssets
+            .filter(asset => asset.quantity_for_borrowing > 0)
+            .map((asset) => (
             <div
               key={asset.asset_id}
               className="flex justify-between items-center bg-gray-50 p-4 rounded-lg hover:shadow-md transition-shadow duration-200"
