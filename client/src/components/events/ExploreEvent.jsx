@@ -73,12 +73,33 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
     if (editingAsset && editingAsset.asset_id === asset.asset_id) {
       try {
         const newQuantity = parseInt(editQuantity);
+        
+        // Basic validation
         if (isNaN(newQuantity) || newQuantity < 0) {
           showErrorNotification('Please enter a valid quantity');
           return;
         }
 
+        // Calculate the quantity difference
         const quantityDifference = asset.quantity - newQuantity;
+        
+        // Get current main asset quantity
+        const assetResponse = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/Assets/${asset.asset_id}`
+        );
+        
+        const currentMainQuantity = assetResponse.data.quantity;
+        
+        // Check if we have enough quantity available
+        if (quantityDifference < 0) { // If we're trying to increase allocated quantity
+          const additionalNeeded = Math.abs(quantityDifference);
+          if (additionalNeeded > currentMainQuantity) {
+            showErrorNotification(
+              `Cannot allocate more than available quantity. Available: ${currentMainQuantity}`
+            );
+            return;
+          }
+        }
 
         const response = await axios.post(
           `${process.env.REACT_APP_API_URL}/api/events/${selectedEvent.unique_id}/updateAssetQuantity`,
@@ -100,7 +121,9 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
         }
       } catch (error) {
         console.error('Error updating asset quantity:', error);
-        showErrorNotification('Failed to update quantity');
+        showErrorNotification(
+          error.response?.data?.error || 'Failed to update quantity'
+        );
       }
       setEditingAsset(null);
       setEditQuantity('');

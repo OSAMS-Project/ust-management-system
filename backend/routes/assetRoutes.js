@@ -151,4 +151,26 @@ router.put('/updateQuantity/:assetId', async (req, res) => {
   }
 });
 
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const asset = await Asset.readAsset(id);
+    
+    if (!asset) {
+      return res.status(404).json({
+        success: false,
+        error: 'Asset not found'
+      });
+    }
+
+    res.json(asset);
+  } catch (error) {
+    console.error('Error fetching asset:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to fetch asset'
+    });
+  }
+});
+
 module.exports = router;

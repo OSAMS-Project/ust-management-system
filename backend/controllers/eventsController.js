@@ -1,4 +1,5 @@
 const Event = require('../models/events');
+const pool = require('../config/database');
 
 const createEvent = async (req, res) => {
   try {
@@ -101,10 +102,32 @@ const updateAssetQuantity = async (req, res) => {
       });
     }
 
-    // First update the event asset quantity
-    const eventResult = await Event.updateEventAssetQuantity(eventId, assetId, newQuantity);
+    // Get current asset quantity
+    const currentAssetQuery = 'SELECT quantity FROM assets WHERE asset_id = $1';
+    const currentAssetResult = await pool.query(currentAssetQuery, [assetId]);
     
-    // Then update the main asset quantity
+    if (currentAssetResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Asset not found'
+      });
+    }
+
+    const currentQuantity = currentAssetResult.rows[0].quantity;
+
+    // If we're trying to increase allocated quantity (negative difference)
+    if (quantityDifference < 0) {
+      const additionalNeeded = Math.abs(quantityDifference);
+      if (additionalNeeded > currentQuantity) {
+        return res.status(400).json({
+          success: false,
+          error: `Cannot allocate more than available quantity. Available: ${currentQuantity}`
+        });
+      }
+    }
+
+    // If validation passes, proceed with updates
+    const eventResult = await Event.updateEventAssetQuantity(eventId, assetId, newQuantity);
     const mainAssetResult = await Event.updateMainAssetQuantity(assetId, quantityDifference);
 
     res.json({ 
