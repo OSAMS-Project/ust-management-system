@@ -53,12 +53,20 @@ exports.getRecentlyAddedAssets = async (req, res) => {
 exports.getRecentEvents = async (req, res) => {
   try {
     const recentEvents = await Event.getRecentEvents(5);
-    res.json(recentEvents);
+    
+    // Process the events to ensure proper assets structure
+    const processedEvents = recentEvents.map(event => ({
+      ...event,
+      assets: event.assets || [] // Ensure assets is always an array
+    }));
+
+    res.json(processedEvents);
   } catch (error) {
     console.error("Error getting recent events:", error);
-    res
-      .status(500)
-      .json({ error: "Internal server error", details: error.message });
+    res.status(500).json({ 
+      error: "Internal server error", 
+      details: error.message 
+    });
   }
 };
 

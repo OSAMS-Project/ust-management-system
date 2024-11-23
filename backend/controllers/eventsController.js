@@ -93,11 +93,32 @@ const updateAssetQuantity = async (req, res) => {
   try {
     const { eventId } = req.params;
     const { assetId, newQuantity, quantityDifference } = req.body;
-    const result = await Event.updateAssetQuantity(eventId, assetId, newQuantity, quantityDifference);
-    res.json({ success: true, updatedQuantity: result });
+
+    if (newQuantity === undefined || newQuantity === null) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Quantity is required' 
+      });
+    }
+
+    // First update the event asset quantity
+    const eventResult = await Event.updateEventAssetQuantity(eventId, assetId, newQuantity);
+    
+    // Then update the main asset quantity
+    const mainAssetResult = await Event.updateMainAssetQuantity(assetId, quantityDifference);
+
+    res.json({ 
+      success: true, 
+      updatedEventQuantity: eventResult.quantity,
+      updatedAssetQuantity: mainAssetResult,
+      message: 'Asset quantities updated successfully'
+    });
   } catch (error) {
     console.error('Error updating asset quantity:', error);
-    res.status(500).json({ error: 'Failed to update asset quantity' });
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Failed to update asset quantity' 
+    });
   }
 };
 

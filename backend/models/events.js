@@ -179,9 +179,44 @@ const getTotalEvents = async () => {
 
 const getRecentEvents = async (limit = 5) => {
   try {
-    const query = 'SELECT * FROM Events ORDER BY created_at DESC LIMIT $1';
-    const result = await executeTransaction([{ query, params: [limit] }]);
-    return result;
+    // First, get the events
+    const eventsQuery = `
+      SELECT e.* 
+      FROM Events e 
+      WHERE e.is_completed = false 
+      ORDER BY e.created_at DESC 
+      LIMIT $1
+    `;
+    const events = await pool.query(eventsQuery, [limit]);
+
+    // Then, for each event, get its assets
+    const eventsWithAssets = await Promise.all(
+      events.rows.map(async (event) => {
+        const assetsQuery = `
+          SELECT 
+            ea.id,
+            ea.quantity,
+            ea.cost,
+            ea.created_at,
+            a."assetName",
+            a.asset_id
+          FROM event_assets ea
+          JOIN assets a ON ea.asset_id = a.asset_id
+          WHERE ea.event_id = $1
+        `;
+        const assets = await pool.query(assetsQuery, [event.unique_id]);
+        
+        console.log(`Assets for event ${event.unique_id}:`, assets.rows);
+        
+        return {
+          ...event,
+          assets: assets.rows
+        };
+      })
+    );
+
+    console.log('Events with assets:', JSON.stringify(eventsWithAssets, null, 2));
+    return eventsWithAssets;
   } catch (error) {
     console.error('Error in getRecentEvents:', error);
     throw error;
@@ -475,7 +510,7 @@ const updateEventAssetQuantity = async (eventId, assetId, newQuantity) => {
 const updateMainAssetQuantity = async (assetId, quantityDifference) => {
   const query = `
     UPDATE assets
-    SET quantity = quantity - $1
+    SET quantity = quantity + $1  -- Add the difference back to main inventory
     WHERE asset_id = $2
     RETURNING quantity
   `;

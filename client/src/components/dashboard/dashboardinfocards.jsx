@@ -4,15 +4,12 @@ import moment from "moment";
 import AssetDetailsModal from "../assetlists/AssetDetailsModal";
 import EventDetailsModal from "../events/EventDetailsModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
 import {
   faArrowRight,
-  faBox,
-  faCalendarAlt,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Link } from "react-router-dom";
-import { formatTime } from "../../utils/timeUtils";
+import ExploreModal from '../events/ExploreEvent';
 
 const DashboardInfoCards = () => {
   const [totalAssets, setTotalAssets] = useState(null);
@@ -30,6 +27,7 @@ const DashboardInfoCards = () => {
   const [repairRecords, setRepairRecords] = useState([]);
   const [totalOngoingRepairs, setTotalOngoingRepairs] = useState(null);
   const [totalIncomingAssets, setTotalIncomingAssets] = useState(null);
+  const [showExploreModal, setShowExploreModal] = useState(false);
 
   const formatTime = (time) => {
     if (!time) return "";
@@ -163,6 +161,27 @@ const DashboardInfoCards = () => {
     );
     return dateTimeA.valueOf() - dateTimeB.valueOf();
   });
+
+  const handleExplore = async (event) => {
+    try {
+      // Fetch complete event data including assets
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/events/${event.unique_id}`);
+      const eventWithAssets = response.data;
+      
+      console.log('Fetched event data:', eventWithAssets); // Debug log
+      
+      // Make sure assets property exists
+      if (!eventWithAssets.assets) {
+        eventWithAssets.assets = [];
+      }
+      
+      setSelectedEvent(eventWithAssets);
+      setShowExploreModal(true);
+    } catch (error) {
+      console.error('Error fetching event details:', error);
+      alert('Failed to load event details');
+    }
+  };
 
   return (
     <div>
@@ -394,6 +413,16 @@ const DashboardInfoCards = () => {
           selectedEvent={selectedEvent}
           onClose={() => setSelectedEvent(null)}
           formatTime={formatTime}
+        />
+      )}
+      {showExploreModal && selectedEvent && (
+        <ExploreModal
+          showExploreModal={showExploreModal}
+          setShowExploreModal={setShowExploreModal}
+          selectedEvent={selectedEvent}
+          handleAddAsset={() => {}}
+          updateEventAssets={() => {}}
+          updateAssetQuantity={() => {}}
         />
       )}
     </div>

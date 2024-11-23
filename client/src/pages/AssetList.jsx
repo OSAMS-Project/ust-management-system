@@ -295,32 +295,37 @@ const AssetList = () => {
 
   const updateAssetQuantity = useCallback(async (assetId, newQuantity) => {
     try {
+      // Ensure newQuantity is a valid number
+      const validQuantity = parseInt(newQuantity);
+      if (isNaN(validQuantity)) {
+        throw new Error('Invalid quantity value');
+      }
+
+      console.log('Updating asset quantity:', { assetId, newQuantity: validQuantity });
+
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/Assets/updateQuantity/${assetId}`,
         {
-          quantity: newQuantity,
+          quantity: validQuantity,
+          quantity_for_borrowing: validQuantity
         }
       );
+
       if (response.data.success) {
-        setAssets((prevAssets) =>
-          prevAssets.map((asset) =>
+        setAssets(prevAssets =>
+          prevAssets.map(asset =>
             asset.asset_id === assetId
-              ? { ...asset, quantity: newQuantity }
+              ? { ...asset, quantity: validQuantity }
               : asset
           )
         );
+        return response.data;
       } else {
-        throw new Error(
-          response.data.message || "Failed to update asset quantity"
-        );
+        throw new Error(response.data.message || 'Failed to update asset quantity');
       }
     } catch (error) {
-      console.error("Error updating asset quantity:", error);
-      alert(
-        `Error updating asset quantity: ${
-          error.response?.data?.message || error.message
-        }`
-      );
+      console.error('Error updating asset quantity:', error);
+      throw error;
     }
   }, []);
 

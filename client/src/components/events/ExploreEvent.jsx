@@ -3,7 +3,7 @@ import axios from 'axios';
 import jsPDF from 'jspdf';
 import NotificationPopup from '../utils/NotificationsPopup';
 
-const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, handleAddAsset, updateEventAssets, updateAssetQuantity }) => {
+const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, handleAddAsset, updateEventAssets, updateAssetQuantity, readOnly = false }) => {
   const [editingAsset, setEditingAsset] = useState(null);
   const [editQuantity, setEditQuantity] = useState('');
   const [localAssets, setLocalAssets] = useState([]);
@@ -78,15 +78,19 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
           return;
         }
 
-        const quantityDifference = newQuantity - asset.quantity;
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/events/${selectedEvent.unique_id}/updateAssetQuantity`, {
-          assetId: asset.asset_id,
-          newQuantity: newQuantity,
-          quantityDifference: quantityDifference
-        });
+        const quantityDifference = asset.quantity - newQuantity;
+
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/api/events/${selectedEvent.unique_id}/updateAssetQuantity`,
+          {
+            assetId: asset.asset_id,
+            newQuantity: newQuantity,
+            quantityDifference: quantityDifference
+          }
+        );
 
         if (response.data.success) {
-          const updatedAssets = localAssets.map(a => 
+          const updatedAssets = localAssets.map(a =>
             a.asset_id === asset.asset_id ? { ...a, quantity: newQuantity } : a
           );
           setLocalAssets(updatedAssets);
@@ -96,7 +100,7 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
         }
       } catch (error) {
         console.error('Error updating asset quantity:', error);
-        showErrorNotification('Failed to update asset quantity');
+        showErrorNotification('Failed to update quantity');
       }
       setEditingAsset(null);
       setEditQuantity('');
@@ -123,7 +127,18 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
                       onChange={(e) => setEditQuantity(e.target.value)}
                       className="w-16 px-1 border rounded"
                     />
-                  ) : asset.quantity
+                  ) : (
+                    <span>Quantity: {
+                      editingAsset && editingAsset.asset_id === asset.asset_id ? (
+                        <input 
+                          type="number" 
+                          value={editQuantity} 
+                          onChange={(e) => setEditQuantity(e.target.value)}
+                          className="w-20 px-2 py-1 border rounded focus:ring-2 focus:ring-yellow-500"
+                        />
+                      ) : asset.quantity
+                    }</span>
+                  )
                 } - {' '}
                 Cost per unit: ₱{assetCost.toFixed(2)}
               </span>
@@ -423,7 +438,7 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
                     
                     return (
                       <div key={asset.asset_id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-4 rounded-lg shadow-sm">
-                        <div className="flex-1 mb-3 sm:mb-0">
+                        <div className="flex-1">
                           <p className="font-medium mb-1">{asset.assetName}</p>
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600">
                             <span>Quantity: {
@@ -439,20 +454,22 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
                             <span>Cost per unit: ₱{assetCost.toFixed(2)}</span>
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleEditAsset(asset)}
-                            className="px-4 py-2 rounded-lg bg-yellow-500 text-black font-medium hover:bg-yellow-600 transition-colors"
-                          >
-                            {editingAsset && editingAsset.asset_id === asset.asset_id ? 'Save' : 'Edit'}
-                          </button>
-                          <button
-                            onClick={() => handleRemoveAsset(asset)}
-                            className="px-4 py-2 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
-                          >
-                            Remove
-                          </button>
-                        </div>
+                        {!readOnly && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEditAsset(asset)}
+                              className="px-4 py-2 rounded-lg bg-yellow-500 text-black font-medium hover:bg-yellow-600 transition-colors"
+                            >
+                              {editingAsset && editingAsset.asset_id === asset.asset_id ? 'Save' : 'Edit'}
+                            </button>
+                            <button
+                              onClick={() => handleRemoveAsset(asset)}
+                              className="px-4 py-2 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        )}
                       </div>
                     );
                   })}

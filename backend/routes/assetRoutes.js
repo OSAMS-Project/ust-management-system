@@ -97,4 +97,58 @@ router.put('/:id/return', async (req, res) => {
   }
 });
 
+router.put('/updateQuantity/:assetId', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    const { assetId } = req.params;
+    const { quantity } = req.body;
+
+    console.log('Received update request:', { assetId, quantity });
+
+    // Validate quantity
+    if (quantity === undefined || quantity === null) {
+      throw new Error('Quantity is required');
+    }
+
+    const validQuantity = parseInt(quantity);
+    if (isNaN(validQuantity)) {
+      throw new Error('Invalid quantity value');
+    }
+
+    const query = `
+      UPDATE assets 
+      SET quantity = $1,
+          "lastUpdated" = CURRENT_TIMESTAMP 
+      WHERE asset_id = $2 
+      RETURNING *
+    `;
+
+    const result = await client.query(query, [validQuantity, assetId]);
+
+    if (result.rows.length === 0) {
+      throw new Error('Asset not found');
+    }
+
+    await client.query('COMMIT');
+
+    res.json({
+      success: true,
+      message: 'Asset quantity updated successfully',
+      asset: result.rows[0]
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error updating asset quantity:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  } finally {
+    client.release();
+  }
+});
+
 module.exports = router;
