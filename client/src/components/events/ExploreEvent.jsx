@@ -75,8 +75,8 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
         const newQuantity = parseInt(editQuantity);
         
         // Basic validation
-        if (isNaN(newQuantity) || newQuantity < 0) {
-          showErrorNotification('Please enter a valid quantity');
+        if (isNaN(newQuantity) || newQuantity < 1) {
+          showErrorNotification('Quantity must be at least 1');
           return;
         }
 
@@ -148,6 +148,7 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
                       type="number" 
                       value={editQuantity} 
                       onChange={(e) => setEditQuantity(e.target.value)}
+                      min="1"
                       className="w-16 px-1 border rounded"
                     />
                   ) : (
@@ -157,6 +158,7 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
                           type="number" 
                           value={editQuantity} 
                           onChange={(e) => setEditQuantity(e.target.value)}
+                          min="1"
                           className="w-20 px-2 py-1 border rounded focus:ring-2 focus:ring-yellow-500"
                         />
                       ) : asset.quantity
@@ -470,6 +472,7 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
                                   type="number" 
                                   value={editQuantity} 
                                   onChange={(e) => setEditQuantity(e.target.value)}
+                                  min="1"
                                   className="w-20 px-2 py-1 border rounded focus:ring-2 focus:ring-yellow-500"
                                 />
                               ) : asset.quantity
