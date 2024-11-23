@@ -269,5 +269,6 @@ module.exports = {
   getActiveAssets,
   updateAssetStatus,
   updateAssetIssueStatus,
-  checkProductCode
+  checkProductCode,
+  checkPendingBorrowRequests
 };

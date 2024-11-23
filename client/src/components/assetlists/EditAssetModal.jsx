@@ -312,10 +312,10 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
     // Check if we have enough main quantity available when increasing
     if (quantityDifference > 0) {
       const availableMainQuantity = editedAsset.quantity;
-      if (quantityDifference > availableMainQuantity) {
+      if (availableMainQuantity - quantityDifference < 0) {
         setNotification({
           type: 'error',
-          message: `Cannot allocate more than available quantity. Available: ${availableMainQuantity}`
+          message: `Cannot allocate more than available quantity. This would result in negative main quantity.`
         });
         return;
       }

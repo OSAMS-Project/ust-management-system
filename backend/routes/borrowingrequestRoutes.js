@@ -2,6 +2,7 @@ const express = require("express");
 const borrowingRequestController = require("../controllers/borrowingRequestController");
 const { executeTransaction } = require("../utils/queryExecutor");
 const router = express.Router();
+const { checkPendingBorrowRequests } = require("../controllers/assetController");
 
 // History route
 router.get("/history", borrowingRequestController.getBorrowingHistory);
