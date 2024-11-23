@@ -11,6 +11,9 @@ router.post('/create', RepairController.createRepairRecord);
 // Complete repair record
 router.put('/:id/complete', RepairController.completeRepairRecord);
 
+// Cancel repair record
+router.put('/:id/cancel', RepairController.cancelRepairRecord);
+
 // Delete repair record
 router.delete('/:id', RepairController.deleteRepairRecord);
 
