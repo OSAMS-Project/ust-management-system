@@ -3,6 +3,20 @@ const { executeTransaction } = require('../utils/queryExecutor');
 
 const createAsset = async (req, res) => {
   try {
+    const { productCode } = req.body;
+    
+    // Skip duplicate check if productCode is empty or 'N/A'
+    if (productCode && productCode !== 'N/A') {
+      // Check for existing product code
+      const existingAsset = await Asset.findByProductCode(productCode);
+      if (existingAsset) {
+        return res.status(400).json({ 
+          error: "Duplicate product code", 
+          message: "An asset with this product code already exists" 
+        });
+      }
+    }
+
     const assetData = { 
       ...req.body, 
       productCode: req.body.productCode || '',
@@ -223,6 +237,26 @@ const checkPendingBorrowRequests = async (assetId) => {
   }
 };
 
+const checkProductCode = async (req, res) => {
+  try {
+    const { productCode } = req.params;
+    
+    // Skip check if productCode is empty or 'N/A'
+    if (!productCode || productCode === 'N/A') {
+      return res.json({ exists: false });
+    }
+
+    const existingAsset = await Asset.findByProductCode(productCode);
+    res.json({ exists: !!existingAsset });
+  } catch (error) {
+    console.error('Error checking product code:', error);
+    res.status(500).json({ 
+      error: 'Error checking product code',
+      details: error.message 
+    });
+  }
+};
+
 module.exports = {
   createAsset,
   readAssets,
@@ -234,5 +268,6 @@ module.exports = {
   getAssetsSortedByActiveStatus,
   getActiveAssets,
   updateAssetStatus,
-  updateAssetIssueStatus
+  updateAssetIssueStatus,
+  checkProductCode
 };

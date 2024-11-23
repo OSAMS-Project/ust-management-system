@@ -192,7 +192,12 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
       onAddAsset(response.data);
       onCloseModal();
     } catch (error) {
-      console.error("Error creating asset:", error);
+      if (error.response?.data?.error === "Duplicate product code") {
+        alert("An asset with this product code already exists. Please use a different product code.");
+      } else {
+        console.error("Error creating asset:", error);
+        alert("Error creating asset. Please try again.");
+      }
     }
   };
 

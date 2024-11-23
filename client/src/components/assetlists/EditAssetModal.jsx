@@ -168,6 +168,22 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
     
     if (editedAsset) {
       try {
+        // Only check for duplicates if product code has changed and is not empty/N/A
+        if (editedAsset.productCode !== asset.productCode && 
+            editedAsset.productCode && 
+            editedAsset.productCode !== 'N/A') {
+          const checkResponse = await axios.get(
+            `${process.env.REACT_APP_API_URL}/api/assets/check-product-code/${encodeURIComponent(editedAsset.productCode)}`
+          );
+          if (checkResponse.data.exists) {
+            setNotification({
+              type: 'error',
+              message: 'An asset with this product code already exists'
+            });
+            return;
+          }
+        }
+
         // Check if type is being changed from Non-Consumable to Consumable
         if (asset.type === 'Non-Consumable' && editedAsset.type === 'Consumable') {
           const status = await checkAssetStatus(editedAsset.asset_id);

@@ -403,6 +403,12 @@ const updateMainAssetQuantity = async (assetId, quantityDifference) => {
 	}
 };
 
+const findByProductCode = async (productCode) => {
+	const query = 'SELECT * FROM Assets WHERE "productCode" = $1';
+	const result = await executeTransaction([{ query, params: [productCode] }]);
+	return result[0];
+};
+
 module.exports = {
 	createAssetsTable,
 	createAsset,
@@ -425,4 +431,5 @@ module.exports = {
 	updateAssetIssueStatus,
 	checkActiveBorrowings,
 	updateMainAssetQuantity,
+	findByProductCode,
 };
