@@ -404,6 +404,10 @@ const updateMainAssetQuantity = async (assetId, quantityDifference) => {
 };
 
 const findByProductCode = async (productCode) => {
+	// Don't check for duplicates if product code is N/A
+	if (productCode === 'N/A') {
+		return null;
+	}
 	const query = 'SELECT * FROM Assets WHERE "productCode" = $1';
 	const result = await executeTransaction([{ query, params: [productCode] }]);
 	return result[0];
