@@ -6,6 +6,7 @@ import DeclinedRequestTable from '../components/assetrequest/DeclinedRequestTabl
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBoxOpen } from "@fortawesome/free-solid-svg-icons";
 import AssetRequestModal from '../components/assetrequest/AssetRequestModal';
+import AssetRequestDetailsModal from '../components/assetrequest/AssetRequestDetailsModal';
 
 const AssetRequest = ({ user }) => {
   const [assetRequests, setAssetRequests] = useState([]);
@@ -17,6 +18,8 @@ const AssetRequest = ({ user }) => {
     quantity: '',
     comments: ''
   });
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   console.log('User in AssetRequests:', user);
 
@@ -166,6 +169,19 @@ const AssetRequest = ({ user }) => {
     setIsModalOpen(true);
   };
 
+  const handleRowClick = (request, isActionButton = false) => {
+    if (isActionButton) {
+      return; // Don't open modal if clicking action buttons
+    }
+    setSelectedRequest(request);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleAction = (e, actionFn, ...args) => {
+    e.stopPropagation(); // Prevent event from bubbling up to the row
+    actionFn(...args);
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
@@ -189,16 +205,19 @@ const AssetRequest = ({ user }) => {
       <div id='recipients' className="p-4 mt-4 lg:mt-0 rounded shadow bg-white">
         <AssetRequestTable 
           assetRequests={assetRequests} 
-          onApprove={handleApprove}
-          onDecline={handleDecline}
+          onApprove={(e, id) => handleAction(e, handleApprove, id)}
+          onDecline={(e, id) => handleAction(e, handleDecline, id)}
+          onRowClick={handleRowClick}
         />
         <ApprovedRequestTable 
           approvedRequests={approvedRequests} 
-          onArchive={handleArchive}
+          onArchive={(e, id) => handleAction(e, handleArchive, id)}
+          onRowClick={handleRowClick}
         />
         <DeclinedRequestTable 
           declinedRequests={declinedRequests} 
-          onArchive={handleArchive}
+          onArchive={(e, id) => handleAction(e, handleArchive, id)}
+          onRowClick={handleRowClick}
         />
       </div>
 
@@ -208,6 +227,12 @@ const AssetRequest = ({ user }) => {
         newAsset={newAsset}
         onInputChange={handleInputChange}
         onSubmit={handleSubmit}
+      />
+
+      <AssetRequestDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        request={selectedRequest}
       />
     </div>
   );

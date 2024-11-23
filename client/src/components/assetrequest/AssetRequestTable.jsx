@@ -8,7 +8,7 @@ const TIMER_DURATION = {
 
 const IS_TESTING = false; // Set to false when deploying to production
 
-const AssetRequestTable = ({ assetRequests, onApprove, onDecline }) => {
+const AssetRequestTable = ({ assetRequests, onApprove, onDecline, onRowClick }) => {
   const [timeLeft, setTimeLeft] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -100,41 +100,47 @@ const AssetRequestTable = ({ assetRequests, onApprove, onDecline }) => {
           </tr>
         </thead>
         <tbody>
-          {assetRequests.map((asset) => (
-            <tr key={asset.id}>
-              <td className="py-2 px-4 border-b text-center">{asset.asset_name}</td>
-              <td className="py-2 px-4 border-b text-center">{asset.quantity}</td>
+          {assetRequests.map((request) => (
+            <tr 
+              key={request.id}
+              onClick={() => onRowClick(request)}
+              className="hover:bg-gray-100 cursor-pointer"
+            >
+              <td className="py-2 px-4 border-b text-center">{request.asset_name}</td>
+              <td className="py-2 px-4 border-b text-center">{request.quantity}</td>
               <td className="py-2 px-4 border-b text-center">
-                {moment(asset.created_at).format('MM/DD/YYYY')}
+                {moment(request.created_at).format('MM/DD/YYYY')}
               </td>
               <td className="py-2 px-4 border-b text-center">
                 <div className="flex items-center justify-center">
                   <img
-                    src={asset.user_picture || "https://via.placeholder.com/30"}
-                    alt={asset.created_by}
+                    src={request.user_picture || "https://via.placeholder.com/30"}
+                    alt={request.created_by}
                     className="w-8 h-8 rounded-full mr-2"
                   />
-                  {asset.created_by}
+                  {request.created_by}
                 </div>
               </td>
               <td className="py-2 px-4 border-b text-center">
-                <span className={timeLeft[asset.id] <= 10 ? 'text-red-500' : ''}>
-                  {formatTimeLeft(timeLeft[asset.id])}
+                <span className={timeLeft[request.id] <= 10 ? 'text-red-500' : ''}>
+                  {formatTimeLeft(timeLeft[request.id])}
                 </span>
               </td>
-              <td className="py-2 px-4 border-b text-center">
-                <button
-                  onClick={() => onApprove(asset.id)}
-                  className="bg-green-500 text-white px-3 py-1 rounded mr-2 text-xs hover:bg-green-600 transition duration-300"
-                >
-                  Approve
-                </button>
-                <button
-                  onClick={() => onDecline(asset.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300"
-                >
-                  Decline
-                </button>
+              <td className="px-4 py-2">
+                <div className="flex gap-2">
+                  <button
+                    onClick={(e) => onApprove(e, request.id)}
+                    className="bg-green-500 text-white px-2 py-1 rounded"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={(e) => onDecline(e, request.id)}
+                    className="bg-red-500 text-white px-2 py-1 rounded"
+                  >
+                    Decline
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
