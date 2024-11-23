@@ -32,11 +32,25 @@ function BorrowerForm() {
   const [verificationCodeSent, setVerificationCodeSent] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [termsAndConditions, setTermsAndConditions] = useState(null);
+  const [contactNoError, setContactNoError] = useState(""); // Add this new state
 
   const handleContactNumberChange = (e) => {
     const value = e.target.value;
-    // Only allow digits
     const numbersOnly = value.replace(/[^0-9]/g, "");
+    
+    // Validate PH number format
+    if (numbersOnly.length > 0) {
+      if (!numbersOnly.startsWith('09')) {
+        setContactNoError('Phone number must start with 09');
+      } else if (numbersOnly.length !== 11) {
+        setContactNoError('Phone number must be 11 digits');
+      } else {
+        setContactNoError('');
+      }
+    } else {
+      setContactNoError('');
+    }
+    
     setContactNo(numbersOnly);
   };
   const handleReCAPTCHAChange = (token) => {
@@ -47,6 +61,13 @@ function BorrowerForm() {
     e.preventDefault();
     setIsSubmitting(true);
     setConfirmationMessage("");
+
+    // Add phone number validation before submission
+    if (!contactNo.startsWith('09') || contactNo.length !== 11) {
+      toast.error("Please enter a valid Philippine mobile number");
+      setIsSubmitting(false);
+      return;
+    }
 
     if (!recaptchaToken) {
       toast.error("Please complete the reCAPTCHA.");
@@ -408,21 +429,23 @@ function BorrowerForm() {
                   required
                   value={contactNo}
                   onChange={handleContactNumberChange}
-                  maxLength="11" // Limit to 11 digits for phone numbers
-                  pattern="[0-9]*" // HTML5 pattern for numbers only
-                  inputMode="numeric" // Shows numeric keyboard on mobile
+                  maxLength="11"
+                  pattern="09[0-9]{9}"
+                  inputMode="numeric"
                   placeholder=" "
-                  className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
+                  className={`block w-full px-3 py-2 border-b-2 ${
+                    contactNoError ? 'border-red-500' : 'border-gray-300'
+                  } bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer`}
                 />
                 <label
                   htmlFor="contactNo"
                   className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
                 >
-                  Enter your contact number
+                  Enter your contact number (e.g., 09123456789)
                 </label>
-                {contactNo && !/^[0-9]+$/.test(contactNo) && (
+                {contactNoError && (
                   <p className="text-red-500 text-sm mt-1">
-                    Please enter numbers only
+                    {contactNoError}
                   </p>
                 )}
               </div>

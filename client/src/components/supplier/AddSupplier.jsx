@@ -14,7 +14,13 @@ const AddSupplier = ({ onSupplierAdded }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    
+    if (name === 'contactNo') {
+      const numbersOnly = value.replace(/[^0-9]/g, '');
+      setFormData({ ...formData, [name]: numbersOnly });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -114,13 +120,21 @@ const AddSupplier = ({ onSupplierAdded }) => {
                   Contact No
                 </label>
                 <input
-                  type="text"
+                  type="tel"
                   name="contactNo"
                   value={formData.contactNo}
                   onChange={handleInputChange}
+                  maxLength="11"
+                  pattern="[0-9]*"
+                  inputMode="numeric"
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
                 />
+                {formData.contactNo && !/^[0-9]+$/.test(formData.contactNo) && (
+                  <p className="text-red-500 text-sm mt-1">
+                    Please enter numbers only
+                  </p>
+                )}
               </div>
               <div className="flex justify-end">
                 <button
