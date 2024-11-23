@@ -203,14 +203,15 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
           ...editedAsset,
           image: newImage || editedAsset.image,
           totalCost: parseFloat(totalCost),
-          quantityForBorrowing: editedAsset.is_active ? parseInt(quantityForBorrowing, 10) : 0
+          quantity: editedAsset.quantity,
+          quantity_for_borrowing: editedAsset.is_active ? parseInt(quantityForBorrowing, 10) : 0
         };
         delete updatedAsset.lastUpdated;
 
         // Log only the changed fields
         const changedFields = Object.keys(updatedAsset).reduce((acc, key) => {
-          if (key === 'quantityForBorrowing' && !editedAsset.is_active) {
-            return acc; // Skip logging quantityForBorrowing if the asset is not active
+          if (key === 'quantity_for_borrowing' && !editedAsset.is_active) {
+            return acc; // Skip logging quantity_for_borrowing if the asset is not active
           }
           if (key === 'totalCost') {
             // Only include totalCost if it has actually changed
@@ -301,6 +302,25 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
   const handleQuantityForBorrowingChange = async (value) => {
     const newValue = Number(value);
     
+    if (isNaN(newValue) || newValue < 0) {
+      return;
+    }
+
+    // Calculate the difference between new and current borrowing quantity
+    const quantityDifference = newValue - quantityForBorrowing;
+    
+    // Check if we have enough main quantity available when increasing
+    if (quantityDifference > 0) {
+      const availableMainQuantity = editedAsset.quantity;
+      if (quantityDifference > availableMainQuantity) {
+        setNotification({
+          type: 'error',
+          message: `Cannot allocate more than available quantity. Available: ${availableMainQuantity}`
+        });
+        return;
+      }
+    }
+
     if (newValue < quantityForBorrowing) {
       try {
         const response = await axios.get(
@@ -325,7 +345,12 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
       }
     }
 
+    // Update both quantities
     setQuantityForBorrowing(newValue);
+    setEditedAsset(prev => ({
+      ...prev,
+      quantity: prev.quantity - quantityDifference
+    }));
   };
 
   const handleTypeChange = async (value) => {
