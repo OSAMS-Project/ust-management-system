@@ -112,6 +112,21 @@ function AssetRepair() {
     }
   };
 
+  const handleCancelRepair = async (record) => {
+    try {
+      await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/repair/${record.id}/cancel`
+      );
+      
+      // Remove the record from RepairTable
+      setRepairRecords((prevRecords) =>
+        prevRecords.filter((r) => r.id !== record.id)
+      );
+    } catch (error) {
+      console.error("Error canceling repair:", error);
+    }
+  };
+
   const handleViewLogs = (assetId) => {
     setSelectedAssetId(assetId);
     setIsLogsModalOpen(true);
@@ -197,6 +212,7 @@ function AssetRepair() {
           onCompleteRecord={handleCompleteRecord}
           onRemoveRecord={handleRemoveRecord}
           onViewLogs={handleViewLogs}
+          onCancelRepair={handleCancelRepair}
         />
         {activeRepairs.length > 0 && (
           <PaginationControls

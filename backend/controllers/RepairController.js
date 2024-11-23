@@ -99,8 +99,30 @@ const getRepairRecordsByAsset = async (assetId) => {
     const records = await Repair.getRepairRecordsByAsset(assetId);
     return records;
   } catch (error) {
-    console.error('Error in getRepairRecordsByAsset:', error);
+    console.error('Error fetching repair records by asset:', error);
     throw error;
+  }
+};
+
+const cancelRepairRecord = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'Invalid repair record ID' });
+    }
+
+    const [record] = await Repair.cancelRepairRecord(id);
+    if (!record) {
+      return res.status(404).json({ error: 'Repair record not found' });
+    }
+
+    // Update asset repair status
+    await Asset.updateRepairStatus(record.asset_id, false);
+
+    res.json(record);
+  } catch (error) {
+    console.error('Error canceling repair record:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -110,5 +132,6 @@ module.exports = {
   createRepairRecord,
   completeRepairRecord,
   deleteRepairRecord,
-  getRepairRecordsByAsset
+  getRepairRecordsByAsset,
+  cancelRepairRecord
 };

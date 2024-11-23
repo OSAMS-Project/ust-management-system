@@ -110,6 +110,58 @@ const completeRepairRecord = async (id) => {
   }
 };
 
+const cancelRepairRecord = async (id) => {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    // Get repair record details
+    const getRepairQuery = `
+      SELECT * FROM repair_records 
+      WHERE id = $1
+    `;
+    const repairRecord = (await client.query(getRepairQuery, [id])).rows[0];
+
+    if (!repairRecord) {
+      throw new Error("Repair record not found");
+    }
+
+    // Update related issue status back to pending
+    if (repairRecord.issue_id) {
+      const updateIssueQuery = `
+        UPDATE asset_issues 
+        SET status = 'Pending'
+        WHERE id = $1
+      `;
+      await client.query(updateIssueQuery, [repairRecord.issue_id]);
+    }
+
+    // Update asset repair status
+    const updateAssetQuery = `
+      UPDATE assets 
+      SET under_repair = false
+      WHERE asset_id = $1
+    `;
+    await client.query(updateAssetQuery, [repairRecord.asset_id]);
+
+    // Delete the repair record
+    const deleteRepairQuery = `
+      DELETE FROM repair_records 
+      WHERE id = $1 
+      RETURNING *
+    `;
+    const result = await client.query(deleteRepairQuery, [id]);
+
+    await client.query("COMMIT");
+    return result.rows;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
 const deleteRepairRecord = async (id) => {
   const query = "DELETE FROM repair_records WHERE id = $1 RETURNING *";
   return executeTransaction([{ query, params: [parseInt(id)] }]);
@@ -135,4 +187,5 @@ module.exports = {
   completeRepairRecord,
   deleteRepairRecord,
   getTotalRepairs,
+  cancelRepairRecord
 };
