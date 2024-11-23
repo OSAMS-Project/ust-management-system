@@ -436,6 +436,7 @@ function BorrowerForm() {
                   required
                   value={expectedReturnDate}
                   onChange={(e) => setExpectedReturnDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]} // Add min attribute to prevent past dates
                   className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300"
                 />
                 <label

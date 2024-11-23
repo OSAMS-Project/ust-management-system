@@ -5,13 +5,13 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const EventCompletionChart = ({ completedEvents, totalEvents }) => {
-  const incompleteEvents = Math.max(totalEvents - completedEvents.length, 0);
+  const upcomingEvents = Math.max(totalEvents - completedEvents.length, 0);
 
   const data = {
-    labels: ["Completed Events", "Incomplete Events"],
+    labels: ["Completed Events", "Upcoming Events"],
     datasets: [
       {
-        data: [completedEvents.length || 0, incompleteEvents],
+        data: [completedEvents.length || 0, upcomingEvents],
         backgroundColor: ["#FEC00F", "#333333"],
         borderWidth: 1,
       },
@@ -61,8 +61,8 @@ const EventCompletionChart = ({ completedEvents, totalEvents }) => {
               style={{ backgroundColor: "#333333" }}
             ></div>
             <p className="ml-2 font-medium">
-              Incomplete:{" "}
-              <span className="text-gray-600">{incompleteEvents}</span>
+              Upcoming:{" "}
+              <span className="text-gray-600">{upcomingEvents}</span>
             </p>
           </div>
         </div>

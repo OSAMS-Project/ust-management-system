@@ -8,6 +8,10 @@ const EditIssueModal = ({ isOpen, onClose, onEditIssue, issue, assets }) => {
     issue_quantity: issue.issue_quantity || 1,
   });
 
+  const selectedAsset = assets.find(a => a.asset_id === issue.asset_id);
+  
+  const maxAllowedQuantity = selectedAsset ? selectedAsset.quantity : 1;
+
   const issueTypes = [
     'Hardware Malfunction',
     'Damage',
@@ -24,14 +28,31 @@ const EditIssueModal = ({ isOpen, onClose, onEditIssue, issue, assets }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setEditData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    if (name === 'issue_quantity') {
+      const numValue = parseInt(value) || 0;
+      const validValue = Math.min(Math.max(1, numValue), maxAllowedQuantity);
+
+      setEditData(prev => ({
+        ...prev,
+        [name]: validValue
+      }));
+    } else {
+      setEditData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    if (editData.issue_quantity < 1 || editData.issue_quantity > maxAllowedQuantity) {
+      alert('Invalid quantity selected');
+      return;
+    }
+    
     onEditIssue(issue.id, editData);
   };
 
@@ -101,9 +122,13 @@ const EditIssueModal = ({ isOpen, onClose, onEditIssue, issue, assets }) => {
                 value={editData.issue_quantity}
                 onChange={handleInputChange}
                 min="1"
+                max={maxAllowedQuantity}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
+              <p className="text-sm text-gray-600">
+                Maximum available: {maxAllowedQuantity}
+              </p>
             </div>
 
             <div className="space-y-2">

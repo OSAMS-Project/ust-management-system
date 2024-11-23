@@ -50,6 +50,15 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
         throw new Error('Asset ID is required');
       }
 
+      const selectedDate = new Date(repairData.date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time to start of day for fair comparison
+
+      if (selectedDate < today) {
+        alert('Repair date cannot be in the past');
+        return;
+      }
+
       const formattedData = {
         asset_id: selectedAsset?.asset_id || selectedIssue?.asset_id,
         repair_type: repairData.repairType,
@@ -160,6 +169,7 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
               name="date"
               value={repairData.date}
               onChange={handleInputChange}
+              min={new Date().toISOString().split('T')[0]}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
             />

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AddMaintenance from "../components/maintenance/AddMaintenance";
 import MaintenanceTable from "../components/maintenance/MaintenanceTable";
-import EditMaintenanceModal from "../components/maintenance/EditMaintenanceModal";
 import NotificationPopup from "../components/utils/NotificationsPopup";
 import PaginationControls from "../components/assetlists/PaginationControls";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -13,9 +12,7 @@ function AssetMaintenance({ user }) {
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedMaintenance, setSelectedMaintenance] = useState(null);
   const [notification, setNotification] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -87,38 +84,6 @@ function AssetMaintenance({ user }) {
     }
   };
 
-  const handleEditMaintenance = async (maintenanceId, editData) => {
-    try {
-      console.log("Maintenance ID:", maintenanceId);
-      console.log("Edit data received:", editData);
-
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/maintenance/${maintenanceId}`,
-        editData
-      );
-
-      setMaintenances(
-        maintenances.map((maintenance) =>
-          maintenance.id === maintenanceId
-            ? { ...maintenance, ...editData }
-            : maintenance
-        )
-      );
-      setIsEditModalOpen(false);
-      setSelectedMaintenance(null);
-      setNotification({
-        type: "success",
-        message: "Maintenance record updated successfully",
-      });
-    } catch (error) {
-      console.error("Error updating maintenance:", error);
-      setNotification({
-        type: "error",
-        message: "Failed to update maintenance record",
-      });
-    }
-  };
-
   const handleRemoveMaintenance = async (maintenanceId) => {
     try {
       await axios.delete(
@@ -138,11 +103,6 @@ function AssetMaintenance({ user }) {
         message: "Failed to remove maintenance record",
       });
     }
-  };
-
-  const handleOpenEditModal = (maintenance) => {
-    setSelectedMaintenance(maintenance);
-    setIsEditModalOpen(true);
   };
 
   // Pagination handlers
@@ -229,7 +189,6 @@ function AssetMaintenance({ user }) {
           setMaintenances={setMaintenances}
           assets={assets}
           loading={loading}
-          onEditMaintenance={handleEditMaintenance}
           onRemoveMaintenance={handleRemoveMaintenance}
           setNotification={setNotification}
         />
@@ -246,19 +205,6 @@ function AssetMaintenance({ user }) {
             totalItems={activeMaintenances.length}
             itemName="maintenance"
             renderPageNumbers={renderPageNumbers}
-          />
-        )}
-
-        {isEditModalOpen && selectedMaintenance && (
-          <EditMaintenanceModal
-            isOpen={isEditModalOpen}
-            onClose={() => {
-              setIsEditModalOpen(false);
-              setSelectedMaintenance(null);
-            }}
-            onEditMaintenance={handleEditMaintenance}
-            maintenance={selectedMaintenance}
-            assets={assets}
           />
         )}
 

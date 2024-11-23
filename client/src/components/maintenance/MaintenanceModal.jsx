@@ -62,6 +62,15 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, assets, user, mai
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const selectedDate = new Date(maintenanceData.scheduled_date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (selectedDate < today) {
+        alert('Scheduled date cannot be in the past');
+        return;
+      }
+
       if (!maintenanceData.asset_id || !maintenanceData.maintenance_type || 
           !maintenanceData.scheduled_date || !maintenanceData.priority) {
         throw new Error('Please fill in all required fields');
@@ -204,6 +213,7 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, assets, user, mai
                 name="scheduled_date"
                 value={maintenanceData.scheduled_date.split('T')[0]}
                 onChange={handleInputChange}
+                min={new Date().toISOString().split('T')[0]}
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />

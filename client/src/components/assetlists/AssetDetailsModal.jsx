@@ -63,7 +63,7 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
             )}
           </div>
 
-          <div className="grid grid-cols-3 gap-4 mt-8">
+          <div className="grid grid-cols-2 gap-4 mt-8">
             <button
               onClick={() => setShowActivityLogs(true)}
               className="bg-green-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-green-700 transition-transform transform hover:scale-105 flex items-center justify-center"
@@ -71,14 +71,17 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
               View Activity Logs
             </button>
 
+            {(selectedAsset.type === 'Non-Consumable' || (selectedAsset.type === 'Consumable' && selectedAsset.allow_borrowing)) && (
+              <button
+                onClick={() => setShowBorrowLogs(true)}
+                className="bg-purple-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-purple-700 transition-transform transform hover:scale-105 flex items-center justify-center"
+              >
+                Borrow Logs
+              </button>
+            )}
+
             {selectedAsset.type === 'Non-Consumable' && (
               <>
-                <button
-                  onClick={() => setShowBorrowLogs(true)}
-                  className="bg-purple-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-purple-700 transition-transform transform hover:scale-105 flex items-center justify-center"
-                >
-                  Borrow Logs
-                </button>
                 <button
                   onClick={() => setShowMaintenanceLogs(true)}
                   className="bg-orange-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-orange-600 transition-transform transform hover:scale-105 flex items-center justify-center"
@@ -91,22 +94,33 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
                 >
                   Repair Logs
                 </button>
-                <button
-                  onClick={() => setShowIssueLogs(true)}
-                  className="bg-red-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-red-600 transition-transform transform hover:scale-105 flex items-center justify-center"
-                >
-                  Issue Logs
-                </button>
+                <div className="grid grid-cols-2 gap-4 col-span-2">
+                  <button
+                    onClick={() => setShowIssueLogs(true)}
+                    className="bg-red-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-red-600 transition-transform transform hover:scale-105 flex items-center justify-center"
+                  >
+                    Issue Logs
+                  </button>
+                  <button
+                    onClick={() => setShowQRCode(true)}
+                    className="bg-blue-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-600 transition-transform transform hover:scale-105 flex items-center justify-center"
+                  >
+                    <FontAwesomeIcon icon={faQrcode} className="mr-2" />
+                    QR Code
+                  </button>
+                </div>
               </>
             )}
 
-            <button
-              onClick={() => setShowQRCode(true)}
-              className="bg-blue-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-600 transition-transform transform hover:scale-105 flex items-center justify-center"
-            >
-              <FontAwesomeIcon icon={faQrcode} className="mr-2" />
-              QR Code
-            </button>
+            {selectedAsset.type === 'Consumable' && (
+              <button
+                onClick={() => setShowQRCode(true)}
+                className="bg-blue-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-600 transition-transform transform hover:scale-105 flex items-center justify-center"
+              >
+                <FontAwesomeIcon icon={faQrcode} className="mr-2" />
+                QR Code
+              </button>
+            )}
           </div>
         </div>
 
