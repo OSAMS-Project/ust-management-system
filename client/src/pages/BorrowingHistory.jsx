@@ -127,15 +127,57 @@ const BorrowingHistory = () => {
     currentPage * itemsPerPage
   );
 
-  const handleViewCoverLetter = async (requestId) => {
+  const handleViewCoverLetter = async (record) => {
     try {
-      console.log('Opening cover letter for request ID:', requestId);
+      console.log('Opening cover letter for request ID:', record.id);
       
-      // Use the API URL directly
-      const coverLetterUrl = `${process.env.REACT_APP_API_URL}/api/borrowing-requests/${requestId}/cover-letter`;
+      // First check if we have a valid URL
+      if (!record.cover_letter_url) {
+        toast.error('No cover letter available');
+        return;
+      }
+
+      // If the URL is a full Supabase URL, open it directly
+      if (record.cover_letter_url.startsWith('https://')) {
+        window.open(record.cover_letter_url, '_blank');
+        return;
+      }
+
+      // If it's a relative path in the samplebucket
+      if (record.cover_letter_url.startsWith('cover_letters/')) {
+        const { data, error } = await supabase
+          .storage
+          .from('samplebucket')
+          .download(record.cover_letter_url);
+
+        if (error) {
+          console.error('Error downloading cover letter:', error);
+          toast.error('Failed to download cover letter');
+          return;
+        }
+
+        // Create a blob URL and open it
+        const blob = new Blob([data], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        
+        // Clean up the blob URL after opening
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+        return;
+      }
+
+      // If it's an API endpoint path, use axios to fetch it
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/borrowing-requests/${record.id}/cover-letter`,
+        { responseType: 'blob' }
+      );
       
-      // Open the URL in a new tab
-      window.open(coverLetterUrl, '_blank');
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      
+      // Clean up the blob URL after opening
+      setTimeout(() => URL.revokeObjectURL(url), 100);
       
     } catch (error) {
       console.error('Error opening cover letter:', error);
@@ -273,10 +315,7 @@ const BorrowingHistory = () => {
                       <td className="py-2 px-4 border-b text-center">
                         {record.cover_letter_url ? (
                           <button
-                            onClick={() => {
-                              console.log('Clicked record:', record);
-                              handleViewCoverLetter(record.id);
-                            }}
+                            onClick={() => handleViewCoverLetter(record)}
                             className="text-blue-600 hover:underline"
                           >
                             View Cover Letter

@@ -210,9 +210,7 @@ const BorrowingRequest = {
       ...row,
       borrowed_asset_names: row.selected_assets.map(asset => asset.assetName).join(', '),
       borrowed_asset_quantities: row.selected_assets.map(asset => asset.quantity).join(', '),
-      cover_letter_url: row.cover_letter_url ? `/api/borrowing-requests/${row.id}/cover-letter` : null,
-      expectedReturnDate: row.expected_return_date,
-      notes: row.notes
+      cover_letter_url: row.cover_letter_url || row.cover_letter_path || null
     }));
   },
 
