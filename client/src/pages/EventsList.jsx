@@ -36,7 +36,7 @@ function Events() {
   const [editingEvent, setEditingEvent] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [assets, setAssets] = useState([]); // Add this line
+  const [assets, setAssets] = useState([]);
   const [showCompletedEventsDialog, setShowCompletedEventsDialog] =
     useState(false);
   const [completedEvents, setCompletedEvents] = useState([]);
