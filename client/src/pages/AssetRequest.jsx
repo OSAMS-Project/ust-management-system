@@ -63,15 +63,11 @@ const AssetRequest = ({ user }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!user || !user.name || !user.picture) {
-      console.error('User information is not available');
-      return;
-    }
     try {
       const assetData = {
         ...newAsset,
-        created_by: user.name,
-        user_picture: user.picture
+        created_by: user?.name || 'Admin',
+        user_picture: user?.picture || null
       };
       console.log('Sending asset data:', assetData);
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/asset-request`, assetData, {
