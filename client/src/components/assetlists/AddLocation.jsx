@@ -62,7 +62,7 @@ const Modal = ({
           <div className="bg-[#FEC000] px-6 py-4 rounded-t-[20px] border-b">
             <h2 className="text-xl font-semibold text-black">Add Location</h2>
           </div>
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
             <div className="space-y-2">
               <input
                 type="text"
