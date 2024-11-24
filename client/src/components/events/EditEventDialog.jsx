@@ -21,16 +21,32 @@ const EditEventDialog = ({
   handleDelete,
 }) => {
   const [locationOptions] = useState([
-    "Online",
-    "Off-campus",
-    "In-campus",
-    "Arch of the Centuries",
-    "Benavides Auditorium",
-    "Benavides Garden",
-    "Bl. Buenaventura G. Paredes, O.P. Building Lobby",
-    // Additional locations...
-    "UST Grounds",
-    "UST Parade Grounds",
+    'Online', 'Off-campus', 'In-campus',
+    'Arch of the Centuries', 'Benavides Auditorium', 'Benavides Garden',
+    'Bl. Buenaventura G. Paredes, O.P. Building Lobby',
+    'Bl. Buenaventura G. Paredes, O.P. Building Mezzanine',
+    'Central Laboratory Auditorium [W]',
+    'Central Laboratory Auditorium - A [P]',
+    'Central Laboratory Auditorium - B [P]',
+    'Civil Law Auditorium', 'Civil Law Lobby', 'Covered Walk',
+    'Dr. Robert C. Sy Grand Ballroom', 'Education Auditorium',
+    'Engineering Conference Hall', 'Frassati Auditorium',
+    'Frassati Pre-Function Area', 'Gazebo (in front of Medicine Bldg.)',
+    'George S.K. Ty Function Hall [W]', 'George S.K. Ty Function Hall - 402 [P]',
+    'George S.K. Ty Function Hall - 403 [P]', 'George S.K. Ty Function Hall - 404 [P]',
+    'George S.K. Ty Function Hall - 4A [P]', 'George S.K. Ty Function Hall - 4B [P]',
+    'George S.K. Ty Function Hall - 4C [P]',
+    'George S.K. Ty Function Hall - A (402-404) [W/P]',
+    'George S.K. Ty Function Hall - B (4ABC) [W/P]',
+    'Main Building Lobby', 'Medicine Auditorium',
+    'Museum Gallery/Main Hall', 'Museum Interior Courts (Left/Right)',
+    'P. Noval Covered Court', 'Plaza Mayor', 'Practice Gym - A [P]',
+    'Practice Gym - ABCD [W]', 'Practice Gym - B [P]', 'Practice Gym - C [P]',
+    'Practice Gym - D [P]', 'Quadricentennial Pavilion Arena',
+    'Quadricentennial Square', 'TARC Auditorium', 'UST Field [W]',
+    'UST Field - Beato Angelico Side [P]',
+    'UST Field - Front of the Grandstand Stage [P]',
+    'UST Field - Grandstand [P]', 'UST Grounds', 'UST Parade Grounds'
   ]);
   const [filteredLocations, setFilteredLocations] = useState(locationOptions);
   const [showDropdown, setShowDropdown] = useState(false);

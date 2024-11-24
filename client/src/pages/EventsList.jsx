@@ -264,16 +264,22 @@ function Events() {
           ...prevCompletedEvents,
           completedEvent,
         ]);
-        console.log(`Event with ID ${uniqueId} marked as completed`);
         const assetResponse = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/Assets/read`
         );
         setAssets(assetResponse.data);
         fetchCompletedEvents();
+        setNotification({
+          type: 'success',
+          message: `Event marked as completed successfully`
+        });
       }
     } catch (err) {
       console.error("Error completing event:", err);
-      alert(`Error completing event: ${err.message}`);
+      setNotification({
+        type: 'error',
+        message: `Error completing event: ${err.message}`
+      });
     }
   };
   const handleDeleteEvent = async (eventId) => {
@@ -500,6 +506,7 @@ function Events() {
         <NotificationPopup
           notification={notification}
           onClose={() => setNotification(null)}
+          className="z-50"
         />
       )}
     </div>

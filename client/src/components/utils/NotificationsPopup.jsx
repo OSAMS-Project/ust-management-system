@@ -39,7 +39,7 @@ const NotificationPopup = ({ notification, onClose }) => {
   if (!notification) return null;
 
   return (
-    <div className="fixed top-4 right-4 min-w-[300px] rounded-lg shadow-lg overflow-hidden">
+    <div className="fixed top-4 right-4 min-w-[300px] rounded-lg shadow-lg overflow-hidden z-[9999]">
       <div className={`p-4 ${
         notification.type === 'success' ? 'bg-green-500' : 'bg-red-500'
       } text-white`}>
