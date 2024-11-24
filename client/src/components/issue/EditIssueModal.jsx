@@ -68,12 +68,17 @@ const EditIssueModal = ({ isOpen, onClose, onEditIssue, issue, assets }) => {
               <label className="text-sm font-medium">
                 Asset
               </label>
-              <input
-                type="text"
-                value={assets.find(a => a.asset_id === issue.asset_id)?.assetName || ''}
-                className="w-full px-3 py-2 border rounded-md bg-gray-100"
-                disabled
-              />
+              <div className="w-full px-3 py-2 border rounded-md bg-gray-100 flex justify-between items-center">
+                <span>
+                  {assets.find(a => a.asset_id === issue.asset_id)?.assetName || ''}
+                </span>
+                {assets.find(a => a.asset_id === issue.asset_id)?.productCode && 
+                 assets.find(a => a.asset_id === issue.asset_id)?.productCode !== 'N/A' && (
+                  <span className="text-sm text-gray-600">
+                    Product Code: {assets.find(a => a.asset_id === issue.asset_id)?.productCode}
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="space-y-2">

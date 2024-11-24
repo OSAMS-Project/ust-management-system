@@ -7,7 +7,7 @@ const AssetSearchbar = ({ handleSearch }) => {
       <FaSearch className="w-[24.484px] h-[22px] mr-2 text-[#ccc]" />
       <input
         type="text"
-        placeholder="Search for Assets"
+        placeholder="Search by Asset Name or Product Code"
         className="text-[#787486] font-inter text-[14px] font-normal leading-normal border-none outline-none w-full"
         onChange={(e) => handleSearch(e.target.value)}
       />

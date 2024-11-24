@@ -239,7 +239,6 @@ const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user, issues = [] }) 
                 required
               />
               <p className="text-sm text-gray-600">
-                Available: {selectedAssetDetails?.quantity || 0}
               </p>
             </div>
             

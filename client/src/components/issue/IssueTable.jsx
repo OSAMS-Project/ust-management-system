@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import moment from 'moment';
-import { Wrench, Trash2, Edit } from 'lucide-react';
 import DeleteConfirmationModal from '../utils/DeleteConfirmationModal';
 
 const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue, onEditIssue }) => {
@@ -101,24 +100,24 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue, onE
                   {moment(issue.created_at).format('MM/DD/YYYY')}
                 </td>
                 <td className="px-4 py-2">
-                  <div className="flex justify-center">
+                  <div className="flex justify-center space-x-2">
                     <button
                       onClick={() => onEditIssue(issue)}
-                      className="text-black hover:text-blue-500 px-4 py-1 rounded text-sm"
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
                     >
-                      <Edit className="w-5 h-5" />
+                      Edit
                     </button>
                     <button
                       onClick={() => handleDeleteClick(issue)}
-                      className="text-black hover:text-red-500 px-4 py-1 rounded text-sm"
+                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                     >
-                      <Trash2 className="w-5 h-5" />
+                      Delete
                     </button>
                     <button
                       onClick={() => onAddToRepair(issue, asset)}
-                      className="text-black hover:text-green-500 px-4 py-1 rounded text-sm"
+                      className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm"
                     >
-                      <Wrench className="w-5 h-5" />
+                      Repair
                     </button>
                   </div>
                 </td>

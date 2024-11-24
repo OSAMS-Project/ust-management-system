@@ -355,7 +355,11 @@ const AssetList = () => {
   const filteredAndSortedAssets = useMemo(() => {
     return assets
       .filter((asset) => {
-        const matchesSearch = asset.assetName.toLowerCase().includes(searchQuery.toLowerCase());
+        const searchLower = searchQuery.toLowerCase();
+        const matchesSearch = 
+          asset.assetName.toLowerCase().includes(searchLower) ||
+          (asset.productCode && 
+           asset.productCode.toLowerCase().includes(searchLower));
         
         if (assetTypeFilter === 'all') return matchesSearch;
         if (assetTypeFilter === 'consumable') return matchesSearch && asset.type === 'Consumable';

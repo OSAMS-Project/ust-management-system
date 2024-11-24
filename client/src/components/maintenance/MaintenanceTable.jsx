@@ -1,6 +1,5 @@
 import React from 'react';
 import moment from 'moment';
-import { Trash2, CheckCircle, History } from 'lucide-react';
 import axios from 'axios';
 
 const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRemoveMaintenance, onViewHistory, setNotification }) => {
@@ -167,29 +166,26 @@ const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRe
                     </div>
                   </td>
                   <td className="px-4 py-2">
-                    <div className="flex space-x-2 justify-center">
+                    <div className="flex justify-center space-x-2">
                       <button
                         onClick={() => handleMarkAsComplete(maintenance)}
-                        className="bg-green-500 text-white p-1.5 rounded hover:bg-green-600"
-                        title="Mark as Complete"
+                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm"
                       >
-                        <CheckCircle className="w-4 h-4" />
+                        Complete
                       </button>
                       {onViewHistory && (
                         <button
                           onClick={() => onViewHistory(maintenance.asset_id)}
-                          className="bg-blue-500 text-white p-1.5 rounded hover:bg-blue-600"
-                          title="View History"
+                          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
                         >
-                          <History className="w-4 h-4" />
+                          History
                         </button>
                       )}
                       <button
                         onClick={() => handleRemoveMaintenance(maintenance)}
-                        className="bg-red-500 text-white p-1.5 rounded hover:bg-red-600"
-                        title="Delete"
+                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        Delete
                       </button>
                     </div>
                   </td>
