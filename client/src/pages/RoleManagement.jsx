@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUsers, faChevronDown, faChevronUp, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUsers,
+  faChevronDown,
+  faChevronUp,
+  faTrashAlt,
+} from "@fortawesome/free-solid-svg-icons";
 
 const RoleManagement = () => {
   const [roles, setRoles] = useState([]);
@@ -10,6 +15,8 @@ const RoleManagement = () => {
   const [error, setError] = useState(null);
   const [totalRoles, setTotalRoles] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState({});
+  const [editingRole, setEditingRole] = useState(null);
+  const [updatedRoleName, setUpdatedRoleName] = useState("");
 
   const permissionDependencies = {
     "Asset Lists": [
@@ -94,7 +101,9 @@ const RoleManagement = () => {
   const handleDeleteRole = async (roleName) => {
     try {
       await axios.delete(`${API_URL}/${roleName}`);
-      setRoles((prevRoles) => prevRoles.filter((role) => role.role_name !== roleName));
+      setRoles((prevRoles) =>
+        prevRoles.filter((role) => role.role_name !== roleName)
+      );
       setTotalRoles((prevTotal) => prevTotal - 1);
     } catch (err) {
       setError("Error deleting role");
@@ -127,7 +136,9 @@ const RoleManagement = () => {
 
       // Add dependent permissions if the parent is checked
       if (permissionDependencies[page]) {
-        updatedPermissions = [...new Set([...updatedPermissions, ...permissionDependencies[page]])];
+        updatedPermissions = [
+          ...new Set([...updatedPermissions, ...permissionDependencies[page]]),
+        ];
       }
     }
 
@@ -155,6 +166,35 @@ const RoleManagement = () => {
       ...prev,
       [roleName]: !prev[roleName],
     }));
+  };
+
+  const handleEditRoleName = async (oldRoleName) => {
+    if (!updatedRoleName.trim()) {
+      setError("Role name cannot be empty.");
+      return;
+    }
+
+    try {
+      await axios.put(`${API_URL}/edit-name`, {
+        oldRoleName,
+        newRoleName: updatedRoleName,
+      });
+
+      setRoles((prevRoles) =>
+        prevRoles.map((role) =>
+          role.role_name === oldRoleName
+            ? { ...role, role_name: updatedRoleName }
+            : role
+        )
+      );
+
+      setEditingRole(null);
+      setUpdatedRoleName("");
+      setError(null);
+    } catch (err) {
+      setError("Error editing role name");
+      console.error("Error editing role name:", err);
+    }
   };
 
   useEffect(() => {
@@ -207,7 +247,16 @@ const RoleManagement = () => {
                 {roles.map((role) => (
                   <tr key={role.role_name} className="hover:bg-gray-50">
                     <td className="px-6 py-4 font-medium text-gray-800">
-                      {role.role_name}
+                      {editingRole === role.role_name ? (
+                        <input
+                          type="text"
+                          value={updatedRoleName}
+                          onChange={(e) => setUpdatedRoleName(e.target.value)}
+                          className="border border-gray-300 rounded-md px-2 py-1"
+                        />
+                      ) : (
+                        role.role_name
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <div>
@@ -247,9 +296,27 @@ const RoleManagement = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
+                      {editingRole === role.role_name ? (
+                        <button
+                          onClick={() => handleEditRoleName(role.role_name)}
+                          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+                        >
+                          Save
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setEditingRole(role.role_name);
+                            setUpdatedRoleName(role.role_name);
+                          }}
+                          className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+                        >
+                          Edit
+                        </button>
+                      )}
                       <button
                         onClick={() => handleDeleteRole(role.role_name)}
-                        className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
+                        className="bg-red-500 text-white px-4 py-2 ml-2 rounded-md hover:bg-red-600 transition"
                       >
                         <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
                         Delete

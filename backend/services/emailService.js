@@ -74,8 +74,27 @@ const sendVerificationEmail = async (email) => {
   }
 };
 
+const sendReminderEmail = async (email, name, expectedReturnDate) => {
+  const transporter = createTransporter();
+
+  const mailOptions = {
+    from: `"Asset Management Team" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "Your Verification Code",
+    text: `Hello ${name}, this is a reminder that your expected return date is on ${expectedReturnDate}. Please ensure timely return.`,
+  };
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Rejection email sent successfully:", info.messageId);
+  } catch (error) {
+    console.error("Error sending rejection email:", error.message);
+    throw new Error("Failed to send rejection email");
+  }
+};
+
 module.exports = {
   sendApprovalEmail,
   sendRejectionEmail,
   sendVerificationEmail,
+  sendReminderEmail,
 };

@@ -20,12 +20,17 @@ ChartJS.register(
 );
 
 const BorrowerFrequencyChart = ({ borrowerData }) => {
+  // Process data to get the top 5 borrowers
+  const topBorrowers = Object.entries(borrowerData || {})
+    .sort(([, a], [, b]) => b - a) // Sort by frequency (highest first)
+    .slice(0, 5); // Take the top 5
+
   const data = {
-    labels: Object.keys(borrowerData || {}),
+    labels: topBorrowers.map(([name]) => name),
     datasets: [
       {
         label: "Frequency",
-        data: Object.values(borrowerData || {}),
+        data: topBorrowers.map(([, frequency]) => frequency),
         backgroundColor: "#FEC00F",
         borderRadius: 5,
       },
