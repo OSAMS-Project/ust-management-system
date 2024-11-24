@@ -42,14 +42,26 @@ const RepairTable = ({ repairRecords, assets = [], onCompleteRecord, onRemoveRec
           {repairRecords
             .filter(record => record.status !== 'Completed')
             .map((record) => {
-              const assetName = assets?.find(a => a.asset_id === record.asset_id)?.assetName || record.asset_id;
+              const asset = assets?.find(a => a.asset_id === record.asset_id);
+              const assetName = asset?.assetName || record.asset_id;
+              const productCode = asset?.productCode && asset.productCode !== 'N/A' ? asset.productCode : null;
+              
               return (
                 <tr
                   key={record.id}
                   onClick={() => handleRowClick(record.asset_id)}
                   className="hover:bg-gray-50 cursor-pointer border-b"
                 >
-                  <td className="px-4 py-2 text-center">{assetName}</td>
+                  <td className="px-4 py-2 text-center">
+                    <div className="flex flex-col items-center">
+                      <span className="font-medium">{assetName}</span>
+                      {productCode && (
+                        <span className="text-sm text-gray-600">
+                          Product Code: {productCode}
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-4 py-2 text-center">{record.repair_type}</td>
                   <td className="px-4 py-2 text-center">{record.description}</td>
                   <td className="px-4 py-2 text-center">

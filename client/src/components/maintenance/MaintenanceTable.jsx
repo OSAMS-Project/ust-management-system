@@ -124,10 +124,20 @@ const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRe
             .map((maintenance) => {
               const asset = assets.find(a => a.asset_id === maintenance.asset_id);
               const assetName = asset ? asset.assetName : 'Unknown Asset';
+              const productCode = asset?.productCode && asset.productCode !== 'N/A' ? asset.productCode : null;
               
               return (
                 <tr key={maintenance.id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-2 text-center">{assetName}</td>
+                  <td className="px-4 py-2 text-center">
+                    <div className="flex flex-col items-center">
+                      <span className="font-medium">{assetName}</span>
+                      {productCode && (
+                        <span className="text-sm text-gray-600">
+                          Product Code: {productCode}
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-4 py-2 text-center">{maintenance.maintenance_type}</td>
                   <td className="px-4 py-2 text-center">
                     <span className={`px-2 py-1 rounded-full text-xs ${getPriorityColor(maintenance.priority)}`}>

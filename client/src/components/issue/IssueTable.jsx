@@ -61,10 +61,20 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue, onE
           {activeIssues.map((issue) => {
             const asset = assets.find(a => a.asset_id === issue.asset_id);
             const assetName = asset ? asset.assetName : issue.asset_id;
+            const productCode = asset?.productCode && asset.productCode !== 'N/A' ? asset.productCode : null;
             
             return (
               <tr key={issue.id} className="border-b hover:bg-gray-50">
-                <td className="px-4 py-2 text-center">{assetName}</td>
+                <td className="px-4 py-2 text-center">
+                  <div className="flex flex-col items-center">
+                    <span className="font-medium">{assetName}</span>
+                    {productCode && (
+                      <span className="text-sm text-gray-600">
+                        Product Code: {productCode}
+                      </span>
+                    )}
+                  </div>
+                </td>
                 <td className="px-4 py-2 text-center">{issue.issue_type}</td>
                 <td className="px-4 py-2 text-center">{issue.description}</td>
                 <td className="px-4 py-2 text-center">

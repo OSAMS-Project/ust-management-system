@@ -1,4 +1,4 @@
-import React, { useState,} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user, issues = [] }) => {
   const [issueData, setIssueData] = useState({
@@ -12,6 +12,20 @@ const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user, issues = [] }) 
   });
 
   const [selectedAssetDetails, setSelectedAssetDetails] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const issueTypes = [
     'Hardware Malfunction',
@@ -34,6 +48,15 @@ const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user, issues = [] }) 
       issue.status !== 'In Repair'
     );
     return !hasActiveIssue;
+  });
+
+  const filteredAssets = availableAssets.filter(asset => {
+    const searchLower = searchTerm.toLowerCase();
+    const assetNameMatch = asset.assetName.toLowerCase().includes(searchLower);
+    const productCodeMatch = asset.productCode && 
+                           asset.productCode !== 'N/A' && 
+                           asset.productCode.toLowerCase().includes(searchLower);
+    return assetNameMatch || productCodeMatch;
   });
 
   const handleInputChange = (e) => {
@@ -126,6 +149,61 @@ const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user, issues = [] }) 
     }
   };
 
+  const renderAssetSelect = () => (
+    <div className="relative" ref={dropdownRef}>
+      <div
+        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+      >
+        {issueData.asset_id ? (
+          <div className="flex justify-between items-center">
+            <span>{assets.find(a => a.asset_id === issueData.asset_id)?.assetName}</span>
+            {assets.find(a => a.asset_id === issueData.asset_id)?.productCode && 
+             assets.find(a => a.asset_id === issueData.asset_id)?.productCode !== 'N/A' && (
+              <span className="text-sm text-gray-600">
+                Code: {assets.find(a => a.asset_id === issueData.asset_id)?.productCode}
+              </span>
+            )}
+          </div>
+        ) : (
+          'Select Asset'
+        )}
+      </div>
+      
+      {isDropdownOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+          <input
+            type="text"
+            className="w-full p-2 border-b"
+            placeholder="Search by name or product code..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onClick={(e) => e.stopPropagation()}
+          />
+          
+          {filteredAssets.map(asset => (
+            <div
+              key={asset.asset_id}
+              className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+              onClick={() => {
+                handleAssetSelect({ target: { value: asset.asset_id } });
+                setIsDropdownOpen(false);
+                setSearchTerm('');
+              }}
+            >
+              <div className="flex justify-between items-center">
+                <span className="font-medium">{asset.assetName}</span>
+                {asset.productCode && asset.productCode !== 'N/A' && (
+                  <span className="text-sm text-gray-600">Code: {asset.productCode}</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   if (!isOpen) return null;
 
   return (
@@ -138,20 +216,7 @@ const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user, issues = [] }) 
               <label className="text-sm font-medium">
                 Asset
               </label>
-              <select
-                name="asset_id"
-                value={issueData.asset_id}
-                onChange={handleAssetSelect}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="">Select Asset</option>
-                {availableAssets.map(asset => (
-                  <option key={asset.asset_id} value={asset.asset_id}>
-                    {asset.assetName}
-                  </option>
-                ))}
-              </select>
+              {renderAssetSelect()}
               {selectedAssetDetails && (
                 <p className="text-sm text-gray-600 mt-1">
                   Available Quantity: {selectedAssetDetails.quantity || 0}
