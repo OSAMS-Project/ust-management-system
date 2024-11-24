@@ -261,7 +261,7 @@ const BorrowingRequest = () => {
   const renderTable = (title, requests, showActions) => {
     return (
       <div className="mt-6">
-        
+      <h2 className="text-xl font-semibold mb-4">{title}</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-black text-[#FEC00F]">
@@ -390,10 +390,6 @@ const BorrowingRequest = () => {
   const approvedRequests = Array.isArray(requests)
     ? requests.filter(request => request.status === "Approved")
     : [];
-    
-  const returnedRequests = Array.isArray(requests)
-    ? requests.filter(request => request.status === "Returned")
-    : [];
 
   return (
     <div className="space-y-6">
@@ -414,9 +410,6 @@ const BorrowingRequest = () => {
         {/* Approved Requests */}
         {renderTable("Approved Requests", approvedRequests, true)}
         
-        {/* Returned Requests */}
-        {renderTable("Returned Requests", returnedRequests, false)}
-
         <NotificationPopup
           notification={notification}
           onClose={handleCloseNotification}
