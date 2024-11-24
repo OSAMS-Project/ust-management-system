@@ -75,27 +75,11 @@ const BorrowingRequest = () => {
       );
       setRequests(updatedResponse.data);
 
-      // Add notifications for approval
-      if (status === "Approved") {
-        // Toast notification
-        toast.success("Request approved successfully");
-        
-        // Popup notification
-        setNotification({
-          type: "success",
-          message: "Request approved successfully! An email has been sent to the borrower.",
-          duration: 3000
-        })
-      }
+      toast.success(`Request ${status.toLowerCase()} successfully`);
 
     } catch (err) {
       console.error("Error updating request status:", err);
       toast.error("Failed to update request status");
-      setNotification({
-        type: "error",
-        message: "Failed to update request status. Please try again.",
-        duration: 3000
-      });
     }
   };
 
@@ -153,14 +137,14 @@ const BorrowingRequest = () => {
     }
   };
 
-  const handleNotifyUser = async (contactNo, name, expectedReturnDate) => {
+  const handleNotifyUser = async (email, name, expectedReturnDate) => {
     try {
-      console.log('Sending notification:', { contactNo, name, expectedReturnDate }); // Debug log
+      console.log('Sending notification:', { email, name, expectedReturnDate }); // Debug log
       
       await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/borrowing-requests/notify`,
+        `${process.env.REACT_APP_API_URL}/api/borrowing-requests/notify-email`,
         {
-          contactNo,
+          email,
           name,
           expectedReturnDate,
         }
@@ -277,7 +261,7 @@ const BorrowingRequest = () => {
   const renderTable = (title, requests, showActions) => {
     return (
       <div className="mt-6">
-        <h2 className="text-xl font-semibold mb-4">{title}</h2>
+        
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-black text-[#FEC00F]">
@@ -369,7 +353,7 @@ const BorrowingRequest = () => {
                               <button
                                 onClick={() =>
                                   handleNotifyUser(
-                                    request.contact_no,
+                                    request.email,
                                     request.name,
                                     moment(request.expectedReturnDate).format("MMMM Do YYYY")
                                   )
@@ -407,6 +391,9 @@ const BorrowingRequest = () => {
     ? requests.filter(request => request.status === "Approved")
     : [];
     
+  const returnedRequests = Array.isArray(requests)
+    ? requests.filter(request => request.status === "Returned")
+    : [];
 
   return (
     <div className="space-y-6">
@@ -426,6 +413,9 @@ const BorrowingRequest = () => {
         
         {/* Approved Requests */}
         {renderTable("Approved Requests", approvedRequests, true)}
+        
+        {/* Returned Requests */}
+        {renderTable("Returned Requests", returnedRequests, false)}
 
         <NotificationPopup
           notification={notification}

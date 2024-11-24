@@ -45,20 +45,22 @@ const UserManagement = () => {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/users`
       );
-      setUsers(response.data.users);
-      setTotalUsers(response.data.users.length);
-
-      // Calculate totals for users with and without access
-      const usersWithAccess = response.data.users.filter(
-        (user) => user.access
-      ).length;
-      const usersWithoutAccess = response.data.users.length - usersWithAccess;
-
-      setTotalUsersWithAccess(usersWithAccess);
-      setTotalUsersWithoutAccess(usersWithoutAccess);
+      const fetchedUsers = response.data.users;
+      setUsers(fetchedUsers);
+      updateSummary(fetchedUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
     }
+  };
+
+  const updateSummary = (users) => {
+    const total = users.length;
+    const usersWithAccess = users.filter((user) => user.access).length;
+    const usersWithoutAccess = total - usersWithAccess;
+
+    setTotalUsers(total);
+    setTotalUsersWithAccess(usersWithAccess);
+    setTotalUsersWithoutAccess(usersWithoutAccess);
   };
 
   const toSentenceCase = (str) => {
@@ -75,7 +77,9 @@ const UserManagement = () => {
       await axios.delete(
         `${process.env.REACT_APP_API_URL}/api/users/${userToDelete.id}`
       );
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userToDelete.id));
+      const updatedUsers = users.filter((user) => user.id !== userToDelete.id);
+      setUsers(updatedUsers);
+      updateSummary(updatedUsers);
       setIsDeleteDialogOpen(false);
       setUserToDelete(null);
     } catch (error) {
@@ -94,11 +98,11 @@ const UserManagement = () => {
         editedUser
       );
       const updatedUser = response.data.user;
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.id === updatedUser.id ? updatedUser : user
-        )
+      const updatedUsers = users.map((user) =>
+        user.id === updatedUser.id ? updatedUser : user
       );
+      setUsers(updatedUsers);
+      updateSummary(updatedUsers);
       setEditingUser(null);
     } catch (error) {
       console.error("Error updating user:", error);
@@ -112,11 +116,11 @@ const UserManagement = () => {
         { access: newAccessValue }
       );
       const updatedUser = response.data.user;
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.id === updatedUser.id ? updatedUser : user
-        )
+      const updatedUsers = users.map((user) =>
+        user.id === updatedUser.id ? updatedUser : user
       );
+      setUsers(updatedUsers);
+      updateSummary(updatedUsers);
     } catch (error) {
       console.error("Error updating user access:", error);
     }

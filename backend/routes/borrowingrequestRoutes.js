@@ -25,7 +25,7 @@ router.get("/:id/cover-letter", borrowingRequestController.getCoverLetter);
 router.put("/:id/return", borrowingRequestController.returnBorrowingRequest);
 router.delete("/:id", borrowingRequestController.deleteBorrowingRequest);
 router.post("/send-email", borrowingRequestController.sendManualEmail);
-router.post("/notify-sms", borrowingRequestController.sendSMSReminder);
+router.post("/notify-email", borrowingRequestController.sendReminderEmail);
 
 // Pending requests
 router.get("/pending/:assetId", async (req, res) => {

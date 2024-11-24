@@ -4,7 +4,7 @@ import React from 'react';
 
 const EditUser = ({ user, roles, onChange, onSubmit, onCancel }) => {
   return (
-    <div className="fixed inset-0 bg-gray-800 bg-opacity-75 overflow-y-auto h-full w-full flex items-center justify-center">
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-75 overflow-y-auto h-full w-full flex items-center justify-center z-10">
       <div className="relative p-8 border w-full max-w-lg shadow-xl rounded-lg bg-white">
         <h3 className="text-xl font-semibold leading-6 text-gray-800 mb-6 border-b pb-4">Edit User</h3>
         <form onSubmit={onSubmit}>

@@ -6,7 +6,6 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const BorrowLogs = require("../models/borrowLogs");
 const emailService = require("../services/emailService");
-const { sendSMS } = require("../services/smsService");
 const pool = require("../config/database");
 const axios = require("axios");
 
@@ -237,17 +236,17 @@ exports.sendManualEmail = async (req, res) => {
   }
 };
 
-exports.sendSMSReminder = async (req, res) => {
-  const { contactNo, name, expectedReturnDate } = req.body;
+exports.sendReminderEmail = async (req, res) => {
+  const { email, name, expectedReturnDate } = req.body;
 
-  if (!contactNo || !name || !expectedReturnDate) {
+  if (!email || !name || !expectedReturnDate) {
     return res.status(400).json({
-      message: "Contact number, name, and expected return date are required.",
+      message: "Email, name, and expected return date are required.",
     });
   }
 
   try {
-    await sendSMS(contactNo, name, expectedReturnDate);
+    await emailService.sendReminderEmail(email, name, expectedReturnDate);
     res.status(200).json({ message: "SMS sent successfully" });
   } catch (error) {
     console.error("Error sending SMS reminder:", error);

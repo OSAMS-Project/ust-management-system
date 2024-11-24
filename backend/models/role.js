@@ -57,9 +57,10 @@ const updateRolePermissions = async (roleName, permissions) => {
     WHERE role_name = $2
     RETURNING role_name, permissions
   `;
-  return executeTransaction([{ query, params: [JSON.stringify(permissions), roleName] }]);
+  return executeTransaction([
+    { query, params: [JSON.stringify(permissions), roleName] },
+  ]);
 };
-
 
 const getRolePermissionsFromDB = async (roleName) => {
   const query = `
@@ -76,6 +77,16 @@ const getRolePermissionsFromDB = async (roleName) => {
   }
 };
 
+const editRoleName = async (oldRoleName, newRoleName) => {
+  const query = `
+    UPDATE Role
+    SET role_name = $1
+    WHERE role_name = $2
+    RETURNING role_name
+  `;
+  return executeTransaction([{ query, params: [newRoleName, oldRoleName] }]);
+};
+
 module.exports = {
   createRoleTable,
   getRoles,
@@ -83,4 +94,5 @@ module.exports = {
   deleteRole,
   updateRolePermissions,
   getRolePermissionsFromDB,
+  editRoleName,
 };

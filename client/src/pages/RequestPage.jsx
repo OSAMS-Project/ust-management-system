@@ -88,6 +88,7 @@ function EmailRequestForm() {
           <GoogleLogin
             onSuccess={handleLoginSuccess}
             onError={handleLoginFailure}
+            hd={"ust.edu.ph"}
           />
         </GoogleOAuthProvider>
 
