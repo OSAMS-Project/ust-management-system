@@ -14,13 +14,13 @@ const Dashboard = () => {
   const [recentEvents, setRecentEvents] = useState([]);
   const [stockHistory, setStockHistory] = useState([]);
   const [borrowedAssetsFrequency, setBorrowedAssetsFrequency] = useState({});
-
-  const [totalEvents, setTotalEvents] = useState(0);
   const [completedEvents, setCompletedEvents] = useState([]);
+  const [allEvents, setAllEvents] = useState([]); // Use allEvents instead of upcomingEvents
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
+        // Fetch assets
         const assetsResponse = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/Assets/read`
         );
@@ -28,18 +28,24 @@ const Dashboard = () => {
         setRecentAssets(assetsResponse.data.slice(0, 3));
         calculateWeeklyStockHistory(assetsResponse.data);
 
+        // Fetch all events
         const eventsResponse = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/Events/read`
         );
-        setTotalEvents(eventsResponse.data.length);
-        setRecentEvents(eventsResponse.data.slice(0, 3));
-        
+        const allEvents = eventsResponse.data || [];
+        setAllEvents(allEvents); // Set all events directly
+        setRecentEvents(allEvents.slice(0, 3)); // Keep recent events logic intact
 
+        // Fetch completed events
         const completedEventsResponse = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/events/completed`
         );
         setCompletedEvents(completedEventsResponse.data || []);
 
+        console.log("All Events:", allEvents);
+        console.log("Completed Events:", completedEventsResponse.data);
+
+        // Fetch borrowed assets frequency
         const fetchBorrowedAssetsFrequency = async () => {
           try {
             const response = await axios.get(
@@ -88,8 +94,6 @@ const Dashboard = () => {
 
   return (
     <div className="p-6">
-      {/* Welcome Section */}
-
       {/* Dashboard Info Cards */}
       <DashboardInfoCards />
 
@@ -107,13 +111,13 @@ const Dashboard = () => {
         <div className="flex flex-col p-2">
           <EventCompletionChart
             completedEvents={completedEvents}
-            totalEvents={totalEvents}
+            allEvents={allEvents} // Pass allEvents here
           />
         </div>
 
         {/* Borrowed Assets Frequency Chart */}
         <div className="flex flex-col lg:col-span-2 p-2">
-        <BorrowerFrequencyChart borrowerData={borrowedAssetsFrequency} />
+          <BorrowerFrequencyChart borrowerData={borrowedAssetsFrequency} />
         </div>
       </div>
 

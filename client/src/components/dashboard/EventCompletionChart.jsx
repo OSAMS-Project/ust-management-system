@@ -1,17 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const EventCompletionChart = ({ completedEvents, totalEvents }) => {
-  const upcomingEvents = Math.max(totalEvents - completedEvents.length, 0);
+const EventCompletionChart = ({ completedEvents, allEvents }) => {
+
+  useEffect(() => {
+    console.log("Completed Events:", completedEvents);
+    console.log("All Events:", allEvents);
+    console.log("Upcoming Events:", allEvents);
+  }, [completedEvents, allEvents]);
 
   const data = {
     labels: ["Completed Events", "Upcoming Events"],
     datasets: [
       {
-        data: [completedEvents.length || 0, upcomingEvents],
+        data: [completedEvents.length, allEvents.length],
         backgroundColor: ["#FEC00F", "#333333"],
         borderWidth: 1,
       },
@@ -62,7 +67,7 @@ const EventCompletionChart = ({ completedEvents, totalEvents }) => {
             ></div>
             <p className="ml-2 font-medium">
               Upcoming:{" "}
-              <span className="text-gray-600">{upcomingEvents}</span>
+              <span className="text-gray-600">{allEvents.length}</span>
             </p>
           </div>
         </div>

@@ -57,7 +57,7 @@ const DashboardInfoCards = () => {
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="relative z-10 flex flex-col justify-between h-full w-3/4 text-left">
             <div className="p-3">
-              <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg"> 
+              <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error ? "Error" : dashboardData.totalAssets === undefined ? "0" : dashboardData.totalAssets}
               </h2>
               <p className="text-base font-semibold text-white drop-shadow-md">
@@ -86,7 +86,7 @@ const DashboardInfoCards = () => {
               <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error ? "Error" : dashboardData.totalEvents === undefined ? "0" : dashboardData.totalEvents}
               </h2>
-              <p className="text-[1.07rem] font-semibold text-white drop-shadow-md">
+              <p className="text-[1.25rem] font-semibold text-white drop-shadow-md">
                 Ongoing Events
               </p>
             </div>
@@ -112,7 +112,7 @@ const DashboardInfoCards = () => {
               <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error ? "Error" : dashboardData.totalAssetsForBorrowing === undefined ? "0" : dashboardData.totalAssetsForBorrowing}
               </h2>
-              <p className="text-[1.07rem] font-semibold text-white drop-shadow-md">
+              <p className="text-[1.25rem] font-semibold text-white drop-shadow-md">
                 Total Assets for Borrowing
               </p>
             </div>
@@ -138,7 +138,7 @@ const DashboardInfoCards = () => {
               <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error ? "Error" : dashboardData.totalPendingRequests === undefined ? "0" : dashboardData.totalPendingRequests}
               </h2>
-              <p className="text-[1.07rem] font-semibold text-white drop-shadow-md">
+              <p className="text-[1.25rem] font-semibold text-white drop-shadow-md">
                 Pending Borrowing Requests
               </p>
             </div>
@@ -166,7 +166,7 @@ const DashboardInfoCards = () => {
               <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error ? "Error" : dashboardData.totalAcceptedRequests === undefined ? "0" : dashboardData.totalAcceptedRequests}
               </h2>
-              <p className="text-[1.07rem] font-semibold text-white drop-shadow-md">
+              <p className="text-[1.25rem] font-semibold text-white drop-shadow-md">
                 Accepted Borrowing Requests
               </p>
             </div>
@@ -191,7 +191,7 @@ const DashboardInfoCards = () => {
               <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error ? "Error" : dashboardData.totalIncomingAssets === undefined ? "0" : dashboardData.totalIncomingAssets}
               </h2>
-              <p className="text-[1.07rem] font-semibold text-white drop-shadow-md">
+              <p className="text-[1.25rem] font-semibold text-white drop-shadow-md">
                 Incoming Assets
               </p>
             </div>
@@ -216,7 +216,7 @@ const DashboardInfoCards = () => {
               <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
                 {error ? "Error" : dashboardData.totalRepairs === undefined ? "0" : dashboardData.totalRepairs}
               </h2>
-              <p className="text-[1.07rem] font-semibold text-white drop-shadow-md">
+              <p className="text-[1.25rem] font-semibold text-white drop-shadow-md">
                 Ongoing Asset Repairs
               </p>
             </div>
