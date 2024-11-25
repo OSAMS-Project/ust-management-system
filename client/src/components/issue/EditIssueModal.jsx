@@ -59,16 +59,29 @@ const EditIssueModal = ({ isOpen, onClose, onEditIssue, issue, assets }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-lg">
-        <div className="p-6">
-          <h2 className="text-xl font-semibold mb-6">Edit Issue</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-auto transform transition-all animate-fadeIn font-roboto">
+        <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 p-6 rounded-t-2xl">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-black">Edit Issue</h2>
+            <button
+              onClick={onClose}
+              className="text-black hover:text-gray-700 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div className="p-6 max-h-[80vh] overflow-y-auto">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="block text-sm font-semibold text-gray-700">
                 Asset
               </label>
-              <div className="w-full px-3 py-2 border rounded-md bg-gray-100 flex justify-between items-center">
+              <div className="w-full px-3 py-2 border rounded-lg bg-gray-50 flex justify-between items-center">
                 <span>
                   {assets.find(a => a.asset_id === issue.asset_id)?.assetName || ''}
                 </span>
@@ -82,14 +95,14 @@ const EditIssueModal = ({ isOpen, onClose, onEditIssue, issue, assets }) => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="block text-sm font-semibold text-gray-700">
                 Issue Type
               </label>
               <select
                 name="issue_type"
                 value={editData.issue_type}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 required
               >
                 <option value="">Select Issue Type</option>
@@ -100,14 +113,14 @@ const EditIssueModal = ({ isOpen, onClose, onEditIssue, issue, assets }) => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="block text-sm font-semibold text-gray-700">
                 Priority Level
               </label>
               <select
                 name="priority"
                 value={editData.priority}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 required
               >
                 <option value="">Select Priority</option>
@@ -118,7 +131,7 @@ const EditIssueModal = ({ isOpen, onClose, onEditIssue, issue, assets }) => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="block text-sm font-semibold text-gray-700">
                 Quantity
               </label>
               <input
@@ -128,7 +141,7 @@ const EditIssueModal = ({ isOpen, onClose, onEditIssue, issue, assets }) => {
                 onChange={handleInputChange}
                 min="1"
                 max={maxAllowedQuantity}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 required
               />
               <p className="text-sm text-gray-600">
@@ -137,29 +150,29 @@ const EditIssueModal = ({ isOpen, onClose, onEditIssue, issue, assets }) => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">
+              <label className="block text-sm font-semibold text-gray-700">
                 Description
               </label>
               <textarea
                 name="description"
                 value={editData.description}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 min-h-[120px]"
                 required
               />
             </div>
 
-            <div className="flex justify-end gap-4 pt-4">
+            <div className="flex justify-end gap-4 pt-4 border-t mt-6">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                className="px-6 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                className="px-6 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors"
               >
                 Save Changes
               </button>

@@ -96,126 +96,148 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-      <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <h3 className="text-lg font-bold mb-4">Add Repair Record</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Asset
-            </label>
-            <input
-              type="text"
-              value={selectedAsset?.assetName || ''}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 cursor-not-allowed"
-              readOnly
-            />
-            {/* Hidden input for asset_id */}
-            <input
-              type="hidden"
-              name="asset_id"
-              value={selectedAsset?.asset_id || selectedIssue?.asset_id || ''}
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Quantity for Repair
-            </label>
-            <input
-              type="number"
-              name="repair_quantity"
-              value={repairData.repair_quantity}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100 cursor-not-allowed"
-              readOnly
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="repairType">
-              Repair Type
-            </label>
-            <select
-              name="repairType"
-              value={repairData.repairType}
-              onChange={handleInputChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
-            >
-              <option value="">Select repair type</option>
-              {repairTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
-              Description
-            </label>
-            <textarea
-              name="description"
-              value={repairData.description}
-              onChange={handleInputChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="date">
-              Repair Date
-            </label>
-            <input
-              type="date"
-              name="date"
-              value={repairData.date}
-              onChange={handleInputChange}
-              min={new Date().toISOString().split('T')[0]}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="cost">
-              Repair Cost
-            </label>
-            <input
-              type="number"
-              name="cost"
-              value={repairData.cost}
-              onChange={handleInputChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="performedBy">
-              Performed By
-            </label>
-            <input
-              type="text"
-              name="performedBy"
-              value={repairData.performedBy}
-              onChange={handleInputChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
-            />
-          </div>
-          <div className="flex justify-end">
+    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-auto transform transition-all animate-fadeIn font-roboto">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 p-6 rounded-t-2xl">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-black">Add Repair Record</h2>
             <button
-              type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded mr-2"
+              className="text-black hover:text-gray-700 transition-colors"
             >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded"
-            >
-              Add Repair
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
-        </form>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 max-h-[80vh] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Asset
+              </label>
+              <input
+                type="text"
+                value={selectedAsset?.assetName || ''}
+                className="w-full px-3 py-2 border rounded-lg bg-gray-50 cursor-not-allowed"
+                readOnly
+              />
+              <input
+                type="hidden"
+                name="asset_id"
+                value={selectedAsset?.asset_id || selectedIssue?.asset_id || ''}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Quantity for Repair
+              </label>
+              <input
+                type="number"
+                name="repair_quantity"
+                value={repairData.repair_quantity}
+                className="w-full px-3 py-2 border rounded-lg bg-gray-50 cursor-not-allowed"
+                readOnly
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Repair Type
+              </label>
+              <select
+                name="repairType"
+                value={repairData.repairType}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                required
+              >
+                <option value="">Select repair type</option>
+                {repairTypes.map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={repairData.description}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 min-h-[120px]"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Repair Date
+              </label>
+              <input
+                type="date"
+                name="date"
+                value={repairData.date}
+                onChange={handleInputChange}
+                min={new Date().toISOString().split('T')[0]}
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Repair Cost
+              </label>
+              <input
+                type="number"
+                name="cost"
+                value={repairData.cost}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Performed By
+              </label>
+              <input
+                type="text"
+                name="performedBy"
+                value={repairData.performedBy}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                required
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-4 pt-4 border-t mt-6">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-6 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors"
+              >
+                Add Repair
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
