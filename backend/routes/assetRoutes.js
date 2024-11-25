@@ -5,6 +5,16 @@ const Asset = require('../models/assets');
 const { executeTransaction } = require('../utils/queryExecutor');
 const pool = require('../config/database');
 
+// SSE endpoint
+router.get('/sse', (req, res) => {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive'
+  });
+  req.app.get('sse').init(req, res);
+});
+
 router.post('/create', assetController.createAsset);
 router.get('/read', assetController.readAssets);
 router.put('/update/:id', assetController.updateAsset);

@@ -11,7 +11,7 @@ const updateAsset = async (req, res) => {
     
     Object.keys(req.body).forEach(async (key) => {
       if (key !== 'modified_by' && key !== 'user_picture' && oldAsset[key] !== req.body[key]) {
-        await AssetActivityLog.logAssetActivity(
+        const log = await AssetActivityLog.logAssetActivity(
           id,
           'update',
           key,
@@ -20,6 +20,8 @@ const updateAsset = async (req, res) => {
           modified_by,
           user_picture
         );
+        // Emit SSE event
+        req.app.get('sse').send(log, 'asset-activity');
       }
     });
 
@@ -71,6 +73,12 @@ const createAssetActivityLog = async (req, res) => {
           );
         })
     );
+
+    // Emit SSE events for each log
+    logs.forEach(log => {
+      req.app.get('sse').send(log, 'asset-activity');
+    });
+
     res.status(201).json(logs);
   } catch (err) {
     console.error("Error in createAssetActivityLog:", err);
@@ -82,13 +90,17 @@ const logEventAllocation = async (req, res) => {
   try {
     const { assetId, quantity, eventName, modified_by, user_picture } = req.body;
 
-    await AssetActivityLog.logEventAllocation(
+    const log = await AssetActivityLog.logEventAllocation(
       assetId, 
       quantity, 
       eventName, 
       modified_by,
       user_picture
     );
+
+    // Emit SSE event
+    req.app.get('sse').send(log, 'asset-activity');
+
     res.status(201).json({ message: 'Event allocation logged successfully' });
   } catch (err) {
     console.error('Error in logEventAllocation:', err);
@@ -100,5 +112,5 @@ module.exports = {
   updateAsset,
   getAssetActivityLogs,
   createAssetActivityLog,
-  logEventAllocation,
+  logEventAllocation
 };
