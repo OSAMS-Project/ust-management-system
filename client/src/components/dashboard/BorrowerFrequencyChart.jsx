@@ -71,7 +71,7 @@ const BorrowerFrequencyChart = ({ borrowerData }) => {
   return (
     <div className="border border-gray-300 rounded-lg h-[240px] flex flex-col">
       <div className="bg-black text-[#FEC00F] text-sm py-2 px-4 rounded-t-lg font-bold">
-        Borrower Frequency
+        Assets Borrowed Frequency
       </div>
       <div className="w-full h-full p-2 bg-white flex-grow rounded-b-lg">
         <Bar data={data} options={options} />
