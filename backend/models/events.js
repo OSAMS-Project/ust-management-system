@@ -238,10 +238,40 @@ const addAssetsToEvent = async (eventId, assets) => {
     }
 
     for (const asset of assets) {
-      // Get the current asset details including cost
-      const assetDetailsQuery = 'SELECT cost FROM assets WHERE asset_id = $1';
+      // Get the current asset details including cost, quantity, and type
+      const assetDetailsQuery = 'SELECT cost, quantity, "totalCost", type FROM assets WHERE asset_id = $1';
       const assetDetails = await client.query(assetDetailsQuery, [asset.asset_id]);
-      const assetCost = assetDetails.rows[0]?.cost || 0;
+      const assetData = assetDetails.rows[0];
+      
+      if (!assetData) {
+        throw new Error(`Asset not found with ID: ${asset.asset_id}`);
+      }
+
+      const assetCost = assetData.cost || 0;
+      const currentQuantity = assetData.quantity;
+      const currentTotalCost = assetData.totalCost || 0;
+      const isConsumable = assetData.type?.toLowerCase() === 'consumable';
+
+      // Validate if we have enough quantity
+      if (currentQuantity < asset.selectedQuantity) {
+        throw new Error(`Insufficient quantity for asset ${asset.asset_id}. Available: ${currentQuantity}, Requested: ${asset.selectedQuantity}`);
+      }
+
+      // Calculate new quantity and total cost
+      const newQuantity = currentQuantity - asset.selectedQuantity;
+      
+      // Only reduce total cost for consumable items
+      let newTotalCost = currentTotalCost;
+      if (isConsumable) {
+        const costReduction = assetCost * asset.selectedQuantity;
+        newTotalCost = currentTotalCost - costReduction;
+      }
+
+      // Update the main asset's quantity and total cost
+      await client.query(
+        'UPDATE assets SET quantity = $1, "totalCost" = $2 WHERE asset_id = $3',
+        [newQuantity, newTotalCost, asset.asset_id]
+      );
 
       console.log(`Processing asset ${asset.asset_id} for event ${eventId} with quantity ${asset.selectedQuantity}`);
       
@@ -251,11 +281,11 @@ const addAssetsToEvent = async (eventId, assets) => {
       
       if (existingAssetResult.rows.length > 0) {
         // Asset already exists, update its quantity and cost
-        const currentQuantity = existingAssetResult.rows[0].quantity;
-        const newQuantity = currentQuantity + asset.selectedQuantity;
+        const currentEventQuantity = existingAssetResult.rows[0].quantity;
+        const newEventQuantity = currentEventQuantity + asset.selectedQuantity;
         await client.query(
           'UPDATE event_assets SET quantity = $1, cost = $2 WHERE event_id = $3 AND asset_id = $4',
-          [newQuantity, assetCost, eventId, asset.asset_id]
+          [newEventQuantity, assetCost, eventId, asset.asset_id]
         );
       } else {
         // Asset doesn't exist, insert it with cost
@@ -381,9 +411,9 @@ const completeEvent = async (eventId, returnQuantities = {}) => {
   try {
     await client.query('BEGIN');
 
-    // Get all event assets with their types
+    // Get all event assets with their types and costs
     const assetsQuery = `
-      SELECT ea.asset_id, ea.quantity, a.type, a."assetName"
+      SELECT ea.asset_id, ea.quantity, ea.cost, a.type, a."assetName", a."totalCost"
       FROM event_assets ea
       JOIN assets a ON ea.asset_id = a.asset_id
       WHERE ea.event_id = $1
@@ -394,12 +424,29 @@ const completeEvent = async (eventId, returnQuantities = {}) => {
     // Handle consumable returns
     for (const [assetId, returnQty] of Object.entries(returnQuantities)) {
       if (returnQty > 0) {
-        await client.query(
-          `UPDATE assets 
-           SET quantity = quantity + $1 
-           WHERE asset_id = $2`,
-          [returnQty, assetId]
-        );
+        const asset = eventAssets.find(a => a.asset_id === assetId);
+        if (asset && asset.type === 'Consumable') {
+          // Calculate cost to return
+          const costPerUnit = asset.cost || 0;
+          const costToReturn = costPerUnit * returnQty;
+
+          // Update quantity and total cost
+          await client.query(
+            `UPDATE assets 
+             SET quantity = quantity + $1,
+                 "totalCost" = "totalCost" + $2
+             WHERE asset_id = $3`,
+            [returnQty, costToReturn, assetId]
+          );
+        } else {
+          // For non-consumables, just update quantity
+          await client.query(
+            `UPDATE assets 
+             SET quantity = quantity + $1
+             WHERE asset_id = $2`,
+            [returnQty, assetId]
+          );
+        }
       }
     }
 
@@ -415,28 +462,22 @@ const completeEvent = async (eventId, returnQuantities = {}) => {
     }
 
     // Store completed assets info and mark event as completed
+    const completedAssetsInfo = eventAssets.map(asset => ({
+      ...asset,
+      returned_quantity: asset.type === 'Consumable' ? (returnQuantities[asset.asset_id] || 0) : asset.quantity
+    }));
+
     await client.query(
-      `UPDATE events 
+      `UPDATE Events 
        SET is_completed = true,
            completed_at = CURRENT_TIMESTAMP,
            completed_assets = $1
        WHERE unique_id = $2`,
-      [JSON.stringify(eventAssets), eventId]
-    );
-
-    // Clean up event_assets entries
-    await client.query(
-      `DELETE FROM event_assets 
-       WHERE event_id = $1`,
-      [eventId]
+      [JSON.stringify(completedAssetsInfo), eventId]
     );
 
     await client.query('COMMIT');
-    return {
-      success: true,
-      message: 'Event completed successfully',
-      completedAssets: eventAssets
-    };
+    return { success: true };
   } catch (error) {
     await client.query('ROLLBACK');
     console.error('Error in completeEvent:', error);
