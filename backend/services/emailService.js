@@ -80,7 +80,7 @@ const sendReminderEmail = async (email, name, expectedReturnDate) => {
   const mailOptions = {
     from: `"Asset Management Team" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: "Your Verification Code",
+    subject: "Asset Return Date",
     text: `Hello ${name}, this is a reminder that your expected return date is on ${expectedReturnDate}. Please ensure timely return.`,
   };
   try {
