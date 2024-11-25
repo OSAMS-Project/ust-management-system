@@ -31,8 +31,9 @@ const Dashboard = () => {
         const eventsResponse = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/Events/read`
         );
-        setRecentEvents(eventsResponse.data.slice(0, 3));
         setTotalEvents(eventsResponse.data.length);
+        setRecentEvents(eventsResponse.data.slice(0, 3));
+        
 
         const completedEventsResponse = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/events/completed`

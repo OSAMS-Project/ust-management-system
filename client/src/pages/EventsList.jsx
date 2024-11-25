@@ -12,6 +12,7 @@ import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import NotificationPopup from "../components/utils/NotificationsPopup";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
 const formatTime = (time) => {
   if (!time) return "";
   const [hours, minutes] = time.split(":");
