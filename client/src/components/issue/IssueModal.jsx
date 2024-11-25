@@ -161,7 +161,7 @@ const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user, issues = [] }) 
             {assets.find(a => a.asset_id === issueData.asset_id)?.productCode && 
              assets.find(a => a.asset_id === issueData.asset_id)?.productCode !== 'N/A' && (
               <span className="text-sm text-gray-600">
-                Code: {assets.find(a => a.asset_id === issueData.asset_id)?.productCode}
+                Product Code: {assets.find(a => a.asset_id === issueData.asset_id)?.productCode}
               </span>
             )}
           </div>
@@ -194,7 +194,7 @@ const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user, issues = [] }) 
               <div className="flex justify-between items-center">
                 <span className="font-medium">{asset.assetName}</span>
                 {asset.productCode && asset.productCode !== 'N/A' && (
-                  <span className="text-sm text-gray-600">Code: {asset.productCode}</span>
+                  <span className="text-sm text-gray-600">Product Code: {asset.productCode}</span>
                 )}
               </div>
             </div>
