@@ -207,9 +207,9 @@ const IncomingAssets = () => {
         <div className="mb-6 flex justify-between items-center">
           <button
             onClick={() => setShowForm(true)}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="px-4 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors"
           >
-            Add New Incoming Asset
+            Add Incoming Asset
           </button>
         </div>
 

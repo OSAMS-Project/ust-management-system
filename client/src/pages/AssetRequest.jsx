@@ -192,7 +192,7 @@ const AssetRequest = ({ user }) => {
     
       <button 
         onClick={handleOpenModal}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 ml-2"
+        className="px-4 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors m-3"
       >
         Add Asset Request
       </button>
