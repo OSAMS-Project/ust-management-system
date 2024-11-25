@@ -3,7 +3,7 @@ import { FaSearch } from 'react-icons/fa';
 
 const AssetSearchbar = ({ handleSearch }) => {
   return (
-    <div className="w-[335px] h-[44px] flex-shrink-0 rounded-md border border-black bg-[#FEFEFE] flex items-center px-2.5">
+    <div className="w-[370px] h-[44px] flex-shrink-0 rounded-md border border-black bg-[#FEFEFE] flex items-center px-2.5">
       <FaSearch className="w-[24.484px] h-[22px] mr-2 text-[#ccc]" />
       <input
         type="text"

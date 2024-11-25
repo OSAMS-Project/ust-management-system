@@ -452,7 +452,7 @@ const AssetList = () => {
       </div>
       <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row justify-between items-center">
         {/* Search and Sort Controls */}
-        <div className="flex flex-wrap w-full md:flex-nowrap md:w-auto justify-between items-center space-y-4 md:space-y-0 md:space-x-1">
+        <div className="flex flex-wrap w-full md:flex-nowrap md:w-auto justify-between items-center space-y-4 md:space-y-0 md:space-x-2">
           <div className="w-full md:w-auto flex-shrink-0">
             <AssetCategory
               onSaveCategory={handleAddCategory}
@@ -487,7 +487,7 @@ const AssetList = () => {
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-3">
         <AssetTypeFilter
           selectedFilter={assetTypeFilter}
           onFilterChange={setAssetTypeFilter}
