@@ -14,6 +14,7 @@ const createEventsTable = async () => {
       event_location VARCHAR(255),
       is_completed BOOLEAN DEFAULT false,
       completed_at TIMESTAMP,
+      completed_by VARCHAR(255),
       image TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       completed_assets JSONB
@@ -405,11 +406,20 @@ const getEventById = async (uniqueId) => {
   }
 };
 
-const completeEvent = async (eventId, returnQuantities = {}) => {
+const completeEvent = async (eventId, returnQuantities = {}, modifiedBy = null, userPicture = null) => {
   const client = await pool.connect();
   
   try {
     await client.query('BEGIN');
+
+    // Get event details first
+    const eventQuery = 'SELECT event_name FROM Events WHERE unique_id = $1';
+    const eventResult = await client.query(eventQuery, [eventId]);
+    const eventName = eventResult.rows[0]?.event_name;
+
+    if (!eventName) {
+      throw new Error(`Event not found with ID: ${eventId}`);
+    }
 
     // Get all event assets with their types and costs
     const assetsQuery = `
@@ -438,6 +448,15 @@ const completeEvent = async (eventId, returnQuantities = {}) => {
              WHERE asset_id = $3`,
             [returnQty, costToReturn, assetId]
           );
+
+          // Log consumable return
+          await AssetActivityLog.logEventReturn(
+            assetId,
+            returnQty,
+            eventName,
+            modifiedBy,
+            userPicture
+          );
         } else {
           // For non-consumables, just update quantity
           await client.query(
@@ -459,6 +478,15 @@ const completeEvent = async (eventId, returnQuantities = {}) => {
          WHERE asset_id = $2`,
         [asset.quantity, asset.asset_id]
       );
+
+      // Log non-consumable return
+      await AssetActivityLog.logEventReturn(
+        asset.asset_id,
+        asset.quantity,
+        eventName,
+        modifiedBy,
+        userPicture
+      );
     }
 
     // Store completed assets info and mark event as completed
@@ -471,9 +499,10 @@ const completeEvent = async (eventId, returnQuantities = {}) => {
       `UPDATE Events 
        SET is_completed = true,
            completed_at = CURRENT_TIMESTAMP,
-           completed_assets = $1
-       WHERE unique_id = $2`,
-      [JSON.stringify(completedAssetsInfo), eventId]
+           completed_assets = $1,
+           completed_by = $2
+       WHERE unique_id = $3`,
+      [JSON.stringify(completedAssetsInfo), modifiedBy, eventId]
     );
 
     await client.query('COMMIT');
@@ -601,7 +630,8 @@ const addCompletionColumns = async () => {
     await client.query(`
       ALTER TABLE Events 
       ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP,
-      ADD COLUMN IF NOT EXISTS is_completed BOOLEAN DEFAULT false
+      ADD COLUMN IF NOT EXISTS is_completed BOOLEAN DEFAULT false,
+      ADD COLUMN IF NOT EXISTS completed_by VARCHAR(255)
     `);
 
     await client.query('COMMIT');

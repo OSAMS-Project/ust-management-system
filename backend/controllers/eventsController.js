@@ -72,11 +72,19 @@ const completeEvent = async (req, res) => {
   try {
     const { uniqueId } = req.params;
     const { returnQuantities } = req.body;
-    const result = await Event.completeEvent(uniqueId, returnQuantities);
+    const { user } = req;
+
+    const result = await Event.completeEvent(
+      uniqueId, 
+      returnQuantities,
+      user?.email || user?.name || 'System',
+      user?.picture
+    );
+
     res.json(result);
   } catch (error) {
     console.error('Error completing event:', error);
-    res.status(500).json({ error: 'Failed to complete event' });
+    res.status(500).json({ error: error.message });
   }
 };
 

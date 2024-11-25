@@ -64,11 +64,7 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
     if (log.action === 'event_return') {
       return (
         <p key={log.id} className="text-sm text-gray-600 mb-1">
-          <strong className="text-black">{fieldNameMapping[log.field_name] || log.field_name}</strong>: 
           <strong className="text-green-600">{log.context}</strong>
-          <br />
-          Available quantity updated from <strong className="text-blue-600">{log.old_value}</strong> to 
-          <strong className="text-green-600"> {log.new_value}</strong>
         </p>
       );
     }

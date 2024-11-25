@@ -65,9 +65,10 @@ const logEventAllocation = async (assetId, quantity, eventName, modifiedBy, user
       old_value, 
       new_value, 
       modified_by,
-      user_picture
+      user_picture,
+      context
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
   `;
   const values = [
     assetId, 
@@ -76,7 +77,35 @@ const logEventAllocation = async (assetId, quantity, eventName, modifiedBy, user
     quantity.toString(), 
     eventName, 
     modifiedBy,
-    userPicture
+    userPicture,
+    `Event Allocation: ${quantity} unit(s) allocated to event "${eventName}"`
+  ];
+  return executeTransaction([{ query, params: values }]);
+};
+
+const logEventReturn = async (assetId, quantity, eventName, modifiedBy, userPicture) => {
+  const query = `
+    INSERT INTO AssetActivityLogs (
+      asset_id, 
+      action, 
+      field_name, 
+      old_value, 
+      new_value, 
+      modified_by,
+      user_picture,
+      context
+    )
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+  `;
+  const values = [
+    assetId, 
+    'event_return', 
+    'event_return', 
+    '', 
+    '', 
+    modifiedBy,
+    userPicture,
+    `Event Return: ${quantity} unit(s) returned from event "${eventName}"`
   ];
   return executeTransaction([{ query, params: values }]);
 };
@@ -86,4 +115,5 @@ module.exports = {
   logAssetActivity,
   getAssetActivityLogs,
   logEventAllocation,
+  logEventReturn
 };
