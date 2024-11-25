@@ -85,6 +85,12 @@ const AssetRequestTable = ({ assetRequests, onApprove, onDecline, onRowClick }) 
     }
   };
 
+  // Add these handler functions
+  const handleButtonClick = (e, action, id) => {
+    e.stopPropagation();  // This prevents the click from bubbling up to the row
+    action(id);
+  };
+
   return (
     <div className="mt-2 mb-8">
       <h2 className="text-2xl font-bold mb-4">Pending Requests</h2>
@@ -114,9 +120,9 @@ const AssetRequestTable = ({ assetRequests, onApprove, onDecline, onRowClick }) 
               <td className="py-2 px-4 border-b text-center">
                 <div className="flex items-center justify-center">
                   <img
-                    src={request.user_picture || "https://via.placeholder.com/30"}
+                    src={request.user_picture || "/osa-img.png"}
                     alt={request.created_by}
-                    className="w-8 h-8 rounded-full mr-2"
+                    className="w-8 h-8 mr-2 object-contain"
                   />
                   {request.created_by}
                 </div>
@@ -126,16 +132,16 @@ const AssetRequestTable = ({ assetRequests, onApprove, onDecline, onRowClick }) 
                   {formatTimeLeft(timeLeft[request.id])}
                 </span>
               </td>
-              <td className="px-4 py-2">
-                <div className="flex gap-2">
+              <td className="px-4 py-2 text-center">
+                <div className="flex gap-2 justify-center">
                   <button
-                    onClick={(e) => onApprove(e, request.id)}
+                    onClick={(e) => handleButtonClick(e, onApprove, request.id)}
                     className="bg-green-500 text-white px-2 py-1 rounded"
                   >
                     Approve
                   </button>
                   <button
-                    onClick={(e) => onDecline(e, request.id)}
+                    onClick={(e) => handleButtonClick(e, onDecline, request.id)}
                     className="bg-red-500 text-white px-2 py-1 rounded"
                   >
                     Decline

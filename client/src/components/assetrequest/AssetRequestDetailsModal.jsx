@@ -1,10 +1,11 @@
 import React from 'react';
 import moment from 'moment';
+import ReactDOM from 'react-dom';
 
 const AssetRequestDetailsModal = ({ isOpen, onClose, request }) => {
   if (!isOpen || !request) return null;
 
-  return (
+  return ReactDOM.createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-auto transform transition-all animate-fadeIn font-roboto">
         {/* Header */}
@@ -59,7 +60,7 @@ const AssetRequestDetailsModal = ({ isOpen, onClose, request }) => {
                 <p className="font-medium text-gray-700">Requested By:</p>
                 <div className="flex items-center gap-2">
                   <img
-                    src={request.user_picture || "https://via.placeholder.com/30"}
+                    src={request.user_picture || "/osa-img.png"}
                     alt={request.created_by}
                     className="w-8 h-8 rounded-full"
                   />
@@ -140,7 +141,8 @@ const AssetRequestDetailsModal = ({ isOpen, onClose, request }) => {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

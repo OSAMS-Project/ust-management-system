@@ -53,7 +53,7 @@ const ApprovedRequestTable = ({ approvedRequests, onArchive }) => {
               <td className="py-2 px-4 border-b text-center">
                 <div className="flex items-center justify-center">
                   <img 
-                    src={asset.user_picture || "https://via.placeholder.com/30"} 
+                    src={asset.user_picture || "/osa-img.png"} 
                     alt={asset.created_by} 
                     className="w-8 h-8 rounded-full mr-2"
                   />

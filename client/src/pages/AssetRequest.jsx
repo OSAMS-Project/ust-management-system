@@ -66,8 +66,8 @@ const AssetRequest = ({ user }) => {
     try {
       const assetData = {
         ...newAsset,
-        created_by: user?.name || 'Admin',
-        user_picture: user?.picture || null
+        created_by: user?.name || 'Administrator',
+        user_picture: user?.picture || ''
       };
       console.log('Sending asset data:', assetData);
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/asset-request`, assetData, {
@@ -173,8 +173,7 @@ const AssetRequest = ({ user }) => {
     setIsDetailsModalOpen(true);
   };
 
-  const handleAction = (e, actionFn, ...args) => {
-    e.stopPropagation(); // Prevent event from bubbling up to the row
+  const handleAction = (actionFn, ...args) => {
     actionFn(...args);
   };
 
@@ -201,18 +200,18 @@ const AssetRequest = ({ user }) => {
       <div id='recipients' className="p-4 mt-4 lg:mt-0 rounded shadow bg-white">
         <AssetRequestTable 
           assetRequests={assetRequests} 
-          onApprove={(e, id) => handleAction(e, handleApprove, id)}
-          onDecline={(e, id) => handleAction(e, handleDecline, id)}
+          onApprove={(id) => handleAction(handleApprove, id)}
+          onDecline={(id) => handleAction(handleDecline, id)}
           onRowClick={handleRowClick}
         />
         <ApprovedRequestTable 
           approvedRequests={approvedRequests} 
-          onArchive={(e, id) => handleAction(e, handleArchive, id)}
+          onArchive={(id) => handleAction(handleArchive, id)}
           onRowClick={handleRowClick}
         />
         <DeclinedRequestTable 
           declinedRequests={declinedRequests} 
-          onArchive={(e, id) => handleAction(e, handleArchive, id)}
+          onArchive={(id) => handleAction(handleArchive, id)}
           onRowClick={handleRowClick}
         />
       </div>
