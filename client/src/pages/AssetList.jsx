@@ -16,7 +16,7 @@ const AssetList = () => {
   const [locations, setLocations] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortCriteria,] = useState("");
+  const [sortCriteria] = useState("");
   const [totalAssets, setTotalAssets] = useState(0);
   const [totalAssetsChange, setTotalAssetsChange] = useState(0);
   const [stockPrice, setStockPrice] = useState(0);
@@ -30,7 +30,7 @@ const AssetList = () => {
     percent: 0,
   });
   const [notification, setNotification] = useState(null);
-  const [assetTypeFilter, setAssetTypeFilter] = useState('all');
+  const [assetTypeFilter, setAssetTypeFilter] = useState("all");
 
   const checkServerConnection = async () => {
     try {
@@ -66,20 +66,23 @@ const AssetList = () => {
     fetchSortedAssets();
   }, [sortCriteria]);
   const calculateTotals = (assetData) => {
-    const total = assetData.length;
+    const total = assetData.length; // Total number of assets
     const stock = assetData.reduce(
       (acc, asset) => acc + asset.cost * asset.quantity,
       0
     );
-    const borrowing = assetData.reduce(
-      (acc, asset) =>
-        asset.is_active ? acc + (asset.quantity_for_borrowing || 0) : acc,
-      0
-    );
 
-    setTotalAssets(total);
-    setStockPrice(stock.toFixed(2));
-    setAssetsForBorrowing(borrowing);
+    // Sum all quantities available for borrowing where assets are active
+    const borrowing = assetData.reduce((acc, asset) => {
+      if (asset.is_active && asset.quantity_for_borrowing > 0) {
+        return acc + asset.quantity_for_borrowing;
+      }
+      return acc;
+    }, 0);
+
+    setTotalAssets(total); // Total number of assets
+    setStockPrice(stock.toFixed(2)); // Total stock price
+    setAssetsForBorrowing(borrowing); // Total assets available for borrowing
   };
 
   const calculateWeeklyChanges = (assetData) => {
@@ -142,7 +145,7 @@ const AssetList = () => {
       const assetsResponse = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/assets/read`
       );
-      
+
       // Remove the filtering of assets with issues
       setAssets(assetsResponse.data);
       calculateTotals(assetsResponse.data);
@@ -183,9 +186,14 @@ const AssetList = () => {
   const fetchTotalActiveAssets = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/assets/active/count`
+        `${process.env.REACT_APP_API_URL}/api/assets/borrowing/total`
       );
-      setAssetsForBorrowing(response.data.count);
+
+      // Parse the response and ensure it's a number
+      const totalBorrowingQuantity =
+        Number(response.data.totalBorrowingQuantity) || 0;
+
+      setAssetsForBorrowing(totalBorrowingQuantity);
     } catch (error) {
       console.error("Error fetching total active assets:", error);
       setAssetsForBorrowing(0);
@@ -208,12 +216,12 @@ const AssetList = () => {
       if (!assetId) {
         return;
       }
-      
+
       // Delete the asset and its associated borrowing requests
       const response = await axios.delete(
         `${process.env.REACT_APP_API_URL}/api/Assets/delete/${assetId}`
       );
-      
+
       if (response.status === 200) {
         setAssets((prevAssets) =>
           prevAssets.filter((asset) => asset.asset_id !== assetId)
@@ -224,7 +232,10 @@ const AssetList = () => {
       }
     } catch (error) {
       console.error("Error deleting asset:", error);
-      showNotification(error.response?.data?.message || "Error deleting asset", "error");
+      showNotification(
+        error.response?.data?.message || "Error deleting asset",
+        "error"
+      );
     }
   }, []);
 
@@ -298,22 +309,25 @@ const AssetList = () => {
       // Ensure newQuantity is a valid number
       const validQuantity = parseInt(newQuantity);
       if (isNaN(validQuantity)) {
-        throw new Error('Invalid quantity value');
+        throw new Error("Invalid quantity value");
       }
 
-      console.log('Updating asset quantity:', { assetId, newQuantity: validQuantity });
+      console.log("Updating asset quantity:", {
+        assetId,
+        newQuantity: validQuantity,
+      });
 
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/Assets/updateQuantity/${assetId}`,
         {
           quantity: validQuantity,
-          quantity_for_borrowing: validQuantity
+          quantity_for_borrowing: validQuantity,
         }
       );
 
       if (response.data.success) {
-        setAssets(prevAssets =>
-          prevAssets.map(asset =>
+        setAssets((prevAssets) =>
+          prevAssets.map((asset) =>
             asset.asset_id === assetId
               ? { ...asset, quantity: validQuantity }
               : asset
@@ -321,10 +335,12 @@ const AssetList = () => {
         );
         return response.data;
       } else {
-        throw new Error(response.data.message || 'Failed to update asset quantity');
+        throw new Error(
+          response.data.message || "Failed to update asset quantity"
+        );
       }
     } catch (error) {
-      console.error('Error updating asset quantity:', error);
+      console.error("Error updating asset quantity:", error);
       throw error;
     }
   }, []);
@@ -356,15 +372,17 @@ const AssetList = () => {
     return assets
       .filter((asset) => {
         const searchLower = searchQuery.toLowerCase();
-        const matchesSearch = 
+        const matchesSearch =
           asset.assetName.toLowerCase().includes(searchLower) ||
-          (asset.productCode && 
-           asset.productCode.toLowerCase().includes(searchLower));
-        
-        if (assetTypeFilter === 'all') return matchesSearch;
-        if (assetTypeFilter === 'consumable') return matchesSearch && asset.type === 'Consumable';
-        if (assetTypeFilter === 'non-consumable') return matchesSearch && asset.type === 'Non-Consumable';
-        
+          (asset.productCode &&
+            asset.productCode.toLowerCase().includes(searchLower));
+
+        if (assetTypeFilter === "all") return matchesSearch;
+        if (assetTypeFilter === "consumable")
+          return matchesSearch && asset.type === "Consumable";
+        if (assetTypeFilter === "non-consumable")
+          return matchesSearch && asset.type === "Non-Consumable";
+
         return matchesSearch;
       })
       .sort((a, b) => {
@@ -422,28 +440,14 @@ const AssetList = () => {
             <p className="text-4xl font-bold text-gray-800 mt-1">
               ₱{stockPrice || "0.00"}
               <span className="text-sm text-black bg-[#FEC00F] rounded-full px-2 ml-2">
-                +₱{stockPriceChange.absolute} ({stockPriceChange.percent}%)
+                +₱{stockPriceChange.absolute}
               </span>
             </p>
             <p className="text-gray-500 text-xs">vs previous 7 days</p>
             <div className="text-gray-400 mt-3 text-sm">Total Value</div>
           </div>
 
-          {/* Assets for Borrowing */}
-          <div className="flex-1 p-4">
-            <h2 className="text-sm font-semibold text-gray-600">
-              Assets for Borrowing
-            </h2>
-            <p className="text-4xl font-bold text-gray-800 mt-1">
-              {assetsForBorrowing || "0"}
-              <span className="text-sm text-black bg-[#FEC00F] rounded-full px-2 ml-2">
-                +{assetsForBorrowingChange.absolute} (
-                {assetsForBorrowingChange.percent}%)
-              </span>
-            </p>
-            <p className="text-gray-500 text-xs">vs previous 7 days</p>
-            <div className="text-gray-400 mt-3 text-sm">Available for Use</div>
-          </div>
+
         </div>
       </div>
       <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row justify-between items-center">

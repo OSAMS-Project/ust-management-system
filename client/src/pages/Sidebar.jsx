@@ -125,7 +125,11 @@ const MENU_LIST = [
     icon: faList,
     subItems: [
       { text: "Asset Repair", to: "/asset-repair", icon: faTools },
-      { text: "Asset Issues", to: "/asset-issues", icon: faExclamationTriangle },
+      {
+        text: "Asset Issues",
+        to: "/asset-issues",
+        icon: faExclamationTriangle,
+      },
       { text: "Asset Request", to: "/asset-request", icon: faBoxOpen },
       {
         text: "Archived Requests",
@@ -170,9 +174,10 @@ const Sidebar = ({ user, onLogout }) => {
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTimeoutModalOpen, setIsTimeoutModalOpen] = useState(false);
+
   // Extract permissions from user
   const permissions = user?.permissions || [];
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === "Administrator";
 
   console.log("User Permissions:", permissions); // Debug permissions
   console.log("Is Admin:", isAdmin); // Debug admin status
@@ -183,7 +188,9 @@ const Sidebar = ({ user, onLogout }) => {
     : MENU_LIST.map((menu) => ({
         ...menu,
         subItems: menu.subItems
-          ? menu.subItems.filter((subItem) => permissions.includes(subItem.text))
+          ? menu.subItems.filter((subItem) =>
+              permissions.includes(subItem.text)
+            )
           : null,
       })).filter(
         (menu) =>
@@ -265,16 +272,16 @@ const Sidebar = ({ user, onLogout }) => {
           className="flex items-center p-4 border-b border-gray-700"
         >
           <img
-            src={user?.picture || "https://via.placeholder.com/50"}
+            src={user?.picture || "/osa-img.png"}
             alt="Profile"
             className="w-12 h-12 rounded-full object-cover"
           />
           <div className="ml-3 flex-1 min-w-0">
             <span className="block font-semibold text-[#FEC00F] uppercase whitespace-nowrap overflow-hidden text-ellipsis">
-              {user?.name ?? "ROLE"}
+              {user?.name ?? "UST-OSA"}
             </span>
             <span className="block text-sm text-gray-400 whitespace-nowrap overflow-hidden text-ellipsis">
-              {user?.role || "Admin"}
+              {user?.role || "No Role"}
             </span>
           </div>
         </Link>

@@ -1,4 +1,6 @@
 const Role = require("../models/role");
+const { executeTransaction } = require("../utils/queryExecutor");
+
 
 // Get all roles
 const getRoles = async (req, res) => {
@@ -30,21 +32,34 @@ const addRole = async (req, res) => {
   }
 };
 
-// Delete a role
 const deleteRole = async (req, res) => {
   const { roleName } = req.params;
+
   if (!roleName) {
     return res
       .status(400)
       .json({ error: "Role name is required for deletion" });
   }
+
   try {
+    // Delete role
     const result = await Role.deleteRole(roleName);
-    if (result.length) {
-      res.status(200).json(result[0]);
-    } else {
-      res.status(404).json({ error: "Role not found" });
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Role not found" });
     }
+
+    // Update all users assigned to the deleted role
+    const query = `
+      UPDATE Users
+      SET role = 'No Role', permissions = '[]'
+      WHERE role = $1
+    `;
+    await executeTransaction([{ query, params: [roleName] }]);
+
+    res.status(200).json({
+      message: `Role '${roleName}' deleted successfully, users updated.`,
+    });
   } catch (err) {
     console.error("Error in deleteRole controller:", err);
     res
@@ -110,11 +125,26 @@ const editRoleName = async (req, res) => {
   }
 
   try {
-    const result = await Role.editRoleName(oldRoleName, newRoleName);
+    // Update the role name in the Role table
+    const query = `
+      UPDATE Role
+      SET role_name = $1
+      WHERE role_name = $2
+      RETURNING role_name
+    `;
+    const result = await executeTransaction([{ query, params: [newRoleName, oldRoleName] }]);
 
-    if (result.rowCount === 0) {
+    if (result.length === 0) {
       return res.status(404).json({ error: "Role not found." });
     }
+
+    // Update the role name for users assigned to the old role
+    const userUpdateQuery = `
+      UPDATE Users
+      SET role = $1
+      WHERE role = $2
+    `;
+    await executeTransaction([{ query: userUpdateQuery, params: [newRoleName, oldRoleName] }]);
 
     res.status(200).json({ message: "Role name updated successfully." });
   } catch (err) {
@@ -124,6 +154,7 @@ const editRoleName = async (req, res) => {
       .json({ error: "Error updating role name", details: err.toString() });
   }
 };
+
 
 module.exports = {
   getRoles,

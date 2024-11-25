@@ -8,7 +8,7 @@ import {
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 
-const RoleManagement = () => {
+const RoleManagement = ({ onRoleUpdate }) => {
   const [roles, setRoles] = useState([]);
   const [newRole, setNewRole] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,7 +30,6 @@ const RoleManagement = () => {
     ],
     "Borrowing Requests": ["Borrowing History"],
     "Events Management": ["Completed Events"],
-    "User Management": ["Role Management"],
   };
 
   const predefinedPages = [
@@ -39,8 +38,6 @@ const RoleManagement = () => {
     "Borrowing Requests",
     "Supplier Lists",
     "Events Management",
-    "User Management",
-    "Role Management",
     "Asset Management",
     "Asset Request",
     "Asset Repair",
@@ -60,10 +57,12 @@ const RoleManagement = () => {
       setLoading(true);
       const response = await axios.get(API_URL);
 
-      const rolesWithPermissions = response.data.map((role) => ({
-        ...role,
-        permissions: role.permissions || [],
-      }));
+      const rolesWithPermissions = response.data
+        .map((role) => ({
+          ...role,
+          permissions: role.permissions || [],
+        }))
+        .sort((a, b) => a.role_name.localeCompare(b.role_name)); // Sort roles by name
 
       setRoles(rolesWithPermissions);
       setTotalRoles(rolesWithPermissions.length);
@@ -81,17 +80,18 @@ const RoleManagement = () => {
       return;
     }
 
-    try {
-      const response = await axios.post(`${API_URL}`, { roleName: newRole });
-      const newRoleData = {
-        role_name: response.data.role_name || newRole,
-        permissions: [],
-      };
+    // Prevent creation of 'Administrator' role
+    if (newRole.trim().toLowerCase() === "administrator") {
+      setError("Creation of 'Administrator' role is not allowed.");
+      return;
+    }
 
-      setRoles((prevRoles) => [...prevRoles, newRoleData]);
+    try {
+      await axios.post(`${API_URL}`, { roleName: newRole });
+      await fetchRoles(); // Re-fetch updated roles
       setNewRole("");
-      setTotalRoles((prevTotal) => prevTotal + 1);
       setError(null);
+      console.log("Role added successfully");
     } catch (err) {
       setError("Error adding role");
       console.error("Error adding role:", err);
@@ -101,10 +101,9 @@ const RoleManagement = () => {
   const handleDeleteRole = async (roleName) => {
     try {
       await axios.delete(`${API_URL}/${roleName}`);
-      setRoles((prevRoles) =>
-        prevRoles.filter((role) => role.role_name !== roleName)
-      );
-      setTotalRoles((prevTotal) => prevTotal - 1);
+      await fetchRoles(); // Re-fetch updated roles
+      setError(null);
+      console.log("Role deleted successfully");
     } catch (err) {
       setError("Error deleting role");
       console.error("Error deleting role:", err);
@@ -112,8 +111,13 @@ const RoleManagement = () => {
   };
 
   const handlePermissionChange = async (roleName, page) => {
-    const role = roles.find((r) => r.role_name === roleName);
+    // Prevent modifying specific permissions
+    if (["User Management", "Role Management"].includes(page)) {
+      setError("You cannot modify permissions for this page.");
+      return;
+    }
 
+    const role = roles.find((r) => r.role_name === roleName);
     if (!role) {
       setError("Role not found.");
       return;
@@ -121,20 +125,14 @@ const RoleManagement = () => {
 
     let updatedPermissions = [];
     if (role.permissions.includes(page)) {
-      // Uncheck the permission
       updatedPermissions = role.permissions.filter((p) => p !== page);
-
-      // Remove dependent permissions if the parent is unchecked
       if (permissionDependencies[page]) {
         updatedPermissions = updatedPermissions.filter(
           (perm) => !permissionDependencies[page].includes(perm)
         );
       }
     } else {
-      // Check the permission
       updatedPermissions = [...role.permissions, page];
-
-      // Add dependent permissions if the parent is checked
       if (permissionDependencies[page]) {
         updatedPermissions = [
           ...new Set([...updatedPermissions, ...permissionDependencies[page]]),
@@ -147,6 +145,7 @@ const RoleManagement = () => {
         permissions: updatedPermissions,
       });
 
+      // Update the permissions locally without re-sorting the array
       setRoles((prevRoles) =>
         prevRoles.map((r) =>
           r.role_name === roleName
@@ -157,7 +156,7 @@ const RoleManagement = () => {
       setError(null);
     } catch (err) {
       console.error("Error updating permissions:", err);
-      setError("Error saving permissions. Please try again.");
+      setError("Failed to update permissions.");
     }
   };
 
@@ -180,14 +179,16 @@ const RoleManagement = () => {
         newRoleName: updatedRoleName,
       });
 
-      setRoles((prevRoles) =>
-        prevRoles.map((role) =>
-          role.role_name === oldRoleName
-            ? { ...role, role_name: updatedRoleName }
-            : role
-        )
+      setRoles(
+        (prevRoles) =>
+          prevRoles
+            .map((r) =>
+              r.role_name === oldRoleName
+                ? { ...r, role_name: updatedRoleName }
+                : r
+            )
+            .sort((a, b) => a.role_name.localeCompare(b.role_name)) // Keep roles sorted
       );
-
       setEditingRole(null);
       setUpdatedRoleName("");
       setError(null);
@@ -234,19 +235,34 @@ const RoleManagement = () => {
         {loading ? (
           <p>Loading roles...</p>
         ) : (
-          <div className="bg-white rounded-md shadow-md overflow-hidden">
-            <table className="min-w-full text-left">
-              <thead className="bg-gray-800 text-white">
+          <div className="bg-white overflow-hidden">
+            <p className="text-sm text-gray-600 px-4 py-2">
+              <strong>Note:</strong> Changes to roles and permissions will
+              require users to log in again for the updates to take effect.
+            </p>
+            <table className="min-w-full bg-white border-collapse">
+              <thead className="bg-black text-[#FEC00F]">
                 <tr>
-                  <th className="px-6 py-3">Role Name</th>
-                  <th className="px-6 py-3">Permissions</th>
-                  <th className="px-6 py-3 text-center">Actions</th>
+                  <th className="py-2 px-4 border-b text-center">#</th>
+                  <th className="py-2 px-4 border-b text-center">Role Name</th>
+                  <th className="py-2 px-4 border-b text-center">
+                    Permissions
+                  </th>
+                  <th className="py-2 px-4 border-b text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {roles.map((role) => (
-                  <tr key={role.role_name} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 font-medium text-gray-800">
+                {roles.map((role, index) => (
+                  <tr
+                    key={role.role_name}
+                    className={`${
+                      index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
+                    } cursor-pointer hover:bg-gray-50`}
+                  >
+                    <td className="py-2 px-4 border-b text-center">
+                      {index + 1}
+                    </td>
+                    <td className="py-2 px-4 border-b text-center">
                       {editingRole === role.role_name ? (
                         <input
                           type="text"
@@ -258,7 +274,7 @@ const RoleManagement = () => {
                         role.role_name
                       )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="py-2 px-4 border-b text-center">
                       <div>
                         <button
                           onClick={() => toggleDropdown(role.role_name)}
@@ -277,29 +293,37 @@ const RoleManagement = () => {
                           />
                         </button>
                         {dropdownOpen[role.role_name] && (
-                          <div className="mt-2 bg-gray-100 border rounded-md p-4">
-                            {predefinedPages.map((page) => (
-                              <label key={page} className="block">
-                                <input
-                                  type="checkbox"
-                                  checked={role.permissions.includes(page)}
-                                  onChange={() =>
-                                    handlePermissionChange(role.role_name, page)
-                                  }
-                                  className="mr-2"
-                                />
-                                {page}
-                              </label>
-                            ))}
+                          <div className="mt-2 bg-gray-100 border rounded-md p-2">
+                            <div className="grid grid-cols-2 gap-1">
+                              {predefinedPages.map((page) => (
+                                <label
+                                  key={page}
+                                  className="flex items-center space-x-2"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={role.permissions.includes(page)}
+                                    onChange={() =>
+                                      handlePermissionChange(
+                                        role.role_name,
+                                        page
+                                      )
+                                    }
+                                    className="mr-2"
+                                  />
+                                  <span className="text-gray-800">{page}</span>
+                                </label>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="py-2 px-4 border-b text-center">
                       {editingRole === role.role_name ? (
                         <button
                           onClick={() => handleEditRoleName(role.role_name)}
-                          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
+                          className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition duration-300"
                         >
                           Save
                         </button>
@@ -309,16 +333,16 @@ const RoleManagement = () => {
                             setEditingRole(role.role_name);
                             setUpdatedRoleName(role.role_name);
                           }}
-                          className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition"
+                          className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition duration-300"
                         >
                           Edit
                         </button>
                       )}
                       <button
                         onClick={() => handleDeleteRole(role.role_name)}
-                        className="bg-red-500 text-white px-4 py-2 ml-2 rounded-md hover:bg-red-600 transition"
+                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-300 ml-2"
                       >
-                        <FontAwesomeIcon icon={faTrashAlt} className="mr-2" />
+                        <FontAwesomeIcon icon={faTrashAlt} className="mr-1" />
                         Delete
                       </button>
                     </td>

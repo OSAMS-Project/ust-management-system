@@ -74,6 +74,7 @@ const assignRoleToUser = async (req, res) => {
   }
 };
 
+
 const getUser = async (req, res) => {
   try {
     const { id } = req.params;

@@ -8,16 +8,13 @@ import EventCompletionChart from "../components/dashboard/EventCompletionChart";
 import UpcomingEvents from "../components/dashboard/UpcomingEvents";
 import RecentlyAddedAssets from "../components/dashboard/RecentlyAddedAssets";
 
-const toSentenceCase = (str) => {
-  return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
-};
-
-const Dashboard = ({ user }) => {
+const Dashboard = () => {
   const [assets, setAssets] = useState([]);
   const [recentAssets, setRecentAssets] = useState([]);
   const [recentEvents, setRecentEvents] = useState([]);
   const [stockHistory, setStockHistory] = useState([]);
-  const [borrowerFrequency, setBorrowerFrequency] = useState({});
+  const [borrowedAssetsFrequency, setBorrowedAssetsFrequency] = useState({});
+
   const [totalEvents, setTotalEvents] = useState(0);
   const [completedEvents, setCompletedEvents] = useState([]);
 
@@ -42,10 +39,17 @@ const Dashboard = ({ user }) => {
         );
         setCompletedEvents(completedEventsResponse.data || []);
 
-        const requestsResponse = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/borrowing-requests`
-        );
-        processBorrowerFrequency(requestsResponse.data);
+        const fetchBorrowedAssetsFrequency = async () => {
+          try {
+            const response = await axios.get(
+              `${process.env.REACT_APP_API_URL}/api/borrowing-requests/borrowed-assets-frequency`
+            );
+            setBorrowedAssetsFrequency(response.data);
+          } catch (error) {
+            console.error("Error fetching borrowed assets frequency:", error);
+          }
+        };
+        fetchBorrowedAssetsFrequency();
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       }
@@ -71,14 +75,6 @@ const Dashboard = ({ user }) => {
       });
     }
     setStockHistory(historicalData.reverse());
-  };
-
-  const processBorrowerFrequency = (requests) => {
-    const frequency = requests.reduce((acc, request) => {
-      acc[request.name] = (acc[request.name] || 0) + 1;
-      return acc;
-    }, {});
-    setBorrowerFrequency(frequency);
   };
 
   const handleAssetDetailsClick = (asset) => {
@@ -114,9 +110,9 @@ const Dashboard = ({ user }) => {
           />
         </div>
 
-        {/* Borrower Frequency Chart */}
+        {/* Borrowed Assets Frequency Chart */}
         <div className="flex flex-col lg:col-span-2 p-2">
-          <BorrowerFrequencyChart borrowerData={borrowerFrequency} />
+        <BorrowerFrequencyChart borrowerData={borrowedAssetsFrequency} />
         </div>
       </div>
 

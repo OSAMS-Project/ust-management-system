@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import SupplierTable from '../components/supplier/SupplierTable';
-import AddSupplier from '../components/supplier/AddSupplier';
-import EditSupplier from '../components/supplier/EditSupplier';
-import SupplierSearch from '../components/supplier/SupplierSearch';
-import NotificationPopup from '../components/utils/NotificationsPopup';
-import PaginationControls from '../components/assetlists/PaginationControls';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUsers } from '@fortawesome/free-solid-svg-icons';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import SupplierTable from "../components/supplier/SupplierTable";
+import AddSupplier from "../components/supplier/AddSupplier";
+import EditSupplier from "../components/supplier/EditSupplier";
+import SupplierSearch from "../components/supplier/SupplierSearch";
+import NotificationPopup from "../components/utils/NotificationsPopup";
+import PaginationControls from "../components/assetlists/PaginationControls";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUsers } from "@fortawesome/free-solid-svg-icons";
 
 const SupplierList = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -26,36 +26,44 @@ const SupplierList = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/suppliers`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/suppliers`
+      );
       setSuppliers(response.data);
       setTotalSuppliers(response.data.length);
     } catch (error) {
-      console.error('Error fetching suppliers:', error);
+      console.error("Error fetching suppliers:", error);
     }
   };
 
   const handleSupplierAdded = (newSupplier) => {
-    setSuppliers([...suppliers, newSupplier]);
+    const updatedSuppliers = [...suppliers, newSupplier];
+    updateSuppliers(updatedSuppliers);
     setNotification({
-      type: 'success',
-      message: 'Supplier added successfully!'
+      type: "success",
+      message: "Supplier added successfully!",
     });
-    setIsAddSupplierModalOpen(false); // Close the modal after adding
+    setIsAddSupplierModalOpen(false);
   };
 
   const handleDelete = async (supplier_id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/suppliers/${supplier_id}`);
-      setSuppliers(suppliers.filter(supplier => supplier.supplier_id !== supplier_id));
+      await axios.delete(
+        `${process.env.REACT_APP_API_URL}/api/suppliers/${supplier_id}`
+      );
+      const updatedSuppliers = suppliers.filter(
+        (supplier) => supplier.supplier_id !== supplier_id
+      );
+      updateSuppliers(updatedSuppliers);
       setNotification({
-        type: 'success',
-        message: 'Supplier deleted successfully!'
+        type: "success",
+        message: "Supplier deleted successfully!",
       });
     } catch (error) {
-      console.error('Error deleting supplier:', error);
+      console.error("Error deleting supplier:", error);
       setNotification({
-        type: 'error',
-        message: 'Failed to delete supplier. Please try again.'
+        type: "error",
+        message: "Failed to delete supplier. Please try again.",
       });
     }
   };
@@ -66,19 +74,28 @@ const SupplierList = () => {
   };
 
   const handleSupplierUpdated = (updatedSupplier) => {
-    setSuppliers(suppliers.map(supplier => 
-      supplier.supplier_id === updatedSupplier.supplier_id ? updatedSupplier : supplier
-    ));
+    setSuppliers(
+      suppliers.map((supplier) =>
+        supplier.supplier_id === updatedSupplier.supplier_id
+          ? updatedSupplier
+          : supplier
+      )
+    );
     setSupplierToEdit(null);
     setIsEditModalOpen(false);
     setNotification({
-      type: 'success',
-      message: 'Supplier updated successfully!'
+      type: "success",
+      message: "Supplier updated successfully!",
     });
   };
 
+  const updateSuppliers = (updatedSuppliers) => {
+    setSuppliers(updatedSuppliers);
+    setTotalSuppliers(updatedSuppliers.length);
+  };
+
   const handleSearch = (searchTerm) => {
-    const filtered = suppliers.filter(supplier =>
+    const filtered = suppliers.filter((supplier) =>
       supplier.name.toLowerCase().startsWith(searchTerm.toLowerCase())
     );
     setFilteredSuppliers(filtered);
@@ -99,12 +116,17 @@ const SupplierList = () => {
 
   const calculateEndIndex = () => {
     const endIndex = currentPage * itemsPerPage;
-    const currentSuppliers = filteredSuppliers.length > 0 ? filteredSuppliers : suppliers;
-    return endIndex > currentSuppliers.length ? currentSuppliers.length : endIndex;
+    const currentSuppliers =
+      filteredSuppliers.length > 0 ? filteredSuppliers : suppliers;
+    return endIndex > currentSuppliers.length
+      ? currentSuppliers.length
+      : endIndex;
   };
 
   const totalPages = Math.ceil(
-    (filteredSuppliers.length > 0 ? filteredSuppliers.length : suppliers.length) / itemsPerPage
+    (filteredSuppliers.length > 0
+      ? filteredSuppliers.length
+      : suppliers.length) / itemsPerPage
   );
 
   const renderPageNumbers = () => {
@@ -116,8 +138,8 @@ const SupplierList = () => {
           onClick={() => handlePageChange(i)}
           className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
             currentPage === i
-              ? 'bg-[#FEC00F] text-black focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2'
-              : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
+              ? "bg-[#FEC00F] text-black focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
           }`}
         >
           {i}
@@ -129,7 +151,8 @@ const SupplierList = () => {
 
   // Get current suppliers
   const getCurrentSuppliers = () => {
-    const currentSuppliers = filteredSuppliers.length > 0 ? filteredSuppliers : suppliers;
+    const currentSuppliers =
+      filteredSuppliers.length > 0 ? filteredSuppliers : suppliers;
     const indexOfLastSupplier = currentPage * itemsPerPage;
     const indexOfFirstSupplier = indexOfLastSupplier - itemsPerPage;
     return currentSuppliers.slice(indexOfFirstSupplier, indexOfLastSupplier);
@@ -139,7 +162,9 @@ const SupplierList = () => {
     <div className="space-y-6">
       {/* Header Section */}
       <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
-        <h1 className="text-5xl font-extrabold text-black">Supplier Directory</h1>
+        <h1 className="text-5xl font-extrabold text-black">
+          Supplier Directory
+        </h1>
         <FontAwesomeIcon
           icon={faUsers}
           className="text-black text-5xl transform"
@@ -152,7 +177,7 @@ const SupplierList = () => {
           <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full px-5 py-1 text-center uppercase tracking-wider mb-3">
             Supplier Summary
           </div>
-          
+
           <div className="grid grid-cols-1 gap-4 mb-8">
             <div
               className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden"
@@ -175,8 +200,8 @@ const SupplierList = () => {
       {/* Search and Add Supplier Section */}
       <div className="flex justify-between items-center mb-4 px-4">
         <SupplierSearch handleSearch={handleSearch} />
-        <AddSupplier 
-          onSupplierAdded={handleSupplierAdded} 
+        <AddSupplier
+          onSupplierAdded={handleSupplierAdded}
           onSupplierUpdated={handleSupplierUpdated}
           supplierToEdit={supplierToEdit}
           setIsModalOpen={setIsAddSupplierModalOpen} // Pass down to control the modal state
@@ -185,12 +210,12 @@ const SupplierList = () => {
 
       {/* Supplier Table with Pagination */}
       <div className="px-4">
-        <SupplierTable 
-          suppliers={getCurrentSuppliers()} 
-          onDelete={handleDelete} 
-          onEdit={handleEdit} 
+        <SupplierTable
+          suppliers={getCurrentSuppliers()}
+          onDelete={handleDelete}
+          onEdit={handleEdit}
         />
-        
+
         {/* Add Pagination Controls */}
         {(suppliers.length > 0 || filteredSuppliers.length > 0) && (
           <PaginationControls
@@ -201,7 +226,11 @@ const SupplierList = () => {
             handlePageChange={handlePageChange}
             calculateStartIndex={calculateStartIndex}
             calculateEndIndex={calculateEndIndex}
-            totalItems={filteredSuppliers.length > 0 ? filteredSuppliers.length : suppliers.length}
+            totalItems={
+              filteredSuppliers.length > 0
+                ? filteredSuppliers.length
+                : suppliers.length
+            }
             renderPageNumbers={renderPageNumbers}
           />
         )}
@@ -217,9 +246,9 @@ const SupplierList = () => {
       )}
 
       {/* Notification Popup */}
-      <NotificationPopup 
-        notification={notification} 
-        onClose={() => setNotification(null)} 
+      <NotificationPopup
+        notification={notification}
+        onClose={() => setNotification(null)}
       />
     </div>
   );

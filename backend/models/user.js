@@ -185,6 +185,25 @@ const validatePermissions = (permissions) => {
   }
 };
 
+const updateUsersOnRoleDeletion = async (roleName) => {
+  const query = `
+    UPDATE Users
+    SET role = 'No Role', permissions = '[]'
+    WHERE role = $1
+  `;
+  return executeTransaction([{ query, params: [roleName] }]);
+};
+
+const updateUsersOnRoleRename = async (oldRoleName, newRoleName) => {
+  const query = `
+    UPDATE Users
+    SET role = $1
+    WHERE role = $2
+  `;
+  return executeTransaction([{ query, params: [newRoleName, oldRoleName] }]);
+};
+
+
 module.exports = {
   createUserTable,
   addPermissionsColumnToUsers,
@@ -196,4 +215,7 @@ module.exports = {
   getUserPermissions,
   getCombinedPermissions,
   getUserByEmail,
+  validatePermissions,
+  updateUsersOnRoleDeletion,
+  updateUsersOnRoleRename,
 };

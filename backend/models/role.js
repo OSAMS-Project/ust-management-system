@@ -87,6 +87,7 @@ const editRoleName = async (oldRoleName, newRoleName) => {
   return executeTransaction([{ query, params: [newRoleName, oldRoleName] }]);
 };
 
+
 module.exports = {
   createRoleTable,
   getRoles,

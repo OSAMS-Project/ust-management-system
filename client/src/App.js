@@ -32,6 +32,7 @@ import AssetDetailsPage from "./pages/AssetDetailsPage";
 import AssetMaintenance from "./pages/AssetMaintenance";
 import FileUpload from "./components/FileUpload";
 import Settings from "./pages/Settings";
+import axios from "axios";
 
 function App() {
   const [user, setUser] = useState(() => {
@@ -74,6 +75,36 @@ function App() {
     }
   }, [user]);
 
+  // Periodically check user's access status
+  useEffect(() => {
+    const checkAccessStatus = async () => {
+      if (!user || !user.id) return;
+
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/users/${user.id}`
+        );
+
+        if (!response.data.user.access) {
+          console.warn("User access revoked. Logging out...");
+          handleLogout();
+        }
+      } catch (error) {
+        console.error("Error checking access status:", error);
+      }
+    };
+
+    const interval = setInterval(checkAccessStatus, 5000); // Check every 5 seconds
+    return () => clearInterval(interval); // Cleanup interval on component unmount
+  }, [user]);
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+  };
+
+  
+
   return (
     <Router>
       <AppContent user={user} setUser={setUser} />
@@ -103,7 +134,7 @@ function AppContent({ user, setUser }) {
 
   // Enhanced PrivateRoute with permission checks
   function PrivateRoute({ user, requiredPermissions = [], children }) {
-    const isAdmin = user?.role === "admin"; // Check if user is admin
+    const isAdmin = user?.role === "Administrator"; // Check if user is admin
     const hasPermission =
       isAdmin ||
       requiredPermissions.every((perm) => user?.permissions?.includes(perm));

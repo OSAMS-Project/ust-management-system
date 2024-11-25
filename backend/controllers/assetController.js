@@ -159,6 +159,28 @@ const getTotalAvailableAssets = async (req, res) => {
   }
 };
 
+const getTotalBorrowingQuantity = async (req, res) => {
+  try {
+    const query = `
+      SELECT COALESCE(SUM(quantity_for_borrowing), 0) AS totalBorrowingQuantity
+      FROM Assets
+      WHERE is_active = true AND quantity_for_borrowing > 0
+    `;
+    const result = await pool.query(query);
+
+    // Return the numeric totalBorrowingQuantity
+    const totalBorrowingQuantity = Number(result.rows[0].totalBorrowingQuantity);
+
+    res.status(200).json({ totalBorrowingQuantity });
+  } catch (error) {
+    console.error("Error fetching total quantity for borrowing:", error);
+    res.status(500).json({ error: "Error fetching total quantity for borrowing" });
+  }
+};
+
+
+
+
 const getAssetsSortedByActiveStatus = async (req, res) => {
   const { sortOrder } = req.query;
   try {
@@ -270,5 +292,6 @@ module.exports = {
   updateAssetStatus,
   updateAssetIssueStatus,
   checkProductCode,
-  checkPendingBorrowRequests
+  checkPendingBorrowRequests,
+  getTotalBorrowingQuantity
 };

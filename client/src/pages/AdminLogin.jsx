@@ -32,7 +32,7 @@ function AdminForm({ setUser }) {
         // Set admin token in sessionStorage
         sessionStorage.setItem('adminToken', 'admin-logged-in');
         // Set user in localStorage and update state
-        const adminUser = { role: 'admin', email: ADMIN_EMAIL };
+        const adminUser = { role: 'Administrator', email: ADMIN_EMAIL };
         localStorage.setItem('user', JSON.stringify(adminUser));
         setUser(adminUser);
         navigate("/dashboard");
