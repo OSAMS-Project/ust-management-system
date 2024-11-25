@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 import axios from 'axios';
+import EditMaintenanceModal from './EditMaintenanceModal';
 
 const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRemoveMaintenance, onViewHistory, setNotification }) => {
+  const [editingMaintenance, setEditingMaintenance] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   if (loading) {
     return <div className="flex justify-center items-center h-32">Loading...</div>;
   }
@@ -101,6 +105,45 @@ const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRe
     }
   };
 
+  const handleEditClick = (maintenance) => {
+    setEditingMaintenance(maintenance);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setEditingMaintenance(null);
+    setIsEditModalOpen(false);
+  };
+
+  const handleEditSave = async (updatedData) => {
+    try {
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/maintenance/${editingMaintenance.id}`,
+        updatedData
+      );
+      
+      if (response.data) {
+        setMaintenances(prevMaintenances => 
+          prevMaintenances.map(m => 
+            m.id === editingMaintenance.id ? { ...m, ...updatedData } : m
+          )
+        );
+
+        setNotification({
+          type: 'success',
+          message: 'Maintenance record updated successfully'
+        });
+        handleEditClose();
+      }
+    } catch (error) {
+      console.error('Error updating maintenance:', error);
+      setNotification({
+        type: 'error',
+        message: error.response?.data?.error || 'Failed to update maintenance record'
+      });
+    }
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border rounded-lg">
@@ -168,6 +211,12 @@ const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRe
                   <td className="px-4 py-2">
                     <div className="flex justify-center space-x-2">
                       <button
+                        onClick={() => handleEditClick(maintenance)}
+                        className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
+                      >
+                        Edit
+                      </button>
+                      <button
                         onClick={() => handleMarkAsComplete(maintenance)}
                         className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm"
                       >
@@ -198,6 +247,15 @@ const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRe
         <div className="text-center py-4 text-gray-500">
           No active maintenance found
         </div>
+      )}
+      
+      {isEditModalOpen && (
+        <EditMaintenanceModal
+          maintenance={editingMaintenance}
+          onClose={handleEditClose}
+          onSave={handleEditSave}
+          assets={assets}
+        />
       )}
     </div>
   );

@@ -1,5 +1,6 @@
 const Maintenance = require('../models/maintenance');
 const pool = require('../config/database');
+const Asset = require('../models/assets');
 
 const getAllMaintenanceRecords = async (req, res) => {
   try {
@@ -65,31 +66,51 @@ const updateMaintenanceRecord = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
+    
+    // Get the current maintenance record
+    const currentMaintenance = await Maintenance.getMaintenanceRecordById(id);
+    if (!currentMaintenance) {
+      return res.status(404).json({ error: 'Maintenance record not found' });
+    }
 
-    // If marking as completed
-    if (updateData.completion_date) {
-      const maintenanceRecord = await Maintenance.getMaintenanceRecordById(id);
-      if (maintenanceRecord) {
-        // Update the asset quantity directly using updateMainAssetQuantity from events model
-        await Asset.updateMainAssetQuantity(
-          maintenanceRecord.asset_id,
-          -maintenanceRecord.maintenance_quantity  // Negative because we want to add back
-        );
+    // If quantity is being updated
+    if (updateData.maintenance_quantity) {
+      const newQuantity = parseInt(updateData.maintenance_quantity);
+      const oldQuantity = parseInt(currentMaintenance.maintenance_quantity);
+      
+      // Calculate the quantity difference
+      const quantityDifference = oldQuantity - newQuantity;
+      
+      // Update the asset's main quantity
+      if (quantityDifference !== 0) {
+        // Get current asset quantity
+        const asset = await Asset.readAsset(currentMaintenance.asset_id);
+        if (!asset) {
+          return res.status(404).json({ error: 'Asset not found' });
+        }
 
-        await Asset.updateAssetStatus(maintenanceRecord.asset_id, {
-          under_repair: false,
-          has_issue: false
-        });
+        // Validate new quantity
+        const updatedAssetQuantity = asset.quantity + quantityDifference;
+        if (updatedAssetQuantity < 0) {
+          return res.status(400).json({ 
+            error: 'Cannot set quantity that would result in negative asset quantity' 
+          });
+        }
+
+        // Update asset quantity
+        const updateQuery = `
+          UPDATE assets 
+          SET quantity = quantity + $1 
+          WHERE asset_id = $2 
+          RETURNING *
+        `;
+        await pool.query(updateQuery, [quantityDifference, currentMaintenance.asset_id]);
       }
     }
 
     const updatedRecord = await Maintenance.updateMaintenanceRecord(id, updateData);
-    
-    if (!updatedRecord) {
-      return res.status(404).json({ error: 'Maintenance record not found' });
-    }
-
     res.json(updatedRecord);
+
   } catch (error) {
     console.error('Error updating maintenance record:', error);
     res.status(500).json({ 
