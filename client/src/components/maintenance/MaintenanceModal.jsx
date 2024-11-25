@@ -193,163 +193,152 @@ const MaintenanceModal = ({ isOpen, onClose, onAddMaintenance, assets, user, mai
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Schedule Maintenance</h2>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-              ×
-            </button>
-          </div>
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Asset Selection */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Asset *
-              </label>
-              {renderAssetSelect()}
-            </div>
-
-            {/* Quantity */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Quantity * (Available: {selectedAsset?.quantity || 0})
-              </label>
-              <input
-                type="number"
-                name="quantity"
-                value={maintenanceData.quantity}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter quantity"
-                min="1"
-                max={selectedAsset?.quantity || 1}
-                required
-              />
-            </div>
-
-            {/* Maintenance Type */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Maintenance Type *
-              </label>
-              <select
-                name="maintenance_type"
-                value={maintenanceData.maintenance_type}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="">Select Type</option>
-                {maintenanceTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Priority Level */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Priority Level *
-              </label>
-              <select
-                name="priority"
-                value={maintenanceData.priority}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              >
-                <option value="">Select Priority</option>
-                {priorityLevels.map(level => (
-                  <option key={level} value={level}>{level}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Scheduled Date */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Scheduled Date *
-              </label>
-              <input
-                type="date"
-                name="scheduled_date"
-                value={maintenanceData.scheduled_date.split('T')[0]}
-                onChange={handleInputChange}
-                min={new Date().toISOString().split('T')[0]}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-
-            {/* Assigned Technician */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Assigned Technician
-              </label>
-              <input
-                type="text"
-                name="performed_by"
-                value={maintenanceData.performed_by}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter technician name"
-              />
-            </div>
-
-            {/* Estimated Cost */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Estimated Cost
-              </label>
-              <input
-                type="number"
-                name="maintenance_cost"
-                value={maintenanceData.maintenance_cost}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter estimated cost"
-                min="0"
-                step="0.01"
-              />
-            </div>
-
-            {/* Description/Notes */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Description/Notes
-              </label>
-              <textarea
-                name="description"
-                value={maintenanceData.description}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter maintenance details..."
-                rows="3"
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-end gap-4 pt-4">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-              >
-                Schedule Maintenance
-              </button>
-            </div>
-          </form>
+    <div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Asset Selection */}
+        <div className="form-group">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Asset *
+          </label>
+          {renderAssetSelect()}
         </div>
-      </div>
+
+        {/* Quantity */}
+        <div className="form-group">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Quantity * (Available: {selectedAsset?.quantity || 0})
+          </label>
+          <input
+            type="number"
+            name="quantity"
+            value={maintenanceData.quantity}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            placeholder="Enter quantity"
+            min="1"
+            max={selectedAsset?.quantity || 1}
+            required
+          />
+        </div>
+
+        {/* Maintenance Type */}
+        <div className="form-group">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Maintenance Type *
+          </label>
+          <select
+            name="maintenance_type"
+            value={maintenanceData.maintenance_type}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            required
+          >
+            <option value="">Select Type</option>
+            {maintenanceTypes.map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Priority Level */}
+        <div className="form-group">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Priority Level *
+          </label>
+          <select
+            name="priority"
+            value={maintenanceData.priority}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            required
+          >
+            <option value="">Select Priority</option>
+            {priorityLevels.map(level => (
+              <option key={level} value={level}>{level}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Scheduled Date */}
+        <div className="form-group">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Scheduled Date *
+          </label>
+          <input
+            type="date"
+            name="scheduled_date"
+            value={maintenanceData.scheduled_date.split('T')[0]}
+            onChange={handleInputChange}
+            min={new Date().toISOString().split('T')[0]}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            required
+          />
+        </div>
+
+        {/* Assigned Technician */}
+        <div className="form-group">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Assigned Technician
+          </label>
+          <input
+            type="text"
+            name="performed_by"
+            value={maintenanceData.performed_by}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            placeholder="Enter technician name"
+          />
+        </div>
+
+        {/* Estimated Cost */}
+        <div className="form-group">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Estimated Cost
+          </label>
+          <input
+            type="number"
+            name="maintenance_cost"
+            value={maintenanceData.maintenance_cost}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            placeholder="Enter estimated cost"
+            min="0"
+            step="0.01"
+          />
+        </div>
+
+        {/* Description/Notes */}
+        <div className="form-group">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Description/Notes
+          </label>
+          <textarea
+            name="description"
+            value={maintenanceData.description}
+            onChange={handleInputChange}
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+            placeholder="Enter maintenance details..."
+            rows="3"
+          />
+        </div>
+
+        {/* Form Actions */}
+        <div className="flex justify-end gap-4 pt-4 border-t">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors"
+          >
+            Schedule Maintenance
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
