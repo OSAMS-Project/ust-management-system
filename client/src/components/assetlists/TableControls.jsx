@@ -71,7 +71,7 @@ const TableControls = ({ onToggleColumns, prepareCSVData, assets, visibleColumns
   };
 
   return (
-    <div className="mb-4 flex justify-end space-x-2">
+    <div className="flex justify-end space-x-3">
       <button
         onClick={onToggleColumns}
         className="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-all duration-300 shadow-md flex items-center justify-center"

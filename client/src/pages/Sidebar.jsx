@@ -264,7 +264,9 @@ const Sidebar = ({ user, onLogout }) => {
     <>
       <div className="h-screen w-64 bg-[#202020] shadow-lg flex flex-col">
         <div className="flex items-center justify-center p-4">
-          <img src="/logo.png" alt="Logo" className="w-40 h-auto" />
+          <Link to="/dashboard">
+           <img src="/logo.png" alt="Logo" className="w-40 h-auto" />
+          </Link>
         </div>
 
         <Link
