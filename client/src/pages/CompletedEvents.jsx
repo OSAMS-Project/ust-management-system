@@ -1,11 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import CompletedEventsDialog from "../components/events/CompleteEventDialog";
+import CompletedEventsControls from "../components/events/CompletedEventsControls";
 
 function CompletedEvents() {
   const [completedEvents, setCompletedEvents] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterDate, setFilterDate] = useState("");
+  const [filterLocation, setFilterLocation] = useState("");
 
   const fetchCompletedEvents = async () => {
     try {
@@ -35,11 +39,43 @@ function CompletedEvents() {
     fetchCompletedEvents();
   }, []);
 
-  const handleEventDeleted = (deletedEventId) => {
-    setCompletedEvents((prevEvents) =>
-      prevEvents.filter((event) => event.unique_id !== deletedEventId)
-    );
-  };
+  // Get unique locations for the filter dropdown
+  const locations = useMemo(() => {
+    const uniqueLocations = [...new Set(completedEvents.map(event => event.event_location))];
+    return uniqueLocations.sort();
+  }, [completedEvents]);
+
+  // Filter events
+  const filteredEvents = useMemo(() => {
+    let filtered = [...completedEvents];
+
+    // Apply search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        event =>
+          event.event_name.toLowerCase().includes(searchLower) ||
+          event.event_location.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Apply date filter
+    if (filterDate) {
+      const filterDateStr = new Date(filterDate).toDateString();
+      filtered = filtered.filter(
+        event => new Date(event.event_date).toDateString() === filterDateStr
+      );
+    }
+
+    // Apply location filter
+    if (filterLocation) {
+      filtered = filtered.filter(
+        event => event.event_location === filterLocation
+      );
+    }
+
+    return filtered;
+  }, [completedEvents, searchTerm, filterDate, filterLocation]);
 
   return (
     <div className="space-y-6">
@@ -52,10 +88,16 @@ function CompletedEvents() {
       </div>
 
       <div className="px-6">
-        <CompletedEventsDialog
-          completedEvents={completedEvents}
-          onEventDeleted={handleEventDeleted}
+        <CompletedEventsControls
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          filterDate={filterDate}
+          setFilterDate={setFilterDate}
+          filterLocation={filterLocation}
+          setFilterLocation={setFilterLocation}
+          locations={locations}
         />
+        <CompletedEventsDialog completedEvents={filteredEvents} />
       </div>
     </div>
   );
