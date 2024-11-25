@@ -8,6 +8,7 @@ import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import { Check, X, RotateCcw, Bell } from 'lucide-react'; // Import Lucide icons
 import { toast } from 'react-hot-toast'
 import supabase from '../config/supabaseClient';  // Import the configured client
+import PaginationControls from '../components/assetlists/PaginationControls';
 
 const BorrowingRequest = () => {
   const [requests, setRequests] = useState([]);
@@ -16,6 +17,9 @@ const BorrowingRequest = () => {
   const [notification, setNotification] = useState(null);
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [pendingCurrentPage, setPendingCurrentPage] = useState(1);
+  const [approvedCurrentPage, setApprovedCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const fetchRequests = async () => {
     try {
@@ -258,7 +262,56 @@ const BorrowingRequest = () => {
     }
   };
 
+  const calculateStartIndex = (currentPage) => (currentPage - 1) * itemsPerPage + 1;
+  
+  const calculateEndIndex = (currentPage, totalItems) => 
+    Math.min(calculateStartIndex(currentPage) + itemsPerPage - 1, totalItems);
+  
+  const calculateTotalPages = (totalItems) => Math.ceil(totalItems / itemsPerPage);
+
+  const renderPageNumbers = (currentPage, totalPages, handlePageChange) => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    const halfVisible = Math.floor(maxVisiblePages / 2);
+
+    let startPage = Math.max(currentPage - halfVisible, 1);
+    let endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(endPage - maxVisiblePages + 1, 1);
+    }
+
+    pageNumbers.push(
+      ...Array.from(
+        { length: endPage - startPage + 1 },
+        (_, index) => startPage + index
+      ).map((i) => (
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+            i === currentPage
+              ? "z-10 bg-[#FEC00F] text-black font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FEC00F]"
+              : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+          }`}
+        >
+          {i}
+        </button>
+      ))
+    );
+
+    return pageNumbers;
+  };
+
   const renderTable = (title, requests, showActions) => {
+    const isPending = title.includes("Pending");
+    const currentPage = isPending ? pendingCurrentPage : approvedCurrentPage;
+    const setCurrentPage = isPending ? setPendingCurrentPage : setApprovedCurrentPage;
+    
+    const totalPages = calculateTotalPages(requests.length);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedRequests = requests.slice(startIndex, startIndex + itemsPerPage);
+
     return (
       <div className="mt-6">
         <h2 className="text-xl font-semibold mb-4">{title}</h2>
@@ -281,7 +334,7 @@ const BorrowingRequest = () => {
               </tr>
             </thead>
             <tbody>
-              {requests.map((request) => {
+              {paginatedRequests.map((request) => {
                 const selectedAssets = typeof request.selected_assets === 'string' 
                   ? JSON.parse(request.selected_assets) 
                   : request.selected_assets;
@@ -386,6 +439,25 @@ const BorrowingRequest = () => {
             </tbody>
           </table>
         </div>
+
+        {requests.length > 0 && (
+          <PaginationControls
+            itemsPerPage={itemsPerPage}
+            handleItemsPerPageChange={(e) => {
+              setItemsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            handlePageChange={setCurrentPage}
+            calculateStartIndex={() => calculateStartIndex(currentPage)}
+            calculateEndIndex={() => calculateEndIndex(currentPage, requests.length)}
+            totalItems={requests.length}
+            renderPageNumbers={() => 
+              renderPageNumbers(currentPage, totalPages, setCurrentPage)
+            }
+          />
+        )}
       </div>
     );
   };
