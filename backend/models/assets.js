@@ -77,6 +77,19 @@ const updateAsset = async (id, updates) => {
 			}
 		}
 
+		// Get current asset data
+		const currentAsset = await readAsset(id);
+		if (!currentAsset) {
+			throw new Error("Asset not found");
+		}
+
+		// Only calculate total cost if cost or quantity changes, and quantity_for_borrowing is not changing
+		if ((updates.cost !== undefined || updates.quantity !== undefined) && updates.quantity_for_borrowing === undefined) {
+			const cost = updates.cost !== undefined ? updates.cost : currentAsset.cost;
+			const quantity = updates.quantity !== undefined ? updates.quantity : currentAsset.quantity;
+			updates.totalCost = parseFloat(cost) * parseInt(quantity);
+		}
+
 		// Create SET clause dynamically from updates object
 		const setClause = [];
 		const values = [];
@@ -97,12 +110,10 @@ const updateAsset = async (id, updates) => {
 		};
 
 		Object.entries(updates).forEach(([key, value]) => {
-			// Skip undefined values and totalCost
-			if (value === undefined || key === "totalCost") return;
+			if (value === undefined) return;
 
 			// Use mapped column name if it exists, otherwise use the key
 			const columnName = columnMapping[key] || key;
-
 			setClause.push(`${columnName} = $${paramCount}`);
 			values.push(value);
 			paramCount++;

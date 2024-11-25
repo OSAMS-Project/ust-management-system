@@ -60,7 +60,7 @@ const TableRow = ({
       )}
       {visibleColumns.totalCost && (
         <td className="text-center align-middle py-3" data-label="Total Cost">
-          ₱{(parseFloat(asset.cost) * asset.quantity).toFixed(2)}
+          ₱{parseFloat(asset.totalCost || (asset.cost * asset.quantity)).toFixed(2)}
         </td>
       )}
       {visibleColumns.borrow && (

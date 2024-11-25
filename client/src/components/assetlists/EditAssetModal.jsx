@@ -95,7 +95,10 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
         allow_borrowing: asset.allow_borrowing || false,
       });
       setNewImage(null);
-      calculateTotalCost(asset.quantity, asset.cost);
+      // Calculate total cost based on total quantity
+      const totalQuantity = parseInt(asset.quantity) + parseInt(asset.quantity_for_borrowing || 0);
+      const totalCostValue = parseFloat(asset.cost) * totalQuantity;
+      setTotalCost(totalCostValue.toFixed(2));
       setQuantityForBorrowing(asset.quantity_for_borrowing);
       setShakeFields([]);
     }
@@ -117,10 +120,15 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
         [field]: value
       };
 
+      // Recalculate total cost when quantity or cost changes
       if (field === 'quantity' || field === 'cost') {
         const newQuantity = field === 'quantity' ? value : newAsset.quantity;
         const newCost = field === 'cost' ? value : newAsset.cost;
-        calculateTotalCost(newQuantity, newCost);
+        // Include quantity_for_borrowing in total cost calculation
+        const totalQuantity = parseInt(newQuantity) + parseInt(prev.quantity_for_borrowing || 0);
+        const newTotalCost = parseFloat(newCost) * totalQuantity;
+        newAsset.totalCost = newTotalCost;
+        setTotalCost(newTotalCost.toFixed(2));
       }
 
       return newAsset;
@@ -129,7 +137,9 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
 
   const calculateTotalCost = (quantity, cost) => {
     if (quantity && cost) {
-      const calculatedTotalCost = parseFloat(cost) * parseInt(quantity);
+      // Include quantity_for_borrowing in total cost calculation
+      const totalQuantity = parseInt(quantity) + parseInt(editedAsset?.quantity_for_borrowing || 0);
+      const calculatedTotalCost = parseFloat(cost) * totalQuantity;
       setTotalCost(calculatedTotalCost.toFixed(2));
     } else {
       setTotalCost("0.00");
@@ -202,9 +212,12 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
         const updatedAsset = {
           ...editedAsset,
           image: newImage || editedAsset.image,
-          totalCost: parseFloat(totalCost),
+          // Keep the original total cost
+          totalCost: editedAsset.totalCost,
           quantity: editedAsset.quantity,
-          quantity_for_borrowing: editedAsset.is_active ? parseInt(quantityForBorrowing, 10) : 0
+          quantity_for_borrowing: editedAsset.is_active ? parseInt(quantityForBorrowing, 10) : 0,
+          // Keep the cost unchanged when setting quantity for borrowing
+          cost: editedAsset.cost
         };
         delete updatedAsset.lastUpdated;
 
@@ -213,10 +226,14 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
           if (key === 'quantity_for_borrowing' && !editedAsset.is_active) {
             return acc; // Skip logging quantity_for_borrowing if the asset is not active
           }
+          // Don't include totalCost in the changed fields if only quantity_for_borrowing was changed
+          if (key === 'totalCost' && Object.keys(acc).length === 1 && acc.hasOwnProperty('quantity_for_borrowing')) {
+            return acc;
+          }
           if (key === 'totalCost') {
             // Only include totalCost if it has actually changed
             const oldTotalCost = parseFloat((asset.cost * asset.quantity).toFixed(2));
-            const newTotalCost = parseFloat(updatedAsset.totalCost.toFixed(2));
+            const newTotalCost = parseFloat(updatedAsset.totalCost);
             if (oldTotalCost !== newTotalCost) {
               acc[key] = {
                 oldValue: oldTotalCost,
@@ -257,45 +274,6 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
           console.error("Response status:", error.response.status);
         }
       }
-    }
-  };
-
-  const checkAssetStatus = async (assetId) => {
-    try {
-      // Check repair records
-      const repairResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/repair/read`);
-      const hasActiveRepairs = repairResponse.data.some(
-        record => record.asset_id === assetId && record.status !== 'Completed'
-      );
-
-      // Check issue records
-      const issueResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/asset-issues`);
-      const hasActiveIssues = issueResponse.data.some(
-        issue => issue.asset_id === assetId && 
-        issue.status !== 'Resolved' && 
-        issue.status !== 'In Repair'
-      );
-
-      // Check borrowing requests
-      const borrowResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/borrowing-requests`);
-      const hasActiveBorrowRequests = borrowResponse.data.some(
-        request => request.selected_assets.some(
-          selectedAsset => selectedAsset.asset_id === assetId
-        ) && request.status === 'Pending'
-      );
-
-      return {
-        canChangeType: !hasActiveRepairs && !hasActiveIssues && !hasActiveBorrowRequests,
-        message: hasActiveRepairs ? 'Cannot change to Consumable: Asset has active repair records' :
-                hasActiveIssues ? 'Cannot change to Consumable: Asset has active issue records' :
-                hasActiveBorrowRequests ? 'Cannot change to Consumable: Asset has pending borrow requests' : ''
-      };
-    } catch (error) {
-      console.error('Error checking asset status:', error);
-      return {
-        canChangeType: false,
-        message: 'Error checking asset status'
-      };
     }
   };
 
@@ -345,11 +323,20 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
       }
     }
 
-    // Update both quantities
+    // Calculate new main quantity by subtracting the difference from current quantity
+    const newMainQuantity = editedAsset.quantity - quantityDifference;
+
+    // Calculate total cost based on total quantity (main + borrowing)
+    const totalQuantity = newMainQuantity + newValue;
+    const newTotalCost = parseFloat(editedAsset.cost) * totalQuantity;
+
     setQuantityForBorrowing(newValue);
+    setTotalCost(newTotalCost.toFixed(2));
     setEditedAsset(prev => ({
       ...prev,
-      quantity: prev.quantity - quantityDifference
+      quantity: newMainQuantity,
+      quantity_for_borrowing: newValue,
+      totalCost: newTotalCost
     }));
   };
 
@@ -367,6 +354,45 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
       ...prev,
       type: value
     }));
+  };
+
+  const checkAssetStatus = async (assetId) => {
+    try {
+      // Check repair records
+      const repairResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/repair/read`);
+      const hasActiveRepairs = repairResponse.data.some(
+        record => record.asset_id === assetId && record.status !== 'Completed'
+      );
+
+      // Check issue records
+      const issueResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/asset-issues`);
+      const hasActiveIssues = issueResponse.data.some(
+        issue => issue.asset_id === assetId && 
+        issue.status !== 'Resolved' && 
+        issue.status !== 'In Repair'
+      );
+
+      // Check borrowing requests
+      const borrowResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/borrowing-requests`);
+      const hasActiveBorrowRequests = borrowResponse.data.some(
+        request => request.selected_assets.some(
+          selectedAsset => selectedAsset.asset_id === assetId
+        ) && request.status === 'Pending'
+      );
+
+      return {
+        canChangeType: !hasActiveRepairs && !hasActiveIssues && !hasActiveBorrowRequests,
+        message: hasActiveRepairs ? 'Cannot change to Consumable: Asset has active repair records' :
+                hasActiveIssues ? 'Cannot change to Consumable: Asset has active issue records' :
+                hasActiveBorrowRequests ? 'Cannot change to Consumable: Asset has pending borrow requests' : ''
+      };
+    } catch (error) {
+      console.error('Error checking asset status:', error);
+      return {
+        canChangeType: false,
+        message: 'Error checking asset status'
+      };
+    }
   };
 
   if (!isOpen) return null;
