@@ -39,6 +39,25 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
     };
 
     fetchLogs();
+
+    // Set up SSE connection
+    const eventSource = new EventSource(`${process.env.REACT_APP_API_URL}/api/assets/sse`);
+
+    eventSource.onmessage = (event) => {
+      const newLog = JSON.parse(event.data);
+      if (newLog.asset_id === assetId) {
+        setLogs(prevLogs => [...prevLogs, newLog]);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error('SSE connection error:', error);
+    };
+
+    // Clean up SSE connection on unmount
+    return () => {
+      eventSource.close();
+    };
   }, [assetId]);
 
   const groupedLogs = logs.reduce((acc, log) => {

@@ -1,5 +1,6 @@
 const Asset = require('../models/assets');
 const { executeTransaction } = require('../utils/queryExecutor');
+const pool = require('../config/database');
 
 const createAsset = async (req, res) => {
   try {
@@ -163,7 +164,7 @@ const getTotalBorrowingQuantity = async (req, res) => {
   try {
     const query = `
       SELECT COALESCE(SUM(quantity_for_borrowing), 0) AS totalBorrowingQuantity
-      FROM Assets
+      FROM assets
       WHERE is_active = true AND quantity_for_borrowing > 0
     `;
     const result = await pool.query(query);
@@ -174,11 +175,12 @@ const getTotalBorrowingQuantity = async (req, res) => {
     res.status(200).json({ totalBorrowingQuantity });
   } catch (error) {
     console.error("Error fetching total quantity for borrowing:", error);
-    res.status(500).json({ error: "Error fetching total quantity for borrowing" });
+    res.status(500).json({ 
+      error: "Error fetching total quantity for borrowing",
+      details: error.message 
+    });
   }
 };
-
-
 
 
 const getAssetsSortedByActiveStatus = async (req, res) => {
