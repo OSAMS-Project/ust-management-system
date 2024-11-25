@@ -261,7 +261,7 @@ const BorrowingRequest = () => {
   const renderTable = (title, requests, showActions) => {
     return (
       <div className="mt-6">
-      <h2 className="text-xl font-semibold mb-4">{title}</h2>
+        <h2 className="text-xl font-semibold mb-4">{title}</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-black text-[#FEC00F]">
@@ -274,7 +274,7 @@ const BorrowingRequest = () => {
                 <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '15%' }}>Borrowed Asset</th>
                 <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '10%' }}>Quantity</th>
                 <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '10%' }}>Date Requested</th>
-                <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '10%' }}>Date to be Collected</th>
+                <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '15%' }}>Date & Time to be Collected</th>
                 <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '10%' }}>Cover Letter</th>
                 <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '10%' }}>Expected Return Date</th>
                 {showActions && <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: '10%' }}>Actions</th>}
@@ -304,8 +304,16 @@ const BorrowingRequest = () => {
                         : 'N/A'}
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">{selectedAssets ? selectedAssets.reduce((total, asset) => total + asset.quantity, 0) : 'N/A'}</td>
-                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">{request.date_requested ? moment(request.date_requested).format("MM/DD/YYYY") : 'N/A'}</td>
-                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">{request.date_to_be_collected ? moment(request.date_to_be_collected).format("MM/DD/YYYY") : 'N/A'}</td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
+                      {request.date_requested 
+                        ? moment(request.date_requested).format("MM/DD/YYYY")
+                        : 'N/A'}
+                    </td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
+                      {request.date_to_be_collected 
+                        ? moment(request.date_to_be_collected).format("MM/DD/YYYY hh:mm A")
+                        : 'N/A'}
+                    </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {request.cover_letter_url ? (
                         <a
@@ -320,7 +328,11 @@ const BorrowingRequest = () => {
                         'N/A'
                       )}
                     </td>
-                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">{request.expected_return_date ? moment(request.expected_return_date).format("MM/DD/YYYY") : 'N/A'}</td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
+                      {request.expected_return_date 
+                        ? moment(request.expected_return_date).format("MM/DD/YYYY")
+                        : 'N/A'}
+                    </td>
                     {showActions && (
                       <td className="py-2 px-3 border-b text-center">
                         <div className="flex gap-1 justify-center">
