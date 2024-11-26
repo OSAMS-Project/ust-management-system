@@ -7,6 +7,20 @@ const ColumnVisibilityPopup = ({
   toggleColumnVisibility,
   onClose,
 }) => {
+  const columnOrder = [
+    'dateCreated',
+    'id',
+    'asset',
+    'productCode',
+    'costPerUnit',
+    'quantity',
+    'quantityForBorrowing',
+    'totalCost',
+    'lastUpdated',
+    'borrow',
+    'Actions'
+  ];
+
   const getColumnLabel = (columnName) => {
     switch(columnName) {
       case 'id': return '#';
@@ -35,12 +49,12 @@ const ColumnVisibilityPopup = ({
         </button>
       </div>
       <div className="space-y-2 max-h-[300px] overflow-y-auto">
-        {Object.entries(visibleColumns).map(([columnName, isVisible]) => (
+        {columnOrder.map((columnName) => (
           <div key={columnName} className="flex items-center">
             <input
               type="checkbox"
               id={columnName}
-              checked={isVisible}
+              checked={visibleColumns[columnName]}
               onChange={() => toggleColumnVisibility(columnName)}
               className="mr-2"
             />
@@ -54,4 +68,4 @@ const ColumnVisibilityPopup = ({
   );
 };
 
-export default ColumnVisibilityPopup; 
+export default ColumnVisibilityPopup;

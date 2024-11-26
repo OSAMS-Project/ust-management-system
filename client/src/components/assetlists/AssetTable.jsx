@@ -14,16 +14,16 @@ const getInitialVisibleColumns = () => {
     return JSON.parse(savedColumns);
   }
   return {
-    id: true,
-    productCode: true,
     dateCreated: true,
+    id: true,
     asset: true,
+    productCode: true,
     costPerUnit: true,
     quantity: true,
-    totalCost: true,
-    borrow: true,
     quantityForBorrowing: true,
+    totalCost: true,
     lastUpdated: true,
+    borrow: true,
     Actions: true,
   };
 };

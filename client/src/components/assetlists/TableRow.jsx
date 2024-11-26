@@ -19,19 +19,14 @@ const TableRow = ({
       } hover:bg-gray-100 transition-all duration-150 text-lg cursor-pointer`}
       onClick={() => handleAssetDetailsClick(asset)}
     >
-      {visibleColumns.id && (
-        <td className="text-center align-middle py-3" data-label="ID">
-          {asset.asset_id}
-        </td>
-      )}
-      {visibleColumns.productCode && (
-        <td className="text-center align-middle py-3" data-label="Product Code">
-          {asset.productCode}
-        </td>
-      )}
       {visibleColumns.dateCreated && (
         <td className="text-center align-middle py-3" data-label="Date Created">
           {moment(asset.createdDate).format("MM/DD/YYYY")}
+        </td>
+      )}
+      {visibleColumns.id && (
+        <td className="text-center align-middle py-3" data-label="ID">
+          {asset.asset_id}
         </td>
       )}
       {visibleColumns.asset && (
@@ -48,6 +43,11 @@ const TableRow = ({
           </div>
         </td>
       )}
+      {visibleColumns.productCode && (
+        <td className="text-center align-middle py-3" data-label="Product Code">
+          {asset.productCode}
+        </td>
+      )}
       {visibleColumns.costPerUnit && (
         <td className="text-center align-middle py-3" data-label="Cost per Unit">
           ₱{parseFloat(asset.cost).toFixed(2)}
@@ -58,9 +58,25 @@ const TableRow = ({
           {asset.quantity}
         </td>
       )}
+      {visibleColumns.quantityForBorrowing && (
+        <td className="text-center align-middle py-3" data-label="Borrowing Quantity">
+          {asset.is_active
+            ? asset.quantity_for_borrowing !== undefined
+              ? asset.quantity_for_borrowing
+              : "Not set"
+            : "N/A"}
+        </td>
+      )}
       {visibleColumns.totalCost && (
         <td className="text-center align-middle py-3" data-label="Total Cost">
           ₱{parseFloat(asset.totalCost || (asset.cost * asset.quantity)).toFixed(2)}
+        </td>
+      )}
+      {visibleColumns.lastUpdated && (
+        <td className="text-center align-middle py-3" data-label="Last Updated">
+          {asset.lastUpdated
+            ? moment(asset.lastUpdated).format("MM/DD/YYYY")
+            : "N/A"}
         </td>
       )}
       {visibleColumns.borrow && (
@@ -88,22 +104,6 @@ const TableRow = ({
               ? "Active" 
               : "Inactive"}
           </button>
-        </td>
-      )}
-      {visibleColumns.quantityForBorrowing && (
-        <td className="text-center align-middle py-3" data-label="Borrowing Quantity">
-          {asset.is_active
-            ? asset.quantity_for_borrowing !== undefined
-              ? asset.quantity_for_borrowing
-              : "Not set"
-            : "N/A"}
-        </td>
-      )}
-      {visibleColumns.lastUpdated && (
-        <td className="text-center align-middle py-3" data-label="Last Updated">
-          {asset.lastUpdated
-            ? moment(asset.lastUpdated).format("MM/DD/YYYY")
-            : "N/A"}
         </td>
       )}
       {visibleColumns.Actions && (
@@ -134,4 +134,4 @@ const TableRow = ({
   );
 };
 
-export default TableRow; 
+export default TableRow;

@@ -14,28 +14,6 @@ const TableHeader = ({ visibleColumns, sortCriteria, handleSort }) => {
 
   return (
     <tr className="bg-black text-[#FEC00F] text-lg">
-      {visibleColumns.id && (
-        <th 
-          className="text-center py-2 px-4 cursor-pointer"
-          onClick={() => handleSort('asset_id')}
-        >
-          <div className="flex items-center justify-center">
-            #
-            {renderSortIcon('asset_id')}
-          </div>
-        </th>
-      )}
-      {visibleColumns.productCode && (
-        <th 
-          className="text-center py-2 px-4 cursor-pointer"
-          onClick={() => handleSort('productCode')}
-        >
-          <div className="flex items-center justify-center">
-            Product Code
-            {renderSortIcon('productCode')}
-          </div>
-        </th>
-      )}
       {visibleColumns.dateCreated && (
         <th 
           className="text-center py-2 px-4 cursor-pointer"
@@ -47,6 +25,17 @@ const TableHeader = ({ visibleColumns, sortCriteria, handleSort }) => {
           </div>
         </th>
       )}
+      {visibleColumns.id && (
+        <th 
+          className="text-center py-2 px-4 cursor-pointer"
+          onClick={() => handleSort('asset_id')}
+        >
+          <div className="flex items-center justify-center">
+            #
+            {renderSortIcon('asset_id')}
+          </div>
+        </th>
+      )}
       {visibleColumns.asset && (
         <th 
           className="text-center py-2 px-4 cursor-pointer"
@@ -55,6 +44,17 @@ const TableHeader = ({ visibleColumns, sortCriteria, handleSort }) => {
           <div className="flex items-center justify-center">
             Asset
             {renderSortIcon('assetName')}
+          </div>
+        </th>
+      )}
+      {visibleColumns.productCode && (
+        <th 
+          className="text-center py-2 px-4 cursor-pointer"
+          onClick={() => handleSort('productCode')}
+        >
+          <div className="flex items-center justify-center">
+            Product Code
+            {renderSortIcon('productCode')}
           </div>
         </th>
       )}
@@ -80,6 +80,13 @@ const TableHeader = ({ visibleColumns, sortCriteria, handleSort }) => {
           </div>
         </th>
       )}
+      {visibleColumns.quantityForBorrowing && (
+        <th className="text-center py-2 px-4">
+          <div className="flex items-center justify-center">
+            Borrowing Quantity
+          </div>
+        </th>
+      )}
       {visibleColumns.totalCost && (
         <th 
           className="text-center py-2 px-4 cursor-pointer"
@@ -88,20 +95,6 @@ const TableHeader = ({ visibleColumns, sortCriteria, handleSort }) => {
           <div className="flex items-center justify-center">
             Total Cost
             {renderSortIcon('totalCost')}
-          </div>
-        </th>
-      )}
-      {visibleColumns.borrow && (
-        <th className="text-center py-2 px-4">
-          <div className="flex items-center justify-center">
-            Borrow
-          </div>
-        </th>
-      )}
-      {visibleColumns.quantityForBorrowing && (
-        <th className="text-center py-2 px-4">
-          <div className="flex items-center justify-center">
-            Borrowing Quantity
           </div>
         </th>
       )}
@@ -116,6 +109,13 @@ const TableHeader = ({ visibleColumns, sortCriteria, handleSort }) => {
           </div>
         </th>
       )}
+      {visibleColumns.borrow && (
+        <th className="text-center py-2 px-4">
+          <div className="flex items-center justify-center">
+            Borrow
+          </div>
+        </th>
+      )}
       {visibleColumns.Actions && (
         <th className="text-center px-2 py-3">
           <div className="flex items-center justify-center">
@@ -127,4 +127,4 @@ const TableHeader = ({ visibleColumns, sortCriteria, handleSort }) => {
   );
 };
 
-export default TableHeader; 
+export default TableHeader;
