@@ -64,8 +64,8 @@ function AssetIssue({ user }) {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/asset-issues`, {
         ...issueData,
-        reported_by: user?.name,
-        user_picture: user?.picture
+        reported_by: user?.name || 'Administrator',
+        user_picture: user?.picture || '/osa-img.png'
       });
 
       // Update the issues list

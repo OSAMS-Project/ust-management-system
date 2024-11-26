@@ -88,7 +88,7 @@ const IssueTable = ({ issues, assets, loading, onAddToRepair, onRemoveIssue, onE
                   <div className="flex items-center justify-center">
                     {issue.user_picture && (
                       <img 
-                        src={issue.user_picture} 
+                        src={issue.user_picture || "/osa-img.png"}
                         alt={issue.reported_by} 
                         className="w-6 h-6 rounded-full mr-2"
                       />

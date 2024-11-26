@@ -62,8 +62,8 @@ function AssetMaintenance({ user }) {
         `${process.env.REACT_APP_API_URL}/api/maintenance`,
         {
           ...maintenanceData,
-          scheduled_by: user?.name,
-          user_picture: user?.picture,
+          scheduled_by: user?.name || "Administrator",
+          user_picture: user?.picture || "/osa-img.png",
         }
       );
 
