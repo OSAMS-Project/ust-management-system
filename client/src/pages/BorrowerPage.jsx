@@ -246,6 +246,14 @@ function BorrowerForm() {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Reset time to start of day for fair comparison
     
+    // Check if the selected day is Saturday (6) or Sunday (0)
+    const dayOfWeek = selectedDateTime.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      toast.error("Please select a weekday (Monday to Friday)");
+      // Keep the current date
+      return;
+    }
+
     // Extract hours and minutes for office hours validation
     const hours = selectedDateTime.getHours();
     const minutes = selectedDateTime.getMinutes();
@@ -258,18 +266,11 @@ function BorrowerForm() {
     selectedDate.setHours(0, 0, 0, 0);
     if (selectedDate < today) {
       toast.error("Expected return date cannot be in the past");
-      const currentDate = new Date();
-      currentDate.setHours(8, 0, 0, 0);
-      setExpectedReturnDate(currentDate.toISOString());
       return;
     }
 
     if (timeInMinutes < startOfDay || timeInMinutes > endOfDay) {
       toast.error("Please select a time between 8:00 AM and 5:00 PM");
-      // Keep the current date but reset time to 8:00 AM
-      const currentValue = new Date(expectedReturnDate);
-      currentValue.setHours(8, 0, 0, 0);
-      setExpectedReturnDate(currentValue.toISOString());
       return;
     }
 

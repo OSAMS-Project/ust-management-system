@@ -38,6 +38,16 @@ function BorrowSelectModal({
     const phNow = getPhilippinesDateTime();
     const returnDate = new Date(expectedReturnDate);
     
+    // Check if the selected day is Saturday (6) or Sunday (0)
+    const dayOfWeek = selectedDateTime.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      setNotification({
+        type: 'error',
+        message: 'Please select a weekday (Monday to Friday)'
+      });
+      return;
+    }
+
     // Set hours to 0 for fair date comparison
     const selectedDate = new Date(selectedDateTime);
     selectedDate.setHours(0, 0, 0, 0);
@@ -86,6 +96,7 @@ function BorrowSelectModal({
       Math.min(parseInt(value) || 0, asset.quantity_for_borrowing)
     );
     setSelectedAssets((prev) => ({
+
       ...prev,
       [assetId]: { ...asset, quantity },
     }));
@@ -97,6 +108,7 @@ function BorrowSelectModal({
       setSelectedAssets(rest);
     } else {
       setSelectedAssets((prev) => ({
+
         ...prev,
         [asset.asset_id]: { ...asset, quantity: 1 },
       }));
@@ -106,6 +118,7 @@ function BorrowSelectModal({
   const handleConfirm = () => {
     onSelectMaterials(
       Object.values(selectedAssets).map((asset) => ({
+
         ...asset,
         dateToBeCollected: moment(dateToBeCollected).format('YYYY-MM-DDTHH:mm:ss'),
       }))
