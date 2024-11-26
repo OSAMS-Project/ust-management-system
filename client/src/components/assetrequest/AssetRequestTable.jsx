@@ -1,88 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 
-const TIMER_DURATION = {
-  TESTING: 30, // 30 seconds for testing
-  PRODUCTION: 7 * 24 * 60 * 60 // 7 days in seconds
-};
-
-const IS_TESTING = false; // Set to false when deploying to production
-
 const AssetRequestTable = ({ assetRequests, onApprove, onDecline, onRowClick }) => {
-  const [timeLeft, setTimeLeft] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Initialize timers for new requests
-  useEffect(() => {
-    const newTimeLeft = {};
-    assetRequests.forEach(asset => {
-      const createdDate = moment(asset.created_at);
-      const duration = IS_TESTING ? TIMER_DURATION.TESTING : TIMER_DURATION.PRODUCTION;
-      const expiryDate = moment(createdDate).add(duration, IS_TESTING ? 'seconds' : 'seconds');
-      const remaining = Math.max(0, expiryDate.diff(moment(), 'seconds'));
-      newTimeLeft[asset.id] = remaining;
-    });
-    setTimeLeft(newTimeLeft);
-  }, [assetRequests]);
+  // Add pagination calculation
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = assetRequests.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(assetRequests.length / itemsPerPage);
 
-  // Handle countdown timer
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        const newTimeLeft = { ...prev };
-        let hasChanges = false;
+  // Add page navigation handlers
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  };
 
-        Object.entries(newTimeLeft).forEach(([id, time]) => {
-          if (time > 0) {
-            newTimeLeft[id] = time - 1;
-            hasChanges = true;
-
-            if (IS_TESTING && time <= 5) {
-              console.log(`Request ${id} time remaining: ${time - 1} seconds`);
-            }
-
-            // Check if timer just expired
-            if (newTimeLeft[id] === 0) {
-              console.log(`Timer expired for request ${id}! Auto-declining...`);
-              const request = assetRequests.find(req => req.id === parseInt(id));
-              if (request) {
-                onDecline({
-                  ...request,
-                  auto_declined: true,
-                  status: 'declined',
-                  declined_at: new Date().toISOString()
-                });
-              }
-            }
-          }
-        });
-
-        return hasChanges ? newTimeLeft : prev;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [assetRequests, onDecline]);
-
-  // Format the time remaining to show days, hours, minutes, and seconds
-  const formatTimeLeft = (seconds) => {
-    if (seconds <= 0) return "Expired";
-    
-    const days = Math.floor(seconds / (24 * 60 * 60));
-    const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
-    const minutes = Math.floor((seconds % (60 * 60)) / 60);
-    const remainingSeconds = seconds % 60;
-
-    if (days > 0) {
-      return `${days}d ${hours}h ${minutes}m ${remainingSeconds}s`;
-    } else if (hours > 0) {
-      return `${hours}h ${minutes}m ${remainingSeconds}s`;
-    } else if (minutes > 0) {
-      return `${minutes}m ${remainingSeconds}s`;
-    } else {
-      return `${remainingSeconds}s`;
-    }
+  const handlePrevPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
   };
 
   // Add these handler functions
@@ -101,12 +36,11 @@ const AssetRequestTable = ({ assetRequests, onApprove, onDecline, onRowClick }) 
             <th className="py-2 px-4 border-b text-center">Quantity</th>
             <th className="py-2 px-4 border-b text-center">Date Requested</th>
             <th className="py-2 px-4 border-b text-center">Requested By</th>
-            <th className="py-2 px-4 border-b text-center">Time Remaining</th>
             <th className="py-2 px-4 border-b text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {assetRequests.map((request) => (
+          {currentItems.map((request) => (
             <tr 
               key={request.id}
               onClick={() => onRowClick(request)}
@@ -126,11 +60,6 @@ const AssetRequestTable = ({ assetRequests, onApprove, onDecline, onRowClick }) 
                   />
                   {request.created_by}
                 </div>
-              </td>
-              <td className="py-2 px-4 border-b text-center">
-                <span className={timeLeft[request.id] <= 10 ? 'text-red-500' : ''}>
-                  {formatTimeLeft(timeLeft[request.id])}
-                </span>
               </td>
               <td className="px-4 py-2 text-center">
                 <div className="flex gap-2 justify-center">
@@ -152,6 +81,23 @@ const AssetRequestTable = ({ assetRequests, onApprove, onDecline, onRowClick }) 
           ))}
         </tbody>
       </table>
+
+      {/* Replace the previous pagination controls with numbered pagination */}
+      <div className="mt-4 mb-8 flex justify-center">
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentPage(i + 1)}
+            className={`mx-1 px-3 py-1 rounded ${
+              currentPage === i + 1
+                ? "bg-yellow-500 text-white"
+                : "bg-gray-200"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

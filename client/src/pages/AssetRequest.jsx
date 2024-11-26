@@ -98,10 +98,7 @@ const AssetRequest = ({ user }) => {
     }
   };
 
-  const handleDecline = async (requestData) => {
-    const isAutoDeclined = typeof requestData === 'object' && requestData.auto_declined;
-    const requestId = isAutoDeclined ? requestData.id : requestData;
-
+  const handleDecline = async (requestId) => {
     try {
       // Find the request that's being declined
       const requestToDecline = assetRequests.find(req => req.id === requestId);
@@ -110,11 +107,10 @@ const AssetRequest = ({ user }) => {
       // Immediately remove from pending requests
       setAssetRequests(prev => prev.filter(req => req.id !== requestId));
 
-      // Create the declined request object with all necessary data
+      // Create the declined request object
       const declinedRequest = {
         ...requestToDecline,
         status: 'declined',
-        auto_declined: isAutoDeclined,
         declined_at: new Date().toISOString()
       };
 
@@ -126,7 +122,6 @@ const AssetRequest = ({ user }) => {
         `${process.env.REACT_APP_API_URL}/api/asset-request/${requestId}/decline`,
         { 
           status: 'declined',
-          auto_declined: isAutoDeclined,
           declined_at: declinedRequest.declined_at
         }
       );
