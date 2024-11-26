@@ -121,10 +121,11 @@ const AssetTable = ({
       return;
     }
 
-    if (asset.under_repair) {
+    // Check if the asset has any available quantity for borrowing, regardless of repair status
+    if (asset.quantity <= 0) {
       setNotification({
         type: "error",
-        message: `${asset.assetName} is currently under repair and cannot be borrowed.`
+        message: `${asset.assetName} has no available quantity for borrowing.`
       });
       return;
     }
