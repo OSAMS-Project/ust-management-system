@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Upload } from 'lucide-react';
 import axios from 'axios';
+import moment from 'moment';
 
 // Copy the same utility components from AddAsset.jsx
 const InputField = ({ label, id, type = "text", value, onChange, placeholder, prefix, readOnly, multiline, className, shake }) => (
@@ -212,12 +213,11 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
         const updatedAsset = {
           ...editedAsset,
           image: newImage || editedAsset.image,
-          // Keep the original total cost
           totalCost: editedAsset.totalCost,
           quantity: editedAsset.quantity,
           quantity_for_borrowing: editedAsset.is_active ? parseInt(quantityForBorrowing, 10) : 0,
-          // Keep the cost unchanged when setting quantity for borrowing
-          cost: editedAsset.cost
+          cost: editedAsset.cost,
+          lastUpdated: moment().format('YYYY-MM-DD HH:mm:ss')
         };
 
         // Log only the changed fields

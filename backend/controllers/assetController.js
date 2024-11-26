@@ -1,6 +1,7 @@
 const Asset = require('../models/assets');
 const { executeTransaction } = require('../utils/queryExecutor');
 const pool = require('../config/database');
+const moment = require('moment');
 
 const createAsset = async (req, res) => {
   try {
@@ -46,8 +47,11 @@ const readAssets = async (req, res) => {
 const updateAsset = async (req, res) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
-
+    const updates = {
+      ...req.body,
+      lastUpdated: moment().format('YYYY-MM-DD HH:mm:ss')
+    };
+    
     // If quantity_for_borrowing is being updated
     if (updates.quantityForBorrowing !== undefined) {
       try {

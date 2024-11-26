@@ -1,4 +1,5 @@
 const { executeTransaction } = require("../utils/queryExecutor");
+const moment = require('moment');
 
 const createAssetsTable = async () => {
 	const query = `
@@ -91,7 +92,7 @@ const updateAsset = async (id, updates) => {
 		}
 
 		// Always update lastUpdated to current timestamp, but never modify createdDate
-		updates.lastUpdated = new Date().toISOString();
+		updates.lastUpdated = moment().format('YYYY-MM-DD HH:mm:ss');
 		delete updates.createdDate; // Ensure createdDate is never modified
 
 		// Create SET clause dynamically from updates object
