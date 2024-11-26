@@ -60,7 +60,7 @@ const AddSupplier = ({ onSupplierAdded }) => {
       </button>
 
       {isModalOpen && ReactDOM.createPortal(
-        <>
+        <>,
           <div className="fixed inset-0 bg-black bg-opacity-50" />
           <div className="fixed inset-0 flex items-center justify-center z-[1000] p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-auto transform transition-all animate-fadeIn">
@@ -131,7 +131,7 @@ const AddSupplier = ({ onSupplierAdded }) => {
                   </div>
 
                   <div className="form-group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Contact No</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Contact Number (Telephone or Cellphone)</label>
                     <input
                       type="tel"
                       name="contactNo"
@@ -141,6 +141,7 @@ const AddSupplier = ({ onSupplierAdded }) => {
                       pattern="[0-9]*"
                       inputMode="numeric"
                       className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      placeholder="Enter telephone or cellphone number"
                       required
                     />
                     {formData.contactNo && !/^[0-9]+$/.test(formData.contactNo) && (
@@ -148,6 +149,9 @@ const AddSupplier = ({ onSupplierAdded }) => {
                         Please enter numbers only
                       </p>
                     )}
+                    <p className="text-gray-500 text-sm mt-1">
+                      For telephone: (02) XXXX-XXXX or for cellphone: 09XX-XXX-XXXX
+                    </p>
                   </div>
 
                   <div className="form-group">
