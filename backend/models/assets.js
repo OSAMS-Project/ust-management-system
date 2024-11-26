@@ -92,7 +92,7 @@ const updateAsset = async (id, updates) => {
 		}
 
 		// Always update lastUpdated to current timestamp, but never modify createdDate
-		updates.lastUpdated = moment().format('YYYY-MM-DD HH:mm:ss');
+		updates.lastUpdated = moment().format('MM-DD-YYYY');
 		delete updates.createdDate; // Ensure createdDate is never modified
 
 		// Create SET clause dynamically from updates object

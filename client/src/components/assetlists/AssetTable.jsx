@@ -329,7 +329,7 @@ const AssetTable = ({
       (parseFloat(asset.cost) * asset.quantity).toFixed(2),
       asset.is_active ? "Yes" : "No",
       asset.lastUpdated
-        ? moment(asset.lastUpdated).format("MM/DD/YYYY HH:mm:ss")
+        ? moment(asset.lastUpdated).format("MM-DD-YYYY")
         : "N/A",
       asset.category,
       asset.location,

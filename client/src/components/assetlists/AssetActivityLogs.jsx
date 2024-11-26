@@ -61,7 +61,7 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
   }, [assetId]);
 
   const groupedLogs = logs.reduce((acc, log) => {
-    const timestamp = moment(log.created_at).format('MMMM D, YYYY - h:mm A');
+    const timestamp = moment(log.lastUpdated || log.created_at).format('MM-DD-YYYY');
     if (!acc[timestamp]) {
       acc[timestamp] = [];
     }
@@ -70,12 +70,20 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
   }, {});
 
   const formatLogMessage = (log) => {
+    const formatValue = (value) => {
+      // Check if the value is a date string in ISO format
+      if (value && value.includes('T') && value.includes('Z')) {
+        return moment(value).format('MM-DD-YYYY');
+      }
+      return value || '(empty)';
+    };
+
     if (log.action === 'event_allocation') {
       return (
         <p key={log.id} className="text-sm text-gray-600 mb-1">
           <strong className="text-black">Event Allocation</strong>: 
-          Allocated <strong className="text-blue-600">{log.old_value}</strong> units 
-          to event "<strong className="text-green-600">{log.new_value}</strong>"
+          Allocated <strong className="text-blue-600">{formatValue(log.old_value)}</strong> units 
+          to event "<strong className="text-green-600">{formatValue(log.new_value)}</strong>"
         </p>
       );
     }
@@ -83,17 +91,22 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
     if (log.action === 'event_return') {
       return (
         <p key={log.id} className="text-sm text-gray-600 mb-1">
-          <strong className="text-green-600">{log.context}</strong>
+          <strong className="text-green-600">{formatValue(log.context)}</strong>
         </p>
       );
+    }
+
+    // Skip showing lastUpdated in the log message since it's already in the header
+    if (log.field_name === 'lastUpdated') {
+      return null;
     }
 
     return (
       <div key={log.id} className="text-sm text-gray-600 mb-1">
         <p>
           <strong className="text-black">{fieldNameMapping[log.field_name] || log.field_name}</strong>: 
-          "<strong className="text-blue-600">{log.old_value || '(empty)'}</strong>" → 
-          "<strong className="text-green-600">{log.new_value}</strong>"
+          "<strong className="text-blue-600">{formatValue(log.old_value)}</strong>" → 
+          "<strong className="text-green-600">{formatValue(log.new_value)}</strong>"
         </p>
       </div>
     );
@@ -131,7 +144,7 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
             {Object.entries(groupedLogs).map(([timestamp, logGroup]) => (
               <div key={timestamp} className="bg-gray-100 p-3 rounded-lg">
                 <p className="font-semibold text-sm text-gray-700 mb-2">
-                  Update on {timestamp}
+                  Last Updated on {timestamp}
                 </p>
                 <div className="flex items-center mb-3 text-xs text-gray-500">
                   {logGroup[0].user_picture && (

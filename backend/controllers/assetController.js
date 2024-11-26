@@ -49,7 +49,7 @@ const updateAsset = async (req, res) => {
     const { id } = req.params;
     const updates = {
       ...req.body,
-      lastUpdated: moment().format('YYYY-MM-DD HH:mm:ss')
+      lastUpdated: moment().format('MM-DD-YYYY')
     };
     
     // If quantity_for_borrowing is being updated
