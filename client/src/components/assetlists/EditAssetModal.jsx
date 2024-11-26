@@ -219,7 +219,6 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
           // Keep the cost unchanged when setting quantity for borrowing
           cost: editedAsset.cost
         };
-        delete updatedAsset.lastUpdated;
 
         // Log only the changed fields
         const changedFields = Object.keys(updatedAsset).reduce((acc, key) => {

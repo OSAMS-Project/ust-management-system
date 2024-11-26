@@ -90,6 +90,10 @@ const updateAsset = async (id, updates) => {
 			updates.totalCost = parseFloat(cost) * parseInt(quantity);
 		}
 
+		// Always update lastUpdated to current timestamp, but never modify createdDate
+		updates.lastUpdated = new Date().toISOString();
+		delete updates.createdDate; // Ensure createdDate is never modified
+
 		// Create SET clause dynamically from updates object
 		const setClause = [];
 		const values = [];
