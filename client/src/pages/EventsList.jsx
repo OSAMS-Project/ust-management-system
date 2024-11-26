@@ -42,7 +42,7 @@ function Events() {
     useState(false);
   const [completedEvents, setCompletedEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const eventsPerPage = 7;
+  const eventsPerPage = 5;
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
   const filteredEvents = data.filter((event) =>
@@ -470,21 +470,25 @@ function Events() {
           setShowDialog={setShowEditDialog}
           handleDelete={handleDeleteEvent}
         />
-        <div className="w-82 mx-auto p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <div className="w-full mx-auto px-12 py-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-16 max-w-[1800px] mx-auto">
             {currentEvents.map((item) => (
-              <EventCard
-                key={item.unique_id}
-                item={item}
-                handleExplore={handleExplore}
-                handleComplete={handleCompleteEvent}
-                handleEdit={handleEdit}
-                formatTime={formatTime}
-                handleAddAsset={handleAddAsset}
-                assets={assets}
-              />
+              <div className="flex justify-center">
+                <EventCard
+                  key={item.unique_id}
+                  item={item}
+                  handleExplore={handleExplore}
+                  handleComplete={handleCompleteEvent}
+                  handleEdit={handleEdit}
+                  formatTime={formatTime}
+                  handleAddAsset={handleAddAsset}
+                  assets={assets}
+                />
+              </div>
             ))}
-            <AddEventButton onAddEvent={handleAddEvent} /> {/* Add Button */}
+            <div className="flex justify-center">
+              <AddEventButton onAddEvent={handleAddEvent} />
+            </div>
           </div>
           <div className="mt-4 mb-8 flex justify-center">
             {Array.from({ length: totalPages }, (_, i) => (
