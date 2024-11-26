@@ -10,6 +10,15 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
   const [totalCost, setTotalCost] = useState(0);
   const [notification, setNotification] = useState(null);
 
+  const formatTime = (timeString) => {
+    if (!timeString) return '';
+    const [hours, minutes] = timeString.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const formattedHour = hour % 12 || 12;
+    return `${formattedHour}:${minutes} ${ampm}`;
+  };
+
   const showSuccessNotification = (message) => {
     setNotification({
       type: 'success',
@@ -259,9 +268,9 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
     
     // Right column (reset yPosition and add content)
     yPosition = yPosition - (splitLocation.length * lineHeight) - (lineHeight * 2); // Reset to top of info section
-    doc.text(`Start Time: ${selectedEvent.event_start_time}`, rightCol, yPosition);
+    doc.text(`Start Time: ${formatTime(selectedEvent.event_start_time)}`, rightCol, yPosition);
     yPosition += lineHeight;
-    doc.text(`End Time: ${selectedEvent.event_end_time}`, rightCol, yPosition);
+    doc.text(`End Time: ${formatTime(selectedEvent.event_end_time)}`, rightCol, yPosition);
     yPosition += lineHeight;
     doc.text(`ID: ${selectedEvent.unique_id}`, rightCol, yPosition);
 
@@ -443,11 +452,11 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="font-medium text-gray-700">Start Time:</p>
-                  <p className="text-gray-600">{selectedEvent.event_start_time}</p>
+                  <p className="text-gray-600">{formatTime(selectedEvent.event_start_time)}</p>
                 </div>
                 <div>
                   <p className="font-medium text-gray-700">End Time:</p>
-                  <p className="text-gray-600">{selectedEvent.event_end_time}</p>
+                  <p className="text-gray-600">{formatTime(selectedEvent.event_end_time)}</p>
                 </div>
               </div>
             </div>
