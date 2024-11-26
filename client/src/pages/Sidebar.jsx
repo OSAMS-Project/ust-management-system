@@ -16,6 +16,8 @@ import {
   faHistory,
   faTools,
   faBoxOpen,
+  faTimes,
+  faBars,
   faWrench,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useLocation } from "react-router-dom";
@@ -172,15 +174,14 @@ const MENU_LIST = [
 
 const Sidebar = ({ user, onLogout }) => {
   const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Hamburger toggle
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // For hamburger toggle
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTimeoutModalOpen, setIsTimeoutModalOpen] = useState(false);
 
   // Extract permissions from user
   const permissions = user?.permissions || [];
   const isAdmin = user?.role === "Administrator";
-
-  console.log("User Permissions:", permissions); // Debug permissions
-  console.log("Is Admin:", isAdmin); // Debug admin status
 
   // Filter menu items based on permissions if not admin
   const filteredMenuList = isAdmin
@@ -262,13 +263,55 @@ const Sidebar = ({ user, onLogout }) => {
 
   return (
     <>
-      <div className="h-screen w-64 bg-[#202020] shadow-lg flex flex-col">
-        <div className="flex items-center justify-center p-4">
-          <Link to="/dashboard">
-           <img src="/logo.png" alt="Logo" className="w-40 h-auto" />
+      {/* Responsive Sidebar/Navbar */}
+      <div className="lg:hidden fixed top-0 w-full bg-[#202020] text-gray-200 z-50">
+        <div className="flex items-center justify-between px-4 py-3">
+          {/* Logo */}
+          <Link to="/dashboard" className="text-yellow-500 text-xl font-bold">
+            UST-OSA
           </Link>
+
+          {/* Hamburger Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="text-gray-200"
+          >
+            <FontAwesomeIcon icon={faBars} size="lg" />
+          </button>
         </div>
 
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="bg-[#202020]">
+            <nav className="flex flex-col space-y-2 py-4">
+              {MENU_LIST.map((menu) => (
+                <NavItem
+                  key={menu.text}
+                  to={menu.to}
+                  text={menu.text}
+                  icon={menu.icon}
+                  isActive={location.pathname === menu.to}
+                />
+              ))}
+              <button
+                onClick={handleLogoutClick}
+                className="flex items-center px-4 py-2 text-gray-300 hover:text-yellow-500"
+              >
+                <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
+                Sign Out
+              </button>
+            </nav>
+          </div>
+        )}
+      </div>
+
+      {/* Sidebar for Larger Screens */}
+      <div className="hidden lg:flex h-screen w-64 bg-[#202020] text-gray-200 flex-col">
+        <div className="flex items-center justify-center p-4">
+          <Link to="/dashboard">
+            <img src="/logo.png" alt="Logo" className="w-40 h-auto" />
+          </Link>
+        </div>
         <Link
           to="/profile"
           className="flex items-center p-4 border-b border-gray-700"

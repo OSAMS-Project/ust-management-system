@@ -39,6 +39,8 @@ function BorrowerForm() {
   const [requests, setRequests] = useState([]);
   const [emailNotificationSent, setEmailNotificationSent] = useState(false); // Use state for tracking
 
+  let lastNotifiedCount = 0; // Tracks the last count when a notification was sent
+
   const fetchRequests = async () => {
     try {
       const response = await axios.get(
@@ -69,7 +71,11 @@ function BorrowerForm() {
         (req) => req.status === "Pending"
       ).length;
 
-      if (pendingCount > 5 && !emailNotificationSent) {
+      // Notify when count is 10 or more and at every 5-pending increment
+      if (
+        pendingCount >= 10 &&
+        (pendingCount - lastNotifiedCount >= 5 || lastNotifiedCount === 0)
+      ) {
         try {
           const adminResponse = await axios.get(
             `${process.env.REACT_APP_API_URL}/api/notification-settings`
@@ -89,7 +95,7 @@ function BorrowerForm() {
             }
           );
 
-          setEmailNotificationSent(true); // Update state
+          lastNotifiedCount = pendingCount; // Update the last notified count
           toast.success(
             `Admin notified about ${pendingCount} pending requests.`
           );
@@ -97,8 +103,8 @@ function BorrowerForm() {
           console.error("Failed to notify admin:", error);
           toast.error("Error notifying admin about pending requests.");
         }
-      } else if (pendingCount <= 5 && emailNotificationSent) {
-        setEmailNotificationSent(false); // Reset state if no pending requests exist
+      } else if (pendingCount < 10) {
+        lastNotifiedCount = 0; // Reset notification tracking when below 10
       }
     }, 300); // Debounce duration in milliseconds
   };

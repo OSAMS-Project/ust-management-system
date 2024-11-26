@@ -1,5 +1,18 @@
 const { executeTransaction } = require("../utils/queryExecutor");
 
+const createNotificationsTable = async () => {
+  const query = `
+    CREATE TABLE  IF NOT EXISTS notification_settings (
+    id SERIAL PRIMARY KEY,
+    notification_email VARCHAR(255) NOT NULL,
+    notifications_enabled BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+    `;
+  return executeTransaction([{ query, params: [] }]);
+};
+
 const getNotificationSettings = async () => {
   try {
     const query = `
@@ -50,22 +63,22 @@ const updateNotificationEmail = async (email) => {
 };
 
 const updateNotificationsEnabled = async (enabled) => {
-    try {
-      const query = `
+  try {
+    const query = `
         UPDATE notification_settings
         SET notifications_enabled = $1, updated_at = CURRENT_TIMESTAMP
         RETURNING notifications_enabled;
       `;
-      const result = await executeTransaction([{ query, params: [enabled] }]);
-      return result[0]?.notifications_enabled;
-    } catch (error) {
-      console.error("Error updating notifications enabled state:", error);
-      throw new Error("Failed to update notifications enabled state.");
-    }
-  };
-  
+    const result = await executeTransaction([{ query, params: [enabled] }]);
+    return result[0]?.notifications_enabled;
+  } catch (error) {
+    console.error("Error updating notifications enabled state:", error);
+    throw new Error("Failed to update notifications enabled state.");
+  }
+};
 
 module.exports = {
+  createNotificationsTable,
   getNotificationSettings,
   getNotificationEmail,
   updateNotificationEmail,
