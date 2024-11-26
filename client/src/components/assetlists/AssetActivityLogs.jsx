@@ -101,6 +101,26 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
       return null;
     }
 
+    // Special handling for description field
+    if (log.field_name === 'assetDetails') {
+      return (
+        <div key={log.id} className="text-sm text-gray-600 mb-2">
+          <div className="flex flex-col space-y-1">
+            <strong className="text-black">{fieldNameMapping[log.field_name]}</strong>
+            <div className="flex flex-col pl-4">
+              <div className="break-words">
+                From: <span className="text-blue-600">{formatValue(log.old_value)}</span>
+              </div>
+              <div className="break-words">
+                To: <span className="text-green-600">{formatValue(log.new_value)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Default side-by-side layout for other fields
     return (
       <div key={log.id} className="text-sm text-gray-600 mb-1">
         <p>
