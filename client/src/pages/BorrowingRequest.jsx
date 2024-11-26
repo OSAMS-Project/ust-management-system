@@ -405,24 +405,24 @@ const BorrowingRequest = () => {
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {request.name}
                     </td>
-                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
+                    <td className="px-4 py-2 border-b text-left">
                       {selectedAssets && selectedAssets.length > 0
                         ? selectedAssets.map((asset, index) => (
-                            <div key={index} className="whitespace-nowrap">
+                            <span key={index}>
                               {asset.assetName}
-                              {index < selectedAssets.length - 1 && (
-                                <hr className="my-1 border-gray-200" />
-                              )}
-                            </div>
+                              {index < selectedAssets.length - 1 && ", "}
+                            </span>
                           ))
                         : "N/A"}
                     </td>
-                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
-                      {selectedAssets
-                        ? selectedAssets.reduce(
-                            (total, asset) => total + asset.quantity,
-                            0
-                          )
+                    <td className="px-4 py-2 border-b text-left">
+                      {selectedAssets && selectedAssets.length > 0
+                        ? selectedAssets.map((asset, index) => (
+                            <span key={index}>
+                              {asset.quantity}
+                              {index < selectedAssets.length - 1 && ", "}
+                            </span>
+                          ))
                         : "N/A"}
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
