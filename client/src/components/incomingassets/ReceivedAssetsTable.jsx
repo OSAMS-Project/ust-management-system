@@ -5,7 +5,7 @@ const ReceivedAssetsTable = ({
   receivedAssets = [],
 }) => {
   return (
-    <div className="mt-8">
+    <div className="mt-2">
       <h2 className="text-2xl font-bold mb-4">Received Assets </h2>
       <table className="min-w-full bg-white border-collapse">
         <thead className="bg-black text-[#FEC00F]">

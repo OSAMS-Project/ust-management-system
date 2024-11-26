@@ -193,7 +193,7 @@ const IncomingAssets = () => {
   };
 
   return (
-    <div>
+    <div className='space-y-6'>
       <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
         <h1 className="text-5xl font-extrabold text-black">
           Incoming Assets
@@ -203,8 +203,8 @@ const IncomingAssets = () => {
           className="text-black text-5xl transform"
         />
       </div>
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-6 flex justify-between items-center">
+      <div className="container">
+        <div className="ml-4 flex justify-between items-center">
           <button
             onClick={() => setShowForm(true)}
             className="px-4 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors"
@@ -212,7 +212,8 @@ const IncomingAssets = () => {
             Add Incoming Asset
           </button>
         </div>
-
+        
+        <div id='recipients' className="mt-4 rounded shadow bg-white"></div>
         <IncomingAssetsTable 
           assets={assets}
           handleStatusUpdate={handleStatusUpdate}

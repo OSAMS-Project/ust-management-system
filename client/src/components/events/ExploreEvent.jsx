@@ -289,52 +289,53 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
     // Adjust spacing after description box
     yPosition += Math.max(25, splitDescription.length * 6);
   
-    // Assets section
+    // Assets section with adjusted spacing
     yPosition += 15;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
     doc.text('Event Assets', margin, yPosition);
-    yPosition += lineHeight;
-  
-    // Assets table header
+    yPosition += lineHeight * 2; // Increased spacing before table header
+
+    // Assets table header with more space
     doc.setFillColor(255, 193, 7);
-    doc.rect(margin, yPosition, pageWidth - (margin * 2), 8, 'F');
+    doc.rect(margin, yPosition, pageWidth - (margin * 2), 10, 'F'); // Increased height of header
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    yPosition += 6;
+    yPosition += 7; // Adjusted position for header text
     doc.text('Asset Name', margin + 5, yPosition);
     doc.text('Quantity', pageWidth - margin - 30, yPosition);
   
-    // Assets table content with pagination
+    // Add space between header and first row
+    yPosition += lineHeight * 1.5; // Increased spacing after header
+
+    // Assets table content
     doc.setFont("helvetica", "normal");
     localAssets.forEach((asset) => {
       // Check if we need a new page
       if (yPosition > pageHeight - margin * 2) {
-        // Add a new page
         doc.addPage();
-        // Reset yPosition to top of new page
         yPosition = margin;
         
-        // Redraw the table header on new page
+        // Redraw the table header on new page with same spacing
         doc.setFillColor(255, 193, 7);
-        doc.rect(margin, yPosition, pageWidth - (margin * 2), 8, 'F');
+        doc.rect(margin, yPosition, pageWidth - (margin * 2), 10, 'F');
         doc.setFont("helvetica", "bold");
         doc.setFontSize(12);
-        yPosition += 6;
+        yPosition += 7;
         doc.text('Asset Name', margin + 5, yPosition);
         doc.text('Quantity', pageWidth - margin - 30, yPosition);
-        yPosition += lineHeight;
+        yPosition += lineHeight * 1.5; // Consistent spacing after header
         doc.setFont("helvetica", "normal");
       }
 
-      // Add zebra striping
+      // Add zebra striping with adjusted positioning
       if ((yPosition/lineHeight) % 2 === 0) {
         doc.setFillColor(245, 245, 245);
         doc.rect(margin, yPosition - 5, pageWidth - (margin * 2), 8, 'F');
       }
       doc.text(asset.assetName, margin + 5, yPosition);
       doc.text(asset.quantity.toString(), pageWidth - margin - 30, yPosition);
-      yPosition += lineHeight;
+      yPosition += lineHeight * 1.2; // Slightly increased row spacing
     });
   
     // Check if total cost section needs a new page
