@@ -327,13 +327,19 @@ const BorrowingRequest = () => {
                   className="py-2 px-3 border-b text-left whitespace-nowrap"
                   style={{ width: "20%" }}
                 >
-                  Email
+                  Borrowed Asset/s
                 </th>
                 <th
                   className="py-2 px-3 border-b text-left whitespace-nowrap"
                   style={{ width: "15%" }}
                 >
-                  Contact No.
+                  Quantity
+                </th>
+                <th
+                  className="py-2 px-3 border-b text-left whitespace-nowrap"
+                  style={{ width: "15%" }}
+                >
+                  
                 </th>
                 <th
                   className="py-2 px-3 border-b text-left whitespace-nowrap"
@@ -345,19 +351,13 @@ const BorrowingRequest = () => {
                   className="py-2 px-3 border-b text-left whitespace-nowrap"
                   style={{ width: "15%" }}
                 >
-                  Purpose
+                  Email
                 </th>
                 <th
                   className="py-2 px-3 border-b text-left whitespace-nowrap"
                   style={{ width: "15%" }}
                 >
-                  Borrowed Asset
-                </th>
-                <th
-                  className="py-2 px-3 border-b text-left whitespace-nowrap"
-                  style={{ width: "10%" }}
-                >
-                  Quantity
+                  Contact No.
                 </th>
                 <th
                   className="py-2 px-3 border-b text-left whitespace-nowrap"
@@ -406,18 +406,6 @@ const BorrowingRequest = () => {
                       {request.name}
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
-                      {request.email}
-                    </td>
-                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
-                      {request.contact_no}
-                    </td>
-                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
-                      {request.department}
-                    </td>
-                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
-                      {request.purpose}
-                    </td>
-                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {selectedAssets && selectedAssets.length > 0
                         ? selectedAssets.map((asset, index) => (
                             <div key={index} className="whitespace-nowrap">
@@ -436,6 +424,18 @@ const BorrowingRequest = () => {
                             0
                           )
                         : "N/A"}
+                    </td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
+                      {request.department}
+                    </td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
+                      {request.purpose}
+                    </td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
+                      {request.email}
+                    </td>
+                    <td className="px-4 py-2 border-b text-left whitespace-nowrap">
+                      {request.contact_no}
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {request.date_requested
