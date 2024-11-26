@@ -226,37 +226,47 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
   
     yPosition = 50; // Start content below header
   
-    // Add event basic info section
+    // Add event basic info section with text wrapping
     doc.setFillColor(240, 240, 240);
-    doc.rect(margin, yPosition, pageWidth - (margin * 2), 65, 'F');
+    doc.rect(margin, yPosition, pageWidth - (margin * 2), 70, 'F'); // Increased height
     
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
     doc.setTextColor(51, 51, 51);
     yPosition += 10;
     
-    // Two-column layout for basic info
+    // Two-column layout with better spacing and text wrapping
     const leftCol = margin + 5;
     const rightCol = pageWidth/2 + 10;
+    const maxWidth = pageWidth/2 - margin - 15; // Maximum width for wrapped text
     
-    // Left column
+    // Left column with text wrapping
     doc.text('Event Information:', leftCol, yPosition);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
     yPosition += lineHeight * 2;
-    doc.text(`Event Name: ${selectedEvent.event_name}`, leftCol, yPosition);
-    yPosition += lineHeight;
-    doc.text(`Location: ${selectedEvent.event_location}`, leftCol, yPosition);
-    yPosition += lineHeight;
+    
+    doc.text(`Event Name: ${selectedEvent.event_name}`, leftCol, yPosition, { maxWidth: maxWidth });
+    yPosition += lineHeight * 1.5;
+    
+    // Handle long location text with wrapping
+    const locationText = `Location: ${selectedEvent.event_location}`;
+    const splitLocation = doc.splitTextToSize(locationText, maxWidth);
+    doc.text(splitLocation, leftCol, yPosition);
+    yPosition += splitLocation.length * lineHeight;
+    
     doc.text(`Date: ${new Date(selectedEvent.event_date).toLocaleDateString()}`, leftCol, yPosition);
     
-    // Right column (reset yPosition)
-    yPosition -= lineHeight * 2;
+    // Right column (reset yPosition and add content)
+    yPosition = yPosition - (splitLocation.length * lineHeight) - (lineHeight * 2); // Reset to top of info section
     doc.text(`Start Time: ${selectedEvent.event_start_time}`, rightCol, yPosition);
     yPosition += lineHeight;
     doc.text(`End Time: ${selectedEvent.event_end_time}`, rightCol, yPosition);
     yPosition += lineHeight;
     doc.text(`ID: ${selectedEvent.unique_id}`, rightCol, yPosition);
+
+    // Adjust the following yPosition to account for potential wrapped text
+    yPosition += Math.max(lineHeight * 2, splitLocation.length * lineHeight);
   
     // Description section
     yPosition += lineHeight * 4;
