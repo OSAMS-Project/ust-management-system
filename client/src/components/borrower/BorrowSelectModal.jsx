@@ -1,16 +1,21 @@
 import React, { useState } from "react";
 import NotificationPopup from "../utils/NotificationsPopup";
+import moment from 'moment';
 
 function BorrowSelectModal({
   isOpen,
   onClose,
   activeAssets,
   onSelectMaterials,
+  expectedReturnDate
 }) {
   const [selectedAssets, setSelectedAssets] = useState({});
-  const [dateToBeCollected, setDateToBeCollected] = useState(
-    formatDateTimeForInput(new Date())
-  );
+  const [dateToBeCollected, setDateToBeCollected] = useState(() => {
+    const date = new Date();
+    date.setHours(8, 0, 0, 0); // Set default time to 8:00 AM
+    return date.toISOString().slice(0, 16);
+  });
+
   const [notification, setNotification] = useState(null);
 
   function getPhilippinesDateTime() {
@@ -31,19 +36,48 @@ function BorrowSelectModal({
   const handleDateTimeChange = (e) => {
     const selectedDateTime = new Date(e.target.value);
     const phNow = getPhilippinesDateTime();
+    const returnDate = new Date(expectedReturnDate);
     
-    if (selectedDateTime < phNow) {
+    // Set hours to 0 for fair date comparison
+    const selectedDate = new Date(selectedDateTime);
+    selectedDate.setHours(0, 0, 0, 0);
+    const returnDateOnly = new Date(returnDate);
+    returnDateOnly.setHours(0, 0, 0, 0);
+
+    // Check if time is within office hours (8 AM to 5 PM)
+    const hours = selectedDateTime.getHours();
+    const minutes = selectedDateTime.getMinutes();
+    const timeInMinutes = hours * 60 + minutes;
+    const startOfDay = 8 * 60; // 8:00 AM in minutes
+    const endOfDay = 17 * 60; // 5:00 PM in minutes
+
+    if (timeInMinutes < startOfDay || timeInMinutes > endOfDay) {
       setNotification({
         type: 'error',
-        message: 'Cannot select a past date and time'
+        message: 'Please select a time between 8:00 AM and 5:00 PM'
       });
       return;
     }
     
+    if (selectedDateTime < phNow) {
+      setNotification({
+        type: 'error',
+        message: 'Collection date and time cannot be in the past'
+      });
+      return;
+    }
+
+    if (selectedDate >= returnDateOnly) {
+      setNotification({
+        type: 'error',
+        message: 'Collection date must be earlier than the expected return date'
+      });
+      return;
+    }
+    
+    // If all validations pass, use the selected date and time
     setDateToBeCollected(e.target.value);
   };
-
-  if (!isOpen) return null;
 
   const handleQuantityChange = (assetId, value) => {
     const asset = activeAssets.find((asset) => asset.asset_id === assetId);
@@ -73,7 +107,7 @@ function BorrowSelectModal({
     onSelectMaterials(
       Object.values(selectedAssets).map((asset) => ({
         ...asset,
-        dateToBeCollected,
+        dateToBeCollected: moment(dateToBeCollected).format('YYYY-MM-DDTHH:mm:ss'),
       }))
     );
     onClose();
@@ -81,6 +115,8 @@ function BorrowSelectModal({
 
   const phNow = getPhilippinesDateTime();
   const minDateTime = formatDateTimeForInput(phNow);
+
+  if (!isOpen) return null;
 
   return (
     <>
@@ -97,13 +133,14 @@ function BorrowSelectModal({
           <div className="mb-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Date and Time to be Collected
+                Date and Time to be Collected (8:00 AM - 5:00 PM)
               </label>
               <input
                 type="datetime-local"
                 value={dateToBeCollected}
                 onChange={handleDateTimeChange}
                 min={minDateTime}
+                step="60"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />

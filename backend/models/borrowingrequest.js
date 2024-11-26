@@ -24,9 +24,9 @@ const BorrowingRequest = {
         status VARCHAR(20) DEFAULT 'Pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         date_requested TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        date_to_be_collected DATE,
+        date_to_be_collected TIMESTAMP,
         date_collected TIMESTAMP,
-        expected_return_date DATE,
+        expected_return_date TIMESTAMP,
         date_returned TIMESTAMP,
         notes TEXT
       )

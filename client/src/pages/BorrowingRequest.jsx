@@ -439,14 +439,12 @@ const BorrowingRequest = () => {
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {request.date_requested
-                        ? moment(request.date_requested).format("MM/DD/YYYY")
+                        ? moment(request.date_requested).format("MM/DD/YYYY h:mm A")
                         : "N/A"}
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {request.date_to_be_collected
-                        ? moment(request.date_to_be_collected).format(
-                            "MM/DD/YYYY"
-                          )
+                        ? moment(request.date_to_be_collected).format("MM/DD/YYYY h:mm A")
                         : "N/A"}
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
@@ -465,9 +463,7 @@ const BorrowingRequest = () => {
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {request.expected_return_date
-                        ? moment(request.expected_return_date).format(
-                            "MM/DD/YYYY"
-                          )
+                        ? moment(request.expected_return_date).format("MM/DD/YYYY h:mm A")
                         : "N/A"}
                     </td>
                     {showActions && (
@@ -506,8 +502,8 @@ const BorrowingRequest = () => {
                                   handleNotifyUser(
                                     request.email,
                                     request.name,
-                                    moment(request.expectedReturnDate).format(
-                                      "MMMM Do YYYY"
+                                    moment(request.expected_return_date).format(
+                                      "MM/DD/YYYY h:mm A"
                                     )
                                   )
                                 }

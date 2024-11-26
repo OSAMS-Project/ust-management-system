@@ -6,6 +6,7 @@ import TermsAndConditionsModal from "../components/borrower/TermsAndConditionsMo
 import supabase from "../config/supabaseClient";
 import { toast } from "react-hot-toast";
 import ReCAPTCHA from "react-google-recaptcha";
+import moment from "moment"; // Import moment library
 
 function BorrowerForm() {
   const [email, setEmail] = useState("");
@@ -17,9 +18,11 @@ function BorrowerForm() {
   const [contactNo, setContactNo] = useState("");
   const [activeAssets, setActiveAssets] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [expectedReturnDate, setExpectedReturnDate] = useState(
-    new Date().toISOString().split("T")[0] // Default to today's date
-  );
+  const [expectedReturnDate, setExpectedReturnDate] = useState(() => {
+    const date = new Date();
+    date.setHours(8, 0, 0, 0); // Set default time to 8:00 AM
+    return date.toISOString();
+  });
   const [notes, setNotes] = useState(""); // New state for notes
   const [isSubmitting, setIsSubmitting] = useState(false); // State to track submission status
   const [confirmationMessage, setConfirmationMessage] = useState(""); // State for confirmation message
@@ -53,6 +56,7 @@ function BorrowerForm() {
     
     setContactNo(numbersOnly);
   };
+
   const handleReCAPTCHAChange = (token) => {
     setRecaptchaToken(token); // Store reCAPTCHA token
   };
@@ -132,7 +136,7 @@ function BorrowerForm() {
         contactNo,
         coverLetterUrl,
         selectedAssets,
-        expectedReturnDate,
+        expectedReturnDate: moment(expectedReturnDate).format('YYYY-MM-DDTHH:mm:ss'), // Update to match date to be collected format
         dateToBeCollected: selectedAssets[0]?.dateToBeCollected || "",
         notes,
         recaptchaToken,
@@ -172,7 +176,7 @@ function BorrowerForm() {
     setContactNo("");
     setCoverLetter(null);
     setSelectedAssets([]);
-    setExpectedReturnDate(new Date().toISOString().split("T")[0]);
+    setExpectedReturnDate(new Date().toISOString()); // Reset to 8:00 AM
     setNotes("");
   };
 
@@ -235,6 +239,42 @@ function BorrowerForm() {
         error.response?.data?.message || "Invalid or expired verification code"
       );
     }
+  };
+
+  const handleExpectedReturnDateChange = (e) => {
+    const selectedDateTime = new Date(e.target.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day for fair comparison
+    
+    // Extract hours and minutes for office hours validation
+    const hours = selectedDateTime.getHours();
+    const minutes = selectedDateTime.getMinutes();
+    const timeInMinutes = hours * 60 + minutes;
+    const startOfDay = 8 * 60; // 8:00 AM in minutes
+    const endOfDay = 17 * 60; // 5:00 PM in minutes
+
+    // Compare dates without time for past date validation
+    const selectedDate = new Date(selectedDateTime);
+    selectedDate.setHours(0, 0, 0, 0);
+    if (selectedDate < today) {
+      toast.error("Expected return date cannot be in the past");
+      const currentDate = new Date();
+      currentDate.setHours(8, 0, 0, 0);
+      setExpectedReturnDate(currentDate.toISOString());
+      return;
+    }
+
+    if (timeInMinutes < startOfDay || timeInMinutes > endOfDay) {
+      toast.error("Please select a time between 8:00 AM and 5:00 PM");
+      // Keep the current date but reset time to 8:00 AM
+      const currentValue = new Date(expectedReturnDate);
+      currentValue.setHours(8, 0, 0, 0);
+      setExpectedReturnDate(currentValue.toISOString());
+      return;
+    }
+
+    // If all validations pass, use the selected date and time
+    setExpectedReturnDate(e.target.value);
   };
 
   useEffect(() => {
@@ -453,20 +493,25 @@ function BorrowerForm() {
               {/* Expected Date of Return Field */}
               <div className="relative">
                 <input
-                  type="date"
+                  type="datetime-local"
                   id="expectedReturnDate"
                   name="expectedReturnDate"
                   required
                   value={expectedReturnDate}
-                  onChange={(e) => setExpectedReturnDate(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]} // Add min attribute to prevent past dates
+                  onChange={handleExpectedReturnDateChange}
+                  min={(() => {
+                    const now = new Date();
+                    now.setHours(8, 0, 0, 0);
+                    return now.toISOString();
+                  })()}
+                  step="60"
                   className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300"
                 />
                 <label
                   htmlFor="expectedReturnDate"
                   className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
                 >
-                  Expected Date of Return
+                  Expected Date and Time of Return (8:00 AM - 5:00 PM)
                 </label>
               </div>
               {/* Notes Field */}
