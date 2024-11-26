@@ -270,8 +270,6 @@ exports.getBorrowedAssetsFrequency = async (req, res) => {
   }
 };
 
-
-
 exports.sendManualEmail = async (req, res) => {
   const { email, name, status, rejectionReason } = req.body;
 
@@ -298,26 +296,6 @@ exports.sendManualEmail = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error sending email", error: error.message });
-  }
-};
-
-exports.sendReminderEmail = async (req, res) => {
-  const { email, name, expectedReturnDate } = req.body;
-
-  if (!email || !name || !expectedReturnDate) {
-    return res.status(400).json({
-      message: "Email, name, and expected return date are required.",
-    });
-  }
-
-  try {
-    await emailService.sendReminderEmail(email, name, expectedReturnDate);
-    res.status(200).json({ message: "SMS sent successfully" });
-  } catch (error) {
-    console.error("Error sending SMS reminder:", error);
-    res
-      .status(500)
-      .json({ message: "Error sending SMS reminder", error: error.message });
   }
 };
 
@@ -580,5 +558,45 @@ exports.verifyCode = (req, res) => {
     res.status(200).json({ message: "Verification successful" });
   } else {
     res.status(400).json({ message: "Invalid or expired verification code" });
+  }
+};
+exports.sendPendingAlertEmail = async (req, res) => {
+  const { email, pendingCount } = req.body;
+
+  if (!email || !pendingCount || pendingCount <= 5) {
+    return res.status(400).json({
+      message: "Email and pending count greater than 5 are required.",
+    });
+  }
+
+  try {
+    await emailService.sendPendingAlertEmail(email, pendingCount);
+    res.status(200).json({ message: "Pending alert email sent successfully." });
+  } catch (error) {
+    console.error("Error sending pending alert email:", error);
+    res.status(500).json({
+      message: "Failed to send pending alert email.",
+      error: error.message,
+    });
+  }
+};
+
+exports.sendReminderEmail = async (req, res) => {
+  const { email, name, expectedReturnDate } = req.body;
+
+  if (!email || !name || !expectedReturnDate) {
+    return res.status(400).json({
+      message: "Email, name, and expected return date are required.",
+    });
+  }
+
+  try {
+    await emailService.sendReminderEmail(email, name, expectedReturnDate);
+    res.status(200).json({ message: "SMS sent successfully" });
+  } catch (error) {
+    console.error("Error sending SMS reminder:", error);
+    res
+      .status(500)
+      .json({ message: "Error sending SMS reminder", error: error.message });
   }
 };

@@ -339,13 +339,14 @@ const BorrowingRequest = () => {
                   className="py-2 px-3 border-b text-left whitespace-nowrap"
                   style={{ width: "15%" }}
                 >
-                  Department
+                  
                 </th>
                 <th
                   className="py-2 px-3 border-b text-left whitespace-nowrap"
                   style={{ width: "15%" }}
                 >
-Purpose                </th>
+                  Department
+                </th>
                 <th
                   className="py-2 px-3 border-b text-left whitespace-nowrap"
                   style={{ width: "15%" }}
@@ -438,12 +439,12 @@ Purpose                </th>
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {request.date_requested
-                        ? moment(request.date_requested).format("MM/DD/YYYY - h:mm A")
+                        ? moment(request.date_requested).format("MM/DD/YYYY h:mm A")
                         : "N/A"}
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {request.date_to_be_collected
-                        ? moment(request.date_to_be_collected).format("MM/DD/YYYY - h:mm A")
+                        ? moment(request.date_to_be_collected).format("MM/DD/YYYY h:mm A")
                         : "N/A"}
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
@@ -462,7 +463,7 @@ Purpose                </th>
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {request.expected_return_date
-                        ? moment(request.expected_return_date).format("MM/DD/YYYY - h:mm A")
+                        ? moment(request.expected_return_date).format("MM/DD/YYYY h:mm A")
                         : "N/A"}
                     </td>
                     {showActions && (

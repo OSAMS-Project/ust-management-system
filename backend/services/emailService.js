@@ -92,9 +92,34 @@ const sendReminderEmail = async (email, name, expectedReturnDate) => {
   }
 };
 
+const sendPendingAlert = async (email, pendingCount) => {
+  if (!email || !pendingCount) {
+    throw new Error("Email and pending count are required.");
+  }
+
+  const transporter = createTransporter(); // Reuse the createTransporter function
+
+  const mailOptions = {
+    from: `"Asset Management Team" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "Pending Borrowing Requests Alert",
+    text: `Dear Admin,\n\nThere are currently ${pendingCount} pending borrowing requests in the system. Please log in to the system to review and process them.\n\nBest regards,\nAsset Management Team`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Pending alert email sent successfully:", info.messageId);
+    return { message: "Pending alert email sent successfully." };
+  } catch (error) {
+    console.error("Error sending pending alert email:", error.message);
+    throw new Error("Failed to send pending alert email.");
+  }
+};
+
 module.exports = {
   sendApprovalEmail,
   sendRejectionEmail,
   sendVerificationEmail,
   sendReminderEmail,
+  sendPendingAlert,
 };

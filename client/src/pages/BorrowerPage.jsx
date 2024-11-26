@@ -36,24 +36,98 @@ function BorrowerForm() {
   const [emailError, setEmailError] = useState("");
   const [termsAndConditions, setTermsAndConditions] = useState(null);
   const [contactNoError, setContactNoError] = useState(""); // Add this new state
+  const [requests, setRequests] = useState([]);
+  const [emailNotificationSent, setEmailNotificationSent] = useState(false); // Use state for tracking
+
+  const fetchRequests = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/borrowing-requests`
+      );
+
+      if (!Array.isArray(response.data)) {
+        console.error("Invalid response format:", response.data);
+        return;
+      }
+
+      setRequests(response.data);
+      checkAndNotifyAdmin(response.data); // Pass fetched requests to the check function
+    } catch (error) {
+      console.error("Error fetching borrowing requests:", error);
+      toast.error("Failed to load borrowing requests.");
+    }
+  };
+
+  // Check pending requests and notify admin
+  let notifyTimeout; // Add a global variable to track the timeout
+
+  const checkAndNotifyAdmin = async (requestsList) => {
+    clearTimeout(notifyTimeout); // Clear previous timeout
+
+    notifyTimeout = setTimeout(async () => {
+      const pendingCount = requestsList.filter(
+        (req) => req.status === "Pending"
+      ).length;
+
+      if (pendingCount > 5 && !emailNotificationSent) {
+        try {
+          const adminResponse = await axios.get(
+            `${process.env.REACT_APP_API_URL}/api/notification-settings`
+          );
+          const adminEmail = adminResponse.data.notification_email;
+
+          if (!adminEmail) {
+            console.warn("No admin email configured for notifications.");
+            return;
+          }
+
+          await axios.post(
+            `${process.env.REACT_APP_API_URL}/api/notification-settings/pending-alert`,
+            {
+              email: adminEmail,
+              pendingCount,
+            }
+          );
+
+          setEmailNotificationSent(true); // Update state
+          toast.success(
+            `Admin notified about ${pendingCount} pending requests.`
+          );
+        } catch (error) {
+          console.error("Failed to notify admin:", error);
+          toast.error("Error notifying admin about pending requests.");
+        }
+      } else if (pendingCount <= 5 && emailNotificationSent) {
+        setEmailNotificationSent(false); // Reset state if no pending requests exist
+      }
+    }, 300); // Debounce duration in milliseconds
+  };
+
+  useEffect(() => {
+    const fetchInitialRequests = async () => {
+      await fetchRequests();
+    };
+
+    fetchInitialRequests();
+  }, []); // Empty dependency array ensures this runs only once on component mount
 
   const handleContactNumberChange = (e) => {
     const value = e.target.value;
     const numbersOnly = value.replace(/[^0-9]/g, "");
-    
+
     // Validate PH number format
     if (numbersOnly.length > 0) {
-      if (!numbersOnly.startsWith('09')) {
-        setContactNoError('Phone number must start with 09');
+      if (!numbersOnly.startsWith("09")) {
+        setContactNoError("Phone number must start with 09");
       } else if (numbersOnly.length !== 11) {
-        setContactNoError('Phone number must be 11 digits');
+        setContactNoError("Phone number must be 11 digits");
       } else {
-        setContactNoError('');
+        setContactNoError("");
       }
     } else {
-      setContactNoError('');
+      setContactNoError("");
     }
-    
+
     setContactNo(numbersOnly);
   };
 
@@ -67,7 +141,7 @@ function BorrowerForm() {
     setConfirmationMessage("");
 
     // Add phone number validation before submission
-    if (!contactNo.startsWith('09') || contactNo.length !== 11) {
+    if (!contactNo.startsWith("09") || contactNo.length !== 11) {
       toast.error("Please enter a valid Philippine mobile number");
       setIsSubmitting(false);
       return;
@@ -136,7 +210,9 @@ function BorrowerForm() {
         contactNo,
         coverLetterUrl,
         selectedAssets,
-        expectedReturnDate: moment(expectedReturnDate).format('YYYY-MM-DDTHH:mm:ss'), // Update to match date to be collected format
+        expectedReturnDate: moment(expectedReturnDate).format(
+          "YYYY-MM-DDTHH:mm:ss"
+        ), // Update to match date to be collected format
         dateToBeCollected: selectedAssets[0]?.dateToBeCollected || "",
         notes,
         recaptchaToken,
@@ -245,7 +321,7 @@ function BorrowerForm() {
     const selectedDateTime = new Date(e.target.value);
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Reset time to start of day for fair comparison
-    
+
     // Check if the selected day is Saturday (6) or Sunday (0)
     const dayOfWeek = selectedDateTime.getDay();
     if (dayOfWeek === 0 || dayOfWeek === 6) {
@@ -285,30 +361,33 @@ function BorrowerForm() {
   useEffect(() => {
     const fetchTerms = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/terms-and-conditions`);
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/terms-and-conditions`
+        );
         if (response.data && response.data.borrowing_guidelines) {
           setTermsAndConditions({
             borrowingGuidelines: response.data.borrowing_guidelines || [],
-            documentationRequirements: response.data.documentation_requirements || [],
-            usagePolicy: response.data.usage_policy || []
+            documentationRequirements:
+              response.data.documentation_requirements || [],
+            usagePolicy: response.data.usage_policy || [],
           });
         } else {
           // Set default empty values if data is missing
           setTermsAndConditions({
             borrowingGuidelines: [],
             documentationRequirements: [],
-            usagePolicy: []
+            usagePolicy: [],
           });
-          console.warn('Terms and conditions data is incomplete or missing');
+          console.warn("Terms and conditions data is incomplete or missing");
         }
       } catch (error) {
-        console.error('Error fetching terms:', error);
-        toast.error('Failed to load terms and conditions');
+        console.error("Error fetching terms:", error);
+        toast.error("Failed to load terms and conditions");
         // Set default empty values on error
         setTermsAndConditions({
           borrowingGuidelines: [],
           documentationRequirements: [],
-          usagePolicy: []
+          usagePolicy: [],
         });
       }
     };
@@ -475,7 +554,7 @@ function BorrowerForm() {
                   inputMode="numeric"
                   placeholder=" "
                   className={`block w-full px-3 py-2 border-b-2 ${
-                    contactNoError ? 'border-red-500' : 'border-gray-300'
+                    contactNoError ? "border-red-500" : "border-gray-300"
                   } bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer`}
                 />
                 <label
@@ -485,9 +564,7 @@ function BorrowerForm() {
                   Enter your contact number (e.g., 09123456789)
                 </label>
                 {contactNoError && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {contactNoError}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{contactNoError}</p>
                 )}
               </div>
 

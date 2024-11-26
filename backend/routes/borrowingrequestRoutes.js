@@ -27,6 +27,7 @@ router.delete("/:id", borrowingRequestController.deleteBorrowingRequest);
 router.post("/send-email", borrowingRequestController.sendManualEmail);
 router.post("/notify-email", borrowingRequestController.sendReminderEmail);
 router.get("/borrowed-assets-frequency", borrowingRequestController.getBorrowedAssetsFrequency);
+router.post("/notifications/pending-alert", borrowingRequestController.sendPendingAlertEmail);
 
 
 // Pending requests
