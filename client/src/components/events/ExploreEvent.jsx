@@ -37,23 +37,17 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
 
   useEffect(() => {
     if (selectedEvent) {
-      console.log('Selected Event Assets:', selectedEvent.assets);
-      setLocalAssets(selectedEvent.assets || []);
-      const total = (selectedEvent.assets || []).reduce((sum, asset) => {
-        console.log('Raw asset cost:', asset.cost);
+      const validAssets = (selectedEvent.assets || []).filter(asset => asset && asset.asset_id);
+      console.log('Valid assets:', validAssets);
+      setLocalAssets(validAssets);
+      
+      const total = validAssets.reduce((sum, asset) => {
         const assetCost = parseFloat(asset.cost) || 0;
         const quantity = parseInt(asset.quantity) || 0;
         const subtotal = assetCost * quantity;
-        console.log('Asset calculation:', {
-          name: asset.assetName,
-          rawCost: asset.cost,
-          parsedCost: assetCost,
-          quantity: quantity,
-          subtotal: subtotal
-        });
         return sum + subtotal;
       }, 0);
-      console.log('Final total:', total);
+      
       setTotalCost(total);
     }
   }, [selectedEvent]);
@@ -478,13 +472,16 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
             <div className="bg-gray-50 rounded-lg p-4">
               {localAssets && localAssets.length > 0 ? (
                 <div className="space-y-3">
-                  {localAssets.map((asset) => {
-                    const assetCost = asset.cost ? parseFloat(asset.cost) : 0;
-                    
-                    return (
+                  {localAssets.map((asset) => (
+                    asset && asset.asset_id ? (
                       <div key={asset.asset_id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-4 rounded-lg shadow-sm">
                         <div className="flex-1">
-                          <p className="font-medium mb-1">{asset.assetName}</p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-medium">{asset.assetName}</p>
+                            <span className="text-sm text-gray-500">
+                              ({asset.productCode || 'N/A'})
+                            </span>
+                          </div>
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600">
                             <span>Quantity: {
                               editingAsset && editingAsset.asset_id === asset.asset_id ? (
@@ -497,7 +494,7 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
                                 />
                               ) : asset.quantity
                             }</span>
-                            <span>Cost per unit: ₱{assetCost.toFixed(2)}</span>
+                            <span>Cost per unit: ₱{asset.cost.toFixed(2)}</span>
                           </div>
                         </div>
                         {!readOnly && (
@@ -517,8 +514,8 @@ const ExploreModal = ({ showExploreModal, selectedEvent, setShowExploreModal, ha
                           </div>
                         )}
                       </div>
-                    );
-                  })}
+                    ) : null
+                  ))}
                 </div>
               ) : (
                 <p className="text-center text-gray-500 py-4">No assets added to this event.</p>

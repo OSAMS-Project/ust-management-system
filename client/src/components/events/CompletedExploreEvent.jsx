@@ -21,7 +21,8 @@ const CompletedExploreModal = ({ showExploreModal, selectedEvent, setShowExplore
                 
                 return {
                   ...asset,
-                  cost: response.data.cost
+                  cost: response.data.cost,
+                  productCode: response.data.productCode
                 };
               } catch (error) {
                 console.error(`Error fetching cost for asset ${asset.asset_id}:`, error.response || error);
@@ -320,7 +321,12 @@ const CompletedExploreModal = ({ showExploreModal, selectedEvent, setShowExplore
                     return (
                       <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-4 rounded-lg shadow-sm">
                         <div className="flex-1">
-                          <p className="font-medium mb-1">{asset.assetName}</p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-medium">{asset.assetName}</p>
+                            <span className="text-sm text-gray-500">
+                              ({asset.productCode || 'N/A'})
+                            </span>
+                          </div>
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-sm text-gray-600">
                             <span>Quantity: {asset.quantity}</span>
                             <span>Cost per unit: ₱{assetCost.toFixed(2)}</span>

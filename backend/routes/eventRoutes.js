@@ -14,8 +14,19 @@ router.get('/completed', eventController.getCompletedEvents);
 router.get('/:eventId/assets', async (req, res) => {
   try {
     const { eventId } = req.params;
-    const assets = await Event.getEventAssets(eventId);
-    res.json(assets);
+    const query = `
+      SELECT ea.*, a."assetName", a."productCode" as product_code, a.cost, a.type
+      FROM event_assets ea
+      JOIN assets a ON ea.asset_id = a.asset_id
+      WHERE ea.event_id = $1
+    `;
+    const result = await pool.query(query, [eventId]);
+    
+    // Separate assets into consumables and non-consumables
+    const consumables = result.rows.filter(asset => asset.type === 'Consumable');
+    const nonConsumables = result.rows.filter(asset => asset.type !== 'Consumable');
+    
+    res.json({ consumables, nonConsumables });
   } catch (error) {
     console.error('Error fetching event assets:', error);
     res.status(500).json({ error: 'Failed to fetch event assets' });
@@ -62,7 +73,28 @@ router.put('/:uniqueId/complete', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const event = await getEventById(req.params.id);
+    const query = `
+      SELECT e.*,
+             json_agg(
+               json_build_object(
+                 'asset_id', a.asset_id,
+                 'assetName', a."assetName",
+                 'productCode', a."productCode",
+                 'cost', ea.cost,
+                 'quantity', ea.quantity
+               )
+             ) as assets
+      FROM events e
+      LEFT JOIN event_assets ea ON e.unique_id = ea.event_id
+      LEFT JOIN assets a ON ea.asset_id = a.asset_id
+      WHERE e.unique_id = $1
+      GROUP BY e.unique_id, e.event_name, e.event_location, e.event_date, 
+               e.event_start_time, e.event_end_time, e.description, e.created_at
+    `;
+    
+    const result = await pool.query(query, [req.params.id]);
+    const event = result.rows[0];
+    
     if (event) {
       res.json(event);
     } else {
@@ -80,7 +112,7 @@ router.get('/asset-cost/:eventId/:assetId', async (req, res) => {
   try {
     const { eventId, assetId } = req.params;
     const query = `
-      SELECT cost, "assetName"
+      SELECT cost, "assetName", "productCode"
       FROM assets
       WHERE asset_id = $1
     `;
@@ -92,8 +124,9 @@ router.get('/asset-cost/:eventId/:assetId', async (req, res) => {
 
     const cost = parseFloat(result.rows[0].cost) || 0;
     const assetName = result.rows[0].assetName;
+    const productCode = result.rows[0].productCode;
     
-    res.json({ cost, assetName });
+    res.json({ cost, assetName, productCode });
   } catch (error) {
     console.error('Error fetching asset cost:', error);
     res.status(500).json({ 
