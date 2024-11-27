@@ -185,5 +185,6 @@ router.get('/:id', async (req, res) => {
 
 router.get('/check-product-code/:productCode', assetController.checkProductCode);
 router.get('/borrowing/total', assetController.getTotalBorrowingQuantity);
+router.get('/check-serial-number/:serialNumber', assetController.checkSerialNumber);
 
 module.exports = router;

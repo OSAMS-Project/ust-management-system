@@ -431,6 +431,16 @@ const findByProductCode = async (productCode) => {
 	return result[0];
 };
 
+const findBySerialNumber = async (serialNumber) => {
+	// Don't check for duplicates if serial number is N/A
+	if (serialNumber === 'N/A') {
+		return null;
+	}
+	const query = 'SELECT * FROM Assets WHERE "serialNumber" = $1';
+	const result = await executeTransaction([{ query, params: [serialNumber] }]);
+	return result[0];
+};
+
 module.exports = {
 	createAssetsTable,
 	createAsset,
@@ -454,4 +464,5 @@ module.exports = {
 	checkActiveBorrowings,
 	updateMainAssetQuantity,
 	findByProductCode,
+	findBySerialNumber,
 };
