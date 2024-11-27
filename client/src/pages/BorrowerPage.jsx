@@ -41,6 +41,24 @@ function BorrowerForm() {
 
   let lastNotifiedCount = 0; // Tracks the last count when a notification was sent
 
+  function getPhilippinesDateTime() {
+    const now = new Date();
+    return new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+  }
+
+  const phNow = getPhilippinesDateTime();
+  const minDateTime = formatDateTimeForInput(phNow);
+
+  function formatDateTimeForInput(date) {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
   const fetchRequests = async () => {
     try {
       const response = await axios.get(
@@ -435,10 +453,10 @@ function BorrowerForm() {
                   type="text"
                   id="name"
                   name="name"
-                  required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder=" "
+                  required
                   className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
                 />
                 <label
@@ -585,11 +603,7 @@ function BorrowerForm() {
                   required
                   value={expectedReturnDate}
                   onChange={handleExpectedReturnDateChange}
-                  min={(() => {
-                    const now = new Date();
-                    now.setHours(8, 0, 0, 0);
-                    return now.toISOString();
-                  })()}
+                  min={minDateTime}
                   step="60"
                   className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300"
                 />
@@ -641,7 +655,6 @@ function BorrowerForm() {
                 />
                 {coverLetter && (
                   <div className="mt-2 text-sm text-gray-600">
-                    Selected file: {coverLetter.name}
                   </div>
                 )}
               </div>
