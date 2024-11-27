@@ -12,6 +12,7 @@ const ColumnVisibilityPopup = ({
     'id',
     'asset',
     'productCode',
+    'serialNumber',
     'costPerUnit',
     'quantity',
     'quantityForBorrowing',
@@ -25,6 +26,7 @@ const ColumnVisibilityPopup = ({
     switch(columnName) {
       case 'id': return '#';
       case 'productCode': return 'Product Code';
+      case 'serialNumber': return 'Serial Number';
       case 'dateCreated': return 'Date Created';
       case 'asset': return 'Asset';
       case 'costPerUnit': return 'Cost per Unit';

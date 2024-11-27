@@ -91,6 +91,7 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
     image: null,
     type: "",
     productCode: "",
+    serialNumber: "",
     allowBorrowing: false,
   });
 
@@ -110,6 +111,7 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
         image: null,
         type: "",
         productCode: "",
+        serialNumber: "",
         allowBorrowing: false,
       });
       setShakeFields([]);
@@ -182,6 +184,7 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
       type: formData.type,
       under_repair: false,
       allow_borrowing: formData.type === 'Consumable' ? formData.allowBorrowing : true,
+      serialNumber: formData.serialNumber,
     };
 
     try {
@@ -236,6 +239,14 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
                     value={formData.productCode}
                     onChange={(e) => handleInputChange('productCode', e.target.value.replace(/[^0-9\s]/g, ''))}
                     placeholder="Enter product code (numbers and spaces only)"
+                  />
+                  <InputField
+                    label="Serial Number"
+                    id="serialNumber"
+                    type="text"
+                    value={formData.serialNumber}
+                    onChange={(e) => handleInputChange('serialNumber', e.target.value)}
+                    placeholder="Enter serial number"
                   />
                 </div>
 

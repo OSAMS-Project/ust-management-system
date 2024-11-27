@@ -11,6 +11,7 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
 
   const fieldNameMapping = {
     productCode: "Product Code",
+    serialNumber: "Serial Number",
     assetName: "Asset",
     cost: "Cost per Unit",
     quantity: "Available Quantity",

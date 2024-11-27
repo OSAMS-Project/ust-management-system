@@ -48,6 +48,11 @@ const TableRow = ({
           {asset.productCode}
         </td>
       )}
+      {visibleColumns.serialNumber && (
+        <td className="text-center align-middle py-3" data-label="Serial Number">
+          {asset.serialNumber}
+        </td>
+      )}
       {visibleColumns.costPerUnit && (
         <td className="text-center align-middle py-3" data-label="Cost per Unit">
           ₱{parseFloat(asset.cost).toFixed(2)}

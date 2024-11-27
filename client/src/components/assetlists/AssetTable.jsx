@@ -18,6 +18,7 @@ const getInitialVisibleColumns = () => {
     id: true,
     asset: true,
     productCode: true,
+    serialNumber: true,
     costPerUnit: true,
     quantity: true,
     quantityForBorrowing: true,

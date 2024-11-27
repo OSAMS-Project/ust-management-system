@@ -6,6 +6,7 @@ const createAssetsTable = async () => {
 CREATE TABLE IF NOT EXISTS Assets (
       asset_id VARCHAR(20) UNIQUE NOT NULL,
       "productCode" VARCHAR(50),
+      "serialNumber" VARCHAR(50),
       "assetName" VARCHAR(255) NOT NULL,
       "assetDetails" TEXT,
       category VARCHAR(255),
@@ -103,6 +104,7 @@ const updateAsset = async (id, updates) => {
 		// Map of frontend camelCase to database column names
 		const columnMapping = {
 			productCode: '"productCode"',
+			serialNumber: '"serialNumber"',
 			assetName: '"assetName"',
 			assetDetails: '"assetDetails"',
 			totalCost: '"totalCost"',

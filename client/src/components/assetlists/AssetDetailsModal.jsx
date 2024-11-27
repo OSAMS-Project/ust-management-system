@@ -46,6 +46,7 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
           <div className="grid grid-cols-1 gap-y-3 sm:gap-y-4 md:grid-cols-2 md:gap-x-8">
             <DetailItem label="ID" value={selectedAsset.asset_id} />
             <DetailItem label="Product Code" value={selectedAsset.productCode} />
+            <DetailItem label="Serial Number" value={selectedAsset.serialNumber} />
             <DetailItem label="Date Created" value={moment(selectedAsset.createdDate).format('MM/DD/YYYY')} />
             <DetailItem label="Quantity" value={selectedAsset.quantity} />
             <DetailItem label="Category" value={selectedAsset.category} />

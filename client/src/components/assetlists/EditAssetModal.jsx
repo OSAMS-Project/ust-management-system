@@ -425,6 +425,14 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
                   onChange={(e) => handleChange('productCode', e.target.value.replace(/[^0-9\s]/g, ''))}
                   placeholder="Enter product code (numbers and spaces only)"
                 />
+                <InputField
+                  label="Serial Number"
+                  id="serialNumber"
+                  type="text"
+                  value={editedAsset.serialNumber}
+                  onChange={(e) => handleChange('serialNumber', e.target.value)}
+                  placeholder="Enter serial number"
+                />
               </div>
 
               <InputField

@@ -58,6 +58,17 @@ const TableHeader = ({ visibleColumns, sortCriteria, handleSort }) => {
           </div>
         </th>
       )}
+      {visibleColumns.serialNumber && (
+        <th 
+          className="text-center py-2 px-4 cursor-pointer"
+          onClick={() => handleSort('serialNumber')}
+        >
+          <div className="flex items-center justify-center">
+            Serial Number
+            {renderSortIcon('serialNumber')}
+          </div>
+        </th>
+      )}
       {visibleColumns.costPerUnit && (
         <th 
           className="text-center py-2 px-4 cursor-pointer"
