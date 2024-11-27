@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import SupplierActivityLogs from './SupplierActivityLogs';
 
 const SupplierDetailsModal = ({ selectedSupplier, onClose }) => {
@@ -8,36 +6,54 @@ const SupplierDetailsModal = ({ selectedSupplier, onClose }) => {
 
   if (!selectedSupplier) return null;
 
+  const DetailItem = ({ label, value }) => (
+    <div className="space-y-2">
+      <label className="block text-sm font-semibold text-gray-700">{label}</label>
+      <div className="w-full px-3 py-2 border rounded-lg bg-gray-50">
+        {value || 'N/A'}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-6">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200"
-          aria-label="Close"
-        >
-          <FontAwesomeIcon icon={faTimes} className="text-xl" />
-        </button>
-        <div className="p-8">
-          <h2 className="text-3xl font-bold mb-6 text-gray-800">{selectedSupplier.name}</h2>
-
-          <div className="grid grid-cols-1 gap-y-4 md:grid-cols-2 md:gap-x-8">
-            <DetailItem label="Supplier ID" value={selectedSupplier.supplier_id} />
-            <DetailItem label="Name" value={selectedSupplier.name} />
-            <DetailItem label="Product" value={selectedSupplier.product} />
-            <DetailItem label="Street Address" value={selectedSupplier.streetaddress} />
-            <DetailItem label="City" value={selectedSupplier.city} />
-            <DetailItem label="Email" value={selectedSupplier.email} />
-            <DetailItem label="Contact No" value={selectedSupplier.contactno} />
+    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-auto transform transition-all animate-fadeIn font-roboto">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 p-6 rounded-t-2xl">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-black">Supplier Details</h2>
           </div>
+        </div>
 
-          <div className="flex justify-center mt-8">
-            <button
-              onClick={() => setShowActivityLogs(true)}
-              className="bg-green-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-700 transition-transform transform hover:scale-105"
-            >
-              View Activity Logs
-            </button>
+        {/* Content */}
+        <div className="p-6 max-h-[80vh] overflow-y-auto">
+          <div className="space-y-6">
+            {/* Grid layout for details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <DetailItem label="Supplier ID" value={selectedSupplier.supplier_id} />
+              <DetailItem label="Name" value={selectedSupplier.name} />
+              <DetailItem label="Product" value={selectedSupplier.product} />
+              <DetailItem label="Street Address" value={selectedSupplier.streetaddress} />
+              <DetailItem label="City" value={selectedSupplier.city} />
+              <DetailItem label="Email" value={selectedSupplier.email} />
+              <DetailItem label="Contact No" value={selectedSupplier.contactno} />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-4 pt-4 border-t mt-6">
+              <button
+                onClick={onClose}
+                className="px-6 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => setShowActivityLogs(true)}
+                className="px-6 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors"
+              >
+                View Activity Logs
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -51,12 +67,5 @@ const SupplierDetailsModal = ({ selectedSupplier, onClose }) => {
     </div>
   );
 };
-
-const DetailItem = ({ label, value }) => (
-  <div className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-200 py-2 last:border-b-0">
-    <span className="font-semibold text-gray-600">{label}:</span>
-    <span className="text-gray-800 sm:text-right">{value}</span>
-  </div>
-);
 
 export default SupplierDetailsModal;

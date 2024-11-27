@@ -54,7 +54,7 @@ const IncomingAssetsTable = ({
   return (
     <div className="overflow-x-auto">
       {/* Pending Assets Section */}
-      <div id="recipients" className="p-4 mt-4 lg:mt-0 rounded shadow bg-white">
+      <div id="recipients" className="p-4 mt-4 lg:mt-0 rounded bg-white">
         <PendingAssetsTable
           pendingAssets={getPendingPageData()}
           handleStatusUpdate={handleStatusUpdate}
@@ -67,7 +67,7 @@ const IncomingAssetsTable = ({
       </div>
 
       {/* Received Assets Section */}
-      <div id="recipients" className="p-4 mt-4 lg:mt-0 rounded shadow bg-white">
+      <div id="recipients" className="p-4 mt-4 lg:mt-0 rounded bg-white">
         <ReceivedAssetsTable receivedAssets={getReceivedPageData()} />
         <Pagination
           currentPage={receivedCurrentPage}

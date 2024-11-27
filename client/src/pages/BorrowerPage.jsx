@@ -422,7 +422,7 @@ function BorrowerForm() {
 
           <div className="relative z-10 w-full max-w-5xl bg-white rounded-lg shadow-lg p-8">
             <h1 className="text-3xl font-bold text-black mb-6 leading-snug text-center">
-              Asset Request Form
+              Borrower Form
             </h1>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed text-center">
               Borrow Materials from UST-OSA Asset Management System

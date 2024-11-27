@@ -50,7 +50,7 @@ const Modal = ({
     <div className="relative">
       <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 1000 }}>
         <div className="fixed inset-0 bg-black bg-opacity-50"></div>
-        <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-xl relative">
+        <div className="w-full max-w-md mx-auto bg-white rounded-t-[20px] shadow-xl relative">
           <div className="bg-[#FEC000] px-6 py-4 rounded-t-[20px] border-b">
             <h2 className="text-xl font-semibold text-black">Add Category</h2>
           </div>

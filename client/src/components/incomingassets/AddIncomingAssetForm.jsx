@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 
 const AddIncomingAssetForm = ({ 
   formData, 
@@ -45,21 +46,13 @@ const AddIncomingAssetForm = ({
   const phNow = getPhilippinesDateTime();
   const minDateTime = formatDateTimeForInput(phNow);
 
-  return (
+  return ReactDOM.createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-auto transform transition-all animate-fadeIn font-roboto">
         {/* Header */}
         <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 p-6 rounded-t-2xl">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold text-black">Add New Incoming Asset</h2>
-            <button
-              onClick={() => setShowForm(false)}
-              className="text-black hover:text-gray-700 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
           </div>
         </div>
 
@@ -230,7 +223,8 @@ const AddIncomingAssetForm = ({
           </form>
         </div>
       </div>
-    </div>
+    </div>,
+    document.getElementById('modal-root')
   );
 };
 

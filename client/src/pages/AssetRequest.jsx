@@ -192,7 +192,7 @@ const AssetRequest = ({ user }) => {
         Add Asset Request
       </button>
 
-      <div id='recipients' className="p-4 mt-4 lg:mt-0 rounded shadow bg-white">
+      <div id='recipients' className="p-4 mt-4 lg:mt-0 rounded bg-white">
         <AssetRequestTable 
           assetRequests={assetRequests} 
           onApprove={(id) => handleAction(handleApprove, id)}
