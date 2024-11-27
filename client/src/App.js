@@ -35,6 +35,9 @@ import Settings from "./pages/Settings";
 import axios from "axios";
 
 function App() {
+  const moment = require("moment-timezone");
+  moment.tz.setDefault("Asia/Manila");
+
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
     return savedUser ? JSON.parse(savedUser) : null;

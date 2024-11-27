@@ -36,6 +36,7 @@ const BorrowingRequest = () => {
         setRequests([]);
         return;
       }
+      console.log(moment.tz.names());
 
       // Map through the requests to get cover letter URLs
       const requestsWithCoverLetters = await Promise.all(
