@@ -48,7 +48,6 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
             <DetailItem label="Product Code" value={selectedAsset.productCode} />
             <DetailItem label="Date Created" value={moment(selectedAsset.createdDate).format('MM/DD/YYYY')} />
             <DetailItem label="Quantity" value={selectedAsset.quantity} />
-            <DetailItem label="Description" value={selectedAsset.assetDetails} />
             <DetailItem label="Category" value={selectedAsset.category} />
             <DetailItem label="Location" value={selectedAsset.location} />
             <DetailItem label="Cost per Unit" value={`₱${parseFloat(selectedAsset.cost).toFixed(2)}`} />
@@ -63,7 +62,15 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-6 sm:mt-8">
+          {/* Description Section */}
+          <div className="mt-6 mb-6">
+            <h3 className="font-semibold text-gray-600 text-sm sm:text-base mb-2">Description:</h3>
+            <p className="text-gray-800 text-sm sm:text-base text-justify whitespace-pre-wrap break-words leading-relaxed">
+              {selectedAsset.assetDetails || 'No description available'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <button
               onClick={() => setShowActivityLogs(true)}
               className="bg-green-600 text-white px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base rounded-lg shadow-md hover:bg-green-700 transition-transform transform hover:scale-105 flex items-center justify-center"
