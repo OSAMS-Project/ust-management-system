@@ -276,21 +276,47 @@ const Sidebar = ({ user, onLogout }) => {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="text-gray-200"
           >
-            <FontAwesomeIcon icon={faBars} size="lg" />
+            <FontAwesomeIcon
+              icon={isMobileMenuOpen ? faTimes : faBars}
+              size="lg"
+            />
           </button>
         </div>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="bg-[#202020]">
-            <nav className="flex flex-col space-y-2 py-4">
-              {filteredMenuList.map((menu) => (
+            {/* Mobile Profile Section */}
+            <Link
+              to="/profile"
+              className="flex items-center p-4 border-b border-gray-700"
+            >
+                <img
+                  src={user?.picture || "/osa-img.png"}
+                  alt="Profile"
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+
+                <div className="ml-3">
+                  <span className="block font-semibold text-[#FEC00F] uppercase">
+                    {user?.name ?? "UST-OSA"}
+                  </span>
+                  <span className="block text-sm text-gray-400">
+                    {user?.role || "No Role"}
+                  </span>
+                </div>
+            </Link>
+
+            {/* Mobile Navigation */}
+            <nav className="flex flex-col space-y-2 py-4 px-4">
+              {MENU_LIST.map((menu) => (
                 <NavItem
                   key={menu.text}
                   {...menu}
                   isActive={location.pathname === menu.to}
                 />
               ))}
+              <NavItem to="/settings" text="Settings" icon={faCog} />
               <button
                 onClick={handleLogoutClick}
                 className="flex items-center px-4 py-2 text-gray-300 hover:text-yellow-500"
