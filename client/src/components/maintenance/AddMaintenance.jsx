@@ -1,14 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import MaintenanceModal from './MaintenanceModal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faWrench } from '@fortawesome/free-solid-svg-icons';
 
 const AddMaintenance = ({ onAddMaintenance, assets, isModalOpen, onCloseModal, onOpenModal, user, maintenances }) => {
   return (
     <div>
       <button 
         onClick={onOpenModal}
-        className="px-4 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors mb-4"
+        className="flex items-center px-4 py-2 rounded-lg bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-black font-medium transition-colors mb-4"
       >
+        <FontAwesomeIcon icon={faWrench} className="mr-2" />
         Schedule Maintenance
       </button>
 

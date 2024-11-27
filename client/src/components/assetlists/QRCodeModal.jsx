@@ -1,17 +1,21 @@
 import React, { useRef } from 'react';
 import QRCode from 'qrcode.react';
-import { useReactToPrint } from 'react-to-print';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faDownload } from "@fortawesome/free-solid-svg-icons";
 
 const QRCodeModal = ({ assetId, assetName, onClose }) => {
   const qrRef = useRef();
 
-  const handlePrint = useReactToPrint({
-    content: () => qrRef.current,
-  });
-
   const qrCodeUrl = `${window.location.origin}/scan/${assetId}`;
+
+  const downloadQRCode = () => {
+    const canvas = qrRef.current.querySelector('canvas');
+    const url = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${assetName}-QRCode.png`;
+    link.click();
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
@@ -29,7 +33,7 @@ const QRCodeModal = ({ assetId, assetName, onClose }) => {
           <p className="mt-4 text-sm text-gray-600 text-center">Scan this QR code to view asset details</p>
         </div>
         <button
-          onClick={handlePrint}
+          onClick={downloadQRCode}
           className="mt-6 w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-300 flex items-center justify-center"
         >
           <FontAwesomeIcon icon={faDownload} className="mr-2" />
