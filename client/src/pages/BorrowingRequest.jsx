@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import moment from "moment";
 import NotificationPopup from "../components/utils/NotificationsPopup";
 import RejectionReasonModal from "../components/borrower/RejectionReasonModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,7 +8,8 @@ import { Check, X, RotateCcw, Bell } from "lucide-react"; // Import Lucide icons
 import { toast } from "react-hot-toast";
 import supabase from "../config/supabaseClient"; // Import the configured client
 import PaginationControls from "../components/assetlists/PaginationControls";
-import { tz } from "moment-timezone";
+import moment from 'moment';
+import 'moment-timezone';
 
 const BorrowingRequest = () => {
   const [requests, setRequests] = useState([]);
