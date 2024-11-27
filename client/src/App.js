@@ -103,8 +103,6 @@ function App() {
     localStorage.removeItem("user");
   };
 
-  
-
   return (
     <Router>
       <AppContent user={user} setUser={setUser} />
@@ -150,10 +148,16 @@ function AppContent({ user, setUser }) {
     return children;
   }
 
+  const isPrivateRoute = user && !isPublicRoute;
+
   return (
     <div className="app-container flex h-screen">
       {user && <Sidebar user={user} onLogout={handleLogout} />}
-      <div className="main-content flex-1 overflow-auto">
+      <div
+        className={`main-content flex-1 overflow-auto ${
+          isPrivateRoute ? "pt-10 lg:pt-0" : ""
+        }`}
+      >
         <Routes>
           {/* Public Routes */}
           <Route

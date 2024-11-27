@@ -284,12 +284,10 @@ const Sidebar = ({ user, onLogout }) => {
         {isMobileMenuOpen && (
           <div className="bg-[#202020]">
             <nav className="flex flex-col space-y-2 py-4">
-              {MENU_LIST.map((menu) => (
+              {filteredMenuList.map((menu) => (
                 <NavItem
                   key={menu.text}
-                  to={menu.to}
-                  text={menu.text}
-                  icon={menu.icon}
+                  {...menu}
                   isActive={location.pathname === menu.to}
                 />
               ))}
