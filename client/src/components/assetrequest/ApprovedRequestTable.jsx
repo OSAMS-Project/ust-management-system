@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import moment from 'moment';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
 import ViewRequestModal from './ViewRequestModal';
 
 const ApprovedRequestTable = ({ approvedRequests, onArchive }) => {
@@ -17,6 +15,14 @@ const ApprovedRequestTable = ({ approvedRequests, onArchive }) => {
 
   const formatDate = (date) => {
     return date ? moment(date).format("MM/DD/YYYY") : "N/A";
+  };
+
+  const handleRowClick = (asset, event) => {
+    // Check if click is not from the archive button
+    if (!event.target.closest('button')) {
+      setSelectedRequest(asset);
+      setIsViewModalOpen(true);
+    }
   };
 
   return (
@@ -40,7 +46,8 @@ const ApprovedRequestTable = ({ approvedRequests, onArchive }) => {
               key={index}
               className={`${
                 index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
-              } hover:bg-gray-50`}
+              } hover:bg-gray-50 cursor-pointer`}
+              onClick={(e) => handleRowClick(asset, e)}
             >
               <td className="py-2 px-4 border-b text-center">{asset.asset_name}</td>
               <td className="py-2 px-4 border-b text-center">{asset.quantity}</td>
@@ -66,15 +73,6 @@ const ApprovedRequestTable = ({ approvedRequests, onArchive }) => {
                 </span>
               </td>
               <td className="py-2 px-4 border-b text-center">
-                <button
-                  onClick={() => {
-                    setSelectedRequest(asset);
-                    setIsViewModalOpen(true);
-                  }}
-                  className="bg-blue-500 text-white px-2 py-1 rounded mr-2 text-xs hover:bg-blue-600 transition duration-300"
-                >
-                  <FontAwesomeIcon icon={faEye} />
-                </button>
                 <button
                   onClick={() => onArchive(asset.id)}
                   className="bg-gray-500 text-white px-3 py-1 rounded text-xs hover:bg-gray-600 transition duration-300"
