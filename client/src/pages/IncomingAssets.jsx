@@ -193,8 +193,8 @@ const IncomingAssets = () => {
   };
 
   return (
-    <div className='space-y-6'>
-      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
+    <div className="space-y-6">
+      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-4">
         <h1 className="text-5xl font-extrabold text-black">
           Incoming Assets
         </h1>
@@ -203,17 +203,15 @@ const IncomingAssets = () => {
           className="text-black text-5xl transform"
         />
       </div>
-      <div className="container">
-        <div className="ml-4 flex justify-between items-center">
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors"
-          >
-            Add Incoming Asset
-          </button>
-        </div>
-        
-        <div id='recipients' className="mt-4 rounded shadow bg-white"></div>
+
+      <button
+        onClick={() => setShowForm(true)}
+        className="px-4 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors m-3"
+      >
+        Add Incoming Asset
+      </button>
+
+      <div id='recipients' className="mt-4 lg:mt-0 rounded bg-white">
         <IncomingAssetsTable 
           assets={assets}
           handleStatusUpdate={handleStatusUpdate}
@@ -226,36 +224,36 @@ const IncomingAssets = () => {
           currentReceivedAssets={currentReceivedAssets}
           currentPendingAssets={currentPendingAssets}
         />
-
-        {showForm && (
-          <AddIncomingAssetForm 
-            formData={formData}
-            handleInputChange={handleInputChange}
-            handleSubmit={handleSubmit}
-            setShowForm={setShowForm}
-            categories={categories}
-            today={today}
-            setNotification={setNotification}
-            resetFormData={resetFormData}
-          />
-        )}
-
-        {showLocationDialog && (
-          <LocationDialog 
-            showLocationDialog={showLocationDialog}
-            setShowLocationDialog={setShowLocationDialog}
-            selectedLocation={selectedLocation}
-            setSelectedLocation={setSelectedLocation}
-            locations={locations}
-            handleLocationSubmit={handleLocationSubmit}
-          />
-        )}
-
-        <NotificationPopup
-          notification={notification}
-          onClose={() => setNotification(null)}
-        />
       </div>
+
+      {showForm && (
+        <AddIncomingAssetForm 
+          formData={formData}
+          handleInputChange={handleInputChange}
+          handleSubmit={handleSubmit}
+          setShowForm={setShowForm}
+          categories={categories}
+          today={today}
+          setNotification={setNotification}
+          resetFormData={resetFormData}
+        />
+      )}
+
+      {showLocationDialog && (
+        <LocationDialog 
+          showLocationDialog={showLocationDialog}
+          setShowLocationDialog={setShowLocationDialog}
+          selectedLocation={selectedLocation}
+          setSelectedLocation={setSelectedLocation}
+          locations={locations}
+          handleLocationSubmit={handleLocationSubmit}
+        />
+      )}
+
+      <NotificationPopup
+        notification={notification}
+        onClose={() => setNotification(null)}
+      />
     </div>
   );
 };
