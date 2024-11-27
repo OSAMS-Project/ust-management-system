@@ -78,7 +78,7 @@ const logEventAllocation = async (assetId, quantity, eventName, modifiedBy, user
     eventName, 
     modifiedBy,
     userPicture,
-    `Event Allocation: ${quantity} unit(s) allocated to event "${eventName}"`
+    `Event Allocation: ${quantity} units allocated to event "${eventName}"`
   ];
   return executeTransaction([{ query, params: values }]);
 };

@@ -86,9 +86,28 @@ function AssetMaintenance({ user }) {
 
   const handleRemoveMaintenance = async (maintenanceId) => {
     try {
+      // First try to get the maintenance record to check if it exists
+      const maintenanceRecord = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/maintenance/history/${maintenanceId}`
+      );
+
+      if (!maintenanceRecord.data || maintenanceRecord.data.length === 0) {
+        // Record doesn't exist, might have been already deleted
+        setMaintenances(
+          maintenances.filter((maintenance) => maintenance.id !== maintenanceId)
+        );
+        setNotification({
+          type: "success",
+          message: "Maintenance record has been removed",
+        });
+        return;
+      }
+
+      // If record exists, proceed with deletion
       await axios.delete(
         `${process.env.REACT_APP_API_URL}/api/maintenance/${maintenanceId}`
       );
+
       setMaintenances(
         maintenances.filter((maintenance) => maintenance.id !== maintenanceId)
       );
@@ -98,10 +117,21 @@ function AssetMaintenance({ user }) {
       });
     } catch (error) {
       console.error("Error removing maintenance:", error);
-      setNotification({
-        type: "error",
-        message: "Failed to remove maintenance record",
-      });
+      // Check if it's a 404 error, which means record doesn't exist
+      if (error.response?.status === 404) {
+        setMaintenances(
+          maintenances.filter((maintenance) => maintenance.id !== maintenanceId)
+        );
+        setNotification({
+          type: "info",
+          message: "Maintenance record has already been removed",
+        });
+      } else {
+        setNotification({
+          type: "error",
+          message: error.response?.data?.error || "Failed to remove maintenance record",
+        });
+      }
     }
   };
 

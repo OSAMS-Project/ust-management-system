@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import moment from 'moment';
 import axios from 'axios';
 import EditMaintenanceModal from './EditMaintenanceModal';
+import DeleteConfirmationModal from '../utils/DeleteConfirmationModal';
 
 const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRemoveMaintenance, onViewHistory, setNotification }) => {
   const [editingMaintenance, setEditingMaintenance] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [maintenanceToDelete, setMaintenanceToDelete] = useState(null);
 
   if (loading) {
     return <div className="flex justify-center items-center h-32">Loading...</div>;
@@ -144,6 +147,19 @@ const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRe
     }
   };
 
+  const handleDeleteClick = (maintenance) => {
+    setMaintenanceToDelete(maintenance);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (maintenanceToDelete) {
+      await handleRemoveMaintenance(maintenanceToDelete);
+      setDeleteModalOpen(false);
+      setMaintenanceToDelete(null);
+    }
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border rounded-lg">
@@ -188,7 +204,7 @@ const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRe
                   </td>
                   <td className="px-4 py-2 text-center">{maintenance.maintenance_quantity}</td>
                   <td className="px-4 py-2 text-center">
-                    {moment(maintenance.scheduled_date).format('MM/DD/YYYY HH:mm')}
+                    {moment(maintenance.scheduled_date).format('MM/DD/YYYY')}
                   </td>
                   <td className="px-4 py-2 text-center">
                     {maintenance.performed_by || 'Not Assigned'}
@@ -231,7 +247,7 @@ const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRe
                         </button>
                       )}
                       <button
-                        onClick={() => handleRemoveMaintenance(maintenance)}
+                        onClick={() => handleDeleteClick(maintenance)}
                         className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                       >
                         Delete
@@ -257,8 +273,18 @@ const MaintenanceTable = ({ maintenances, setMaintenances, assets, loading, onRe
           assets={assets}
         />
       )}
+
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setMaintenanceToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        message={`Are you sure you want to delete this maintenance record${maintenanceToDelete ? ` for ${assets.find(a => a.asset_id === maintenanceToDelete.asset_id)?.assetName || 'Unknown Asset'}` : ''}? This action cannot be undone.`}
+      />
     </div>
   );
 };
 
-export default MaintenanceTable; 
+export default MaintenanceTable;

@@ -89,9 +89,20 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
     }
 
     if (log.action === 'event_return') {
+      const match = log.context?.match(/Event Return: (\d+) unit\(s\) returned from event "([^"]+)"/);
+      if (match) {
+        const [, quantity, eventName] = match;
+        return (
+          <p key={log.id} className="text-sm text-gray-600 mb-1">
+            <strong className="text-black">Event Return</strong>: 
+            Returned <strong className="text-blue-600">{quantity}</strong> units 
+            from event "<strong className="text-green-600">{eventName}</strong>"
+          </p>
+        );
+      }
       return (
         <p key={log.id} className="text-sm text-gray-600 mb-1">
-          <strong className="text-green-600">{formatValue(log.context)}</strong>
+          <strong className="text-black">Event Return</strong>: {log.context}
         </p>
       );
     }
