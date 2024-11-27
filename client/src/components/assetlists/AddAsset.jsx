@@ -232,9 +232,10 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
                   <InputField
                     label="Product Code"
                     id="productCode"
+                    type="text"
                     value={formData.productCode}
-                    onChange={(e) => handleInputChange('productCode', e.target.value)}
-                    placeholder="Enter product code"
+                    onChange={(e) => handleInputChange('productCode', e.target.value.replace(/[^0-9\s]/g, ''))}
+                    placeholder="Enter product code (numbers and spaces only)"
                   />
                 </div>
 

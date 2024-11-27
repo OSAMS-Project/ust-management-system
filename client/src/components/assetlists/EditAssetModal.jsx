@@ -420,9 +420,10 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
                 <InputField
                   label="Product Code"
                   id="productCode"
+                  type="text"
                   value={editedAsset.productCode}
-                  onChange={(e) => handleChange('productCode', e.target.value)}
-                  placeholder="Enter product code"
+                  onChange={(e) => handleChange('productCode', e.target.value.replace(/[^0-9\s]/g, ''))}
+                  placeholder="Enter product code (numbers and spaces only)"
                 />
               </div>
 
