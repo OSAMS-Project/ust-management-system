@@ -5,11 +5,10 @@ const moment = require('moment');
 
 const createAsset = async (req, res) => {
   try {
-    const { productCode } = req.body;
+    const { productCode, serialNumber } = req.body;
     
-    // Skip duplicate check if productCode is empty or 'N/A'
+    // Check for duplicate product code
     if (productCode && productCode !== 'N/A') {
-      // Check for existing product code
       const existingAsset = await Asset.findByProductCode(productCode);
       if (existingAsset) {
         return res.status(400).json({ 
@@ -19,16 +18,31 @@ const createAsset = async (req, res) => {
       }
     }
 
+    // Check for duplicate serial number
+    if (serialNumber && serialNumber !== 'N/A') {
+      const existingSerialNumber = await Asset.findBySerialNumber(serialNumber);
+      if (existingSerialNumber) {
+        return res.status(400).json({ 
+          error: "Duplicate serial number", 
+          message: "An asset with this serial number already exists" 
+        });
+      }
+    }
+
     const assetData = { 
       ...req.body, 
       productCode: req.body.productCode || '',
+      serialNumber: req.body.serialNumber || '',
       added_by: req.user ? req.user.name : 'Unknown User'
     };
     const result = await Asset.createAsset(assetData);
     res.status(201).json(result[0]);
   } catch (err) {
     console.error("Error creating asset:", err);
-    res.status(500).json({ error: "Error creating asset", details: err.toString() });
+    res.status(400).json({ 
+      error: err.message || "Error creating asset",
+      message: err.message || "Error creating asset"
+    });
   }
 };
 
@@ -313,6 +327,26 @@ const checkProductCode = async (req, res) => {
   }
 };
 
+const checkSerialNumber = async (req, res) => {
+  try {
+    const { serialNumber } = req.params;
+    
+    // Skip check if serialNumber is empty or 'N/A'
+    if (!serialNumber || serialNumber === 'N/A') {
+      return res.json({ exists: false });
+    }
+
+    const existingAsset = await Asset.findBySerialNumber(serialNumber);
+    res.json({ exists: !!existingAsset });
+  } catch (error) {
+    console.error('Error checking serial number:', error);
+    res.status(500).json({ 
+      error: 'Error checking serial number',
+      details: error.message 
+    });
+  }
+};
+
 module.exports = {
   createAsset,
   readAssets,
@@ -327,5 +361,6 @@ module.exports = {
   updateAssetIssueStatus,
   checkProductCode,
   checkPendingBorrowRequests,
-  getTotalBorrowingQuantity
+  getTotalBorrowingQuantity,
+  checkSerialNumber
 };

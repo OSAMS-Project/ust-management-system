@@ -179,7 +179,7 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
     
     if (editedAsset) {
       try {
-        // Only check for duplicates if product code has changed and is not empty/N/A
+        // Check for duplicate product code
         if (editedAsset.productCode !== asset.productCode && 
             editedAsset.productCode && 
             editedAsset.productCode !== 'N/A') {
@@ -190,6 +190,22 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
             setNotification({
               type: 'error',
               message: 'An asset with this product code already exists'
+            });
+            return;
+          }
+        }
+
+        // Check for duplicate serial number
+        if (editedAsset.serialNumber !== asset.serialNumber && 
+            editedAsset.serialNumber && 
+            editedAsset.serialNumber !== 'N/A') {
+          const checkSerialResponse = await axios.get(
+            `${process.env.REACT_APP_API_URL}/api/assets/check-serial-number/${encodeURIComponent(editedAsset.serialNumber)}`
+          );
+          if (checkSerialResponse.data.exists) {
+            setNotification({
+              type: 'error',
+              message: 'An asset with this serial number already exists'
             });
             return;
           }

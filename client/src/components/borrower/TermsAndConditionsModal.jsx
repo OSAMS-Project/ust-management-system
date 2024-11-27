@@ -6,6 +6,12 @@ function TermsAndConditionsModal({ onAccept, termsContent }) {
   if (!termsContent) return null;
 
   return (
+    <div
+          className="relative flex items-center justify-center min-h-screen w-full bg-cover bg-center"
+          style={{ backgroundImage: "url('./ust-image.JPG')" }}
+        >
+          {/* Overlay for better contrast */}
+          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
       <div className="relative border border-gray-200 w-[600px] shadow-lg rounded-lg bg-white">
         <div className="p-6">
@@ -81,6 +87,7 @@ function TermsAndConditionsModal({ onAccept, termsContent }) {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

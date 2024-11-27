@@ -206,64 +206,30 @@ exports.updateBorrowingRequestStatus = async (req, res) => {
     });
   }
 };
-
 exports.getBorrowedAssetsFrequency = async (req, res) => {
   try {
-    // Query for assets from current borrowing requests, grouped by borrowing request ID
+    // Query for assets from approved borrowing requests, grouped by asset name
     const currentQuery = `
-      SELECT DISTINCT ON (br.id, sa->>'assetId') 
+      SELECT 
         sa->>'assetName' AS asset_name,
-        br.id AS request_id,
-        COUNT(*) OVER (PARTITION BY sa->>'assetId', br.id) AS borrow_frequency
+        COUNT(DISTINCT br.id) AS borrow_frequency
       FROM borrowing_requests br
       CROSS JOIN jsonb_array_elements(br.selected_assets::jsonb) sa
-      WHERE br.status IN ('Approved') -- Only include currently active requests
+      WHERE br.status = 'Approved' -- Only include approved requests
+      GROUP BY sa->>'assetName'
     `;
-
-    // Fetch historical borrowing data using getBorrowingHistory
-    const historicalData = await BorrowingRequest.getBorrowingHistory();
-
-    // Aggregate historical assets into a frequency object, grouped by unique borrowing request IDs
-    const historicalFrequency = {};
-    const processedRequests = new Set(); // To track processed request IDs
-
-    historicalData.forEach((historyEntry) => {
-      if (!processedRequests.has(historyEntry.id)) {
-        processedRequests.add(historyEntry.id);
-        const selectedAssets =
-          typeof historyEntry.selected_assets === "string"
-            ? JSON.parse(historyEntry.selected_assets)
-            : historyEntry.selected_assets;
-
-        selectedAssets.forEach((asset) => {
-          historicalFrequency[asset.assetName] =
-            (historicalFrequency[asset.assetName] || 0) + asset.quantity;
-        });
-      }
-    });
 
     // Query the current borrowing data
     const currentResult = await pool.query(currentQuery);
 
-    // Process the current borrowing data into a frequency object, ensuring no duplication by request ID
+    // Process the current borrowing data into a frequency object
     const currentFrequency = {};
     currentResult.rows.forEach((row) => {
-      if (!processedRequests.has(row.request_id)) {
-        processedRequests.add(row.request_id); // Track request ID as processed
-        currentFrequency[row.asset_name] =
-          (currentFrequency[row.asset_name] || 0) +
-          parseInt(row.borrow_frequency, 10);
-      }
+      currentFrequency[row.asset_name] = parseInt(row.borrow_frequency, 10);
     });
 
-    // Merge current and historical frequencies
-    const combinedFrequency = { ...currentFrequency };
-    for (const [assetName, frequency] of Object.entries(historicalFrequency)) {
-      combinedFrequency[assetName] =
-        (combinedFrequency[assetName] || 0) + frequency;
-    }
-
-    res.status(200).json(combinedFrequency);
+    // Return the frequency data
+    res.status(200).json(currentFrequency);
   } catch (error) {
     console.error("Error fetching borrowed assets frequency:", error);
     res.status(500).json({ error: "Error fetching borrowed assets frequency" });

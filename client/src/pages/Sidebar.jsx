@@ -47,22 +47,25 @@ const Modal = ({ isOpen, onClose, onConfirm }) => {
     </div>
   );
 };
-
-const NavItem = ({ to, text, icon, isActive, subItems }) => {
+const NavItem = ({
+  to,
+  text,
+  icon,
+  subItems,
+  isMobileMenuOpen,
+  setIsMobileMenuOpen,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
-  const isSubItemActive =
-    subItems &&
-    subItems.some((item) => {
-      if (item.subItems) {
-        return item.subItems.some(
-          (subItem) => subItem.to === location.pathname
-        );
-      }
-      return item.to === location.pathname;
-    });
+  // Check if the current route matches the main link's route
+  const isActive = location.pathname === to;
 
+  // Check if any sub-item is active
+  const isSubItemActive =
+    subItems && subItems.some((item) => location.pathname === item.to);
+
+  // Highlight main nav link if it's active or any sub-item is active
   const shouldHighlight = isActive || isSubItemActive;
 
   const toggleSubmenu = (e) => {
@@ -71,14 +74,22 @@ const NavItem = ({ to, text, icon, isActive, subItems }) => {
     setIsOpen(!isOpen);
   };
 
+  const handleClick = () => {
+    if (isMobileMenuOpen) {
+      setIsMobileMenuOpen(false); // Close mobile menu on item click
+    }
+  };
+
   if (subItems) {
     return (
       <div className="relative">
+        {/* Main Nav Link */}
         <Link
           to={to}
           className={`flex items-center w-full p-3 rounded-md transition duration-200 ${
             shouldHighlight ? "text-yellow-500" : "text-white"
           }`}
+          onClick={handleClick} // Close menu on item click
         >
           <FontAwesomeIcon icon={icon} className="mr-3" />
           <span className="font-medium">{text}</span>
@@ -92,14 +103,30 @@ const NavItem = ({ to, text, icon, isActive, subItems }) => {
             />
           </button>
         </Link>
+
+        {/* Sub-Nav Links */}
         {isOpen && (
-          <div className="pl-6 mt-2 space-y-2 submenu">
+          <div
+            className={`space-y-1 ${
+              isMobileMenuOpen
+                ? "grid grid-cols-2 gap-2 px-6" // Two-column grid for mobile mode
+                : "pl-6" // Standard layout for desktop
+            }`}
+          >
             {subItems.map((item) => (
-              <NavItem
+              <Link
                 key={item.text}
-                {...item}
-                isActive={location.pathname === item.to}
-              />
+                to={item.to}
+                className={`flex items-center p-2 text-sm rounded-md transition ${
+                  location.pathname === item.to
+                    ? "text-yellow-500" // Highlight active sub-item
+                    : "text-gray-300 hover:text-yellow-500" // Default style
+                }`}
+                onClick={handleClick} // Close menu on sub-item click
+              >
+                <FontAwesomeIcon icon={item.icon} className="mr-2" />
+                <span className="whitespace-nowrap">{item.text}</span>
+              </Link>
             ))}
           </div>
         )}
@@ -113,6 +140,7 @@ const NavItem = ({ to, text, icon, isActive, subItems }) => {
       className={`flex items-center p-3 rounded-md transition duration-200 ${
         isActive ? "text-yellow-500" : "text-white"
       }`}
+      onClick={handleClick} // Close menu when clicked
     >
       <FontAwesomeIcon icon={icon} className="mr-3" />
       <span className="font-medium">{text}</span>
@@ -265,7 +293,7 @@ const Sidebar = ({ user, onLogout }) => {
   return (
     <>
       {/* Responsive Sidebar/Navbar */}
-      <div className="lg:hidden fixed top-0 w-full bg-[#202020] text-gray-200 z-50">
+      <div className="lg:hidden fixed top-0 w-full bg-[#202020] text-gray-200 z-20">
         <div className="flex items-center justify-between px-4 py-3">
           {/* Logo */}
           <Link to="/dashboard" className="text-yellow-500 text-xl font-bold">
@@ -290,36 +318,47 @@ const Sidebar = ({ user, onLogout }) => {
             {/* Mobile Profile Section */}
             <Link
               to="/profile"
+              onClick={() => setIsMobileMenuOpen(false)} // Close menu on profile click
               className="flex items-center p-4 border-b border-gray-700"
             >
-                <img
-                  src={user?.picture || "/osa-img.png"}
-                  alt="Profile"
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-
-                <div className="ml-3">
-                  <span className="block font-semibold text-[#FEC00F] uppercase">
-                    {user?.name ?? "UST-OSA"}
-                  </span>
-                  <span className="block text-sm text-gray-400">
-                    {user?.role || "No Role"}
-                  </span>
-                </div>
+              <img
+                src={user?.picture || "/osa-img.png"}
+                alt="Profile"
+                className="w-12 h-12 rounded-full object-cover"
+              />
+              <div className="ml-3">
+                <span className="block font-semibold text-[#FEC00F] uppercase">
+                  {user?.name ?? "UST-OSA"}
+                </span>
+                <span className="block text-sm text-gray-400">
+                  {user?.role || "No Role"}
+                </span>
+              </div>
             </Link>
 
             {/* Mobile Navigation */}
             <nav className="flex flex-col space-y-2 py-4 px-4">
-              {MENU_LIST.map((menu) => (
+              {filteredMenuList.map((menu) => (
                 <NavItem
                   key={menu.text}
                   {...menu}
                   isActive={location.pathname === menu.to}
+                  isMobileMenuOpen={isMobileMenuOpen}
+                  setIsMobileMenuOpen={setIsMobileMenuOpen}
                 />
               ))}
-              <NavItem to="/settings" text="Settings" icon={faCog} />
+              <NavItem
+                to="/settings"
+                text="Settings"
+                icon={faCog}
+                isMobileMenuOpen={isMobileMenuOpen}
+                setIsMobileMenuOpen={setIsMobileMenuOpen}
+              />
               <button
-                onClick={handleLogoutClick}
+                onClick={() => {
+                  handleLogoutClick();
+                  setIsMobileMenuOpen(false); // Close menu on logout
+                }}
                 className="flex items-center px-4 py-2 text-gray-300 hover:text-yellow-500"
               >
                 <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
@@ -329,24 +368,27 @@ const Sidebar = ({ user, onLogout }) => {
           </div>
         )}
       </div>
-
-      {/* Sidebar for Larger Screens */}
-      <div className="hidden lg:flex h-screen w-64 bg-[#202020] text-gray-200 flex-col">
+      <div className="hidden lg:flex h-screen w-64 bg-[#202020] text-gray-200 flex-col lg:w-72 xl:w-80">
+        {/* Logo and Profile Section */}
         <div className="flex items-center justify-center p-4">
           <Link to="/dashboard">
-            <img src="/logo.png" alt="Logo" className="w-40 h-auto" />
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="w-32 h-auto lg:w-40 xl:w-48"
+            />
           </Link>
         </div>
         <Link
           to="/profile"
-          className="flex items-center p-4 border-b border-gray-700"
+          className="flex items-center p-4 border-b border-gray-700 hover:bg-[#282828]"
         >
           <img
             src={user?.picture || "/osa-img.png"}
             alt="Profile"
             className="w-12 h-12 rounded-full object-cover"
           />
-          <div className="ml-3 flex-1 min-w-0">
+          <div className="ml-3 flex-1">
             <span className="block font-semibold text-[#FEC00F] uppercase whitespace-nowrap overflow-hidden text-ellipsis">
               {user?.name ?? "UST-OSA"}
             </span>
@@ -356,7 +398,8 @@ const Sidebar = ({ user, onLogout }) => {
           </div>
         </Link>
 
-        <nav className="flex-1 p-4 space-y-2">
+        {/* Navigation Links */}
+        <nav className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
           {filteredMenuList.map((menu) => (
             <NavItem
               key={menu.text}
@@ -365,11 +408,13 @@ const Sidebar = ({ user, onLogout }) => {
             />
           ))}
         </nav>
+
+        {/* Footer Links */}
         <div className="p-4 border-t border-gray-700">
           <NavItem to="/settings" text="Settings" icon={faCog} />
           <button
             onClick={handleLogoutClick}
-            className="flex items-center p-3 text-white rounded-md transition duration-200"
+            className="flex items-center p-3 text-white rounded-md transition duration-200 hover:bg-[#282828]"
           >
             <FontAwesomeIcon icon={faSignOutAlt} className="mr-3" />
             <span className="font-medium">Sign Out</span>

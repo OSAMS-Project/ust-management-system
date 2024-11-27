@@ -198,7 +198,7 @@ const DashboardInfoCards = () => {
           </div>
           <div className="absolute bottom-4 right-4">
             <Link
-              to="/events"
+              to="/incoming-assets"
               className="bg-gray-100 text-black py-1 px-3 rounded-full font-medium text-sm hover:bg-gray-400 transition duration-300"
             >
               See More
