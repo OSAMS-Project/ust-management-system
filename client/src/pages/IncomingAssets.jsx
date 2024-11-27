@@ -146,7 +146,8 @@ const IncomingAssets = () => {
         cost: parseFloat(selectedAsset.cost) || 0,
         type: selectedAsset.type,
         image: null,
-        productCode: selectedAsset.productCode || 'N/A'
+        productCode: selectedAsset.productCode || 'N/A',
+        serialNumber: 'N/A'
       };
 
       console.log('Attempting to create asset with data:', newAssetData);
