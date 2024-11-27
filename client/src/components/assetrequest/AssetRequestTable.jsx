@@ -27,7 +27,7 @@ const AssetRequestTable = ({ assetRequests, onApprove, onDecline, onRowClick }) 
   };
 
   return (
-    <div className="mt-2 mb-8">
+    <div className="mb-4">
       <h2 className="text-2xl font-bold mb-4">Pending Requests</h2>
       <table className="min-w-full bg-white border-collapse">
         <thead className="bg-black text-[#FEC00F]">

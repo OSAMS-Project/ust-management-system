@@ -173,7 +173,7 @@ const AssetRequest = ({ user }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
         <h1 className="text-5xl font-extrabold text-black">
           Asset Request
@@ -184,15 +184,14 @@ const AssetRequest = ({ user }) => {
         />
       </div>
 
-    
       <button 
         onClick={handleOpenModal}
-        className="px-4 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors m-3"
+        className="px-4 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors mx-3"
       >
         Add Asset Request
       </button>
 
-      <div id='recipients' className="p-4 mt-4 lg:mt-0 rounded bg-white">
+      <div id='recipients' className="px-4 lg:mt-0 rounded bg-white">
         <AssetRequestTable 
           assetRequests={assetRequests} 
           onApprove={(id) => handleAction(handleApprove, id)}
