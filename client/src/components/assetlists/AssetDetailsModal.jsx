@@ -167,9 +167,9 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
 };
 
 const DetailItem = ({ label, value }) => (
-  <div className="flex flex-col sm:flex-row border-b border-gray-200 py-2 last:border-b-0">
-    <span className="font-semibold text-gray-600 sm:w-1/3">{label}:</span>
-    <span className="text-gray-800 sm:w-2/3 break-words">{value}</span>
+  <div className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-200 py-2 last:border-b-0">
+    <span className="font-semibold text-gray-600">{label}:</span>
+    <span className="text-gray-800 sm:text-right">{value}</span>
   </div>
 );
 

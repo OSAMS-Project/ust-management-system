@@ -260,59 +260,44 @@ const BorrowingHistory = () => {
             <table className="min-w-full bg-white border-collapse">
               <thead className="bg-black text-[#FEC00F]">
                 <tr>
-                  <th className="py-3 px-4 border-b text-center">Name</th>
-                  <th className="py-3 px-4 border-b text-center">Email</th>
-                  <th className="py-3 px-4 border-b text-center">Contact No.</th>
-                  <th className="py-3 px-4 border-b text-center">Department</th>
-                  <th className="py-3 px-4 border-b text-center">Purpose</th>
-                  <th className="py-3 px-4 border-b text-center">Borrowed Asset</th>
-                  <th className="py-3 px-4 border-b text-center">Quantity</th>
-                  <th className="py-3 px-4 border-b text-center">Date Requested</th>
-                  <th className="py-3 px-4 border-b text-center">Date Collected</th>
-                  <th className="py-3 px-4 border-b text-center">Cover Letter</th>
-                  <th className="py-3 px-4 border-b text-center">Expected Return Date</th>
-                  <th className="py-3 px-4 border-b text-center">Actual Return Date</th>
-                  <th className="py-3 px-4 border-b text-center">Status</th>
+                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "10%" }}>Name</th>
+                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "20%" }}>Borrowed Asset/s</th>
+                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "15%" }}>Quantity</th>
+                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "15%" }}>Department</th>
+                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "15%" }}>Purpose</th>
+                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "15%" }}>Email</th>
+                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "15%" }}>Contact No.</th>
+                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "10%" }}>Date Requested</th>
+                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "10%" }}>Date Collected</th>
+                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "10%" }}>Cover Letter</th>
+                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "10%" }}>Expected Return Date</th>
+                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "10%" }}>Actual Return Date</th>
+                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "10%" }}>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedHistory.map((record, index) => {
-                  console.log('Record data:', record);
                   return (
                     <tr
                       key={record.id}
                       className={`${
                         index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
-                      } hover:bg-gray-50 transition duration-150`}
+                      } hover:bg-gray-50`}
                     >
-                      <td className="py-2 px-4 border-b text-center">
-                        {record.name}
-                      </td>
-                      <td className="py-2 px-4 border-b text-center">
-                        {record.email}
-                      </td>
-                      <td className="py-2 px-4 border-b text-center">
-                        {record.contact_no}
-                      </td>
-                      <td className="py-2 px-4 border-b text-center">
-                        {record.department}
-                      </td>
-                      <td className="py-2 px-4 border-b text-center">
-                        {record.purpose}
-                      </td>
-                      <td className="py-2 px-4 border-b text-center">
-                        {record.borrowed_asset_names}
-                      </td>
-                      <td className="py-2 px-4 border-b text-center">
-                        {record.borrowed_asset_quantities}
-                      </td>
-                      <td className="py-2 px-4 border-b text-center">
+                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">{record.name}</td>
+                      <td className="py-2 px-4 border-b text-left">{record.borrowed_asset_names}</td>
+                      <td className="py-2 px-4 border-b text-left">{record.borrowed_asset_quantities}</td>
+                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">{record.department}</td>
+                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">{record.purpose}</td>
+                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">{record.email}</td>
+                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">{record.contact_no}</td>
+                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">
                         {moment(record.date_requested).format("MM/DD/YYYY")}
                       </td>
-                      <td className="py-2 px-4 border-b text-center">
+                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">
                         {record.date_to_be_collected ? moment(record.date_to_be_collected).format("MM/DD/YYYY") : 'Not yet collected'}
                       </td>
-                      <td className="py-2 px-4 border-b text-center">
+                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">
                         {record.cover_letter_url ? (
                           <button
                             onClick={() => handleViewCoverLetter(record)}
@@ -324,19 +309,19 @@ const BorrowingHistory = () => {
                           "No cover letter"
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b text-center">
+                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">
                         {moment(record.expected_return_date).format("MM/DD/YYYY")}
                       </td>
-                      <td className="py-2 px-4 border-b text-center">
+                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">
                         {record.status === "Rejected"
                           ? "N/A"
                           : record.status === "Returned" && record.date_returned
                           ? moment(record.date_returned).format("MM/DD/YYYY")
                           : "N/A"}
                       </td>
-                      <td className="py-2 px-4 border-b text-center">
+                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">
                         <span
-                          className={`px-2 py-1 rounded-full text-xs ${
+                          className={`px-2 py-1 rounded ${
                             record.status === "Returned"
                               ? "bg-green-100 text-green-800"
                               : record.status === "Rejected"

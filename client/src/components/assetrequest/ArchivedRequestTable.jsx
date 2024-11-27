@@ -68,7 +68,6 @@ const ArchivedRequestTable = ({ archivedRequests, onDelete }) => {
             <th className="py-2 px-4 border-b text-center">Date Archived</th>
             <th className="py-2 px-4 border-b text-center">Requested By</th>
             <th className="py-2 px-4 border-b text-center">Original Status</th>
-            <th className="py-2 px-4 border-b text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -105,14 +104,6 @@ const ArchivedRequestTable = ({ archivedRequests, onDelete }) => {
                 }`}>
                   {asset.original_status.charAt(0).toUpperCase() + asset.original_status.slice(1)}
                 </span>
-              </td>
-              <td className="py-2 px-4 border-b text-center">
-                <button
-                  onClick={() => onDelete(asset.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition duration-300"
-                >
-                  Delete
-                </button>
               </td>
             </tr>
           ))}
