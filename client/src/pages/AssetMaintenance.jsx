@@ -5,7 +5,7 @@ import MaintenanceTable from "../components/maintenance/MaintenanceTable";
 import NotificationPopup from "../components/utils/NotificationsPopup";
 import PaginationControls from "../components/assetlists/PaginationControls";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTools } from "@fortawesome/free-solid-svg-icons";
+import { faWrench } from "@fortawesome/free-solid-svg-icons";
 
 function AssetMaintenance({ user }) {
   const [maintenances, setMaintenances] = useState([]);
@@ -198,7 +198,7 @@ function AssetMaintenance({ user }) {
       <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
         <h1 className="text-5xl font-extrabold text-black">Asset Maintenance</h1>
         <FontAwesomeIcon
-          icon={faTools}
+          icon={faWrench}
           className="text-black text-5xl transform"
         />
       </div>

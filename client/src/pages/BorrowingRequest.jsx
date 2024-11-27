@@ -4,7 +4,7 @@ import moment from "moment";
 import NotificationPopup from "../components/utils/NotificationsPopup";
 import RejectionReasonModal from "../components/borrower/RejectionReasonModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faClipboardList } from "@fortawesome/free-solid-svg-icons";
 import { Check, X, RotateCcw, Bell } from "lucide-react"; // Import Lucide icons
 import { toast } from "react-hot-toast";
 import supabase from "../config/supabaseClient"; // Import the configured client
@@ -19,7 +19,7 @@ const BorrowingRequest = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [pendingCurrentPage, setPendingCurrentPage] = useState(1);
   const [approvedCurrentPage, setApprovedCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(3);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   const fetchRequests = async () => {
     try {
@@ -590,7 +590,7 @@ const BorrowingRequest = () => {
           Borrowing Requests
         </h1>
         <FontAwesomeIcon
-          icon={faUsers}
+          icon={faClipboardList}
           className="text-black text-5xl transform"
         />
       </div>

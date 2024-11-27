@@ -204,9 +204,9 @@ const RoleManagement = ({ onRoleUpdate }) => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-yellow-400 py-6 flex items-center justify-between px-6">
-        <h1 className="text-3xl font-bold text-black">Role Management</h1>
-        <FontAwesomeIcon icon={faUsers} className="text-3xl text-black" />
+      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
+        <h1 className="text-5xl font-extrabold text-black">Role Management</h1>
+        <FontAwesomeIcon icon={faUsers} className="text-black text-5xl transform" />
       </div>
 
       <div className="px-4">

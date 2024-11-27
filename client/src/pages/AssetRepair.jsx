@@ -5,7 +5,7 @@ import RepairTable from "../components/repair/RepairTable";
 import RepairLogs from "../components/repair/RepairLogs";
 import PaginationControls from "../components/assetlists/PaginationControls";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faToolbox } from "@fortawesome/free-solid-svg-icons";
+import { faTools } from "@fortawesome/free-solid-svg-icons";
 
 function AssetRepair() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -193,7 +193,7 @@ function AssetRepair() {
     <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
       <h1 className="text-5xl font-extrabold text-black">Asset Repair</h1>
       <FontAwesomeIcon
-        icon={faToolbox}
+        icon={faTools}
         className="text-black text-5xl transform"
       />
     </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faClipboardList } from "@fortawesome/free-solid-svg-icons";
 import CompletedEventsDialog from "../components/events/CompleteEventDialog";
 import CompletedEventsControls from "../components/events/CompletedEventsControls";
 
@@ -82,7 +82,7 @@ function CompletedEvents() {
       <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
         <h1 className="text-5xl font-extrabold text-black">Completed Events</h1>
         <FontAwesomeIcon
-          icon={faUsers}
+          icon={faClipboardList}
           className="text-black text-5xl transform"
         />
       </div>

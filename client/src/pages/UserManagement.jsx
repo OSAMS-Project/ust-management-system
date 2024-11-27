@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTrash,
   faEdit,
-  faUsers,
+  faUserCog,
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import EditUser from "../components/users/EditUser";
@@ -213,7 +213,7 @@ const UserManagement = () => {
       <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
         <h1 className="text-5xl font-extrabold text-black">User Management</h1>
         <FontAwesomeIcon
-          icon={faUsers}
+          icon={faUserCog}
           className="text-black text-5xl transform"
         />
       </div>

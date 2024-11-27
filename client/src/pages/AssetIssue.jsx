@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import EditIssueModal from '../components/issue/EditIssueModal';
 import PaginationControls from '../components/assetlists/PaginationControls';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faToolbox } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 function AssetIssue({ user }) {
   const [issues, setIssues] = useState([]);
@@ -269,7 +269,7 @@ function AssetIssue({ user }) {
     <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
       <h1 className="text-5xl font-extrabold text-black">Asset Issue</h1>
       <FontAwesomeIcon
-        icon={faToolbox}
+        icon={faExclamationTriangle}
         className="text-black text-5xl transform"
       />
     </div>

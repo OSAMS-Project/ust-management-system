@@ -8,7 +8,7 @@ import EditEventDialog from "../components/events/EditEventDialog";
 import SearchEvent from "../components/events/SearchEvent";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 import NotificationPopup from "../components/utils/NotificationsPopup";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
@@ -438,7 +438,7 @@ function Events() {
           Events Management
         </h1>
         <FontAwesomeIcon
-          icon={faUsers}
+          icon={faCalendarAlt}
           className="text-black text-5xl transform"
         />
       </div>

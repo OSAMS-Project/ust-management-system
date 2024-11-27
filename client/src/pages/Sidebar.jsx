@@ -19,6 +19,7 @@ import {
   faTimes,
   faBars,
   faWrench,
+  faArchive,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useLocation } from "react-router-dom";
 
@@ -136,7 +137,7 @@ const MENU_LIST = [
       {
         text: "Archived Requests",
         to: "/archived-requests",
-        icon: faClipboardList,
+        icon: faArchive,
       },
       { text: "Incoming Assets", to: "/incoming-assets", icon: faTruckFast },
       { text: "Asset Maintenance", to: "/asset-maintenance", icon: faWrench },
