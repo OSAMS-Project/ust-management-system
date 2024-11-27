@@ -24,6 +24,7 @@ const TableControls = ({ onToggleColumns, prepareCSVData, assets, visibleColumns
     // Add visible columns to headers
     if (visibleColumns.id) tableColumn.push("ID");
     if (visibleColumns.productCode) tableColumn.push("Product Code");
+    if (visibleColumns.serialNumber) tableColumn.push("Serial Number");
     if (visibleColumns.dateCreated) tableColumn.push("Date Created");
     if (visibleColumns.asset) tableColumn.push("Asset Name");
     if (visibleColumns.costPerUnit) tableColumn.push("Cost per Unit");
@@ -38,6 +39,7 @@ const TableControls = ({ onToggleColumns, prepareCSVData, assets, visibleColumns
       const rowData = [];
       if (visibleColumns.id) rowData.push(asset.asset_id);
       if (visibleColumns.productCode) rowData.push(asset.productCode);
+      if (visibleColumns.serialNumber) rowData.push(asset.serialNumber);
       if (visibleColumns.dateCreated) rowData.push(moment(asset.createdDate).format("MM/DD/YYYY"));
       if (visibleColumns.asset) rowData.push(asset.assetName);
       if (visibleColumns.costPerUnit) rowData.push(`₱${parseFloat(asset.cost).toFixed(2)}`);
