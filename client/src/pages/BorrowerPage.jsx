@@ -6,7 +6,8 @@ import TermsAndConditionsModal from "../components/borrower/TermsAndConditionsMo
 import supabase from "../config/supabaseClient";
 import { toast } from "react-hot-toast";
 import ReCAPTCHA from "react-google-recaptcha";
-import moment from "moment"; // Import moment library
+import moment from 'moment';
+import 'moment-timezone';
 
 function BorrowerForm() {
   const [email, setEmail] = useState("");
@@ -601,7 +602,9 @@ function BorrowerForm() {
                   id="expectedReturnDate"
                   name="expectedReturnDate"
                   required
-                  value={expectedReturnDate}
+                  value={moment(expectedReturnDate)
+                    .tz("Asia/Manila")
+                    .format("YYYY-MM-DDTHH:mm")} // Format for `datetime-local`
                   onChange={handleExpectedReturnDateChange}
                   min={minDateTime}
                   step="60"
