@@ -12,7 +12,8 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
   if (!isOpen) return null;
 
   const filteredAssets = assets.filter(asset =>
-    asset.assetName.toLowerCase().includes(searchQuery.toLowerCase())
+    asset.assetName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (asset.productCode && asset.productCode.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const handleAssetClick = (asset) => {
@@ -116,7 +117,7 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
           <div className="mb-4">
             <input
               type="text"
-              placeholder="Search assets..."
+              placeholder="Search by asset name or product code..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
@@ -131,7 +132,10 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
                 className="p-3 hover:bg-gray-50 cursor-pointer flex justify-between items-center border-b last:border-b-0 transition-colors"
                 onClick={() => handleAssetClick(asset)}
               >
-                <span className="font-medium">{asset.assetName}</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{asset.assetName}</span>
+                  <span className="text-sm text-gray-500">({asset.productCode || 'N/A'})</span>
+                </div>
                 <span className="text-sm text-gray-600">
                   Available: {previewQuantities[asset.asset_id] !== undefined ? previewQuantities[asset.asset_id] : asset.quantity}
                 </span>
