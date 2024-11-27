@@ -199,10 +199,20 @@ const AssetList = () => {
       setAssetsForBorrowing(0);
     }
   };
-
   const handleAddAsset = useCallback(async (newAsset) => {
     try {
-      setAssets((prevAssets) => [...prevAssets, newAsset]);
+      // Update the state with the new asset
+      setAssets((prevAssets) => {
+        const updatedAssets = [...prevAssets, newAsset];
+
+        // Recalculate totals and weekly changes immediately
+        calculateTotals(updatedAssets);
+        calculateWeeklyChanges(updatedAssets);
+
+        return updatedAssets;
+      });
+
+      // Close modal and show success notification
       setIsModalOpen(false);
       showNotification("Asset added successfully");
     } catch (error) {
@@ -448,8 +458,6 @@ const AssetList = () => {
             <p className="text-gray-500 text-xs">vs previous 7 days</p>
             <div className="text-gray-400 mt-3 text-sm">Total Value</div>
           </div>
-
-        
         </div>
       </div>
       <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row justify-between items-center">

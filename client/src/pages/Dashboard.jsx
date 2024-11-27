@@ -20,47 +20,40 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Fetch assets
-        const assetsResponse = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/Assets/read`
-        );
-        setAssets(assetsResponse.data);
-        setRecentAssets(assetsResponse.data.slice(0, 3));
-        calculateWeeklyStockHistory(assetsResponse.data);
+        // Fetch all required data in parallel
+        const [
+          assetsResponse,
+          eventsResponse,
+          completedEventsResponse,
+          borrowedAssetsFrequencyResponse,
+        ] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_API_URL}/api/Assets/read`),
+          axios.get(`${process.env.REACT_APP_API_URL}/api/Events/read`),
+          axios.get(`${process.env.REACT_APP_API_URL}/api/events/completed`),
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/api/borrowing-requests/borrowed-assets-frequency`
+          ),
+        ]);
 
-        // Fetch all events
-        const eventsResponse = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/Events/read`
-        );
+        // Process the fetched data
+        const assets = assetsResponse.data;
         const allEvents = eventsResponse.data || [];
-        setAllEvents(allEvents); // Set all events directly
-        setRecentEvents(allEvents.slice(0, 3)); // Keep recent events logic intact
+        const completedEvents = completedEventsResponse.data || [];
+        const borrowedAssetsFrequency = borrowedAssetsFrequencyResponse.data;
 
-        // Fetch completed events
-        const completedEventsResponse = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/events/completed`
-        );
-        setCompletedEvents(completedEventsResponse.data || []);
-
-        console.log("All Events:", allEvents);
-        console.log("Completed Events:", completedEventsResponse.data);
-
-        // Fetch borrowed assets frequency
-        const fetchBorrowedAssetsFrequency = async () => {
-          try {
-            const response = await axios.get(
-              `${process.env.REACT_APP_API_URL}/api/borrowing-requests/borrowed-assets-frequency`
-            );
-            setBorrowedAssetsFrequency(response.data);
-          } catch (error) {
-            console.error("Error fetching borrowed assets frequency:", error);
-          }
-        };
-        fetchBorrowedAssetsFrequency();
+        // Update the state once with all the data
+        setAssets(assets);
+        setRecentAssets(assets.slice(0, 3));
+        calculateWeeklyStockHistory(assets);
+        setAllEvents(allEvents);
+        setRecentEvents(allEvents.slice(0, 3));
+        setCompletedEvents(completedEvents);
+        setBorrowedAssetsFrequency(borrowedAssetsFrequency);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       }
     };
+
     fetchDashboardData();
   }, []);
 

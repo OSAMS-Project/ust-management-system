@@ -6,8 +6,9 @@ import TermsAndConditionsModal from "../components/borrower/TermsAndConditionsMo
 import supabase from "../config/supabaseClient";
 import { toast } from "react-hot-toast";
 import ReCAPTCHA from "react-google-recaptcha";
-import moment from 'moment';
-import 'moment-timezone';
+import moment from "moment-timezone";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHome } from "@fortawesome/free-solid-svg-icons";
 
 function BorrowerForm() {
   const [email, setEmail] = useState("");
@@ -44,7 +45,7 @@ function BorrowerForm() {
 
   function getPhilippinesDateTime() {
     const now = new Date();
-    return new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+    return new Date(now.toLocaleString("en-US", { timeZone: "Asia/Manila" }));
   }
 
   const phNow = getPhilippinesDateTime();
@@ -53,10 +54,10 @@ function BorrowerForm() {
   function formatDateTimeForInput(date) {
     const d = new Date(date);
     const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const hours = String(d.getHours()).padStart(2, '0');
-    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
@@ -432,22 +433,41 @@ function BorrowerForm() {
         />
       )}
       {agreedToTerms && (
-        <div
-          className="relative flex items-center justify-center min-h-screen w-full bg-cover bg-center"
-          style={{ backgroundImage: "url('./ust-image.JPG')" }}
-        >
-          {/* Overlay for better contrast */}
+        <div className="relative flex items-center justify-center min-h-screen w-full bg-cover bg-center overflow-y-auto">
+          {/* Background Image */}
+          <div
+            className="absolute inset-0 w-full h-full bg-cover bg-center"
+            style={{ backgroundImage: "url('./ust-image.JPG')" }}
+          ></div>
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>
 
-          <div className="relative z-10 w-full max-w-5xl bg-white rounded-lg shadow-lg p-8">
-            <h1 className="text-3xl font-bold text-black mb-6 leading-snug text-center">
-              Borrower Form
-            </h1>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed text-center">
-              Borrow Materials from UST-OSA Asset Management System
-            </p>
+          <div className="relative z-10 w-full max-w-4xl bg-white rounded-lg shadow-lg p-6 mt-2 mb-2 lg:p-8">
+            {/* Logos */}
+            <div className="flex space-x-4 mb-6">
+              {/* Logo */}
+              <img
+                src="/ust-logo.png"
+                alt="UST Logo"
+                className="w-16 h-16 lg:w-20 lg:h-20 object-contain"
+              />
+
+              {/* Text Div */}
+              <div className="text-left">
+                {/* Title */}
+                <h1 className="text-3xl font-bold text-black leading-snug">
+                  Borrower Form
+                </h1>
+
+                {/* Description */}
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  Borrow Materials from the UST-OSA Asset Management System
+                </p>
+              </div>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Name Field */}
               <div className="relative">
                 <input
@@ -520,6 +540,35 @@ function BorrowerForm() {
                 </label>
               </div>
 
+                            {/* Contact Number Field */}
+                            <div className="relative">
+                <input
+                  type="tel"
+                  id="contactNo"
+                  name="contactNo"
+                  required
+                  value={contactNo}
+                  onChange={handleContactNumberChange}
+                  maxLength="11"
+                  pattern="09[0-9]{9}"
+                  inputMode="numeric"
+                  placeholder=" "
+                  className={`block w-full px-3 py-2 border-b-2 ${
+                    contactNoError ? "border-red-500" : "border-gray-300"
+                  } bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer`}
+                />
+                <label
+                  htmlFor="contactNo"
+                  className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
+                >
+                  Enter your contact number (e.g., 09123456789)
+                </label>
+                {contactNoError && (
+                  <p className="text-red-500 text-sm mt-1">{contactNoError}</p>
+                )}
+              </div>
+              </div>
+
               {/* Selected Assets Display and Select Asset Button */}
               <div className="relative flex flex-col">
                 <h2 className="text-base font-semibold text-black mb-2">
@@ -567,33 +616,7 @@ function BorrowerForm() {
                 </label>
               </div>
 
-              {/* Contact Number Field */}
-              <div className="relative">
-                <input
-                  type="tel"
-                  id="contactNo"
-                  name="contactNo"
-                  required
-                  value={contactNo}
-                  onChange={handleContactNumberChange}
-                  maxLength="11"
-                  pattern="09[0-9]{9}"
-                  inputMode="numeric"
-                  placeholder=" "
-                  className={`block w-full px-3 py-2 border-b-2 ${
-                    contactNoError ? "border-red-500" : "border-gray-300"
-                  } bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer`}
-                />
-                <label
-                  htmlFor="contactNo"
-                  className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
-                >
-                  Enter your contact number (e.g., 09123456789)
-                </label>
-                {contactNoError && (
-                  <p className="text-red-500 text-sm mt-1">{contactNoError}</p>
-                )}
-              </div>
+
 
               {/* Expected Date of Return Field */}
               <div className="relative">
@@ -657,72 +680,69 @@ function BorrowerForm() {
                     hover:file:bg-gray-300 transition-colors duration-300"
                 />
                 {coverLetter && (
-                  <div className="mt-2 text-sm text-gray-600">
-                  </div>
+                  <div className="mt-2 text-sm text-gray-600"></div>
                 )}
               </div>
+                <ReCAPTCHA
+                  sitekey="6LfFloUqAAAAANFY-Z9-_0ll6ISjSk9TmqFU3rmI"
+                  onChange={handleReCAPTCHAChange}
+                />
 
-              <ReCAPTCHA
-                sitekey="6LfFloUqAAAAANFY-Z9-_0ll6ISjSk9TmqFU3rmI"
-                onChange={handleReCAPTCHAChange}
-              />
-
-              {!isVerified && (
-                <div className="space-y-4">
-                  {/* Send Verification Code */}
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={sendVerificationCode}
-                      className={`bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-all ${
-                        isSubmitting && "opacity-50 pointer-events-none"
-                      }`}
-                    >
-                      {verificationCodeSent
-                        ? "Resend Code"
-                        : "Send Verification Code"}
-                    </button>
-                    <span className="text-gray-500 text-sm">
-                      Check your email for the code
-                    </span>
-                  </div>
-
-                  {/* Enter and Verify Code */}
-                  <div className="flex flex-col gap-2">
-                    <input
-                      type="text"
-                      placeholder="Enter verification code"
-                      value={verificationCode}
-                      onChange={(e) => setVerificationCode(e.target.value)}
-                      className="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
-                    />
-                    {verificationError && (
-                      <span className="text-red-500 text-sm">
-                        {verificationError}
+                {!isVerified && (
+                  <div className="space-y-3">
+                    {/* Send Verification Code */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={sendVerificationCode}
+                        className={`bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded-md text-sm transition-all ${
+                          isSubmitting && "opacity-50 pointer-events-none"
+                        }`}
+                      >
+                        {verificationCodeSent ? "Resend Code" : "Send Code"}
+                      </button>
+                      <span className="text-gray-500 text-sm">
+                        Check your email for the code
                       </span>
-                    )}
-                    <button
-                      type="button"
-                      onClick={verifyCode}
-                      className={`bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition-all ${
-                        isSubmitting && "opacity-50 pointer-events-none"
-                      }`}
-                    >
-                      Verify Code
-                    </button>
-                  </div>
-                </div>
-              )}
+                    </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting || !isVerified || !recaptchaToken}
-                className={`w-full ${
-                  isSubmitting ? "bg-gray-400" : "bg-black"
-                } text-white text-lg font-medium py-2 rounded-md hover:bg-gray-900 transition-colors duration-300 transform hover:scale-105 tracking-wider`}
-              >
-                {isSubmitting ? "Submitting..." : "Submit Request"}
-              </button>
+                    {/* Enter and Verify Code */}
+                    <div className="flex flex-col gap-2">
+                      <input
+                        type="text"
+                        placeholder="Verification code"
+                        value={verificationCode}
+                        onChange={(e) => setVerificationCode(e.target.value)}
+                        className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                      />
+                      {verificationError && (
+                        <span className="text-red-500 text-sm">
+                          {verificationError}
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={verifyCode}
+                        className={`bg-green-600 hover:bg-green-700 text-white font-medium py-1.5 px-3 rounded-md text-sm transition-all ${
+                          isSubmitting && "opacity-50 pointer-events-none"
+                        }`}
+                      >
+                        Verify Code
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !isVerified || !recaptchaToken}
+                  className={`w-full ${
+                    isSubmitting ? "bg-gray-400" : "bg-black"
+                  } text-white text-base font-medium py-2 rounded-md hover:bg-gray-900 transition-all duration-300`}
+                >
+                  {isSubmitting ? "Submitting..." : "Submit Request"}
+                </button>
             </form>
 
             {/* Confirmation Message */}
@@ -730,12 +750,14 @@ function BorrowerForm() {
               <div className="mt-3 text-green-500">{confirmationMessage}</div>
             )}
 
-            {/* Back to Login */}
+            <hr className="border-gray-300 mb-4 mt-4" />
+            {/* Back to Login Link */}
             <Link
               to="/"
-              className="mt-5 text-gray-600 hover:text-gray-500 transition-colors duration-300"
+              className="text-gray-600 hover:text-gray-500 transition-colors duration-300"
             >
-              ← Back to Login
+              <FontAwesomeIcon icon={faHome} className="mr-2 font-xl" />
+              Return to Login
             </Link>
 
             {/* Modal */}

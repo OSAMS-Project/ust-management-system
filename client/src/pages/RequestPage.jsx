@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHome, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
@@ -60,28 +62,45 @@ function EmailRequestForm() {
   };
 
   return (
-    <div className="relative flex h-screen w-screen overflow-hidden">
+    <div className="relative flex h-screen w-screen overflow-hidden lg:overflow-auto">
       {/* Background Image */}
-      <div
-        className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('./ust-image.JPG')" }}
-      ></div>
+      <div className="absolute inset-0 w-full h-full">
+        <div
+          className="absolute inset-0 w-full h-full bg-cover bg-center"
+          style={{ backgroundImage: "url('./ust-img-4.JPG')" }}
+        ></div>
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+      </div>
 
-      {/* Google Login Form Section */}
-      <div className="relative w-full lg:w-1/2 flex flex-col justify-center p-16 bg-white bg-opacity-90 right-0 top-0 bottom-0 ml-auto">
-        <h1 className="text-5xl font-extrabold text-black mb-6 leading-tight">
+      {/* Left Section - Logo */}
+      <div className="relative w-1/2 flex justify-center items-center hidden lg:flex">
+        <img
+          src="/logo.png"
+          alt="UST logo"
+          className="w-2/3 h-auto object-contain"
+        />
+      </div>
+
+      {/* Right Section - Login Form */}
+      <div className="relative w-full lg:w-1/2 flex flex-col justify-start lg:justify-center p-6 lg:p-16 bg-white bg-opacity-90 overflow-y-auto">
+        {/* Logo */}
+        <img
+          src="/ust-logo.png"
+          alt="UST Logo"
+          className="mb-4 w-20 h-20 lg:w-24 lg:h-24"
+        />
+
+        {/* Title */}
+        <h1 className="text-4xl lg:text-5xl font-extrabold text-black mb-6 leading-tight">
           Request Access
         </h1>
-        <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+
+        {/* Description */}
+        <p className="text-lg lg:text-xl text-gray-600 mb-4 leading-relaxed">
           To access the UST-OSA Asset Management System, please sign in with
           your Google account. Your request will be sent to the administrator
           for approval.
         </p>
-
-        {/* Conditionally Render Request Status */}
-        {requestStatus && (
-          <p className="text-lg text-gray-800 mb-4">{requestStatus}</p>
-        )}
 
         {/* Google Login Button */}
         <GoogleOAuthProvider clientId={clientId}>
@@ -92,12 +111,24 @@ function EmailRequestForm() {
           />
         </GoogleOAuthProvider>
 
+        {/* Request Status/Error Message */}
+        {requestStatus && (
+          <div className="flex text-red-500 mb-4 mt-4">
+            <FontAwesomeIcon icon={faExclamationCircle} className="mr-2 mt-1" />
+            <span>{requestStatus}</span>
+          </div>
+        )}
+
+        {/* Divider Line */}
+        <hr className="border-gray-300 mb-4 mt-4" />
+
         {/* Back to Login Link */}
         <Link
           to="/"
-          className="mt-8 text-gray-600 hover:text-gray-500 transition-colors duration-300"
+          className="text-gray-600 hover:text-gray-500 transition-colors duration-300 flex items-center"
         >
-          ← Back to Login
+          <FontAwesomeIcon icon={faHome} className="mr-2" />
+          Return to Login
         </Link>
       </div>
     </div>

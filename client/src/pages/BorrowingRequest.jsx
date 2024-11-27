@@ -8,10 +8,10 @@ import { Check, X, RotateCcw, Bell } from "lucide-react"; // Import Lucide icons
 import { toast } from "react-hot-toast";
 import supabase from "../config/supabaseClient"; // Import the configured client
 import PaginationControls from "../components/assetlists/PaginationControls";
-import moment from 'moment';
-import 'moment-timezone';
+import moment from "moment-timezone";
 
 const BorrowingRequest = () => {
+  moment.tz.setDefault("Asia/Manila");
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -94,7 +94,8 @@ const BorrowingRequest = () => {
       console.error("Error updating request status:", err);
 
       // Display error notification
-      const errorMessage = "Failed to update request status, Asset not available";
+      const errorMessage =
+        "Failed to update request status, Asset not available";
       toast.error(errorMessage);
       setNotification({
         type: "error",
@@ -290,21 +291,28 @@ const BorrowingRequest = () => {
     }
   };
 
-  const calculateStartIndex = (currentPage) => (currentPage - 1) * itemsPerPage + 1;
-  
-  const calculateEndIndex = (currentPage, totalItems) => 
+  const calculateStartIndex = (currentPage) =>
+    (currentPage - 1) * itemsPerPage + 1;
+
+  const calculateEndIndex = (currentPage, totalItems) =>
     Math.min(calculateStartIndex(currentPage) + itemsPerPage - 1, totalItems);
-  
-  const calculateTotalPages = (totalItems) => Math.ceil(totalItems / itemsPerPage);
+
+  const calculateTotalPages = (totalItems) =>
+    Math.ceil(totalItems / itemsPerPage);
 
   const renderTable = (title, requests, showActions) => {
     const isPending = title.includes("Pending");
     const currentPage = isPending ? pendingCurrentPage : approvedCurrentPage;
-    const setCurrentPage = isPending ? setPendingCurrentPage : setApprovedCurrentPage;
-    
+    const setCurrentPage = isPending
+      ? setPendingCurrentPage
+      : setApprovedCurrentPage;
+
     const totalPages = calculateTotalPages(requests.length);
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedRequests = requests.slice(startIndex, startIndex + itemsPerPage);
+    const paginatedRequests = requests.slice(
+      startIndex,
+      startIndex + itemsPerPage
+    );
 
     const handleItemsPerPageChange = (e) => {
       const newItemsPerPage = Number(e.target.value);
@@ -441,12 +449,16 @@ const BorrowingRequest = () => {
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {request.date_requested
-                        ? moment(request.date_requested).tz("Asia/Manila").format("MM/DD/YYYY - h:mm A")
+                        ? moment(request.date_requested)
+                            .tz("America/Los_Angeles")
+                            .format("MM/DD/YYYY - h:mm A")
                         : "N/A"}
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {request.date_to_be_collected
-                        ? moment(request.date_to_be_collected).tz("Asia/Manila").format("MM/DD/YYYY - h:mm A")
+                        ? moment(request.date_to_be_collected)
+                            .tz("Asia/Manila")
+                            .format("MM/DD/YYYY - h:mm A")
                         : "N/A"}
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
@@ -465,7 +477,9 @@ const BorrowingRequest = () => {
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {request.expected_return_date
-                        ? moment(request.expected_return_date).tz("Asia/Manila").format("MM/DD/YYYY - h:mm A")
+                        ? moment(request.expected_return_date)
+                            .tz("Asia/Manila")
+                            .format("MM/DD/YYYY - h:mm A")
                         : "N/A"}
                     </td>
                     {showActions && (
@@ -504,9 +518,9 @@ const BorrowingRequest = () => {
                                   handleNotifyUser(
                                     request.email,
                                     request.name,
-                                    moment(request.expected_return_date).tz("Asia/Manila").format(
-                                      "MM/DD/YYYY h:mm A"
-                                    )
+                                    moment(request.expected_return_date)
+                                      .tz("Asia/Manila")
+                                      .format("MM/DD/YYYY h:mm A")
                                   )
                                 }
                                 title="Notify"
@@ -534,7 +548,9 @@ const BorrowingRequest = () => {
             totalPages={totalPages}
             handlePageChange={setCurrentPage}
             calculateStartIndex={() => calculateStartIndex(currentPage)}
-            calculateEndIndex={() => calculateEndIndex(currentPage, requests.length)}
+            calculateEndIndex={() =>
+              calculateEndIndex(currentPage, requests.length)
+            }
             totalItems={requests.length}
             renderPageNumbers={() => {
               const pageNumbers = [];
@@ -542,7 +558,10 @@ const BorrowingRequest = () => {
               const halfVisible = Math.floor(maxVisiblePages / 2);
 
               let startPage = Math.max(currentPage - halfVisible, 1);
-              let endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
+              let endPage = Math.min(
+                startPage + maxVisiblePages - 1,
+                totalPages
+              );
 
               if (endPage - startPage + 1 < maxVisiblePages) {
                 startPage = Math.max(endPage - maxVisiblePages + 1, 1);

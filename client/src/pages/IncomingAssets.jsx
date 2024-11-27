@@ -212,7 +212,7 @@ const IncomingAssets = () => {
         Add Incoming Asset
       </button>
 
-      <div id='recipients' className="mt-4 lg:mt-0 rounded bg-white">
+      <div id='recipients' className="mt-2 lg:mt-0 rounded bg-white">
         <IncomingAssetsTable 
           assets={assets}
           handleStatusUpdate={handleStatusUpdate}

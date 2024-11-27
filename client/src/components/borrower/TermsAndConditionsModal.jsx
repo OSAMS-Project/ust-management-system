@@ -8,7 +8,7 @@ function TermsAndConditionsModal({ onAccept, termsContent }) {
   return (
     <div
           className="relative flex items-center justify-center min-h-screen w-full bg-cover bg-center"
-          style={{ backgroundImage: "url('./ust-image.JPG')" }}
+          style={{ backgroundImage: "url('./ust-img-8.JPG')" }}
         >
           {/* Overlay for better contrast */}
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>

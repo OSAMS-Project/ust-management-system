@@ -66,10 +66,6 @@ const ProfilePage = ({ user }) => {
 
   const isAdmin = user?.role === "Administrator";
 
-  if (loading) {
-    return <div>Loading settings...</div>;
-  }
-
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Profile</h1>
@@ -97,7 +93,29 @@ const ProfilePage = ({ user }) => {
 
         {isAdmin && (
           <div className="border-t pt-4">
-            <h3 className="text-lg font-bold mb-2">Notification Settings</h3>
+            <h3 className="text-lg font-bold mb-2">
+              Email Notification Settings for Borrow Requests
+            </h3>
+
+            <input
+              type="email"
+              value={newNotificationEmail}
+              onChange={(e) => setNewNotificationEmail(e.target.value)}
+              className="w-full border rounded px-4 py-2 mb-2"
+              placeholder="Enter new notification email"
+            />
+            {message && (
+              <p
+                className={`text-sm mb-2 ${
+                  message.includes("enabled")
+                    ? "text-green-500"
+                    : "text-red-500"
+                }`}
+              >
+                {message}
+              </p>
+            )}
+
             <div className="flex items-center mb-4">
               <label className="mr-3 text-sm font-medium text-gray-700">
                 Enable Notifications
@@ -109,19 +127,6 @@ const ProfilePage = ({ user }) => {
                 className="w-6 h-6 text-blue-600 bg-gray-200 rounded focus:ring-blue-500 focus:ring-opacity-50"
               />
             </div>
-
-            <input
-              type="email"
-              value={newNotificationEmail}
-              onChange={(e) => setNewNotificationEmail(e.target.value)}
-              className="w-full border rounded px-4 py-2 mb-4"
-              placeholder="Enter new notification email"
-            />
-            {message && (
-              <p className={`text-sm mb-2 ${message.includes("success") ? "text-green-500" : "text-red-500"}`}>
-                {message}
-              </p>
-            )}
 
             <button
               onClick={handleNotificationEmailChange}

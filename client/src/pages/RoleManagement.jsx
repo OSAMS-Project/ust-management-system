@@ -210,7 +210,7 @@ const RoleManagement = ({ onRoleUpdate }) => {
       </div>
 
       <div className="px-4">
-        <div className="bg-yellow-200 p-4 rounded-md">
+        <div className="rounded-md">
           <h2 className="text-xl font-semibold">Add New Role</h2>
           <div className="flex items-center mt-2">
             <input

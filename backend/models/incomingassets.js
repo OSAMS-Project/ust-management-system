@@ -80,9 +80,13 @@ const getAllIncomingAssets = async () => {
 // Get the total number of incoming assets
 const getTotalIncomingAssets = async () => {
   try {
-    const query = "SELECT COUNT(*) AS total FROM incoming_assets";
+    const query = `
+      SELECT COUNT(*) AS total 
+      FROM incoming_assets 
+      WHERE status = 'pending'
+    `;
     const result = await pool.query(query);
-    return result.rows[0].total; // Return the total count
+    return result.rows[0].total; // Return the total count of pending assets
   } catch (error) {
     console.error("Error fetching total incoming assets:", error);
     throw error;

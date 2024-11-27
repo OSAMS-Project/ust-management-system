@@ -87,7 +87,7 @@ const DashboardInfoCards = () => {
                 {error ? "Error" : dashboardData.totalEvents === undefined ? "0" : dashboardData.totalEvents}
               </h2>
               <p className="text-[1.25rem] font-semibold text-white drop-shadow-md">
-                Ongoing Events
+                Upcoming Events
               </p>
             </div>
           </div>

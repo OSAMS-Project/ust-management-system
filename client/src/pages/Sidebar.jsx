@@ -314,7 +314,7 @@ const Sidebar = ({ user, onLogout }) => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="bg-[#202020]">
+          <div className="bg-[#202020] ">
             {/* Mobile Profile Section */}
             <Link
               to="/profile"
