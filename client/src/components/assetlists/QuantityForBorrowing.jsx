@@ -5,10 +5,6 @@ const QuantityForBorrowingModal = ({ isOpen, onClose, onConfirm, maxQuantity }) 
   const [quantity, setQuantity] = useState(1);
 
   const handleConfirm = () => {
-    if (quantity > maxQuantity) {
-      alert(`You cannot borrow more than the available quantity of ${maxQuantity}.`);
-      return;
-    }
     onConfirm(quantity);
     onClose();
   };

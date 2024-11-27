@@ -28,12 +28,6 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
         ? previewQuantities[currentAsset.asset_id] 
         : currentAsset.quantity;
 
-      // Validate if enough quantity is available
-      if (selectedQuantity > availableQuantity) {
-        alert('Selected quantity exceeds available assets');
-        return;
-      }
-
       const existingAssetIndex = selectedAssets.findIndex(asset => asset.asset_id === currentAsset.asset_id);
       if (existingAssetIndex !== -1) {
         const updatedAssets = [...selectedAssets];

@@ -204,12 +204,6 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
           }
         }
 
-        if (quantityForBorrowing > editedAsset.quantity) {
-          alert(`Quantity for borrowing cannot exceed available quantity of ${editedAsset.quantity}.`);
-          setQuantityForBorrowing(editedAsset.quantity);
-          return;
-        }
-
         const updatedAsset = {
           ...editedAsset,
           image: newImage || editedAsset.image,
@@ -308,7 +302,7 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
         if (newValue < pendingTotal) {
           setNotification({
             type: 'error',
-            message: `Cannot decrease quantity below pending requests (${pendingTotal} units currently requested)`
+            message: `Cannot decrease borrowing quantity below pending requests (${pendingTotal} units currently requested)`
           });
           return;
         }
@@ -536,7 +530,7 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
                   />
                   <button
                     type="button"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 flex items-center justify-center"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     onClick={() => document.getElementById('assetImage')?.click()}
                   >
                     <Upload className="w-4 h-4 mr-2" />

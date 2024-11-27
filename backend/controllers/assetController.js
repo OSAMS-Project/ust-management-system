@@ -133,16 +133,44 @@ const deleteAsset = async (req, res) => {
 const updateAssetActiveStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { isActive, quantityForBorrowing } = req.body; // Ensure this is being sent correctly
-    const result = await Asset.updateAssetActiveStatus(id, isActive, quantityForBorrowing);
-    if (result.length > 0) {
-      res.json(result[0]);
-    } else {
-      res.status(404).json({ message: 'Asset not found' });
+    const { isActive, quantityForBorrowing } = req.body;
+
+    // If trying to deactivate borrowing, check for pending requests
+    if (!isActive) {
+      const pendingRequestsQuery = `
+        SELECT COUNT(*) as count 
+        FROM borrowing_requests br 
+        WHERE br.status = 'Pending' 
+        AND br.selected_assets::jsonb @> '[{"asset_id": "${id}"}]'::jsonb
+      `;
+      const pendingResult = await pool.query(pendingRequestsQuery);
+      const hasPendingRequests = parseInt(pendingResult.rows[0].count) > 0;
+
+      if (hasPendingRequests) {
+        return res.status(400).json({
+          error: "Cannot deactivate borrowing",
+          message: "Please reject all pending borrowing requests before deactivating borrowing for this asset."
+        });
+      }
     }
+
+    const result = await Asset.updateAssetActiveStatus(
+      id,
+      isActive,
+      quantityForBorrowing
+    );
+
+    if (!result) {
+      return res.status(404).json({ error: "Asset not found" });
+    }
+
+    res.json(result[0]);
   } catch (error) {
-    console.error('Error updating asset active status:', error);
-    res.status(500).json({ message: 'Error updating asset active status', error: error.message });
+    console.error("Error updating asset active status:", error);
+    res.status(500).json({ 
+      error: "Error updating asset active status",
+      message: error.message 
+    });
   }
 };
 
