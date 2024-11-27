@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import moment from "moment";
+import tz from "moment-timezone";
 import NotificationPopup from "../components/utils/NotificationsPopup";
 import RejectionReasonModal from "../components/borrower/RejectionReasonModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -444,7 +445,7 @@ const BorrowingRequest = () => {
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
                       {request.date_to_be_collected
-                        ? moment(request.date_to_be_collected).format("MM/DD/YYYY - h:mm A")
+                        ? moment(request.date_to_be_collected).tz("Asia/Manila").format("MM/DD/YYYY - h:mm A")
                         : "N/A"}
                     </td>
                     <td className="px-4 py-2 border-b text-left whitespace-nowrap">
