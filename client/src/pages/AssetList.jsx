@@ -375,7 +375,9 @@ const AssetList = () => {
         const matchesSearch =
           asset.assetName.toLowerCase().includes(searchLower) ||
           (asset.productCode &&
-            asset.productCode.toLowerCase().includes(searchLower));
+            asset.productCode.toLowerCase().includes(searchLower)) ||
+          (asset.serialNumber &&
+            asset.serialNumber.toLowerCase().includes(searchLower));
 
         if (assetTypeFilter === "all") return matchesSearch;
         if (assetTypeFilter === "consumable")
@@ -447,7 +449,7 @@ const AssetList = () => {
             <div className="text-gray-400 mt-3 text-sm">Total Value</div>
           </div>
 
-
+        
         </div>
       </div>
       <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row justify-between items-center">
