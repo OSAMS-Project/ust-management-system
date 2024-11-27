@@ -142,7 +142,7 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Event Name */}
               <div className="form-group md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Event Name</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Event Name *</label>
                 <input
                   type="text"
                   name="event_name"
@@ -156,7 +156,7 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
 
               {/* Description */}
               <div className="form-group md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
                 <textarea
                   name="description"
                   value={formData.description}
@@ -170,7 +170,7 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
 
               {/* Event Date */}
               <div className="form-group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Event Date</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Event Date *</label>
                 <input
                   type="date"
                   name="event_date"
@@ -187,7 +187,7 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
 
               {/* Event Time */}
               <div className="form-group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Event Time</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Event Time *</label>
                 <div className="grid grid-cols-2 gap-4">
                   <input
                     type="time"
@@ -210,7 +210,7 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
 
               {/* Location */}
               <div className="form-group md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Event Location</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Event Location *</label>
                 <div className="relative">
                   <input
                     ref={inputRef}
