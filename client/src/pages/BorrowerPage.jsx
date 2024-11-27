@@ -413,16 +413,18 @@ function BorrowerForm() {
         />
       )}
       {agreedToTerms && (
-        <div className="flex min-h-screen w-screen overflow-hidden">
-          <div
-            className="w-1/2 bg-cover bg-center hidden lg:block"
-            style={{ backgroundImage: "url('./ust-image.JPG')" }}
-          ></div>
-          <div className="w-full lg:w-1/2 flex flex-col justify-center p-6 bg-white">
-            <h1 className="text-3xl font-bold text-black mb-4 leading-snug">
+        <div
+          className="relative flex items-center justify-center min-h-screen w-full bg-cover bg-center"
+          style={{ backgroundImage: "url('./ust-image.JPG')" }}
+        >
+          {/* Overlay for better contrast */}
+          <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+
+          <div className="relative z-10 w-full max-w-5xl bg-white rounded-lg shadow-lg p-8">
+            <h1 className="text-3xl font-bold text-black mb-6 leading-snug text-center">
               Asset Request Form
             </h1>
-            <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+            <p className="text-lg text-gray-600 mb-8 leading-relaxed text-center">
               Borrow Materials from UST-OSA Asset Management System
             </p>
 

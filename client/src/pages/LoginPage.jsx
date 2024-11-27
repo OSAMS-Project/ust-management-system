@@ -78,7 +78,10 @@ function SignIn({ setUser }) {
       <div
         className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('./ust-image.JPG')" }}
-      ></div>
+      >
+{/* <img src="/logo.png" alt="UST Background" className="absolute inset-0 w-full h-full object-cover object-center" /> */}
+
+      </div>
 
       {/* Google Login Form Section */}
       <div className="relative w-full lg:w-1/2 flex flex-col justify-center p-16 bg-white bg-opacity-90 right-0 top-0 bottom-0 ml-auto">
@@ -100,28 +103,17 @@ function SignIn({ setUser }) {
           />
         </GoogleOAuthProvider>
         {/* Buttons Side-by-Side */}
-        {/* <div className="flex justify-between gap-4 mt-8">
-      <Link
-        to="/email"
-        className="flex-1 text-center text-white bg-blue-600 hover:bg-blue-700 font-medium py-3 px-6 rounded transition duration-300"
-      >
-        No Access Yet? Request Access
-      </Link>
-
-      <Link
-        to="/admin"
-        className="flex-1 text-center text-white bg-gray-600 hover:bg-gray-700 font-medium py-3 px-6 rounded transition duration-300"
-      >
-        Admin? Click here
-      </Link>
-
-      <Link
-        to="/borrower"
-        className="flex-1 text-center text-white bg-green-600 hover:bg-green-700 font-medium py-3 px-6 rounded transition duration-300"
-      >
-        Borrow here
-      </Link>
-    </div> */}
+        <div className="flex justify-between gap-4 mt-8">
+          <Link to="/request" className="">
+            Request Access
+          </Link>
+          <Link
+            to="/borrow"
+            className=""
+          >
+            Borrow here
+          </Link>
+        </div>
       </div>
     </div>
   );
