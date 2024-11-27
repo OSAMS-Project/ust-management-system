@@ -22,28 +22,28 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
   const totalCost = parseFloat(selectedAsset.cost) * selectedAsset.quantity;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-6">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto relative">
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-2 sm:p-4 md:p-6">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[95%] md:max-w-3xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+          className="absolute top-2 right-2 sm:top-4 sm:right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200"
           aria-label="Close"
         >
-          <FontAwesomeIcon icon={faTimes} className="text-xl" />
+          <FontAwesomeIcon icon={faTimes} className="text-lg sm:text-xl" />
         </button>
 
-        <div className="p-8">
-          <h2 className="text-3xl font-bold mb-6 text-gray-800">{selectedAsset.assetName}</h2>
+        <div className="p-4 sm:p-6 md:p-8">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-gray-800">{selectedAsset.assetName}</h2>
           
           {selectedAsset.image && (
             <img 
               src={selectedAsset.image} 
               alt={selectedAsset.assetName} 
-              className="w-full h-64 object-cover rounded-xl mb-6 shadow-md"
+              className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl mb-4 sm:mb-6 shadow-md"
             />
           )}
 
-          <div className="grid grid-cols-1 gap-y-4 md:grid-cols-2 md:gap-x-8">
+          <div className="grid grid-cols-1 gap-y-3 sm:gap-y-4 md:grid-cols-2 md:gap-x-8">
             <DetailItem label="ID" value={selectedAsset.asset_id} />
             <DetailItem label="Product Code" value={selectedAsset.productCode} />
             <DetailItem label="Date Created" value={moment(selectedAsset.createdDate).format('MM/DD/YYYY')} />
@@ -63,10 +63,10 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mt-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-6 sm:mt-8">
             <button
               onClick={() => setShowActivityLogs(true)}
-              className="bg-green-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-green-700 transition-transform transform hover:scale-105 flex items-center justify-center"
+              className="bg-green-600 text-white px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base rounded-lg shadow-md hover:bg-green-700 transition-transform transform hover:scale-105 flex items-center justify-center"
             >
               View Activity Logs
             </button>
@@ -74,7 +74,7 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
             {(selectedAsset.type === 'Non-Consumable' || (selectedAsset.type === 'Consumable' && selectedAsset.allow_borrowing)) && (
               <button
                 onClick={() => setShowBorrowLogs(true)}
-                className="bg-purple-600 text-white px-4 py-3 rounded-lg shadow-md hover:bg-purple-700 transition-transform transform hover:scale-105 flex items-center justify-center"
+                className="bg-purple-600 text-white px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base rounded-lg shadow-md hover:bg-purple-700 transition-transform transform hover:scale-105 flex items-center justify-center"
               >
                 Borrow Logs
               </button>
@@ -84,38 +84,36 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
               <>
                 <button
                   onClick={() => setShowMaintenanceLogs(true)}
-                  className="bg-orange-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-orange-600 transition-transform transform hover:scale-105 flex items-center justify-center"
+                  className="bg-orange-500 text-white px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base rounded-lg shadow-md hover:bg-orange-600 transition-transform transform hover:scale-105 flex items-center justify-center"
                 >
                   Maintenance Logs
                 </button>
                 <button
                   onClick={() => setShowRepairLogs(true)}
-                  className="bg-yellow-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-yellow-600 transition-transform transform hover:scale-105 flex items-center justify-center"
+                  className="bg-yellow-500 text-white px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base rounded-lg shadow-md hover:bg-yellow-600 transition-transform transform hover:scale-105 flex items-center justify-center"
                 >
                   Repair Logs
                 </button>
-                <div className="grid grid-cols-2 gap-4 col-span-2">
-                  <button
-                    onClick={() => setShowIssueLogs(true)}
-                    className="bg-red-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-red-600 transition-transform transform hover:scale-105 flex items-center justify-center"
-                  >
-                    Issue Logs
-                  </button>
-                  <button
-                    onClick={() => setShowQRCode(true)}
-                    className="bg-blue-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-600 transition-transform transform hover:scale-105 flex items-center justify-center"
-                  >
-                    <FontAwesomeIcon icon={faQrcode} className="mr-2" />
-                    QR Code
-                  </button>
-                </div>
+                <button
+                  onClick={() => setShowIssueLogs(true)}
+                  className="bg-red-500 text-white px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base rounded-lg shadow-md hover:bg-red-600 transition-transform transform hover:scale-105 flex items-center justify-center"
+                >
+                  Issue Logs
+                </button>
+                <button
+                  onClick={() => setShowQRCode(true)}
+                  className="bg-blue-500 text-white px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base rounded-lg shadow-md hover:bg-blue-600 transition-transform transform hover:scale-105 flex items-center justify-center"
+                >
+                  <FontAwesomeIcon icon={faQrcode} className="mr-2" />
+                  QR Code
+                </button>
               </>
             )}
 
             {selectedAsset.type === 'Consumable' && (
               <button
                 onClick={() => setShowQRCode(true)}
-                className="bg-blue-500 text-white px-4 py-3 rounded-lg shadow-md hover:bg-blue-600 transition-transform transform hover:scale-105 flex items-center justify-center"
+                className="bg-blue-500 text-white px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base rounded-lg shadow-md hover:bg-blue-600 transition-transform transform hover:scale-105 flex items-center justify-center"
               >
                 <FontAwesomeIcon icon={faQrcode} className="mr-2" />
                 QR Code
@@ -168,8 +166,8 @@ const AssetDetailsModal = ({ selectedAsset, onClose }) => {
 
 const DetailItem = ({ label, value }) => (
   <div className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-200 py-2 last:border-b-0">
-    <span className="font-semibold text-gray-600">{label}:</span>
-    <span className="text-gray-800 sm:text-right">{value}</span>
+    <span className="font-semibold text-gray-600 text-sm sm:text-base mb-1 sm:mb-0">{label}:</span>
+    <span className="text-gray-800 sm:text-right text-sm sm:text-base">{value}</span>
   </div>
 );
 
