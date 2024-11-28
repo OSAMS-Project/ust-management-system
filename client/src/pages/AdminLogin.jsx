@@ -54,7 +54,7 @@ function AdminForm({ setUser }) {
       <div className="absolute inset-0 w-full h-full">
         <div
           className="absolute inset-0 w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: "url('./ust-img-9.JPG')" }}
+          style={{ backgroundImage: "url('./ust-img-9.jpg')" }}
         ></div>
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
       </div>
