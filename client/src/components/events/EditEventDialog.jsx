@@ -166,6 +166,10 @@ const EditEventDialog = ({
     handleChange(e);
   };
 
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
   if (!showDialog) return null;
 
   return (
@@ -320,7 +324,7 @@ const EditEventDialog = ({
             <div className="flex justify-between gap-4 pt-4 border-t">
               <button
                 type="button"
-                onClick={() => handleDelete(formData.unique_id)}
+                onClick={handleDeleteClick}
                 className="px-6 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors"
               >
                 Delete
