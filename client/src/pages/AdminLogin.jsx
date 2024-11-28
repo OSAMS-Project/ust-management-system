@@ -11,8 +11,8 @@ function AdminForm({ setUser }) {
   const [error, setError] = useState(null);
 
   // Use environment variables for admin credentials
-  const ADMIN_EMAIL = process.env.REACT_APP_ADMIN_EMAIL || "admin";
-  const ADMIN_PASSWORD = process.env.REACT_APP_ADMIN_PASSWORD || "admin";
+  const ADMIN_EMAIL = process.env.REACT_APP_ADMIN_EMAIL;
+  const ADMIN_PASSWORD = process.env.REACT_APP_ADMIN_PASSWORD;  
 
   useEffect(() => {
     const adminToken = sessionStorage.getItem("adminToken");

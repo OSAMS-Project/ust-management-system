@@ -209,168 +209,168 @@ const UserManagement = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
-      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
-        <h1 className="text-5xl font-extrabold text-black">User Management</h1>
-        <FontAwesomeIcon
-          icon={faUserCog}
-          className="text-black text-5xl transform"
-        />
-      </div>
-
-      <div className="px-4">
-        <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full px-5 py-1 text-center uppercase tracking-wider mb-3">
-          User Summary
-        </div>
-
-        {/* Total Users Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          {/* Total Users with Access */}
-          <div
-            className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden"
-            style={{ backgroundImage: "url('ust-img-2.JPG')" }}
-          >
-            <div className="absolute inset-0 bg-black opacity-50"></div>
-            <div className="relative z-10 flex flex-col items-center text-center">
-              <h2 className="text-7xl font-bold text-yellow-400">
-                {totalUsersWithAccess}
-              </h2>
-              <p className="text-2xl font-semibold text-white mt-2">
-                Users with Access
-              </p>
-            </div>
-          </div>
-
-          {/* Total Users without Access */}
-          <div
-            className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden"
-            style={{ backgroundImage: "url('ust-img-1.JPG')" }}
-          >
-            <div className="absolute inset-0 bg-black opacity-50"></div>
-            <div className="relative z-10 flex flex-col items-center text-center">
-              <h2 className="text-7xl font-bold text-yellow-400">
-                {totalUsersWithoutAccess}
-              </h2>
-              <p className="text-2xl font-semibold text-white mt-2">
-                Users Pending Access
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs and Search/Filter Section */}
-      <div className="px-4 mb-6 flex justify-between items-center">
-        <div className="flex space-x-4">
-          <button
-            className={`px-6 py-2 rounded-lg focus:outline-none ${
-              currentTab === "ALL"
-                ? "bg-[#FEC00F] text-black"
-                : "bg-gray-200 text-gray-600"
-            }`}
-            onClick={() => setCurrentTab("ALL")}
-          >
-            ALL
-          </button>
-          <button
-            className={`px-6 py-2 rounded-lg focus:outline-none ${
-              currentTab === "WITH_ACCESS"
-                ? "bg-[#FEC00F] text-black"
-                : "bg-gray-200 text-gray-600"
-            }`}
-            onClick={() => setCurrentTab("WITH_ACCESS")}
-          >
-            With Access
-          </button>
-          <button
-            className={`px-6 py-2 rounded-lg focus:outline-none ${
-              currentTab === "WITHOUT_ACCESS"
-                ? "bg-[#FEC00F] text-black"
-                : "bg-gray-200 text-gray-600"
-            }`}
-            onClick={() => setCurrentTab("WITHOUT_ACCESS")}
-          >
-            Pending Access
-          </button>
-        </div>
-
-        <div className="flex space-x-4">
-          {/* Search Bar */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:border-gray-500"
-            />
-            <FontAwesomeIcon
-              icon={faSearch}
-              className="absolute right-3 top-3 text-gray-400 "
-            />
-          </div>
-
-          {/* Role Filter Dropdown */}
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:border-gray-500"
-          >
-            <option value="">Filter by Role</option>
-            {roles.map((role) => (
-              <option key={role.id} value={role.role_name}>
-                {role.role_name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <div className="px-4">
-        {/* User Table Section */}
-        <div className="bg-white overflow-x-auto">
-          <table className="min-w-full bg-white border-collapse">
-            <thead className="bg-black text-[#FEC00F]">
-              <tr>
-                <th className="py-2 px-4 border-b text-center">#</th>
-                <th className="py-2 px-4 border-b text-center">Picture</th>
-                <th className="py-2 px-4 border-b text-center">Name</th>
-                <th className="py-2 px-4 border-b text-center">Email</th>
-                <th className="py-2 px-4 border-b text-center">Role</th>
-                {currentTab === "ALL" && (
-                  <th className="py-2 px-4 border-b text-center">Status</th>
-                )}
-                <th className="py-2 px-4 border-b text-center">Actions</th>
-              </tr>
-            </thead>
-            {renderTableContent()}
-          </table>
-        </div>
-      </div>
-
-      {/* Edit User Modal */}
-      {editingUser && (
-        <EditUser
-          user={editingUser}
-          roles={roles}
-          onChange={setEditingUser}
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleEditUser(editingUser);
-          }}
-          onCancel={() => setEditingUser(null)}
-        />
-      )}
-
-      {userToDelete && (
-        <DeleteUserDialog
-          isOpen={isDeleteDialogOpen}
-          onClose={() => setIsDeleteDialogOpen(false)}
-          onConfirm={handleDeleteConfirm}
-          userName={userToDelete.name}
-        />
-      )}
+    {/* Header Section */}
+    <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black">User Management</h1>
+      <FontAwesomeIcon
+        icon={faUserCog}
+        className="text-black text-4xl sm:text-5xl md:text-6xl transform"
+      />
     </div>
+  
+    <div className="px-4">
+      <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full px-5 py-1 text-center uppercase tracking-wider mb-3">
+        User Summary
+      </div>
+  
+      {/* Total Users Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-8">
+        {/* Total Users with Access */}
+        <div
+          className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden"
+          style={{ backgroundImage: "url('ust-img-2.JPG')" }}
+        >
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className="relative z-10 flex flex-col items-center text-center">
+            <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold text-yellow-400">
+              {totalUsersWithAccess}
+            </h2>
+            <p className="text-lg sm:text-xl md:text-2xl font-semibold text-white mt-2">
+              Users with Access
+            </p>
+          </div>
+        </div>
+  
+        {/* Total Users without Access */}
+        <div
+          className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden"
+          style={{ backgroundImage: "url('ust-img-1.JPG')" }}
+        >
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className="relative z-10 flex flex-col items-center text-center">
+            <h2 className="text-3xl sm:text-5xl md:text-7xl font-bold text-yellow-400">
+              {totalUsersWithoutAccess}
+            </h2>
+            <p className="text-lg sm:text-xl md:text-2xl font-semibold text-white mt-2">
+              Users Pending Access
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    {/* Tabs and Search/Filter Section */}
+    <div className="px-4 mb-6 flex flex-col sm:flex-row justify-between items-center">
+      <div className="flex space-x-4 mb-4 sm:mb-0">
+        <button
+          className={`px-6 py-2 rounded-lg focus:outline-none ${
+            currentTab === "ALL"
+              ? "bg-[#FEC00F] text-black"
+              : "bg-gray-200 text-gray-600"
+          }`}
+          onClick={() => setCurrentTab("ALL")}
+        >
+          ALL
+        </button>
+        <button
+          className={`px-6 py-2 rounded-lg focus:outline-none ${
+            currentTab === "WITH_ACCESS"
+              ? "bg-[#FEC00F] text-black"
+              : "bg-gray-200 text-gray-600"
+          }`}
+          onClick={() => setCurrentTab("WITH_ACCESS")}
+        >
+          With Access
+        </button>
+        <button
+          className={`px-6 py-2 rounded-lg focus:outline-none ${
+            currentTab === "WITHOUT_ACCESS"
+              ? "bg-[#FEC00F] text-black"
+              : "bg-gray-200 text-gray-600"
+          }`}
+          onClick={() => setCurrentTab("WITHOUT_ACCESS")}
+        >
+          Pending Access
+        </button>
+      </div>
+  
+      <div className="flex space-x-4">
+        {/* Search Bar */}
+        <div className="relative w-full sm:w-64">
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:border-gray-500 w-full"
+          />
+          <FontAwesomeIcon
+            icon={faSearch}
+            className="absolute right-3 top-3 text-gray-400"
+          />
+        </div>
+  
+        {/* Role Filter Dropdown */}
+        <select
+          value={selectedRole}
+          onChange={(e) => setSelectedRole(e.target.value)}
+          className="border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:border-gray-500"
+        >
+          <option value="">Filter by Role</option>
+          {roles.map((role) => (
+            <option key={role.id} value={role.role_name}>
+              {role.role_name}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  
+    <div className="px-4">
+      {/* User Table Section */}
+      <div className="bg-white overflow-x-auto">
+        <table className="min-w-full bg-white border-collapse">
+          <thead className="bg-black text-[#FEC00F]">
+            <tr>
+              <th className="py-2 px-4 border-b text-center">#</th>
+              <th className="py-2 px-4 border-b text-center">Picture</th>
+              <th className="py-2 px-4 border-b text-center">Name</th>
+              <th className="py-2 px-4 border-b text-center">Email</th>
+              <th className="py-2 px-4 border-b text-center">Role</th>
+              {currentTab === "ALL" && (
+                <th className="py-2 px-4 border-b text-center">Status</th>
+              )}
+              <th className="py-2 px-4 border-b text-center">Actions</th>
+            </tr>
+          </thead>
+          {renderTableContent()}
+        </table>
+      </div>
+    </div>
+  
+    {/* Edit User Modal */}
+    {editingUser && (
+      <EditUser
+        user={editingUser}
+        roles={roles}
+        onChange={setEditingUser}
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleEditUser(editingUser);
+        }}
+        onCancel={() => setEditingUser(null)}
+      />
+    )}
+  
+    {userToDelete && (
+      <DeleteUserDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        userName={userToDelete.name}
+      />
+    )}
+  </div>  
   );
 };
 

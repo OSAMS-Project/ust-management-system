@@ -199,6 +199,7 @@ const MENU_LIST = [
     icon: faUserCog,
     subItems: [{ text: "Role Management", to: "/roles", icon: faUsers }],
   },
+  { text: "Terms Settings", to: "/settings", icon: faCog },
 ];
 
 const Sidebar = ({ user, onLogout }) => {
@@ -347,13 +348,6 @@ const Sidebar = ({ user, onLogout }) => {
                   setIsMobileMenuOpen={setIsMobileMenuOpen}
                 />
               ))}
-              <NavItem
-                to="/settings"
-                text="Settings"
-                icon={faCog}
-                isMobileMenuOpen={isMobileMenuOpen}
-                setIsMobileMenuOpen={setIsMobileMenuOpen}
-              />
               <button
                 onClick={() => {
                   handleLogoutClick();
@@ -411,7 +405,6 @@ const Sidebar = ({ user, onLogout }) => {
 
         {/* Footer Links */}
         <div className="p-4 border-t border-gray-700">
-          <NavItem to="/settings" text="Settings" icon={faCog} />
           <button
             onClick={handleLogoutClick}
             className="flex items-center p-3 text-white rounded-md transition duration-200 hover:bg-[#282828]"

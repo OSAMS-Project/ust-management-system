@@ -48,6 +48,7 @@ const RoleManagement = ({ onRoleUpdate }) => {
     "Completed Events",
     "Archived Requests",
     "Borrowing History",
+    "Terms Settings",
   ];
 
   const API_URL = `${process.env.REACT_APP_API_URL}/api/roles`;

@@ -159,6 +159,7 @@ const SupplierList = () => {
 
   return (
     <div className="space-y-6">
+      {/* Header Section */}
       <div className="bg-[#FEC00F] py-4 px-6 flex flex-col sm:flex-row sm:items-center justify-between">
         <h1 className="text-3xl sm:text-5xl font-extrabold text-black text-center sm:text-left">
           Supplier Directory
@@ -169,39 +170,49 @@ const SupplierList = () => {
         />
       </div>
 
+      {/* Supplier Summary Section */}
       {!isAddSupplierModalOpen && (
         <div className="px-4">
           <div className="inline-block bg-[#FEC00F] text-black font-bold rounded-full px-5 py-1 text-center uppercase tracking-wider mb-3">
             Supplier Summary
           </div>
 
-            <div
-              className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden"
-              style={{ backgroundImage: "url('ust-img-4.JPG')" }}
-            >
-              <div className="absolute inset-0 bg-black opacity-50"></div>
-              <div className="relative z-10 flex flex-col items-center text-center">
-                <h2 className="text-4xl sm:text-7xl font-bold text-yellow-400">
-                  {totalSuppliers}
-                </h2>
-                <p className="text-lg sm:text-2xl font-semibold text-white mt-2">
-                  Total Suppliers
-                </p>
-              </div>
+          <div
+            className="bg-yellow-400 p-6 rounded-lg shadow-md flex items-center justify-center h-48 bg-cover bg-center relative overflow-hidden"
+            style={{ backgroundImage: "url('ust-img-4.JPG')" }}
+          >
+            <div className="absolute inset-0 bg-black opacity-50"></div>
+            <div className="relative z-10 flex flex-col items-center text-center">
+              <h2 className="text-4xl sm:text-7xl font-bold text-yellow-400">
+                {totalSuppliers}
+              </h2>
+              <p className="text-lg sm:text-2xl font-semibold text-white mt-2">
+                Total Suppliers
+              </p>
+            </div>
           </div>
         </div>
       )}
 
+      {/* Supplier Search and Add Supplier Section */}
       <div className="flex flex-col sm:flex-row sm:justify-between items-center mb-4 px-4">
-        <SupplierSearch handleSearch={handleSearch} />
-        <AddSupplier
-          onSupplierAdded={handleSupplierAdded}
-          onSupplierUpdated={handleSupplierUpdated}
-          supplierToEdit={supplierToEdit}
-          setIsModalOpen={setIsAddSupplierModalOpen}
-        />
+        {/* Supplier Search */}
+        <div className="w-full sm:w-auto mb-4 sm:mb-0">
+          <SupplierSearch handleSearch={handleSearch} />
+        </div>
+
+        {/* Add Supplier */}
+        <div className="w-full sm:w-auto">
+          <AddSupplier
+            onSupplierAdded={handleSupplierAdded}
+            onSupplierUpdated={handleSupplierUpdated}
+            supplierToEdit={supplierToEdit}
+            setIsModalOpen={setIsAddSupplierModalOpen}
+          />
+        </div>
       </div>
 
+      {/* Supplier Table Section */}
       <div className="px-4">
         <SupplierTable
           suppliers={getCurrentSuppliers()}
@@ -209,6 +220,7 @@ const SupplierList = () => {
           onEdit={handleEdit}
         />
 
+        {/* Pagination Controls */}
         {(suppliers.length > 0 || filteredSuppliers.length > 0) && (
           <PaginationControls
             itemsPerPage={itemsPerPage}
@@ -228,6 +240,7 @@ const SupplierList = () => {
         )}
       </div>
 
+      {/* Edit Supplier Modal */}
       {isEditModalOpen && (
         <EditSupplier
           supplier={supplierToEdit}
@@ -236,6 +249,7 @@ const SupplierList = () => {
         />
       )}
 
+      {/* Notification Popup */}
       <NotificationPopup
         notification={notification}
         onClose={() => setNotification(null)}

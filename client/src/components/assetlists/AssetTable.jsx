@@ -308,6 +308,7 @@ const AssetTable = ({
     const headers = [
       "ID",
       "Product Code",
+      "Serial Number",
       "Date Created",
       "Asset Name",
       "Cost per Unit",
@@ -324,6 +325,7 @@ const AssetTable = ({
     const csvData = assets.map((asset) => [
       asset.asset_id,
       asset.productCode,
+      asset.serialNumber,
       moment(asset.createdDate).format("MM/DD/YYYY"),
       asset.assetName,
       parseFloat(asset.cost).toFixed(2),

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import moment from 'moment';
-import PaginationControls from '../assetlists/PaginationControls';
+import React, { useState } from "react";
+import moment from "moment";
+import PaginationControls from "../assetlists/PaginationControls";
 
 const ArchivedRequestTable = ({ archivedRequests, onDelete }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,7 +21,8 @@ const ArchivedRequestTable = ({ archivedRequests, onDelete }) => {
   };
 
   const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
-  const calculateEndIndex = () => Math.min(calculateStartIndex() + itemsPerPage - 1, archivedRequests.length);
+  const calculateEndIndex = () =>
+    Math.min(calculateStartIndex() + itemsPerPage - 1, archivedRequests.length);
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
@@ -59,68 +60,83 @@ const ArchivedRequestTable = ({ archivedRequests, onDelete }) => {
 
   return (
     <div className="mt-8">
-      <table className="min-w-full bg-white border-collapse">
-        <thead className="bg-black text-[#FEC00F]">
-          <tr>
-            <th className="py-2 px-4 border-b text-center">Asset Name</th>
-            <th className="py-2 px-4 border-b text-center">Quantity</th>
-            <th className="py-2 px-4 border-b text-center">Date Requested</th>
-            <th className="py-2 px-4 border-b text-center">Date Archived</th>
-            <th className="py-2 px-4 border-b text-center">Requested By</th>
-            <th className="py-2 px-4 border-b text-center">Original Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentRequests.map((asset, index) => (
-            <tr
-              key={index}
-              className={`${
-                index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
-              } hover:bg-gray-50`}
-            >
-              <td className="py-2 px-4 border-b text-center">{asset.asset_name}</td>
-              <td className="py-2 px-4 border-b text-center">{asset.quantity}</td>
-              <td className="py-2 px-4 border-b text-center">
-                {moment(asset.created_at).format("MM/DD/YYYY")}
-              </td>
-              <td className="py-2 px-4 border-b text-center">
-                {moment(asset.archived_at).format("MM/DD/YYYY")}
-              </td>
-              <td className="py-2 px-4 border-b text-center">
-                <div className="flex items-center justify-center">
-                  <img 
-                    src={asset.user_picture || "/osa-img.png"} 
-                    alt={asset.created_by} 
-                    className="w-8 h-8 rounded-full mr-2"
-                  />
-                  {asset.created_by}
-                </div>
-              </td>
-              <td className="py-2 px-4 border-b text-center">
-                <span className={`px-2 py-1 rounded ${
-                  asset.original_status === 'approved' 
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {asset.original_status.charAt(0).toUpperCase() + asset.original_status.slice(1)}
-                </span>
-              </td>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border-collapse">
+          <thead className="bg-black text-[#FEC00F]">
+            <tr>
+              <th className="py-2 px-4 border-b text-center">Asset Name</th>
+              <th className="py-2 px-4 border-b text-center">Quantity</th>
+              <th className="py-2 px-4 border-b text-center">Date Requested</th>
+              <th className="py-2 px-4 border-b text-center">Date Archived</th>
+              <th className="py-2 px-4 border-b text-center">Requested By</th>
+              <th className="py-2 px-4 border-b text-center">
+                Original Status
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {currentRequests.map((asset, index) => (
+              <tr
+                key={index}
+                className={`${
+                  index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
+                } hover:bg-gray-50`}
+              >
+                <td className="py-2 px-4 border-b text-center">
+                  {asset.asset_name}
+                </td>
+                <td className="py-2 px-4 border-b text-center">
+                  {asset.quantity}
+                </td>
+                <td className="py-2 px-4 border-b text-center">
+                  {moment(asset.created_at).format("MM/DD/YYYY")}
+                </td>
+                <td className="py-2 px-4 border-b text-center">
+                  {moment(asset.archived_at).format("MM/DD/YYYY")}
+                </td>
+                <td className="py-2 px-4 border-b text-center">
+                  <div className="flex items-center justify-center">
+                    <img
+                      src={asset.user_picture || "/osa-img.png"}
+                      alt={asset.created_by}
+                      className="w-8 h-8 rounded-full mr-2"
+                    />
+                    {asset.created_by}
+                  </div>
+                </td>
+                <td className="py-2 px-4 border-b text-center">
+                  <span
+                    className={`px-2 py-1 rounded ${
+                      asset.original_status === "approved"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {asset.original_status.charAt(0).toUpperCase() +
+                      asset.original_status.slice(1)}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination Controls */}
       {archivedRequests.length > 0 && (
-        <PaginationControls
-          itemsPerPage={itemsPerPage}
-          handleItemsPerPageChange={handleItemsPerPageChange}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          handlePageChange={handlePageChange}
-          calculateStartIndex={calculateStartIndex}
-          calculateEndIndex={calculateEndIndex}
-          totalItems={archivedRequests.length}
-          renderPageNumbers={renderPageNumbers}
-        />
+        <div className="mt-4">
+          <PaginationControls
+            itemsPerPage={itemsPerPage}
+            handleItemsPerPageChange={handleItemsPerPageChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            handlePageChange={handlePageChange}
+            calculateStartIndex={calculateStartIndex}
+            calculateEndIndex={calculateEndIndex}
+            totalItems={archivedRequests.length}
+            renderPageNumbers={renderPageNumbers}
+          />
+        </div>
       )}
     </div>
   );

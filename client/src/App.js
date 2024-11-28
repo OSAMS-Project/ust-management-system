@@ -34,6 +34,7 @@ import FileUpload from "./components/FileUpload";
 import Settings from "./pages/Settings";
 import axios from "axios";
 
+
 function App() {
   const moment = require("moment-timezone");
   moment.tz.setDefault("Asia/Manila");
@@ -386,7 +387,7 @@ function AppContent({ user, setUser }) {
           <Route
             path="/settings"
             element={
-              <PrivateRoute user={user}>
+              <PrivateRoute user={user} requiredPermissions={["Terms Settings"]}>
                 <Settings user={user} />
               </PrivateRoute>
             }

@@ -332,13 +332,16 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">Upload Image</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Upload Image <span className="text-gray-500">(Max size: 600KB)</span>
+                  </label>
                   <div className="flex items-center gap-4">
                     <input 
                       type="file" 
                       onChange={handleImageUpload}
                       className="hidden"
                       id="assetImage"
+                      accept="image/*"
                     />
                     <button
                       type="button"
