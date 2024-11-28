@@ -152,6 +152,32 @@ function Events() {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Validate event name length
+      if (formData.event_name.length > 100) {
+        showErrorNotification('Event name must not exceed 100 characters');
+        return;
+      }
+      
+      // Validate description length
+      if (formData.description.length > 200) {
+        showErrorNotification('Description must not exceed 200 characters');
+        return;
+      }
+
+      // Validate image size if an image is present and has been changed
+      if (formData.image) {
+        // Calculate size for base64 image
+        const base64Length = formData.image.length;
+        // Convert base64 length to file size in MB (approximate)
+        const fileSizeInMB = (base64Length * 0.75) / (1024 * 1024);
+        const maxSizeInMB = 1; // 1MB limit
+        
+        if (fileSizeInMB > maxSizeInMB) {
+          showErrorNotification(`Image size (${fileSizeInMB.toFixed(2)}MB) is too large. Maximum size allowed is 1MB`);
+          return;
+        }
+      }
+
       // Create a new date object with the correct timezone offset
       const eventDate = new Date(formData.event_date);
       const offset = eventDate.getTimezoneOffset() * 60000;
@@ -176,17 +202,11 @@ function Events() {
           )
         );
         setShowEditDialog(false);
-        setNotification({
-          type: 'success',
-          message: 'Event updated successfully'
-        });
+        showSuccessNotification('Event updated successfully');
       }
     } catch (error) {
       console.error('Error updating event:', error);
-      setNotification({
-        type: 'error',
-        message: 'Failed to update event'
-      });
+      showErrorNotification('Failed to update event');
     }
   };
   const handleChange = (e, eventId = null) => {
@@ -216,6 +236,21 @@ function Events() {
         showErrorNotification('Description must not exceed 200 characters');
         return;
       }
+
+      // Validate image size if an image is present
+      if (formData.image) {
+        // Calculate size for base64 image
+        const base64Length = formData.image.length;
+        // Convert base64 length to file size in MB (approximate)
+        const fileSizeInMB = (base64Length * 0.75) / (1024 * 1024);
+        const maxSizeInMB = 1; // 1MB limit
+        
+        if (fileSizeInMB > maxSizeInMB) {
+          showErrorNotification(`Image size (${fileSizeInMB.toFixed(2)}MB) is too large. Maximum size allowed is 1MB`);
+          return;
+        }
+      }
+
       // Check if an event with the same name already exists
       const eventExists = data.some(
         event => event.event_name.toLowerCase() === formData.event_name.toLowerCase()
@@ -248,7 +283,7 @@ function Events() {
       showSuccessNotification('Event created successfully');
     } catch (err) {
       console.error("Error creating event:", err);
-      showErrorNotification('Failed to create event');
+      showErrorNotification(err.message || 'Failed to create event');
     }
   };
   const handleCompleteEvent = async (uniqueId) => {

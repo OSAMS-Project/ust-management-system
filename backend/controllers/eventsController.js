@@ -3,7 +3,21 @@ const pool = require('../config/database');
 
 const createEvent = async (req, res) => {
   try {
-    console.log('Received event data:', req.body); // Debug log
+    // Add debug logging for image
+    if (req.body.image) {
+      const base64Size = Buffer.from(req.body.image.split(',')[1], 'base64').length;
+      const sizeInKB = base64Size / 1024;
+      console.log('Image size:', {
+        sizeKB: sizeInKB,
+        sizeBytes: base64Size,
+        truncatedImage: req.body.image.substring(0, 100) + '...' // Show start of image data
+      });
+    }
+
+    console.log('Received event data:', {
+      ...req.body,
+      image: req.body.image ? '[Image Data]' : undefined
+    });
 
     // Validate required fields
     const requiredFields = ['event_name', 'description', 'event_date', 'event_start_time', 'event_end_time', 'event_location'];
@@ -27,11 +41,17 @@ const createEvent = async (req, res) => {
     
     res.status(201).json(result[0]);
   } catch (error) {
-    console.error('Error in createEvent controller:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      body: {
+        ...req.body,
+        image: req.body.image ? '[Image Data]' : undefined
+      }
+    });
     res.status(500).json({
       error: 'Failed to create event',
-      details: error.message,
-      stack: error.stack
+      details: error.message
     });
   }
 };

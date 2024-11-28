@@ -41,16 +41,31 @@ const createEvent = async (data) => {
   try {
     await client.query('BEGIN');
 
+    // Add image validation with 1MB limit
+    if (data.image) {
+      const imageData = data.image.split(',')[1] || data.image;
+      const imageSize = Buffer.from(imageData, 'base64').length;
+      const maxSize = 1 * 1024 * 1024; // 1MB in bytes
+      
+      console.log('Image validation:', {
+        sizeKB: Math.round(imageSize / 1024),
+        sizeMB: (imageSize / (1024 * 1024)).toFixed(2),
+        isBase64: data.image.includes('base64'),
+      });
+
+      if (imageSize > maxSize) {
+        throw new Error(`Image size (${(imageSize / (1024 * 1024)).toFixed(2)}MB) exceeds maximum allowed size of 1MB`);
+      }
+    }
+
     const uniqueId = await generateNextUniqueId();
     
-    // Prepare the data for insertion
     const insertData = {
       ...data,
       unique_id: uniqueId,
       is_completed: false
     };
 
-    // Create the columns and values arrays
     const columns = Object.keys(insertData);
     const values = Object.values(insertData);
     const placeholders = values.map((_, i) => `$${i + 1}`).join(", ");
@@ -61,15 +76,17 @@ const createEvent = async (data) => {
       RETURNING *
     `;
 
-    console.log('Executing query:', { query, values }); // Debug log
-
     const result = await client.query(query, values);
     await client.query('COMMIT');
     
     return [result.rows[0]];
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Error in createEvent:', error);
+    console.error('Error in createEvent:', {
+      error: error.message,
+      stack: error.stack,
+      hasImage: !!data.image
+    });
     throw error;
   } finally {
     client.release();
