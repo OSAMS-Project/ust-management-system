@@ -120,6 +120,44 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
     };
   }, [formData.event_location, locationOptions]);
 
+  // Add this new function to validate time
+  const validateTime = (e) => {
+    const { name, value } = e.target;
+    const startTime = name === 'event_start_time' ? value : formData.event_start_time;
+    const endTime = name === 'event_end_time' ? value : formData.event_end_time;
+
+    // Only validate if both times are set
+    if (startTime && endTime) {
+      const start = new Date(`2000-01-01T${startTime}`);
+      const end = new Date(`2000-01-01T${endTime}`);
+
+      if (end <= start) {
+        setError('End time must be later than start time');
+        return false;
+      }
+    }
+
+    setError('');
+    handleChange(e);
+    return true;
+  };
+
+  // Modify the form submission to include time validation
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    
+    // Validate times before submitting
+    const start = new Date(`2000-01-01T${formData.event_start_time}`);
+    const end = new Date(`2000-01-01T${formData.event_end_time}`);
+
+    if (end <= start) {
+      setError('End time must be later than start time');
+      return;
+    }
+
+    handleSubmit(e);
+  };
+
   if (!showDialog) return null;
 
   return (
@@ -127,13 +165,7 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
       <div className="fixed inset-0 bg-black opacity-50"></div>
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl">
-          <form onSubmit={handleSubmit} className="p-6">
-            {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
-                {error}
-              </div>
-            )}
-            
+          <form onSubmit={handleFormSubmit} className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Event Name */}
               <div className="form-group md:col-span-2">
@@ -175,12 +207,9 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   required
                 />
-                {error && (
-                  <div className="text-red-500 text-sm mt-1">{error}</div>
-                )}
               </div>
 
-              {/* Event Time */}
+              {/* Event Time - Only show error here */}
               <div className="form-group">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Event Time *</label>
                 <div className="grid grid-cols-2 gap-4">
@@ -188,7 +217,7 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
                     type="time"
                     name="event_start_time"
                     value={formData.event_start_time}
-                    onChange={handleChange}
+                    onChange={validateTime}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     required
                   />
@@ -196,11 +225,15 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
                     type="time"
                     name="event_end_time"
                     value={formData.event_end_time}
-                    onChange={handleChange}
+                    onChange={validateTime}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     required
                   />
                 </div>
+                {/* Only error display */}
+                {error && (
+                  <div className="text-red-500 text-sm mt-1">{error}</div>
+                )}
               </div>
 
               {/* Location */}
@@ -234,7 +267,7 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
                 </div>
               </div>
 
-              {/* Image Upload with Size Limit Label */}
+              {/* Image Upload */}
               <div className="form-group md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Event Image
@@ -253,11 +286,6 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
                   <p className="mt-1 text-sm text-gray-500">
                     Accepted formats: JPG, PNG only (max. 1MB)
                   </p>
-                  {error && (
-                    <p className="mt-1 text-sm text-red-500">
-                      {error}
-                    </p>
-                  )}
                 </div>
                 {formData.image && (
                   <div className="mt-2">
