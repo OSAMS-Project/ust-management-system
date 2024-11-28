@@ -384,7 +384,7 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
 
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">
-                    Upload Image <span className="text-gray-500">(Max size: 600KB)</span>
+                    Upload Image <span className="text-gray-500">(Max size: 1MB)</span>
                   </label>
                   <div className="flex items-center gap-4">
                     <input 
