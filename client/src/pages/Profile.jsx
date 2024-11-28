@@ -77,7 +77,7 @@ const ProfilePage = ({ user }) => {
             className="w-24 h-24 rounded-full object-cover mr-4"
           />
           <div>
-            <h2 className="text-2xl font-semibold">{user.name || "No Name"}</h2>
+            <h2 className="text-2xl font-semibold">{user.name || "UST-OSAMS Admin"}</h2>
             <p className="text-lg font-medium text-gray-600 bg-yellow-100 px-2 py-1 rounded inline-block">
               {user.role || "No Role"}
             </p>
