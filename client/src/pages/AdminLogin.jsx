@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome, faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
+import ReCAPTCHA from "react-google-recaptcha";
 
 function AdminForm({ setUser }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [recaptchaToken, setRecaptchaToken] = useState(null); // Store reCAPTCHA token
   const [error, setError] = useState(null);
 
   // Use environment variables for admin credentials
@@ -21,10 +23,21 @@ function AdminForm({ setUser }) {
     }
   }, [navigate]);
 
+  const handleReCAPTCHAChange = (token) => {
+    setRecaptchaToken(token); // Store reCAPTCHA token
+  };
+
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+
+    // Check if reCAPTCHA was solved
+    if (!recaptchaToken) {
+      setError("Please complete the reCAPTCHA verification.");
+      setIsLoading(false);
+      return;
+    }
 
     try {
       // Simulate an API call with a delay
@@ -129,6 +142,14 @@ function AdminForm({ setUser }) {
             </label>
           </div>
 
+          {/* reCAPTCHA */}
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <ReCAPTCHA
+              sitekey="6LfFloUqAAAAANFY-Z9-_0ll6ISjSk9TmqFU3rmI"
+              onChange={handleReCAPTCHAChange}
+            />
+          </div>
+
           {/* Error Message */}
           {error && (
             <div className="flex text-red-500 mb-6">
@@ -144,9 +165,7 @@ function AdminForm({ setUser }) {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full ${
-              isLoading ? "bg-gray-400" : "bg-black"
-            } text-white text-lg font-medium py-3 rounded-md hover:bg-gray-900 transition-colors duration-300 transform hover:scale-105 tracking-wider`}
+            className={`w-full ${isLoading ? "bg-gray-400" : "bg-black"} text-white text-lg font-medium py-3 rounded-md hover:bg-gray-900 transition-colors duration-300 transform hover:scale-105 tracking-wider`}
           >
             {isLoading ? "Signing In..." : "Sign In"}
           </button>
