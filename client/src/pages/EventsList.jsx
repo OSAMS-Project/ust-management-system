@@ -24,13 +24,17 @@ const areObjectsEqual = (obj1, obj2) => {
   // Convert dates to the same format for comparison
   const normalizedObj1 = {
     ...obj1,
-    event_date: obj1.event_date ? new Date(obj1.event_date).toISOString().split('T')[0] : null
+    event_date: obj1.event_date
+      ? new Date(obj1.event_date).toISOString().split("T")[0]
+      : null,
   };
   const normalizedObj2 = {
     ...obj2,
-    event_date: obj2.event_date ? new Date(obj2.event_date).toISOString().split('T')[0] : null
+    event_date: obj2.event_date
+      ? new Date(obj2.event_date).toISOString().split("T")[0]
+      : null,
   };
-  
+
   return JSON.stringify(normalizedObj1) === JSON.stringify(normalizedObj2);
 };
 
@@ -63,7 +67,10 @@ function Events() {
   const filteredEvents = data.filter((event) =>
     event.event_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  const currentEvents = filteredEvents.slice(indexOfFirstEvent, indexOfLastEvent);
+  const currentEvents = filteredEvents.slice(
+    indexOfFirstEvent,
+    indexOfLastEvent
+  );
   const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const handleEventDeleted = (deletedEventId) => {
@@ -142,46 +149,46 @@ function Events() {
     }
   }, [showCompletedEventsDialog]);
   const handleEdit = (event) => {
-    setEditingEvent({...event});
+    setEditingEvent({ ...event });
     setFormData({
       ...event,
-      event_date: event.event_date
+      event_date: event.event_date,
     });
     setShowEditDialog(true);
   };
   const [notification, setNotification] = useState(null);
   const showSuccessNotification = (message) => {
     setNotification({
-      type: 'success',
+      type: "success",
       message: message,
     });
     setTimeout(() => setNotification(null), 3000);
   };
   const showErrorNotification = (message) => {
     setNotification({
-      type: 'error',
+      type: "error",
       message: message,
     });
     setTimeout(() => setNotification(null), 3000);
   };
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (areObjectsEqual(editingEvent, formData)) {
-      showErrorNotification('No changes were made');
+      showErrorNotification("No changes were made");
       return;
     }
 
     try {
       // Validate event name length
       if (formData.event_name.length > 100) {
-        showErrorNotification('Event name must not exceed 100 characters');
+        showErrorNotification("Event name must not exceed 100 characters");
         return;
       }
-      
+
       // Validate description length
       if (formData.description.length > 200) {
-        showErrorNotification('Description must not exceed 200 characters');
+        showErrorNotification("Description must not exceed 200 characters");
         return;
       }
 
@@ -192,9 +199,13 @@ function Events() {
         // Convert base64 length to file size in MB (approximate)
         const fileSizeInMB = (base64Length * 0.75) / (1024 * 1024);
         const maxSizeInMB = 1; // 1MB limit
-        
+
         if (fileSizeInMB > maxSizeInMB) {
-          showErrorNotification(`Image size (${fileSizeInMB.toFixed(2)}MB) is too large. Maximum size allowed is 1MB`);
+          showErrorNotification(
+            `Image size (${fileSizeInMB.toFixed(
+              2
+            )}MB) is too large. Maximum size allowed is 1MB`
+          );
           return;
         }
       }
@@ -203,10 +214,10 @@ function Events() {
       const eventDate = new Date(formData.event_date);
       const offset = eventDate.getTimezoneOffset() * 60000;
       const adjustedDate = new Date(eventDate.getTime() - offset);
-      
+
       const updatedFormData = {
         ...formData,
-        event_date: adjustedDate.toISOString().split('T')[0]
+        event_date: adjustedDate.toISOString().split("T")[0],
       };
 
       const response = await axios.put(
@@ -215,19 +226,19 @@ function Events() {
       );
 
       if (response.status === 200) {
-        setData(prevData =>
-          prevData.map(event =>
+        setData((prevData) =>
+          prevData.map((event) =>
             event.unique_id === formData.unique_id
               ? { ...event, ...updatedFormData }
               : event
           )
         );
         setShowEditDialog(false);
-        showSuccessNotification('Event updated successfully');
+        showSuccessNotification("Event updated successfully");
       }
     } catch (error) {
-      console.error('Error updating event:', error);
-      showErrorNotification('Failed to update event');
+      console.error("Error updating event:", error);
+      showErrorNotification("Failed to update event");
     }
   };
   const handleChange = (e, eventId = null) => {
@@ -244,17 +255,17 @@ function Events() {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       // Validate event name length
       if (formData.event_name.length > 100) {
-        showErrorNotification('Event name must not exceed 100 characters');
+        showErrorNotification("Event name must not exceed 100 characters");
         return;
       }
-      
+
       // Validate description length
       if (formData.description.length > 200) {
-        showErrorNotification('Description must not exceed 200 characters');
+        showErrorNotification("Description must not exceed 200 characters");
         return;
       }
 
@@ -265,20 +276,25 @@ function Events() {
         // Convert base64 length to file size in MB (approximate)
         const fileSizeInMB = (base64Length * 0.75) / (1024 * 1024);
         const maxSizeInMB = 1; // 1MB limit
-        
+
         if (fileSizeInMB > maxSizeInMB) {
-          showErrorNotification(`Image size (${fileSizeInMB.toFixed(2)}MB) is too large. Maximum size allowed is 1MB`);
+          showErrorNotification(
+            `Image size (${fileSizeInMB.toFixed(
+              2
+            )}MB) is too large. Maximum size allowed is 1MB`
+          );
           return;
         }
       }
 
       // Check if an event with the same name already exists
       const eventExists = data.some(
-        event => event.event_name.toLowerCase() === formData.event_name.toLowerCase()
+        (event) =>
+          event.event_name.toLowerCase() === formData.event_name.toLowerCase()
       );
 
       if (eventExists) {
-        showErrorNotification('An event with this name already exists');
+        showErrorNotification("An event with this name already exists");
         return;
       }
 
@@ -292,19 +308,19 @@ function Events() {
           body: JSON.stringify(formData),
         }
       );
-      
+
       if (!response.ok) {
-        throw new Error('Failed to create event');
+        throw new Error("Failed to create event");
       }
-      
+
       const newEvent = await response.json();
       setData((prevData) => [...prevData, newEvent]);
       setFormData({ event_name: "", description: "", event_date: "" });
       setShowDialog(false);
-      showSuccessNotification('Event created successfully');
+      showSuccessNotification("Event created successfully");
     } catch (err) {
       console.error("Error creating event:", err);
-      showErrorNotification(err.message || 'Failed to create event');
+      showErrorNotification(err.message || "Failed to create event");
     }
   };
   const handleCompleteEvent = async (uniqueId) => {
@@ -327,15 +343,15 @@ function Events() {
         setAssets(assetResponse.data);
         fetchCompletedEvents();
         setNotification({
-          type: 'success',
-          message: `Event marked as completed successfully`
+          type: "success",
+          message: `Event marked as completed successfully`,
         });
       }
     } catch (err) {
       console.error("Error completing event:", err);
       setNotification({
-        type: 'error',
-        message: `Error completing event: ${err.message}`
+        type: "error",
+        message: `Error completing event: ${err.message}`,
       });
     }
   };
@@ -349,16 +365,18 @@ function Events() {
       );
 
       if (!response.ok) {
-        throw new Error('Failed to delete event');
+        throw new Error("Failed to delete event");
       }
 
-      setData((prevData) => prevData.filter((event) => event.unique_id !== eventId));
+      setData((prevData) =>
+        prevData.filter((event) => event.unique_id !== eventId)
+      );
       setShowEditDialog(false);
       setEditingEvent(null);
-      showSuccessNotification('Event deleted successfully');
+      showSuccessNotification("Event deleted successfully");
     } catch (err) {
       console.error("Error deleting event:", err);
-      showErrorNotification('Failed to delete event');
+      showErrorNotification("Failed to delete event");
     }
   };
   const handleExplore = async (event) => {
@@ -410,15 +428,17 @@ function Events() {
                 if (existingAssetIndex !== -1) {
                   updatedAssets[existingAssetIndex] = {
                     ...updatedAssets[existingAssetIndex],
-                    quantity: updatedAssets[existingAssetIndex].quantity + newAsset.selectedQuantity,
-                    cost: parseFloat(newAsset.cost)
+                    quantity:
+                      updatedAssets[existingAssetIndex].quantity +
+                      newAsset.selectedQuantity,
+                    cost: parseFloat(newAsset.cost),
                   };
                 } else {
                   updatedAssets.push({
                     asset_id: newAsset.asset_id,
                     assetName: newAsset.assetName,
                     quantity: newAsset.selectedQuantity,
-                    cost: parseFloat(newAsset.cost)
+                    cost: parseFloat(newAsset.cost),
                   });
                 }
               });
@@ -489,17 +509,21 @@ function Events() {
   return (
     <div className="space-y-6">
       {/* Header Section */}
-      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
-        <h1 className="text-5xl font-extrabold text-black">
+      <div className="bg-[#FEC00F] py-6 flex flex-col sm:flex-row items-center justify-between px-4 sm:px-6">
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-black text-center sm:text-left mb-4 sm:mb-0">
           Events Management
         </h1>
         <FontAwesomeIcon
           icon={faCalendarAlt}
-          className="text-black text-5xl transform"
+          className="text-black text-4xl sm:text-5xl transform"
         />
       </div>
+
       <div className="flex flex-col items-center justify-center">
+        {/* Search Event */}
         <SearchEvent searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+
+        {/* Event Dialogs */}
         <EventDialog
           showDialog={showDialog}
           formData={formData}
@@ -526,8 +550,10 @@ function Events() {
           setShowDialog={setShowEditDialog}
           handleDelete={handleDeleteEvent}
         />
-        <div className="w-full mx-auto px-12 py-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 max-w-[1800px] mx-auto">
+
+        {/* Events Grid */}
+        <div className="w-full mx-auto px-4 sm:px-8 py-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 max-w-[1800px] mx-auto">
             {currentEvents.map((item) => (
               <div className="flex justify-center">
                 <EventCard
@@ -542,10 +568,13 @@ function Events() {
                 />
               </div>
             ))}
+            {/* Add Event Button */}
             <div className="flex justify-center">
               <AddEventButton onAddEvent={handleAddEvent} />
             </div>
           </div>
+
+          {/* Pagination Controls */}
           <div className="mt-4 mb-8 flex justify-center">
             {Array.from({ length: totalPages }, (_, i) => (
               <button
@@ -563,6 +592,8 @@ function Events() {
           </div>
         </div>
       </div>
+
+      {/* Notification Popup */}
       {notification && (
         <NotificationPopup
           notification={notification}

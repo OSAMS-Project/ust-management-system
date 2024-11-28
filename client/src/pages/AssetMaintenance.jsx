@@ -129,7 +129,9 @@ function AssetMaintenance({ user }) {
       } else {
         setNotification({
           type: "error",
-          message: error.response?.data?.error || "Failed to remove maintenance record",
+          message:
+            error.response?.data?.error ||
+            "Failed to remove maintenance record",
         });
       }
     }
@@ -146,11 +148,16 @@ function AssetMaintenance({ user }) {
   };
 
   // Update this to only count active maintenance tasks
-  const activeMaintenances = maintenances.filter(maintenance => !maintenance.completion_date);
+  const activeMaintenances = maintenances.filter(
+    (maintenance) => !maintenance.completion_date
+  );
 
   const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
   const calculateEndIndex = () =>
-    Math.min(calculateStartIndex() + itemsPerPage - 1, activeMaintenances.length);
+    Math.min(
+      calculateStartIndex() + itemsPerPage - 1,
+      activeMaintenances.length
+    );
   const totalPages = Math.ceil(activeMaintenances.length / itemsPerPage);
 
   const paginatedMaintenances = activeMaintenances.slice(
@@ -193,17 +200,19 @@ function AssetMaintenance({ user }) {
   };
 
   return (
-    <div className="space-y-6 ">
+    <div className="space-y-6">
       {/* Header Section */}
-      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
-        <h1 className="text-5xl font-extrabold text-black">Asset Maintenance</h1>
+      <div className="bg-[#FEC00F] py-6 flex flex-col sm:flex-row items-center justify-between px-4 sm:px-6">
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-black text-center sm:text-left mb-4 sm:mb-0">
+          Asset Maintenance
+        </h1>
         <FontAwesomeIcon
           icon={faWrench}
-          className="text-black text-5xl transform"
+          className="text-black text-4xl sm:text-5xl transform"
         />
       </div>
 
-      <div className="px-4">
+      <div className="px-4 sm:px-6">
         <AddMaintenance
           onAddMaintenance={handleAddMaintenance}
           assets={assets}

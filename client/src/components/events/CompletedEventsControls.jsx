@@ -12,7 +12,7 @@ const CompletedEventsControls = ({
   locations,
 }) => {
   return (
-    <div className="bg-white p-4 rounded-lg shadow mb-6">
+    <div className="bg-white p-4 rounded-lg mb-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Search */}
         <div className="relative">

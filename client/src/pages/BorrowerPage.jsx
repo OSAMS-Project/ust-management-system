@@ -166,6 +166,13 @@ function BorrowerForm() {
     setIsSubmitting(true);
     setConfirmationMessage("");
 
+    // Check if the email ends with "ust.edu.ph"
+    if (!email.endsWith("@ust.edu.ph")) {
+      setEmailError("Please enter a valid UST email address (ust.edu.ph).");
+      setIsSubmitting(false);
+      return;
+    }
+
     // Add phone number validation before submission
     if (!contactNo.startsWith("09") || contactNo.length !== 11) {
       toast.error("Please enter a valid Philippine mobile number");
@@ -306,6 +313,11 @@ function BorrowerForm() {
   const sendVerificationCode = async () => {
     if (!email.trim()) {
       setEmailError("Email is required to send a verification code.");
+      return;
+    }
+
+    if (!email.endsWith("@ust.edu.ph")) {
+      setEmailError("Please enter a valid UST email address (ust.edu.ph).");
       return;
     }
 
@@ -557,7 +569,9 @@ function BorrowerForm() {
                     Enter your contact number
                   </label>
                   {contactNoError && (
-                    <p className="text-red-500 text-sm mt-1">{contactNoError}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {contactNoError}
+                    </p>
                   )}
                 </div>
               </div>
