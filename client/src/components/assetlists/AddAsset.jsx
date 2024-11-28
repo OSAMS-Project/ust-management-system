@@ -6,36 +6,37 @@ import axios from 'axios';
 import moment from 'moment';
 
 // Utility function for input fields
-const InputField = ({ label, id, type = "text", value, onChange, placeholder, prefix, readOnly, multiline, className, shake }) => (
+const InputField = ({ label, id, value, onChange, placeholder, shake, prefix, multiline, className = "", type = "text", readOnly = false }) => (
   <div className={`space-y-1 ${shake ? 'animate-shake' : ''}`}>
     <label htmlFor={id} className="block text-sm font-medium text-gray-700">{label}</label>
-    {multiline ? (
-      <textarea
-        id={id}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
-        readOnly={readOnly}
-      />
-    ) : (
-      <div className="relative">
-        {prefix && (
-          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
-            {prefix}
-          </span>
-        )}
+    <div className="relative">
+      {prefix && (
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <span className="text-gray-500">{prefix}</span>
+        </div>
+      )}
+      {multiline ? (
+        <textarea
+          id={id}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          className={`w-full px-3 py-2 border ${shake ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${prefix ? 'pl-7' : ''} ${className}`}
+          readOnly={readOnly}
+        />
+      ) : (
         <input
           type={type}
           id={id}
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${prefix ? 'pl-7' : ''} ${className}`}
+          className={`w-full px-3 py-2 border ${shake ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${prefix ? 'pl-7' : ''}`}
           readOnly={readOnly}
+          min={type === "number" ? "1" : undefined}
         />
-      </div>
-    )}
+      )}
+    </div>
   </div>
 );
 
@@ -47,7 +48,7 @@ const SelectField = ({ label, id, value, onChange, options, placeholder, shake }
       id={id}
       value={value}
       onChange={onChange}
-      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className={`w-full px-3 py-2 border ${shake ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
     >
       <option value="">{placeholder}</option>
       {options.map((option, index) => (
@@ -184,7 +185,7 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
       type: formData.type,
       under_repair: false,
       allow_borrowing: formData.type === 'Consumable' ? formData.allowBorrowing : true,
-      serialNumber: formData.serialNumber,
+      serialNumber: formData.serialNumber || "N/A", 
     };
 
     try {
