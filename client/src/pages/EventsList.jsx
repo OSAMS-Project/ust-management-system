@@ -19,6 +19,21 @@ const formatTime = (time) => {
   const date = new Date(2000, 0, 1, hours, minutes);
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
+
+const areObjectsEqual = (obj1, obj2) => {
+  // Convert dates to the same format for comparison
+  const normalizedObj1 = {
+    ...obj1,
+    event_date: obj1.event_date ? new Date(obj1.event_date).toISOString().split('T')[0] : null
+  };
+  const normalizedObj2 = {
+    ...obj2,
+    event_date: obj2.event_date ? new Date(obj2.event_date).toISOString().split('T')[0] : null
+  };
+  
+  return JSON.stringify(normalizedObj1) === JSON.stringify(normalizedObj2);
+};
+
 function Events() {
   const [data, setData] = useState([]);
   const [formData, setFormData] = useState({
@@ -127,7 +142,7 @@ function Events() {
     }
   }, [showCompletedEventsDialog]);
   const handleEdit = (event) => {
-    setEditingEvent(event);
+    setEditingEvent({...event});
     setFormData({
       ...event,
       event_date: event.event_date
@@ -151,6 +166,12 @@ function Events() {
   };
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+    
+    if (areObjectsEqual(editingEvent, formData)) {
+      showErrorNotification('No changes were made');
+      return;
+    }
+
     try {
       // Validate event name length
       if (formData.event_name.length > 100) {
