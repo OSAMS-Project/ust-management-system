@@ -146,6 +146,26 @@ const EditEventDialog = ({
     handleChange(e);
   };
 
+  const validateTime = (e) => {
+    const { name, value } = e.target;
+    const startTime = name === 'event_start_time' ? value : formData.event_start_time;
+    const endTime = name === 'event_end_time' ? value : formData.event_end_time;
+
+    // Only validate if both times are set
+    if (startTime && endTime) {
+      const start = new Date(`2000-01-01T${startTime}`);
+      const end = new Date(`2000-01-01T${endTime}`);
+
+      if (end <= start) {
+        setError('End time must be later than start time');
+        return;
+      }
+    }
+
+    setError('');
+    handleChange(e);
+  };
+
   if (!showDialog) return null;
 
   return (
@@ -212,7 +232,7 @@ const EditEventDialog = ({
                     type="time"
                     name="event_start_time"
                     value={formData.event_start_time}
-                    onChange={handleChange}
+                    onChange={validateTime}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
                     required
                   />
@@ -220,11 +240,14 @@ const EditEventDialog = ({
                     type="time"
                     name="event_end_time"
                     value={formData.event_end_time}
-                    onChange={handleChange}
+                    onChange={validateTime}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
                     required
                   />
                 </div>
+                {error && (
+                  <div className="text-red-500 text-sm mt-1">{error}</div>
+                )}
               </div>
 
               {/* Location */}
@@ -280,11 +303,6 @@ const EditEventDialog = ({
                   <p className="mt-1 text-sm text-gray-500">
                     Accepted formats: JPG, PNG only (max. 1MB)
                   </p>
-                  {error && (
-                    <p className="mt-1 text-sm text-red-500">
-                      {error}
-                    </p>
-                  )}
                 </div>
                 {formData.image && (
                   <div className="mt-2">
