@@ -221,33 +221,49 @@ const AssetList = () => {
     }
   }, []);
 
-  const handleDeleteAsset = useCallback(async (assetId) => {
-    try {
-      if (!assetId) {
-        return;
-      }
+  const handleDeleteAsset = useCallback(
+    async (assetId) => {
+      try {
+        if (!assetId) {
+          return;
+        }
 
-      // Delete the asset and its associated borrowing requests
-      const response = await axios.delete(
-        `${process.env.REACT_APP_API_URL}/api/Assets/delete/${assetId}`
-      );
-
-      if (response.status === 200) {
-        setAssets((prevAssets) =>
-          prevAssets.filter((asset) => asset.asset_id !== assetId)
+        // Delete the asset from the server
+        const response = await axios.delete(
+          `${process.env.REACT_APP_API_URL}/api/Assets/delete/${assetId}`
         );
-        showNotification(response.data.message || "Asset deleted successfully");
-      } else {
-        throw new Error("Failed to delete asset");
+
+        if (response.status === 200) {
+          // Remove the asset from the local state
+          setAssets((prevAssets) => {
+            const updatedAssets = prevAssets.filter(
+              (asset) => asset.asset_id !== assetId
+            );
+
+            // Recalculate the totals and weekly changes after deletion
+            calculateTotals(updatedAssets);
+            calculateWeeklyChanges(updatedAssets);
+
+            return updatedAssets;
+          });
+
+          // Show success notification
+          showNotification(
+            response.data.message || "Asset deleted successfully"
+          );
+        } else {
+          throw new Error("Failed to delete asset");
+        }
+      } catch (error) {
+        console.error("Error deleting asset:", error);
+        showNotification(
+          error.response?.data?.message || "Error deleting asset",
+          "error"
+        );
       }
-    } catch (error) {
-      console.error("Error deleting asset:", error);
-      showNotification(
-        error.response?.data?.message || "Error deleting asset",
-        "error"
-      );
-    }
-  }, []);
+    },
+    [calculateTotals, calculateWeeklyChanges]
+  );
 
   const handleAddCategory = useCallback(async (newCategory) => {
     setCategories((prev) => [...prev, newCategory]);
