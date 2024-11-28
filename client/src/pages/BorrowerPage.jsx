@@ -433,7 +433,7 @@ function BorrowerForm() {
         />
       )}
       {agreedToTerms && (
-        <div className="relative flex items-center justify-center min-h-screen w-full bg-cover bg-center overflow-y-auto">
+        <div className="relative flex items-center justify-center min-h-screen w-full bg-cover bg-center overflow-y-auto py-4 px-2 sm:px-4">
           {/* Background Image */}
           <div
             className="absolute inset-0 w-full h-full bg-cover bg-center"
@@ -441,132 +441,125 @@ function BorrowerForm() {
           ></div>
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>
 
-          <div className="relative z-10 w-full max-w-4xl bg-white rounded-lg shadow-lg p-6 mt-2 mb-2 lg:p-8">
+          <div className="relative z-10 w-full max-w-4xl bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 mx-2">
             {/* Logos */}
-            <div className="flex space-x-4 mb-6">
-              {/* Logo */}
+            <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 mb-6 items-center sm:items-start">
               <img
                 src="/ust-logo.png"
                 alt="UST Logo"
                 className="w-16 h-16 lg:w-20 lg:h-20 object-contain"
               />
-
-              {/* Text Div */}
-              <div className="text-left">
-                {/* Title */}
-                <h1 className="text-3xl font-bold text-black leading-snug">
+              <div className="text-center sm:text-left">
+                <h1 className="text-2xl sm:text-3xl font-bold text-black leading-snug">
                   Borrower Form
                 </h1>
-
-                {/* Description */}
-                <p className="text-lg text-gray-600 leading-relaxed">
+                <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
                   Borrow Materials from the UST-OSA Asset Management System
                 </p>
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Name Field */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder=" "
+                    required
+                    className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
+                  />
+                  <label
+                    htmlFor="name"
+                    className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
+                  >
+                    Enter your name
+                  </label>
+                </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Name Field */}
-              <div className="relative">
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder=" "
-                  required
-                  className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
-                />
-                <label
-                  htmlFor="name"
-                  className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
-                >
-                  Enter your name
-                </label>
-              </div>
+                {/* Email Field */}
+                <div className="relative">
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (e.target.value.trim()) {
+                        setEmailError(""); // Clear error on valid input
+                      }
+                    }}
+                    placeholder=" "
+                    className={`block w-full px-3 py-2 border-b-2 ${
+                      emailError ? "border-red-500" : "border-gray-300"
+                    } bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer`}
+                  />
+                  <label
+                    htmlFor="email"
+                    className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
+                  >
+                    Enter your email
+                  </label>
+                  {emailError && (
+                    <span className="text-red-500 text-sm mt-1">
+                      {emailError}
+                    </span>
+                  )}
+                </div>
 
-              {/* Email Field */}
-              <div className="relative">
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (e.target.value.trim()) {
-                      setEmailError(""); // Clear error on valid input
-                    }
-                  }}
-                  placeholder=" "
-                  className={`block w-full px-3 py-2 border-b-2 ${
-                    emailError ? "border-red-500" : "border-gray-300"
-                  } bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer`}
-                />
-                <label
-                  htmlFor="email"
-                  className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
-                >
-                  Enter your email
-                </label>
-                {emailError && (
-                  <span className="text-red-500 text-sm mt-1">
-                    {emailError}
-                  </span>
-                )}
-              </div>
+                {/* Department Field */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="department"
+                    name="department"
+                    required
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
+                    placeholder=" "
+                    className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
+                  />
+                  <label
+                    htmlFor="department"
+                    className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
+                  >
+                    Enter your department
+                  </label>
+                </div>
 
-              {/* Department Field */}
-              <div className="relative">
-                <input
-                  type="text"
-                  id="department"
-                  name="department"
-                  required
-                  value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
-                  placeholder=" "
-                  className="block w-full px-3 py-2 border-b-2 border-gray-300 bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer"
-                />
-                <label
-                  htmlFor="department"
-                  className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
-                >
-                  Enter your department
-                </label>
-              </div>
-
-                            {/* Contact Number Field */}
-                            <div className="relative">
-                <input
-                  type="tel"
-                  id="contactNo"
-                  name="contactNo"
-                  required
-                  value={contactNo}
-                  onChange={handleContactNumberChange}
-                  maxLength="11"
-                  pattern="09[0-9]{9}"
-                  inputMode="numeric"
-                  placeholder=" "
-                  className={`block w-full px-3 py-2 border-b-2 ${
-                    contactNoError ? "border-red-500" : "border-gray-300"
-                  } bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer`}
-                />
-                <label
-                  htmlFor="contactNo"
-                  className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
-                >
-                  Enter your contact number (e.g., 09123456789)
-                </label>
-                {contactNoError && (
-                  <p className="text-red-500 text-sm mt-1">{contactNoError}</p>
-                )}
-              </div>
+                {/* Contact Number Field */}
+                <div className="relative">
+                  <input
+                    type="tel"
+                    id="contactNo"
+                    name="contactNo"
+                    required
+                    value={contactNo}
+                    onChange={handleContactNumberChange}
+                    maxLength="11"
+                    pattern="09[0-9]{9}"
+                    inputMode="numeric"
+                    placeholder=" "
+                    className={`block w-full px-3 py-2 border-b-2 ${
+                      contactNoError ? "border-red-500" : "border-gray-300"
+                    } bg-transparent text-base text-black tracking-wide focus:border-black focus:outline-none transition-colors duration-300 peer`}
+                  />
+                  <label
+                    htmlFor="contactNo"
+                    className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
+                  >
+                    Enter your contact number
+                  </label>
+                  {contactNoError && (
+                    <p className="text-red-500 text-sm mt-1">{contactNoError}</p>
+                  )}
+                </div>
               </div>
 
               {/* Selected Assets Display and Select Asset Button */}
@@ -587,13 +580,15 @@ function BorrowerForm() {
                     No assets selected.
                   </p>
                 )}
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(true)}
-                  className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-3 rounded text-sm tracking-wide"
-                >
-                  Select Asset
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(true)}
+                    className="w-full sm:w-auto bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-sm tracking-wide"
+                  >
+                    Select Asset
+                  </button>
+                </div>
               </div>
 
               {/* Purpose Field */}
@@ -616,8 +611,6 @@ function BorrowerForm() {
                 </label>
               </div>
 
-
-
               {/* Expected Date of Return Field */}
               <div className="relative">
                 <input
@@ -637,7 +630,7 @@ function BorrowerForm() {
                   htmlFor="expectedReturnDate"
                   className="absolute left-3 top-2 text-gray-500 duration-300 transform -translate-y-6 scale-75 origin-0 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:scale-75 peer-focus:-translate-y-6"
                 >
-                  Expected Date and Time of Return (8:00 AM - 5:00 PM)
+                  Expected Date and Time of Return
                 </label>
               </div>
               {/* Notes Field */}
@@ -683,66 +676,69 @@ function BorrowerForm() {
                   <div className="mt-2 text-sm text-gray-600"></div>
                 )}
               </div>
+
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
                 <ReCAPTCHA
                   sitekey="6LfFloUqAAAAANFY-Z9-_0ll6ISjSk9TmqFU3rmI"
                   onChange={handleReCAPTCHAChange}
                 />
+              </div>
 
-                {!isVerified && (
-                  <div className="space-y-3">
-                    {/* Send Verification Code */}
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={sendVerificationCode}
-                        className={`bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded-md text-sm transition-all ${
-                          isSubmitting && "opacity-50 pointer-events-none"
-                        }`}
-                      >
-                        {verificationCodeSent ? "Resend Code" : "Send Code"}
-                      </button>
-                      <span className="text-gray-500 text-sm">
-                        Check your email for the code
-                      </span>
-                    </div>
-
-                    {/* Enter and Verify Code */}
-                    <div className="flex flex-col gap-2">
-                      <input
-                        type="text"
-                        placeholder="Verification code"
-                        value={verificationCode}
-                        onChange={(e) => setVerificationCode(e.target.value)}
-                        className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
-                      />
-                      {verificationError && (
-                        <span className="text-red-500 text-sm">
-                          {verificationError}
-                        </span>
-                      )}
-                      <button
-                        type="button"
-                        onClick={verifyCode}
-                        className={`bg-green-600 hover:bg-green-700 text-white font-medium py-1.5 px-3 rounded-md text-sm transition-all ${
-                          isSubmitting && "opacity-50 pointer-events-none"
-                        }`}
-                      >
-                        Verify Code
-                      </button>
-                    </div>
+              {!isVerified && (
+                <div className="space-y-3">
+                  {/* Send Verification Code */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={sendVerificationCode}
+                      className={`bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded-md text-sm transition-all ${
+                        isSubmitting && "opacity-50 pointer-events-none"
+                      }`}
+                    >
+                      {verificationCodeSent ? "Resend Code" : "Send Code"}
+                    </button>
+                    <span className="text-gray-500 text-sm">
+                      Check your email for the code
+                    </span>
                   </div>
-                )}
 
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting || !isVerified || !recaptchaToken}
-                  className={`w-full ${
-                    isSubmitting ? "bg-gray-400" : "bg-black"
-                  } text-white text-base font-medium py-2 rounded-md hover:bg-gray-900 transition-all duration-300`}
-                >
-                  {isSubmitting ? "Submitting..." : "Submit Request"}
-                </button>
+                  {/* Enter and Verify Code */}
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="text"
+                      placeholder="Verification code"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      className="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                    />
+                    {verificationError && (
+                      <span className="text-red-500 text-sm">
+                        {verificationError}
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={verifyCode}
+                      className={`bg-green-600 hover:bg-green-700 text-white font-medium py-1.5 px-3 rounded-md text-sm transition-all ${
+                        isSubmitting && "opacity-50 pointer-events-none"
+                      }`}
+                    >
+                      Verify Code
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting || !isVerified || !recaptchaToken}
+                className={`w-full ${
+                  isSubmitting ? "bg-gray-400" : "bg-black"
+                } text-white text-base font-medium py-2 rounded-md hover:bg-gray-900 transition-all duration-300`}
+              >
+                {isSubmitting ? "Submitting..." : "Submit Request"}
+              </button>
             </form>
 
             {/* Confirmation Message */}
