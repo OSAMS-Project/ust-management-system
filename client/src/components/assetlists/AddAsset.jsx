@@ -4,6 +4,7 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Upload } from 'lucide-react';
 import axios from 'axios';
 import moment from 'moment';
+import NotificationPopup from '../utils/NotificationsPopup';
 
 // Utility function for input fields
 const InputField = ({ label, id, value, onChange, placeholder, shake, prefix, multiline, className = "", type = "text", readOnly = false }) => (
@@ -97,6 +98,8 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
   });
 
   const [shakeFields, setShakeFields] = useState([]);
+  const [error, setError] = useState('');
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -141,8 +144,31 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const validTypes = ['image/jpeg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        setNotification({
+          type: 'error',
+          message: 'Only JPG and PNG images are allowed'
+        });
+        e.target.value = '';
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
+        const base64Length = reader.result.length;
+        const fileSizeInMB = (base64Length * 0.75) / (1024 * 1024);
+        const maxSizeInMB = 1;
+
+        if (fileSizeInMB > maxSizeInMB) {
+          setNotification({
+            type: 'error',
+            message: `Image size (${fileSizeInMB.toFixed(2)}MB) is too large. Maximum size allowed is 1MB`
+          });
+          e.target.value = '';
+          return;
+        }
+
         setFormData(prev => ({
           ...prev,
           image: reader.result
@@ -171,6 +197,20 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
   const handleSaveAsset = async () => {
     if (!validateForm()) return;
 
+    if (formData.image) {
+      const base64Length = formData.image.length;
+      const fileSizeInMB = (base64Length * 0.75) / (1024 * 1024);
+      const maxSizeInMB = 1;
+
+      if (fileSizeInMB > maxSizeInMB) {
+        setNotification({
+          type: 'error',
+          message: `Image size (${fileSizeInMB.toFixed(2)}MB) is too large. Maximum size allowed is 1MB`
+        });
+        return;
+      }
+    }
+
     const newAsset = {
       productCode: formData.productCode || "N/A",
       assetName: formData.assetName,
@@ -195,12 +235,22 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
       );
       onAddAsset(response.data);
       onCloseModal();
+      setNotification({
+        type: 'success',
+        message: 'Asset created successfully!'
+      });
     } catch (error) {
       if (error.response?.data?.error === "Duplicate product code") {
-        alert("An asset with this product code already exists. Please use a different product code.");
+        setNotification({
+          type: 'error',
+          message: "An asset with this product code already exists. Please use a different product code."
+        });
       } else {
         console.error("Error creating asset:", error);
-        alert("Error creating asset. Please try again.");
+        setNotification({
+          type: 'error',
+          message: "Error creating asset. Please try again."
+        });
       }
     }
   };
@@ -382,6 +432,13 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
             </div>
           </div>
         </div>
+      )}
+
+      {notification && (
+        <NotificationPopup
+          notification={notification}
+          onClose={() => setNotification(null)}
+        />
       )}
     </>
   );
