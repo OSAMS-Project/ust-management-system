@@ -86,13 +86,23 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        handleChange({ target: { name: 'image', value: reader.result } });
-      };
-      reader.readAsDataURL(file);
+    
+    // Check if a file was selected
+    if (!file) return;
+
+    // Check file type
+    const validTypes = ['image/jpeg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+      setError('Only JPG and PNG images are allowed');
+      e.target.value = ''; // Reset input
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      handleChange({ target: { name: 'image', value: reader.result } });
+    };
+    reader.readAsDataURL(file);
   };
 
   useEffect(() => {
@@ -236,20 +246,27 @@ const EventDialog = ({ showDialog, formData, handleChange, handleSubmit, setShow
                 <div className="mt-1">
                   <input
                     type="file"
-                    accept="image/*"
+                    accept=".jpg,.jpeg,.png"
                     onChange={handleImageUpload}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
                   <p className="mt-1 text-sm text-gray-500">
-                    Accepted formats: JPG, PNG (max. 1MB)
+                    Accepted formats: JPG, PNG only (max. 1MB)
                   </p>
+                  {error && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {error}
+                    </p>
+                  )}
                 </div>
                 {formData.image && (
-                  <img 
-                    src={formData.image} 
-                    alt="Event" 
-                    className="mt-2 h-32 w-full object-cover rounded-lg"
-                  />
+                  <div className="mt-2">
+                    <img 
+                      src={formData.image} 
+                      alt="Event preview" 
+                      className="h-32 w-full object-cover rounded-lg"
+                    />
+                  </div>
                 )}
               </div>
             </div>

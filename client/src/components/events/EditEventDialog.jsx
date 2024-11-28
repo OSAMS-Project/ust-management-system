@@ -54,6 +54,8 @@ const EditEventDialog = ({
   const inputRef = useRef(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const today = new Date().toISOString().split('T')[0];
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (showDialog && formData && formData.event_location) {
@@ -84,13 +86,23 @@ const EditEventDialog = ({
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        handleChange({ target: { name: "image", value: reader.result } });
-      };
-      reader.readAsDataURL(file);
+    
+    // Check if a file was selected
+    if (!file) return;
+
+    // Check file type
+    const validTypes = ['image/jpeg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+      setError('Only JPG and PNG images are allowed');
+      e.target.value = ''; // Reset input
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      handleChange({ target: { name: 'image', value: reader.result } });
+    };
+    reader.readAsDataURL(file);
   };
 
   useEffect(() => {
@@ -249,49 +261,68 @@ const EditEventDialog = ({
                 </div>
               </div>
 
-              {/* Image Upload */}
+              {/* Image Upload with Size Limit Label */}
               <div className="form-group md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Event Image</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="w-full text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-lg file:border-0
-                    file:text-sm file:font-medium
-                    file:bg-yellow-50 file:text-yellow-700
-                    hover:file:bg-yellow-100
-                    transition-all"
-                />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Event Image
+                  <span className="text-red-500 ml-1">*</span>
+                  <span className="text-sm font-normal text-gray-500 ml-2">
+                    (Maximum size: 1MB)
+                  </span>
+                </label>
+                <div className="mt-1">
+                  <input
+                    type="file"
+                    accept=".jpg,.jpeg,.png"
+                    onChange={handleImageUpload}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                  <p className="mt-1 text-sm text-gray-500">
+                    Accepted formats: JPG, PNG only (max. 1MB)
+                  </p>
+                  {error && (
+                    <p className="mt-1 text-sm text-red-500">
+                      {error}
+                    </p>
+                  )}
+                </div>
                 {formData.image && (
-                  <img src={formData.image} alt="Event" className="mt-2 h-32 w-full object-cover rounded-lg" />
+                  <div className="mt-2">
+                    <img 
+                      src={formData.image} 
+                      alt="Event preview" 
+                      className="h-32 w-full object-cover rounded-lg"
+                    />
+                  </div>
                 )}
               </div>
             </div>
 
             {/* Form Actions */}
-            <div className="flex justify-end gap-4 pt-4 border-t">
+            <div className="flex justify-between gap-4 pt-4 border-t">
               <button
                 type="button"
-                onClick={() => setShowDialog(false)}
-                className="px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(true)}
-                className="px-6 py-2 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
+                onClick={() => handleDelete(formData.unique_id)}
+                className="px-6 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors"
               >
                 Delete
               </button>
-              <button
-                type="submit"
-                className="px-6 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors"
-              >
-                Update
-              </button>
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => setShowDialog(false)}
+                  className="px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-6 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-medium transition-colors disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Updating...' : 'Update Event'}
+                </button>
+              </div>
             </div>
           </form>
         </div>
