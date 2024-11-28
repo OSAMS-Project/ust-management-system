@@ -3,9 +3,9 @@ import axios from "axios";
 import moment from "moment";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHistory, faSearch } from "@fortawesome/free-solid-svg-icons";
-import PaginationControls from '../components/assetlists/PaginationControls';
-import { toast } from 'react-hot-toast';
-import supabase from '../config/supabaseClient';
+import PaginationControls from "../components/assetlists/PaginationControls";
+import { toast } from "react-hot-toast";
+import supabase from "../config/supabaseClient";
 
 const BorrowingHistory = () => {
   const [history, setHistory] = useState([]);
@@ -85,7 +85,8 @@ const BorrowingHistory = () => {
   };
 
   const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
-  const calculateEndIndex = () => Math.min(calculateStartIndex() + itemsPerPage - 1, filteredHistory.length);
+  const calculateEndIndex = () =>
+    Math.min(calculateStartIndex() + itemsPerPage - 1, filteredHistory.length);
   const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
 
   const renderPageNumbers = () => {
@@ -129,38 +130,37 @@ const BorrowingHistory = () => {
 
   const handleViewCoverLetter = async (record) => {
     try {
-      console.log('Opening cover letter for request ID:', record.id);
-      
+      console.log("Opening cover letter for request ID:", record.id);
+
       // First check if we have a valid URL
       if (!record.cover_letter_url) {
-        toast.error('No cover letter available');
+        toast.error("No cover letter available");
         return;
       }
 
       // If the URL is a full Supabase URL, open it directly
-      if (record.cover_letter_url.startsWith('https://')) {
-        window.open(record.cover_letter_url, '_blank');
+      if (record.cover_letter_url.startsWith("https://")) {
+        window.open(record.cover_letter_url, "_blank");
         return;
       }
 
       // If it's a relative path in the samplebucket
-      if (record.cover_letter_url.startsWith('cover_letters/')) {
-        const { data, error } = await supabase
-          .storage
-          .from('samplebucket')
+      if (record.cover_letter_url.startsWith("cover_letters/")) {
+        const { data, error } = await supabase.storage
+          .from("samplebucket")
           .download(record.cover_letter_url);
 
         if (error) {
-          console.error('Error downloading cover letter:', error);
-          toast.error('Failed to download cover letter');
+          console.error("Error downloading cover letter:", error);
+          toast.error("Failed to download cover letter");
           return;
         }
 
         // Create a blob URL and open it
-        const blob = new Blob([data], { type: 'application/pdf' });
+        const blob = new Blob([data], { type: "application/pdf" });
         const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        
+        window.open(url, "_blank");
+
         // Clean up the blob URL after opening
         setTimeout(() => URL.revokeObjectURL(url), 100);
         return;
@@ -169,19 +169,18 @@ const BorrowingHistory = () => {
       // If it's an API endpoint path, use axios to fetch it
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/borrowing-requests/${record.id}/cover-letter`,
-        { responseType: 'blob' }
+        { responseType: "blob" }
       );
-      
-      const blob = new Blob([response.data], { type: 'application/pdf' });
+
+      const blob = new Blob([response.data], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
-      window.open(url, '_blank');
-      
+      window.open(url, "_blank");
+
       // Clean up the blob URL after opening
       setTimeout(() => URL.revokeObjectURL(url), 100);
-      
     } catch (error) {
-      console.error('Error opening cover letter:', error);
-      toast.error('Failed to open cover letter');
+      console.error("Error opening cover letter:", error);
+      toast.error("Failed to open cover letter");
     }
   };
 
@@ -193,10 +192,13 @@ const BorrowingHistory = () => {
     <div className="space-y-6">
       {/* Header Section */}
       <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
-        <h1 className="text-5xl font-extrabold text-black">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black">
           Borrowing History
         </h1>
-        <FontAwesomeIcon icon={faHistory} className="text-black text-4xl" />
+        <FontAwesomeIcon
+          icon={faHistory}
+          className="text-black text-3xl sm:text-4xl"
+        />
       </div>
 
       {/* Add margin to the content container */}
@@ -210,7 +212,7 @@ const BorrowingHistory = () => {
               placeholder="Search by name, email, department, or asset..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-1/4 pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-yellow-500"
+              className="w-full sm:w-1/2 md:w-1/4 pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-yellow-500"
             />
             <FontAwesomeIcon
               icon={faSearch}
@@ -218,8 +220,8 @@ const BorrowingHistory = () => {
             />
           </div>
 
-          {/* Status Filter */}
-          <div className="flex gap-2">
+          {/* Status and Date Filters */}
+          <div className="flex gap-4 sm:gap-6">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -231,7 +233,6 @@ const BorrowingHistory = () => {
               <option value="Rejected">Rejected</option>
             </select>
 
-            {/* Date Filter */}
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
@@ -260,19 +261,84 @@ const BorrowingHistory = () => {
             <table className="min-w-full bg-white border-collapse">
               <thead className="bg-black text-[#FEC00F]">
                 <tr>
-                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "10%" }}>Name</th>
-                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "20%" }}>Borrowed Asset/s</th>
-                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "15%" }}>Quantity</th>
-                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "15%" }}>Department</th>
-                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "15%" }}>Purpose</th>
-                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "15%" }}>Email</th>
-                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "15%" }}>Contact No.</th>
-                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "10%" }}>Date Requested</th>
-                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "10%" }}>Date Collected</th>
-                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "10%" }}>Cover Letter</th>
-                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "10%" }}>Expected Return Date</th>
-                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "10%" }}>Actual Return Date</th>
-                  <th className="py-2 px-3 border-b text-left whitespace-nowrap" style={{ width: "10%" }}>Status</th>
+                  <th
+                    className="py-2 px-3 border-b text-left whitespace-nowrap"
+                    style={{ width: "10%" }}
+                  >
+                    Name
+                  </th>
+                  <th
+                    className="py-2 px-3 border-b text-left whitespace-nowrap"
+                    style={{ width: "20%" }}
+                  >
+                    Borrowed Asset/s
+                  </th>
+                  <th
+                    className="py-2 px-3 border-b text-left whitespace-nowrap"
+                    style={{ width: "15%" }}
+                  >
+                    Quantity
+                  </th>
+                  <th
+                    className="py-2 px-3 border-b text-left whitespace-nowrap"
+                    style={{ width: "15%" }}
+                  >
+                    Department
+                  </th>
+                  <th
+                    className="py-2 px-3 border-b text-left whitespace-nowrap"
+                    style={{ width: "15%" }}
+                  >
+                    Purpose
+                  </th>
+                  <th
+                    className="py-2 px-3 border-b text-left whitespace-nowrap"
+                    style={{ width: "15%" }}
+                  >
+                    Email
+                  </th>
+                  <th
+                    className="py-2 px-3 border-b text-left whitespace-nowrap"
+                    style={{ width: "15%" }}
+                  >
+                    Contact No.
+                  </th>
+                  <th
+                    className="py-2 px-3 border-b text-left whitespace-nowrap"
+                    style={{ width: "10%" }}
+                  >
+                    Date Requested
+                  </th>
+                  <th
+                    className="py-2 px-3 border-b text-left whitespace-nowrap"
+                    style={{ width: "10%" }}
+                  >
+                    Date Collected
+                  </th>
+                  <th
+                    className="py-2 px-3 border-b text-left whitespace-nowrap"
+                    style={{ width: "10%" }}
+                  >
+                    Cover Letter
+                  </th>
+                  <th
+                    className="py-2 px-3 border-b text-left whitespace-nowrap"
+                    style={{ width: "10%" }}
+                  >
+                    Expected Return Date
+                  </th>
+                  <th
+                    className="py-2 px-3 border-b text-left whitespace-nowrap"
+                    style={{ width: "10%" }}
+                  >
+                    Actual Return Date
+                  </th>
+                  <th
+                    className="py-2 px-3 border-b text-left whitespace-nowrap"
+                    style={{ width: "10%" }}
+                  >
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -284,20 +350,38 @@ const BorrowingHistory = () => {
                         index % 2 === 0 ? "bg-white" : "bg-[#E8E8E8]"
                       } hover:bg-gray-50`}
                     >
-                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">{record.name}</td>
-                      <td className="py-2 px-4 border-b text-left">{record.borrowed_asset_names}</td>
-                      <td className="py-2 px-4 border-b text-left">{record.borrowed_asset_quantities}</td>
-                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">{record.department}</td>
-                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">{record.purpose}</td>
-                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">{record.email}</td>
-                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">{record.contact_no}</td>
-                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">
+                      <td className="py-2 px-4 border-b text-left">
+                        {record.name}
+                      </td>
+                      <td className="py-2 px-4 border-b text-left">
+                        {record.borrowed_asset_names}
+                      </td>
+                      <td className="py-2 px-4 border-b text-left">
+                        {record.borrowed_asset_quantities}
+                      </td>
+                      <td className="py-2 px-4 border-b text-left">
+                        {record.department}
+                      </td>
+                      <td className="py-2 px-4 border-b text-left">
+                        {record.purpose}
+                      </td>
+                      <td className="py-2 px-4 border-b text-left">
+                        {record.email}
+                      </td>
+                      <td className="py-2 px-4 border-b text-left">
+                        {record.contact_no}
+                      </td>
+                      <td className="py-2 px-4 border-b text-left">
                         {moment(record.date_requested).format("MM/DD/YYYY")}
                       </td>
-                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">
-                        {record.date_to_be_collected ? moment(record.date_to_be_collected).format("MM/DD/YYYY") : 'Not yet collected'}
+                      <td className="py-2 px-4 border-b text-left">
+                        {record.date_to_be_collected
+                          ? moment(record.date_to_be_collected).format(
+                              "MM/DD/YYYY"
+                            )
+                          : "Not yet collected"}
                       </td>
-                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">
+                      <td className="py-2 px-4 border-b text-left">
                         {record.cover_letter_url ? (
                           <button
                             onClick={() => handleViewCoverLetter(record)}
@@ -309,17 +393,19 @@ const BorrowingHistory = () => {
                           "No cover letter"
                         )}
                       </td>
-                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">
-                        {moment(record.expected_return_date).format("MM/DD/YYYY")}
+                      <td className="py-2 px-4 border-b text-left">
+                        {moment(record.expected_return_date).format(
+                          "MM/DD/YYYY"
+                        )}
                       </td>
-                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">
+                      <td className="py-2 px-4 border-b text-left">
                         {record.status === "Rejected"
                           ? "N/A"
                           : record.status === "Returned" && record.date_returned
                           ? moment(record.date_returned).format("MM/DD/YYYY")
                           : "N/A"}
                       </td>
-                      <td className="py-2 px-4 border-b text-left whitespace-nowrap">
+                      <td className="py-2 px-4 border-b text-left">
                         <span
                           className={`px-2 py-1 rounded ${
                             record.status === "Returned"
@@ -340,18 +426,21 @@ const BorrowingHistory = () => {
           </div>
         )}
 
+        {/* Pagination Controls */}
         {filteredHistory.length > 0 && (
-          <PaginationControls
-            itemsPerPage={itemsPerPage}
-            handleItemsPerPageChange={handleItemsPerPageChange}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            handlePageChange={handlePageChange}
-            calculateStartIndex={calculateStartIndex}
-            calculateEndIndex={calculateEndIndex}
-            totalItems={filteredHistory.length}
-            renderPageNumbers={renderPageNumbers}
-          />
+          <div className="mt-4">
+            <PaginationControls
+              itemsPerPage={itemsPerPage}
+              handleItemsPerPageChange={handleItemsPerPageChange}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              handlePageChange={handlePageChange}
+              calculateStartIndex={calculateStartIndex}
+              calculateEndIndex={calculateEndIndex}
+              totalItems={filteredHistory.length}
+              renderPageNumbers={renderPageNumbers}
+            />
+          </div>
         )}
       </div>
     </div>

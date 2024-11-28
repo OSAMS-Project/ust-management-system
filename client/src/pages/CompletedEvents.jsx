@@ -41,7 +41,9 @@ function CompletedEvents() {
 
   // Get unique locations for the filter dropdown
   const locations = useMemo(() => {
-    const uniqueLocations = [...new Set(completedEvents.map(event => event.event_location))];
+    const uniqueLocations = [
+      ...new Set(completedEvents.map((event) => event.event_location)),
+    ];
     return uniqueLocations.sort();
   }, [completedEvents]);
 
@@ -53,7 +55,7 @@ function CompletedEvents() {
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(
-        event =>
+        (event) =>
           event.event_name.toLowerCase().includes(searchLower) ||
           event.event_location.toLowerCase().includes(searchLower)
       );
@@ -63,14 +65,14 @@ function CompletedEvents() {
     if (filterDate) {
       const filterDateStr = new Date(filterDate).toDateString();
       filtered = filtered.filter(
-        event => new Date(event.event_date).toDateString() === filterDateStr
+        (event) => new Date(event.event_date).toDateString() === filterDateStr
       );
     }
 
     // Apply location filter
     if (filterLocation) {
       filtered = filtered.filter(
-        event => event.event_location === filterLocation
+        (event) => event.event_location === filterLocation
       );
     }
 
@@ -79,15 +81,19 @@ function CompletedEvents() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
-        <h1 className="text-5xl font-extrabold text-black">Completed Events</h1>
+      {/* Header Section */}
+      <div className="bg-[#FEC00F] py-6 flex flex-col sm:flex-row items-center justify-between px-6">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black text-center sm:text-left">
+          Completed Events
+        </h1>
         <FontAwesomeIcon
           icon={faClipboardList}
-          className="text-black text-5xl transform"
+          className="text-black text-4xl sm:text-5xl transform mt-4 sm:mt-0"
         />
       </div>
 
-      <div className="px-6">
+      {/* Controls and Dialog Section */}
+      <div className="px-4 sm:px-6">
         <CompletedEventsControls
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}

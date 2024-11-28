@@ -430,13 +430,13 @@ const AssetList = () => {
     <div className="asset-list-container">
       {/* Summary Section: Total Assets, Stock Price, Assets for Borrowing */}
       <div className="bg-white rounded-lg  p-2 border border-gray-200 mb-4">
-        <div className="flex divide-x divide-gray-200">
+        <div className="flex flex-col sm:flex-row sm:divide-x divide-gray-200">
           {/* Total Assets */}
           <div className="flex-1 p-4">
             <h2 className="text-sm font-semibold text-gray-600">
               Total Assets
             </h2>
-            <p className="text-4xl font-bold text-gray-800 mt-1">
+            <p className="text-3xl sm:text-4xl font-bold text-gray-800 mt-1">
               {totalAssets || "0"}
               <span className="text-sm text-black bg-[#FEC00F] rounded-full px-2 ml-2">
                 +{totalAssetsChange} added
@@ -449,7 +449,7 @@ const AssetList = () => {
           {/* Stock Price */}
           <div className="flex-1 p-4">
             <h2 className="text-sm font-semibold text-gray-600">Stock Price</h2>
-            <p className="text-4xl font-bold text-gray-800 mt-1">
+            <p className="text-3xl sm:text-4xl font-bold text-gray-800 mt-1">
               ₱{stockPrice || "0.00"}
               <span className="text-sm text-black bg-[#FEC00F] rounded-full px-2 ml-2">
                 +₱{stockPriceChange.absolute}

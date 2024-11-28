@@ -28,7 +28,7 @@ const SupplierTable = ({ suppliers, onDelete, onEdit }) => {
   };
 
   return (
-    <>
+    <div className="overflow-x-auto px-4">
       <table className="min-w-full bg-white border-collapse">
         <thead className="bg-black text-[#FEC00F]">
           <tr>
@@ -83,7 +83,9 @@ const SupplierTable = ({ suppliers, onDelete, onEdit }) => {
                   <FontAwesomeIcon icon={faEdit} />
                 </button>
                 <button
-                  onClick={(e) => handleDeleteClick(e, supplier.supplier_id, supplier.name)}
+                  onClick={(e) =>
+                    handleDeleteClick(e, supplier.supplier_id, supplier.name)
+                  }
                   className="text-red-500"
                 >
                   <FontAwesomeIcon icon={faTrash} />
@@ -108,9 +110,13 @@ const SupplierTable = ({ suppliers, onDelete, onEdit }) => {
           setSupplierToDelete(null);
         }}
         onConfirm={handleConfirmDelete}
-        message={supplierToDelete ? `Are you sure you want to delete supplier "${supplierToDelete.name}"?` : ''}
+        message={
+          supplierToDelete
+            ? `Are you sure you want to delete supplier "${supplierToDelete.name}"?`
+            : ""
+        }
       />
-    </>
+    </div>
   );
 };
 
