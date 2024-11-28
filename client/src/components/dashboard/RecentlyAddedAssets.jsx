@@ -34,6 +34,9 @@ const RecentlyAddedAssets = ({ recentAssets = [], handleAssetDetailsClick }) => 
                 <FontAwesomeIcon icon={faBox} className="text-black text-lg" />
                 <div className="flex justify-between items-center w-full">
                   <div>
+                    <p className="text-xs text-gray-500 mb-1">
+                      {moment(asset.created_at).format("MMMM DD, YYYY")}
+                    </p>
                     <p className="font-bold text-md">
                       {asset.assetName || "Unnamed Asset"}
                     </p>

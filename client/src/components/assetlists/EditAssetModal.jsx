@@ -350,8 +350,8 @@ const EditAssetModal = ({ isOpen, onClose, asset, categories = [], locations = [
   };
 
   const handleTypeChange = async (value) => {
-    // If changing to Consumable, check if asset has borrowing quantity
-    if (value === 'Consumable' && asset.quantity_for_borrowing > 0) {
+    // Only check if we're actually changing the type
+    if (value !== editedAsset.type && value === 'Consumable' && asset.quantity_for_borrowing > 0) {
       setNotification({
         type: 'error',
         message: 'Cannot change to Consumable while asset has borrowing quantity. Please deactivate borrowing first.'

@@ -69,20 +69,17 @@ const readAssets = async () => {
 
 const updateAsset = async (id, updates) => {
 	try {
-		// If trying to change to Consumable type, verify no borrowing quantity
-		if (updates.type === "Consumable") {
-			const currentAsset = await readAsset(id);
-			if (currentAsset && currentAsset.quantity_for_borrowing > 0) {
-				throw new Error(
-					"Cannot change to Consumable while asset has borrowing quantity"
-				);
-			}
-		}
-
-		// Get current asset data
+		// Get current asset data first
 		const currentAsset = await readAsset(id);
 		if (!currentAsset) {
 			throw new Error("Asset not found");
+		}
+
+		// Only check if we're actually changing the type to Consumable
+		if (updates.type === "Consumable" && currentAsset.type !== "Consumable" && currentAsset.quantity_for_borrowing > 0) {
+			throw new Error(
+				"Cannot change to Consumable while asset has borrowing quantity"
+			);
 		}
 
 		// Only calculate total cost if cost or quantity changes, and quantity_for_borrowing is not changing
