@@ -107,6 +107,28 @@ router.put('/:id/return', async (req, res) => {
   }
 });
 
+// Add the check-name route
+router.post('/check-name', async (req, res) => {
+  const { assetName } = req.body;
+
+  if (!assetName) {
+    return res.status(400).json({ message: "Asset name is required." });
+  }
+
+  try {
+    const asset = await Asset.findByAssetName(assetName); // Use your existing `findByAssetName` model function
+    if (asset) {
+      res.status(200).json(asset);
+    } else {
+      res.status(404).json({ message: "Asset not found." });
+    }
+  } catch (error) {
+    console.error("Error checking asset by name:", error);
+    res.status(500).json({ error: "Internal Server Error." });
+  }
+});
+
+
 router.put('/updateQuantity/:assetId', async (req, res) => {
   const client = await pool.connect();
   try {

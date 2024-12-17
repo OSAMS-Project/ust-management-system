@@ -7,7 +7,7 @@ const PendingAssetsTable = ({
 }) => {
   return (
     <div className="mt-2">
-      <h2 className="text-2xl font-bold mb-4">Pending Assets </h2>
+      <h2 className="text-2xl font-bold mb-4">Pending Assets</h2>
       <table className="min-w-full bg-white border-collapse">
         <thead className="bg-black text-[#FEC00F]">
           <tr>
@@ -16,6 +16,7 @@ const PendingAssetsTable = ({
             <th className="py-2 px-4 border-b text-center">Category</th>
             <th className="py-2 px-4 border-b text-center">Quantity</th>
             <th className="py-2 px-4 border-b text-center">Total Cost</th>
+            <th className="py-2 px-4 border-b text-center">Supplier</th>
             <th className="py-2 px-4 border-b text-center">Expected Date of Arrival</th>
             <th className="py-2 px-4 border-b text-center">Status</th>
             <th className="py-2 px-4 border-b text-center">Actions</th>
@@ -24,7 +25,7 @@ const PendingAssetsTable = ({
         <tbody>
           {pendingAssets.length === 0 ? (
             <tr>
-              <td colSpan="8" className="py-4 text-center text-gray-500">
+              <td colSpan="9" className="py-4 text-center text-gray-500">
                 No pending assets found
               </td>
             </tr>
@@ -41,6 +42,9 @@ const PendingAssetsTable = ({
                 <td className="py-2 px-4 border-b text-center">{asset.category}</td>
                 <td className="py-2 px-4 border-b text-center">{asset.quantity}</td>
                 <td className="py-2 px-4 border-b text-center">₱{asset.total_cost}</td>
+                <td className="py-2 px-4 border-b text-center">
+                  {asset.supplier || "N/A"}
+                </td>
                 <td className="py-2 px-4 border-b text-center">
                   {moment(asset.expected_date).format("MM/DD/YYYY")}
                 </td>

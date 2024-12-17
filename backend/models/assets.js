@@ -49,23 +49,62 @@ const getNextAssetId = async () => {
 };
 
 const createAsset = async (data) => {
-	const nextAssetId = await getNextAssetId();
-	data.asset_id = nextAssetId;
-
-	const columns = Object.keys(data)
+	try {
+	  // Check if an asset with the same name already exists
+	  const existingAsset = await findByAssetName(data.assetName);
+  
+	  if (existingAsset) {
+		// Update the quantity of the existing asset
+		const updatedQuantity = parseInt(existingAsset.quantity, 10) + parseInt(data.quantity, 10);
+  
+		// Ensure that the quantity update is numeric
+		const updatedAsset = await updateMainAssetQuantity(existingAsset.asset_id, parseInt(data.quantity, 10));
+  
+		console.log(`Updated existing asset: ${existingAsset.assetName} with new quantity: ${updatedQuantity}`);
+  
+		return updatedAsset; // Return the updated asset
+	  }
+  
+	  // If no existing asset, proceed to create a new one
+	  const nextAssetId = await getNextAssetId();
+	  data.asset_id = nextAssetId;
+  
+	  const columns = Object.keys(data)
 		.map((key) => `"${key}"`)
 		.join(", ");
-	const values = Object.values(data);
-	const placeholders = values.map((_, index) => `$${index + 1}`).join(", ");
-
-	const query = `INSERT INTO Assets (${columns}) VALUES (${placeholders}) RETURNING *`;
-	return executeTransaction([{ query, params: values }]);
-};
+	  const values = Object.values(data);
+	  const placeholders = values.map((_, index) => `$${index + 1}`).join(", ");
+  
+	  const query = `INSERT INTO Assets (${columns}) VALUES (${placeholders}) RETURNING *`;
+	  const result = await executeTransaction([{ query, params: values }]);
+  
+	  console.log(`Created new asset: ${data.assetName} with ID: ${data.asset_id}`);
+  
+	  return result[0]; // Return the newly created asset
+	} catch (error) {
+	  console.error("Error in createAsset:", error);
+	  throw error;
+	}
+  };
+  
+  
 
 const readAssets = async () => {
 	const query = "SELECT *, quantity_for_borrowing FROM Assets";
 	return executeTransaction([{ query, params: [] }]);
 };
+
+const findByAssetName = async (assetName) => {
+	const query = `
+	  SELECT * FROM assets WHERE "assetName" = $1
+	`;
+	const result = await executeTransaction([{ query, params: [assetName] }]);
+	return result[0];
+  };
+  
+  
+  
+  
 
 const updateAsset = async (id, updates) => {
 	try {
@@ -400,23 +439,16 @@ const updateAssetIssueStatus = async (assetId, hasIssue) => {
 
 const updateMainAssetQuantity = async (assetId, quantityDifference) => {
 	const query = `
-    UPDATE assets
-    SET quantity = quantity + $1
-    WHERE asset_id = $2
-    RETURNING quantity
-  `;
-	
-	try {
-		const result = await executeTransaction([{
-			query,
-			params: [quantityDifference, assetId]
-		}]);
-		return result[0].quantity;
-	} catch (error) {
-		console.error('Error updating main asset quantity:', error);
-		throw error;
-	}
-};
+	  UPDATE assets
+	  SET quantity = quantity + $1, "lastUpdated" = CURRENT_TIMESTAMP
+	  WHERE asset_id = $2
+	  RETURNING *
+	`;
+	const params = [parseInt(quantityDifference, 10), assetId]; // Ensure quantityDifference is numeric
+	const result = await executeTransaction([{ query, params }]);
+	return result[0];
+  };
+  
 
 const findByProductCode = async (productCode) => {
 	// Don't check for duplicates if product code is N/A
@@ -462,4 +494,5 @@ module.exports = {
 	updateMainAssetQuantity,
 	findByProductCode,
 	findBySerialNumber,
+	findByAssetName,
 };

@@ -269,6 +269,61 @@ const updateAssetStatus = async (req, res) => {
   }
 };
 
+const handleIncomingAsset = async (req, res) => {
+  try {
+    const { assetName, quantity, category, location, cost, type } = req.body;
+
+    if (!assetName || !quantity) {
+      return res.status(400).json({ error: "Asset name and quantity are required." });
+    }
+
+    // Fetch the existing asset by name
+    const existingAsset = await Asset.findByAssetName(assetName);
+
+    if (existingAsset) {
+      // Sum the quantities
+      const updatedQuantity =
+        parseInt(existingAsset.quantity, 10) + parseInt(quantity, 10);
+
+      // Update the existing asset's quantity
+      const updatedAsset = await Asset.updateAsset(existingAsset.asset_id, {
+        quantity: updatedQuantity,
+      });
+
+      return res.status(200).json({
+        message: `Asset quantity updated: ${existingAsset.assetName}`,
+        asset: updatedAsset,
+      });
+    }
+
+    // If asset doesn't exist, create a new one
+    const assetData = {
+      assetName,
+      quantity: parseInt(quantity, 10),
+      category,
+      location,
+      cost: parseFloat(cost) || 0,
+      type,
+      createdDate: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+    };
+
+    const result = await Asset.createAsset(assetData);
+
+    res.status(201).json({
+      message: `New asset created successfully.`,
+      asset: result,
+    });
+  } catch (error) {
+    console.error("Error in handleIncomingAsset:", error);
+    res.status(500).json({
+      error: "Failed to process the asset.",
+      details: error.message,
+    });
+  }
+};
+
+
 const updateAssetIssueStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -347,6 +402,20 @@ const checkSerialNumber = async (req, res) => {
   }
 };
 
+// Function to fetch all assets
+const getAllAssets = async (req, res) => {
+  try {
+    const assets = await Asset.readAssets();
+    res.status(200).json(assets);
+  } catch (error) {
+    console.error("Error fetching assets:", error);
+    res.status(500).json({ 
+      error: "Failed to fetch assets.",
+      details: error.message,
+    });
+  }
+};
+
 module.exports = {
   createAsset,
   readAssets,
@@ -362,5 +431,7 @@ module.exports = {
   checkProductCode,
   checkPendingBorrowRequests,
   getTotalBorrowingQuantity,
-  checkSerialNumber
+  checkSerialNumber,
+  handleIncomingAsset,
+  getAllAssets,
 };
