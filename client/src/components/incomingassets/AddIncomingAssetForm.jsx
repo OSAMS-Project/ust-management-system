@@ -147,9 +147,6 @@ const AddIncomingAssetForm = ({
     e.preventDefault();
   
     try {
-      // Log the form data before submission
-      console.log("Submitting form data:", formData);
-
       // Validate required fields
       const requiredFields = ['assetName', 'description', 'quantity', 'cost'];
       const missingFields = requiredFields.filter(field => !formData[field]);
@@ -265,17 +262,28 @@ const AddIncomingAssetForm = ({
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Type
                 </label>
-                <select
-                  name="type"
-                  value={formData.type}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  required
-                >
-                  <option value="">Select type</option>
-                  <option value="Consumable">Consumable</option>
-                  <option value="Non-Consumable">Non-Consumable</option>
-                </select>
+                {selectedAsset ? (
+                  <input
+                    type="text"
+                    name="type"
+                    value={formData.type || ""}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-50 cursor-not-allowed"
+                    readOnly
+                    disabled
+                  />
+                ) : (
+                  <select
+                    name="type"
+                    value={formData.type}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  >
+                    <option value="">Select type</option>
+                    <option value="Consumable">Consumable</option>
+                    <option value="Non-Consumable">Non-Consumable</option>
+                  </select>
+                )}
               </div>
 
               {/* Category */}
@@ -283,20 +291,31 @@ const AddIncomingAssetForm = ({
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Category
                 </label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  required
-                >
-                  <option value="">Select a category</option>
-                  {categories.map((category, index) => (
-                    <option key={index} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
+                {selectedAsset ? (
+                  <input
+                    type="text"
+                    name="category"
+                    value={formData.category || ""}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-50 cursor-not-allowed"
+                    readOnly
+                    disabled
+                  />
+                ) : (
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  >
+                    <option value="">Select a category</option>
+                    {categories.map((category, index) => (
+                      <option key={index} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
               
 
