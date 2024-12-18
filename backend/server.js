@@ -30,6 +30,8 @@ const maintenanceRoutes = require("./routes/maintenanceRoutes");
 const BorrowingRequest = require("./models/borrowingrequest");
 const termsAndConditionsRoutes = require('./routes/termsandconditionsroutes');
 const notificationRoutes = require("./routes/notificationRoutes");
+const outgoingAssetsRouter = require('./routes/outgoingAssets');
+const OutgoingAsset = require('./models/outgoingassets');
 
 const {
   createEventsTable,
@@ -84,6 +86,8 @@ app.use("/api/incoming-assets", incomingAssetsRouter);
 app.use("/api/maintenance", maintenanceRoutes);
 app.use('/api/terms-and-conditions', termsAndConditionsRoutes);
 app.use("/api/notification-settings", notificationRoutes);
+app.use('/api/outgoing-assets', outgoingAssetsRouter);
+
 
 // SSE endpoint
 app.get("/api/assets/sse", (req, res) => {
@@ -210,6 +214,8 @@ const initializeTables = async () => {
     console.log("Incoming assets table initialized");
     await BorrowingRequest.createBorrowingRequestTable();
     await BorrowingRequest.createBorrowedAssetsTable();
+    await OutgoingAsset.createOutgoingAssetsTable();
+    console.log("Outgoing assets table initialized");
     console.log("All tables initialized successfully");
   } catch (err) {
     console.error("Error initializing tables:", err);
@@ -407,4 +413,50 @@ app.get("/api/Events/asset-cost/:eventId/:assetId", async (req, res) => {
 app.use("*", (err, req, res, next) => {
   console.log(err);
   res.status(500).json({ error: "Server Error" });
+});
+
+// Add this near your other test endpoints
+app.get("/test-outgoing-assets", async (req, res) => {
+  try {
+    const result = await OutgoingAsset.getAllOutgoingAssets();
+    res.json({ 
+      message: "Outgoing assets route is working", 
+      count: result.length 
+    });
+  } catch (err) {
+    console.error("Outgoing assets test failed:", err);
+    res.status(500).json({ 
+      error: "Outgoing assets test failed", 
+      details: err.message 
+    });
+  }
+});
+
+// Add this near your other middleware
+app.use('/api/outgoing-assets', (err, req, res, next) => {
+  console.error('Outgoing Assets Error:', {
+    message: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method,
+    body: req.body
+  });
+  if (!res.headersSent) {
+    res.status(500).json({
+      error: 'Outgoing Assets Error',
+      message: err.message,
+      path: req.path
+    });
+  }
+});
+
+app.use(async (req, res, next) => {
+  if (req.path.startsWith('/api/outgoing-assets')) {
+    try {
+      await OutgoingAsset.createTableIfNotExists();
+    } catch (error) {
+      console.error('Error initializing outgoing assets table:', error);
+    }
+  }
+  next();
 });

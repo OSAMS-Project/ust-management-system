@@ -2,6 +2,7 @@ const Asset = require('../models/assets');
 const { executeTransaction } = require('../utils/queryExecutor');
 const pool = require('../config/database');
 const moment = require('moment');
+const OutgoingAsset = require('../models/outgoingassets');
 
 const createAsset = async (req, res) => {
   try {
@@ -416,6 +417,70 @@ const getAllAssets = async (req, res) => {
   }
 };
 
+const consumeAsset = async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { assetId, quantityConsumed, reason } = req.body;
+    const consumedBy = req.body.consumedBy || 'System User'; // You can get this from auth
+
+    await client.query('BEGIN');
+
+    // Check if asset exists and has sufficient quantity
+    const assetResult = await client.query(
+      'SELECT * FROM assets WHERE asset_id = $1',
+      [assetId]
+    );
+
+    if (assetResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Asset not found' });
+    }
+
+    const asset = assetResult.rows[0];
+    if (asset.quantity < quantityConsumed) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({
+        error: 'Insufficient quantity',
+        available: asset.quantity,
+        requested: quantityConsumed
+      });
+    }
+
+    // Update asset quantity
+    await client.query(
+      'UPDATE assets SET quantity = quantity - $1 WHERE asset_id = $2',
+      [quantityConsumed, assetId]
+    );
+
+    // Create outgoing asset record
+    const outgoingAsset = await OutgoingAsset.createOutgoingAsset({
+      asset_id: assetId,
+      quantity: quantityConsumed,
+      reason,
+      consumed_by: consumedBy,
+      status: 'Consumed'
+    });
+
+    await client.query('COMMIT');
+
+    res.status(200).json({
+      message: 'Asset consumed successfully',
+      consumedBy,
+      outgoingAsset,
+      remainingQuantity: asset.quantity - quantityConsumed
+    });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error consuming asset:', error);
+    res.status(500).json({
+      error: 'Failed to consume asset',
+      details: error.message
+    });
+  } finally {
+    client.release();
+  }
+};
+
 module.exports = {
   createAsset,
   readAssets,
@@ -434,4 +499,5 @@ module.exports = {
   checkSerialNumber,
   handleIncomingAsset,
   getAllAssets,
+  consumeAsset,
 };

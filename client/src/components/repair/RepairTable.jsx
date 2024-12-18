@@ -34,7 +34,7 @@ const RepairTable = ({ repairRecords, assets = [], onCompleteRecord, onRemoveRec
             <th className="px-4 py-2 text-center text-[#FEC00F]">Quantity</th>
             <th className="px-4 py-2 text-center text-[#FEC00F]">Date</th>
             <th className="px-4 py-2 text-center text-[#FEC00F]">Cost</th>
-            <th className="px-4 py-2 text-center text-[#FEC00F]">Performed By</th>
+            <th className="px-4 py-2 text-center text-[#FEC00F]">Office to perform repair</th>
             <th className="px-4 py-2 text-center text-[#FEC00F]">Actions</th>
           </tr>
         </thead>

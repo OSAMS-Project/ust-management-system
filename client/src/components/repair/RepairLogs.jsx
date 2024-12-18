@@ -121,7 +121,7 @@ const RepairLogs = ({ assetId, onClose }) => {
                 <th className="px-4 py-2 text-center text-[#FEC00F]">Cost</th>
                 <th className="px-4 py-2 text-center text-[#FEC00F]">Status</th>
                 <th className="px-4 py-2 text-center text-[#FEC00F]">Completion Date</th>
-                <th className="px-4 py-2 text-center text-[#FEC00F]">Performed By</th>
+                <th className="px-4 py-2 text-center text-[#FEC00F]">Office to performed repair</th>
               </tr>
             </thead>
             <tbody>

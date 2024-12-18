@@ -7,6 +7,7 @@ import PaginationControls from './PaginationControls';
 import AssetModals from './AssetModals';
 import axios from "axios";
 import moment from "moment";
+import ConsumeAssetModal from './ConsumeAssetModal';
 
 const getInitialVisibleColumns = () => {
   const savedColumns = localStorage.getItem('visibleColumns');
@@ -55,6 +56,9 @@ const AssetTable = ({
   const [notification, setNotification] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortCriteria, setSortCriteria] = useState({ field: '', direction: 'asc' });
+  const [showConsumeModal, setShowConsumeModal] = useState(false);
+  const [selectedAssetForConsume, setSelectedAssetForConsume] = useState(null);
+  const [isConsumeModalOpen, setIsConsumeModalOpen] = useState(false);
 
   // Handlers
   const handleCloseImageModal = () => {
@@ -263,6 +267,25 @@ const AssetTable = ({
     localStorage.setItem('visibleColumns', JSON.stringify(updatedColumns));
   };
 
+  const handleConsumeClick = (asset) => {
+    console.log("Consume clicked for asset:", asset);
+    setSelectedAssetForConsume(asset);
+    setIsConsumeModalOpen(true);
+  };
+
+  const handleConsumeConfirm = async (formData) => {
+    try {
+      // Add your API call here
+      console.log("Consuming asset:", formData);
+      
+      // Close modal and reset state
+      setIsConsumeModalOpen(false);
+      setSelectedAssetForConsume(null);
+    } catch (error) {
+      console.error('Error consuming asset:', error);
+    }
+  };
+
   // Calculations
   const calculateStartIndex = () => (currentPage - 1) * itemsPerPage + 1;
   const calculateEndIndex = () => Math.min(calculateStartIndex() + itemsPerPage - 1, assets.length);
@@ -418,6 +441,7 @@ const AssetTable = ({
                 handleBorrowClick={handleBorrowClick}
                 handleEditClick={handleEditClick}
                 handleDeleteClick={handleDeleteClick}
+                handleConsumeClick={handleConsumeClick}
               />
             ))}
           </tbody>
@@ -456,6 +480,21 @@ const AssetTable = ({
         setNotification={setNotification}
         categories={categories}
         locations={locations}
+      />
+
+      {showConsumeModal && (
+        <ConsumeAssetModal
+          asset={selectedAssetForConsume}
+          onClose={() => setShowConsumeModal(false)}
+          onConsumeConfirm={handleConsumeConfirm}
+        />
+      )}
+
+      <ConsumeAssetModal
+        isOpen={isConsumeModalOpen}
+        onClose={() => setIsConsumeModalOpen(false)}
+        asset={selectedAssetForConsume}
+        onConfirm={handleConsumeConfirm}
       />
     </div>
   );

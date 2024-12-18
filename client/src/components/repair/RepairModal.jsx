@@ -208,11 +208,11 @@ const RepairModal = ({ isOpen, onClose, onAddRepair, initialData = {}, selectedA
 
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700">
-                Performed By
+              Office to perform repair
               </label>
               <input
                 type="text"
-                name="performedBy"
+                name="Office to perform repair"
                 value={repairData.performedBy}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"

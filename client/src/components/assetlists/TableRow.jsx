@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faEdit, faTrashAlt, faBoxOpen } from "@fortawesome/free-solid-svg-icons";
 import moment from 'moment';
 
 const TableRow = ({
@@ -10,7 +10,8 @@ const TableRow = ({
   handleAssetDetailsClick,
   handleBorrowClick,
   handleEditClick,
-  handleDeleteClick
+  handleDeleteClick,
+  handleConsumeClick
 }) => {
   return (
     <tr
@@ -132,6 +133,18 @@ const TableRow = ({
             >
               <FontAwesomeIcon icon={faTrash} />
             </button>
+            {asset.type === 'Consumable' && (
+              <button
+                className="asset-action-btn text-green-600 hover:text-green-800"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleConsumeClick(asset);
+                }}
+                title="Consume Asset"
+              >
+                <FontAwesomeIcon icon={faBoxOpen} />
+              </button>
+            )}
           </div>
         </td>
       )}

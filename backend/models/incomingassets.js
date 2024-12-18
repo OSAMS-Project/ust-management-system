@@ -28,8 +28,8 @@ const createIncomingAssetsTable = async () => {
 const createIncomingAsset = async (assetData) => {
   const query = `
     INSERT INTO incoming_assets 
-    ("assetName", description, type, category, cost, quantity, total_cost, expected_date, notes, supplier)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    ("assetName", description, type, category, cost, quantity, expected_date, notes, supplier)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     RETURNING *;
   `;
 
@@ -40,7 +40,6 @@ const createIncomingAsset = async (assetData) => {
     assetData.category,
     assetData.cost || null,
     assetData.quantity,
-    assetData.total_cost || null,
     assetData.expected_date || null,
     assetData.notes || null,
     assetData.supplier || null,

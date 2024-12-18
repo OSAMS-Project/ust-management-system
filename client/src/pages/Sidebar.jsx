@@ -168,6 +168,7 @@ const MENU_LIST = [
         icon: faArchive,
       },
       { text: "Incoming Assets", to: "/incoming-assets", icon: faTruckFast },
+      { text: "Outgoing Assets", to: "/outgoing-assets", icon: faTruckFast },
       { text: "Asset Maintenance", to: "/asset-maintenance", icon: faWrench },
     ],
   },

@@ -209,4 +209,7 @@ router.get('/check-product-code/:productCode', assetController.checkProductCode)
 router.get('/borrowing/total', assetController.getTotalBorrowingQuantity);
 router.get('/check-serial-number/:serialNumber', assetController.checkSerialNumber);
 
+// Add the consume endpoint
+router.post('/consume', assetController.consumeAsset);
+
 module.exports = router;

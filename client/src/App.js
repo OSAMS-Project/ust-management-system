@@ -33,6 +33,7 @@ import AssetMaintenance from "./pages/AssetMaintenance";
 import FileUpload from "./components/FileUpload";
 import Settings from "./pages/Settings";
 import axios from "axios";
+import OutgoingAssets from "./pages/OutgoingAssets";
 
 
 function App() {
@@ -389,6 +390,14 @@ function AppContent({ user, setUser }) {
             element={
               <PrivateRoute user={user} requiredPermissions={["Terms Settings"]}>
                 <Settings user={user} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/outgoing-assets"
+            element={
+              <PrivateRoute user={user} requiredPermissions={["Outgoing Assets"]}>
+                <OutgoingAssets />
               </PrivateRoute>
             }
           />

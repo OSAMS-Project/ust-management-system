@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
+import axios from "axios";
 
 const AddIncomingAssetForm = ({
   formData,
@@ -146,55 +147,50 @@ const AddIncomingAssetForm = ({
     e.preventDefault();
   
     try {
-      // Determine if a custom supplier is used
-      const finalSupplier =
-        formData.supplier === "add-new" ? formData.new_supplier : formData.supplier;
-  
-      if (formData.supplier === "add-new" && !formData.new_supplier) {
+      // Log the form data before submission
+      console.log("Submitting form data:", formData);
+
+      // Validate required fields
+      const requiredFields = ['assetName', 'description', 'quantity', 'cost'];
+      const missingFields = requiredFields.filter(field => !formData[field]);
+      
+      if (missingFields.length > 0) {
         setNotification({
           type: "error",
-          message: "Please provide a name for the new supplier.",
+          message: `Missing required fields: ${missingFields.join(', ')}`
         });
         return;
       }
-  
-      // Update formData to include the resolved supplier
-      const payload = {
+
+      // Format the data
+      const submitData = {
         ...formData,
-        supplier: finalSupplier,
+        quantity: parseInt(formData.quantity),
+        cost: parseFloat(formData.cost),
+        total_cost: parseFloat(formData.total_cost || 0),
+        status: "pending"
       };
-  
-      // Submit the asset form data
-      const response = await fetch(
+
+      // Make the API call
+      const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/incoming-assets`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
+        submitData
       );
-  
-      if (response.ok) {
-        const result = await response.json();
+
+      if (response.status === 201) {
         setNotification({
           type: "success",
-          message: "Asset added to the pending list successfully.",
+          message: "Asset added successfully"
         });
-  
-        // Reset the form
         resetFormData();
         setShowForm(false);
-      } else {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to add incoming asset.");
       }
+
     } catch (error) {
       console.error("Error submitting asset:", error);
       setNotification({
         type: "error",
-        message: error.message || "An error occurred while submitting the asset.",
+        message: error.response?.data?.message || "Error creating incoming asset"
       });
     }
   };
