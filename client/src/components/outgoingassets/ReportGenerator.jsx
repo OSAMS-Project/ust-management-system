@@ -18,24 +18,28 @@ const ReportGenerator = ({ outgoingAssets, onClose, dateRange, selectedCategory 
       const filteredData = filterDataByReportType(outgoingAssets, reportType);
       const summary = generateSummaryStats(filteredData);
 
-      // Add title
+      // Add title with minimal spacing
       doc.setFontSize(20);
-      doc.text('Asset Consumption Report', 20, 20);
+      doc.text('Office for Student Affairs - Asset Consumption Report', 20, 15);
 
-      // Add report period
+      // Add report generation date with minimal spacing
+      doc.setFontSize(10);
+      doc.text(`Generated on: ${moment().format('MMMM D, YYYY, h:mm A')}`, 20, 25);
+
+      // Add report period with minimal spacing
       doc.setFontSize(12);
-      doc.text(`Report Period: ${getReportPeriod(reportType)}`, 20, 30);
+      doc.text(`Report Period: ${getReportPeriod(reportType)}`, 20, 35);
 
-      // Add summary
+      // Add summary with minimal spacing
       doc.setFontSize(14);
       doc.text('Summary:', 20, 45);
       doc.setFontSize(12);
       doc.text(`Total Assets Consumed: ${summary.totalAssets}`, 20, 55);
       doc.text(`Total Quantity Consumed: ${summary.totalQuantity}`, 20, 65);
 
-      // Add detailed list using auto-table
+      // Add detailed list using auto-table with adjusted starting position
       doc.autoTable({
-        startY: 80,
+        startY: 75,
         head: [['Date', 'Asset Name', 'Quantity', 'Reason']],
         body: filteredData.map(asset => [
           moment(asset.consumed_date).format('MM/DD/YYYY'),
@@ -47,6 +51,19 @@ const ReportGenerator = ({ outgoingAssets, onClose, dateRange, selectedCategory 
         headStyles: { fillColor: [0, 0, 0], textColor: [254, 192, 15] },
         styles: { fontSize: 10 }
       });
+
+      // Get the final Y position after the table
+      const finalY = doc.lastAutoTable.finalY || 150;
+
+      // Keep the approval and signature lines
+      doc.setFontSize(12);
+      doc.text('Prepared by:', 20, finalY + 40);
+      doc.text('Noted by:', 20, finalY + 60);
+
+      // Keep the underlines
+      doc.setLineWidth(0.5);
+      doc.line(70, finalY + 40, 180, finalY + 40);
+      doc.line(70, finalY + 60, 180, finalY + 60);
 
       // Save the PDF
       doc.save(`asset-consumption-report-${reportType}-${moment().format('YYYY-MM-DD')}.pdf`);

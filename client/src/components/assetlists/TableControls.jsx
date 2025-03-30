@@ -7,15 +7,31 @@ import autoTable from 'jspdf-autotable';
 import moment from "moment";
 
 const TableControls = ({ onToggleColumns, prepareCSVData, assets, visibleColumns }) => {
+  const generateSummaryStats = (data) => {
+    return {
+      totalAssets: data.length,
+      totalQuantity: data.reduce((sum, asset) => sum + (parseInt(asset.quantity) || 0), 0),
+    };
+  };
+
   const generatePDF = () => {
-    // Create new document
     const doc = new jsPDF();
     
-    // Add title and date
-    doc.setFontSize(18);
-    doc.text("Assets Inventory Report", 14, 20);
+    // Add title with minimal spacing
+    doc.setFontSize(16);
+    doc.text("Office for Students Affair - Assets Inventory Report", 20, 15);
+    
+    // Add generation date
     doc.setFontSize(10);
-    doc.text(`Generated on: ${moment().format('MM/DD/YYYY HH:mm:ss')}`, 14, 30);
+    doc.text(`Generated on: ${moment().format('MMMM D, YYYY, h:mm A')}`, 20, 25);
+    
+    // Add summary section right after generation date
+    const summary = generateSummaryStats(assets);
+    doc.setFontSize(12);
+    doc.text('Summary:', 20, 35);
+    doc.setFontSize(10);
+    doc.text(`Total Assets: ${summary.totalAssets}`, 20, 42);
+    doc.text(`Total Quantity: ${summary.totalQuantity}`, 20, 49);
 
     // Prepare table headers and data
     const tableColumn = [];
@@ -42,9 +58,15 @@ const TableControls = ({ onToggleColumns, prepareCSVData, assets, visibleColumns
       if (visibleColumns.serialNumber) rowData.push(asset.serialNumber);
       if (visibleColumns.dateCreated) rowData.push(moment(asset.createdDate).format("MM/DD/YYYY"));
       if (visibleColumns.asset) rowData.push(asset.assetName);
-      if (visibleColumns.costPerUnit) rowData.push(`₱${parseFloat(asset.cost).toFixed(2)}`);
+      if (visibleColumns.costPerUnit) {
+        const cost = parseFloat(asset.cost).toFixed(2).toString().replace(/\s+/g, '');
+        rowData.push(`PHP${cost}`);
+      }
       if (visibleColumns.quantity) rowData.push(asset.quantity);
-      if (visibleColumns.totalCost) rowData.push(`₱${(parseFloat(asset.cost) * asset.quantity).toFixed(2)}`);
+      if (visibleColumns.totalCost) {
+        const total = (parseFloat(asset.cost) * asset.quantity).toFixed(2).toString().replace(/\s+/g, '');
+        rowData.push(`PHP ${total}`);
+      }
       if (visibleColumns.borrow) rowData.push(asset.is_active ? "Active" : "Inactive");
       if (visibleColumns.quantityForBorrowing) rowData.push(asset.is_active ? asset.quantity_for_borrowing : "N/A");
       if (visibleColumns.lastUpdated) rowData.push(asset.lastUpdated ? moment(asset.lastUpdated).format("MM/DD/YYYY") : "N/A");
@@ -52,22 +74,45 @@ const TableControls = ({ onToggleColumns, prepareCSVData, assets, visibleColumns
       tableRows.push(rowData);
     });
 
-    // Generate the table
+    // Generate the table with adjusted starting position
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
-      startY: 40,
-      styles: { fontSize: 6 },
+      startY: 55,
+      styles: { 
+        fontSize: 7,
+        cellPadding: 1,
+        font: 'helvetica',
+        minCellWidth: 15,
+        cellWidth: 'wrap',
+        overflow: 'linebreak'
+      },
       headStyles: { 
         fillColor: [0, 0, 0],
         textColor: [254, 192, 15],
-        fontSize: 6,
+        fontSize: 7,
         fontStyle: 'bold'
       },
       alternateRowStyles: { fillColor: [245, 245, 245] },
-      margin: { top: 40, left: 5, right: 5 }
+      margin: { top: 20, left: 15, right: 15, bottom: 40 },
+      columnStyles: {
+        0: { cellWidth: 20 },
+        1: { cellWidth: 25 },
+        2: { cellWidth: 25 },
+        3: { cellWidth: 'auto' },
+      }
     });
 
+    // Get the final Y position after the table
+    const finalY = doc.lastAutoTable.finalY || 70;
+
+    // Add approval and signature lines with less spacing
+    doc.setFontSize(10);
+    doc.text('Prepared by:', 20, finalY + 20);
+    doc.line(70, finalY + 20, 180, finalY + 20);
+
+    doc.text('Noted by:', 20, finalY + 40);
+    doc.line(70, finalY + 40, 180, finalY + 40);
     // Save the PDF
     doc.save("assets-inventory.pdf");
   };

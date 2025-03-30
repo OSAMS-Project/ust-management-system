@@ -56,7 +56,7 @@ const TableRow = ({
       )}
       {visibleColumns.costPerUnit && (
         <td className="text-center align-middle py-3" data-label="Cost per Unit">
-          ₱{parseFloat(asset.cost).toFixed(2)}
+          ₱{parseFloat(asset.cost).toFixed(2).replace(/\s/g, '')}
         </td>
       )}
       {visibleColumns.quantity && (
@@ -75,7 +75,7 @@ const TableRow = ({
       )}
       {visibleColumns.totalCost && (
         <td className="text-center align-middle py-3" data-label="Total Cost">
-          ₱{parseFloat(asset.totalCost || (asset.cost * asset.quantity)).toFixed(2)}
+          ₱{(parseFloat(asset.totalCost || (asset.cost * asset.quantity))).toFixed(2).replace(/\s/g, '').replace(/,/g, '')}
         </td>
       )}
       {visibleColumns.lastUpdated && (
