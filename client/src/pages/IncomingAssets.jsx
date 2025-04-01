@@ -102,6 +102,19 @@ const IncomingAssets = () => {
       return newData;
     });
   };
+  
+  // Add this function to handle adding a new asset to the state
+  const handleAssetAdded = (newAsset) => {
+    // Add the new asset to the assets array
+    setAssets(prevAssets => [newAsset, ...prevAssets]);
+    
+    // Update the current pending assets
+    const pending = assets.filter(asset => asset.status !== "received");
+    pending.unshift(newAsset); // Add new asset to the beginning
+    
+    setCurrentPendingAssets(pending.slice(0, itemsPerPage));
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -149,12 +162,12 @@ const IncomingAssets = () => {
       });
     }
   };
-  
 
   const handleStatusUpdate = async (asset) => {
     setSelectedAsset(asset);
     setShowLocationDialog(true);
   };
+  
   const handleLocationSubmit = async (e) => {
     e.preventDefault();
   
@@ -165,13 +178,18 @@ const IncomingAssets = () => {
         location: selectedLocation,
       });
   
-      // Step 2: Check if the asset already exists in the main assets table
-      const existingAssetResponse = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/assets/check-name`,
-        { assetName: selectedAsset.assetName }
-      );
-  
-      const existingAsset = existingAssetResponse.data;
+      let existingAsset = null;
+      try {
+        // Use the existing findByAssetName function in your model
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/assets/read`
+        );
+        existingAsset = response.data.find(
+          asset => asset.assetName === selectedAsset.assetName
+        );
+      } catch (error) {
+        console.error("Error checking asset by name:", error);
+      }
   
       if (existingAsset) {
         // Step 3: Update the existing asset's quantity
@@ -197,6 +215,9 @@ const IncomingAssets = () => {
           location: selectedLocation,
           cost: parseFloat(selectedAsset.cost || 0), // Ensure float
           type: selectedAsset.type,
+          // Set a default or empty serial number to avoid constraint violation
+          serialNumber: "N/A",
+          productCode: "N/A"
         };
   
         await axios.post(`${process.env.REACT_APP_API_URL}/api/assets/create`, newAssetData);
@@ -210,7 +231,27 @@ const IncomingAssets = () => {
       // Step 5: Refresh the data and reset dialog
       setShowLocationDialog(false);
       setSelectedLocation("");
-      fetchAssets();
+      
+      // Update the local state to reflect the changes
+      setAssets(prevAssets => {
+        // Mark the selected asset as received
+        const updatedAssets = prevAssets.map(asset => 
+          asset.id === selectedAsset.id 
+            ? { ...asset, status: "received", location: selectedLocation } 
+            : asset
+        );
+        
+        // Update the pending and received lists
+        const pending = updatedAssets.filter(asset => asset.status !== "received");
+        const received = updatedAssets.filter(asset => asset.status === "received");
+        
+        setCurrentPendingAssets(pending.slice(0, itemsPerPage));
+        setReceivedAssets(received);
+        setCurrentReceivedAssets(received.slice(0, itemsPerPage));
+        
+        return updatedAssets;
+      });
+      
     } catch (error) {
       console.error("Error processing asset:", error);
       if (error.response) {
@@ -226,8 +267,6 @@ const IncomingAssets = () => {
       }
     }
   };
-  
-  
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -287,6 +326,7 @@ const IncomingAssets = () => {
           today={today}
           setNotification={setNotification}
           resetFormData={resetFormData}
+          onAssetAdded={handleAssetAdded} // Add this prop
         />
       )}
 

@@ -9,6 +9,7 @@ const AddIncomingAssetForm = ({
   categories,
   setNotification,
   resetFormData,
+  onAssetAdded,
 }) => {
   const [assets, setAssets] = useState([]);
   const [filteredAssets, setFilteredAssets] = useState([]);
@@ -179,10 +180,15 @@ const AddIncomingAssetForm = ({
           type: "success",
           message: "Asset added successfully"
         });
+        
+        // Call the onAssetAdded function with the new asset
+        if (typeof onAssetAdded === 'function') {
+          onAssetAdded(response.data.asset);
+        }
+        
         resetFormData();
         setShowForm(false);
       }
-
     } catch (error) {
       console.error("Error submitting asset:", error);
       setNotification({
