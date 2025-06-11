@@ -155,7 +155,7 @@ const DashboardInfoCards = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-1 px-2 py-1">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 px-2 py-1">
         <div
           className="bg-[#FEC00F] p-5 rounded-lg shadow-md flex items-center h-36 bg-cover bg-center relative overflow-hidden"
           style={{ backgroundImage: "url('ust-img-7.JPG')" }}
@@ -174,31 +174,6 @@ const DashboardInfoCards = () => {
           <div className="absolute bottom-4 right-4">
             <Link
               to="/borrowingrequest"
-              className="bg-gray-100 text-black py-1 px-3 rounded-full font-medium text-sm hover:bg-gray-400 transition duration-300"
-            >
-              See More
-              <FontAwesomeIcon icon={faArrowRight} className="ml-2 text-sm" />
-            </Link>
-          </div>
-        </div>
-        <div
-          className="bg-[#FEC00F] p-5 rounded-lg shadow-md flex items-center h-36 bg-cover bg-center relative overflow-hidden"
-          style={{ backgroundImage: "url('ust-img-6.JPG')" }}
-        >
-          <div className="absolute inset-0 bg-black opacity-50"></div>
-          <div className="relative z-10 flex flex-col justify-between h-full w-3/4 text-left">
-            <div className="p-3">
-              <h2 className="text-5xl font-extrabold text-[#FEC00F] drop-shadow-lg">
-                {error ? "Error" : dashboardData.totalIncomingAssets === undefined ? "0" : dashboardData.totalIncomingAssets}
-              </h2>
-              <p className="text-[1.25rem] font-semibold text-white drop-shadow-md">
-                Incoming Assets
-              </p>
-            </div>
-          </div>
-          <div className="absolute bottom-4 right-4">
-            <Link
-              to="/incoming-assets"
               className="bg-gray-100 text-black py-1 px-3 rounded-full font-medium text-sm hover:bg-gray-400 transition duration-300"
             >
               See More

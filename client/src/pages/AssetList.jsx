@@ -139,7 +139,7 @@ const AssetList = () => {
     });
   };
 
-  const fetchAssets = async () => {
+  const fetchAssets = useCallback(async () => {
     try {
       // Get all assets
       const assetsResponse = await axios.get(
@@ -159,7 +159,7 @@ const AssetList = () => {
         console.error("No response received:", error.request);
       }
     }
-  };
+  }, []);
 
   const fetchCategories = async () => {
     try {
@@ -201,25 +201,21 @@ const AssetList = () => {
   };
   const handleAddAsset = useCallback(async (newAsset) => {
     try {
-      // Update the state with the new asset
-      setAssets((prevAssets) => {
-        const updatedAssets = [...prevAssets, newAsset];
-
-        // Recalculate totals and weekly changes immediately
-        calculateTotals(updatedAssets);
-        calculateWeeklyChanges(updatedAssets);
-
-        return updatedAssets;
-      });
-
-      // Close modal and show success notification
-      setIsModalOpen(false);
+      console.log("handleAddAsset called with:", newAsset);
+      
+      // Show success notification and close modal immediately
       showNotification("Asset added successfully");
+      setIsModalOpen(false);
+      
+      // Instead of manually updating state, refresh the assets from server
+      // This ensures we get the exact same data structure as on page refresh
+      await fetchAssets();
+      
     } catch (error) {
       console.error("Error adding asset:", error);
       showNotification("Error adding asset", "error");
     }
-  }, []);
+  }, [fetchAssets]);
 
   const handleDeleteAsset = useCallback(
     async (assetId) => {
@@ -395,24 +391,25 @@ const AssetList = () => {
   }, []);
 
   const filteredAndSortedAssets = useMemo(() => {
-    return assets
-      .filter((asset) => {
-        const searchLower = searchQuery.toLowerCase();
-        const matchesSearch =
-          asset.assetName.toLowerCase().includes(searchLower) ||
-          (asset.productCode &&
-            asset.productCode.toLowerCase().includes(searchLower)) ||
-          (asset.serialNumber &&
-            asset.serialNumber.toLowerCase().includes(searchLower));
+    const filtered = assets.filter((asset) => {
+      const searchLower = searchQuery.toLowerCase();
+      const matchesSearch =
+        (asset.assetName && asset.assetName.toLowerCase().includes(searchLower)) ||
+        (asset.productCode &&
+          asset.productCode.toLowerCase().includes(searchLower)) ||
+        (asset.serialNumber &&
+          asset.serialNumber.toLowerCase().includes(searchLower));
 
-        if (assetTypeFilter === "all") return matchesSearch;
-        if (assetTypeFilter === "consumable")
-          return matchesSearch && asset.type === "Consumable";
-        if (assetTypeFilter === "non-consumable")
-          return matchesSearch && asset.type === "Non-Consumable";
+      if (assetTypeFilter === "all") return matchesSearch;
+      if (assetTypeFilter === "consumable")
+        return matchesSearch && asset.type === "Consumable";
+      if (assetTypeFilter === "non-consumable")
+        return matchesSearch && asset.type === "Non-Consumable";
 
-        return matchesSearch;
-      })
+      return matchesSearch;
+    });
+
+    return filtered
       .sort((a, b) => {
         switch (sortCriteria) {
           case "dateAsc":
@@ -424,9 +421,9 @@ const AssetList = () => {
           case "quantityDesc":
             return b.quantity - a.quantity;
           case "nameAsc":
-            return a.assetName.localeCompare(b.assetName);
+            return (a.assetName || "").localeCompare(b.assetName || "");
           case "nameDesc":
-            return b.assetName.localeCompare(a.assetName);
+            return (b.assetName || "").localeCompare(a.assetName || "");
           case "activeFirst":
             return (b.is_active ? 1 : 0) - (a.is_active ? 1 : 0);
           case "inactiveFirst":

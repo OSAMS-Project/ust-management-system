@@ -293,38 +293,41 @@ const AssetTable = ({
 
   // Filtered and sorted assets
   const currentAssets = useMemo(() => {
-    return assets
-      .filter((asset) => {
-        return asset.assetName.toLowerCase().includes(searchQuery.toLowerCase());
-      })
-      .sort((a, b) => {
-        if (!sortCriteria.field) return 0;
-        const direction = sortCriteria.direction === 'asc' ? 1 : -1;
-        
-        switch (sortCriteria.field) {
-          case 'asset_id':
-            return direction * (a.asset_id - b.asset_id);
-          case 'productCode':
-            return direction * a.productCode.localeCompare(b.productCode);
-          case 'createdDate':
-            return direction * (new Date(a.createdDate) - new Date(b.createdDate));
-          case 'assetName':
-            return direction * a.assetName.localeCompare(b.assetName);
-          case 'cost':
-            return direction * (parseFloat(a.cost) - parseFloat(b.cost));
-          case 'quantity':
-            return direction * (a.quantity - b.quantity);
-          case 'totalCost':
-            return direction * ((a.cost * a.quantity) - (b.cost * b.quantity));
-          case 'lastUpdated':
-            if (!a.lastUpdated) return direction;
-            if (!b.lastUpdated) return -direction;
-            return direction * (new Date(a.lastUpdated) - new Date(b.lastUpdated));
-          default:
-            return 0;
-        }
-      })
-      .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const filtered = assets.filter((asset) => {
+      return asset.assetName && asset.assetName.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+    
+    const sorted = filtered.sort((a, b) => {
+      if (!sortCriteria.field) return 0;
+      const direction = sortCriteria.direction === 'asc' ? 1 : -1;
+      
+      switch (sortCriteria.field) {
+        case 'asset_id':
+          return direction * (a.asset_id - b.asset_id);
+        case 'productCode':
+          return direction * (a.productCode || "").localeCompare(b.productCode || "");
+        case 'createdDate':
+          return direction * (new Date(a.createdDate) - new Date(b.createdDate));
+        case 'assetName':
+          return direction * (a.assetName || "").localeCompare(b.assetName || "");
+        case 'cost':
+          return direction * (parseFloat(a.cost) - parseFloat(b.cost));
+        case 'quantity':
+          return direction * (a.quantity - b.quantity);
+        case 'totalCost':
+          return direction * ((a.cost * a.quantity) - (b.cost * b.quantity));
+        case 'lastUpdated':
+          if (!a.lastUpdated) return direction;
+          if (!b.lastUpdated) return -direction;
+          return direction * (new Date(a.lastUpdated) - new Date(b.lastUpdated));
+        default:
+          return 0;
+      }
+    });
+    
+    const paginated = sorted.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    
+    return paginated;
   }, [assets, searchQuery, sortCriteria, currentPage, itemsPerPage]);
 
   const prepareCSVData = () => {
@@ -421,31 +424,33 @@ const AssetTable = ({
         />
       )}
 
-      <div className="overflow-x-auto">
-        <table className="asset-table w-full min-w-[750px]">
-          <thead>
-            <TableHeader 
-              visibleColumns={visibleColumns}
-              sortCriteria={sortCriteria}
-              handleSort={handleSort}
-            />
-          </thead>
-          <tbody>
-            {currentAssets.map((asset, index) => (
-              <TableRow
-                key={asset.asset_id}
-                asset={asset}
-                index={index}
+      <div className="overflow-x-auto shadow-sm border border-gray-200 rounded-lg">
+        <div className="min-w-max">
+          <table className="asset-table w-full min-w-[1200px] bg-white">
+            <thead>
+              <TableHeader 
                 visibleColumns={visibleColumns}
-                handleAssetDetailsClick={handleAssetDetailsClick}
-                handleBorrowClick={handleBorrowClick}
-                handleEditClick={handleEditClick}
-                handleDeleteClick={handleDeleteClick}
-                handleConsumeClick={handleConsumeClick}
+                sortCriteria={sortCriteria}
+                handleSort={handleSort}
               />
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {currentAssets.map((asset, index) => (
+                <TableRow
+                  key={asset.asset_id}
+                  asset={asset}
+                  index={index}
+                  visibleColumns={visibleColumns}
+                  handleAssetDetailsClick={handleAssetDetailsClick}
+                  handleBorrowClick={handleBorrowClick}
+                  handleEditClick={handleEditClick}
+                  handleDeleteClick={handleDeleteClick}
+                  handleConsumeClick={handleConsumeClick}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <PaginationControls

@@ -19,12 +19,9 @@ import EmailRequestForm from "./pages/RequestPage";
 import BorrowerForm from "./pages/BorrowerPage";
 import ProfilePage from "./pages/Profile";
 import BorrowingRequest from "./pages/BorrowingRequest";
-import AssetRequest from "./pages/AssetRequest";
 import AssetRepair from "./pages/AssetRepair";
 import AssetIssue from "./pages/AssetIssue";
 import CompletedEvents from "./pages/CompletedEvents";
-import ArchivedRequests from "./pages/ArchivedRequests";
-import IncomingAssets from "./pages/IncomingAssets";
 import BorrowingHistory from "./pages/BorrowingHistory";
 import RoleManagement from "./pages/RoleManagement";
 import ScanRedirect from "./components/scan/ScanRedirect";
@@ -289,41 +286,10 @@ function AppContent({ user, setUser }) {
             }
           />
           <Route
-            path="/asset-request"
-            element={
-              <PrivateRoute user={user} requiredPermissions={["Asset Request"]}>
-                <AssetRequest user={user} />
-              </PrivateRoute>
-            }
-          />
-
-          <Route
             path="/asset-issues"
             element={
               <PrivateRoute user={user} requiredPermissions={["Asset Issues"]}>
                 <AssetIssue user={user} />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/archived-requests"
-            element={
-              <PrivateRoute
-                user={user}
-                requiredPermissions={["Archived Requests"]}
-              >
-                <ArchivedRequests user={user} />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/incoming-assets"
-            element={
-              <PrivateRoute
-                user={user}
-                requiredPermissions={["Incoming Assets"]}
-              >
-                <IncomingAssets />
               </PrivateRoute>
             }
           />

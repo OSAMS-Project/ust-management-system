@@ -52,7 +52,7 @@ const IssueModal = ({ isOpen, onClose, onAddIssue, assets, user, issues = [] }) 
 
   const filteredAssets = availableAssets.filter(asset => {
     const searchLower = searchTerm.toLowerCase();
-    const assetNameMatch = asset.assetName.toLowerCase().includes(searchLower);
+    const assetNameMatch = asset.assetName && asset.assetName.toLowerCase().includes(searchLower);
     const productCodeMatch = asset.productCode && 
                            asset.productCode !== 'N/A' && 
                            asset.productCode.toLowerCase().includes(searchLower);

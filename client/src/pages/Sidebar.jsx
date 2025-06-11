@@ -15,11 +15,9 @@ import {
   faTruckFast,
   faHistory,
   faTools,
-  faBoxOpen,
   faTimes,
   faBars,
   faWrench,
-  faArchive,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useLocation } from "react-router-dom";
 
@@ -161,13 +159,6 @@ const MENU_LIST = [
         to: "/asset-issues",
         icon: faExclamationTriangle,
       },
-      { text: "Asset Request", to: "/asset-request", icon: faBoxOpen },
-      {
-        text: "Archived Requests",
-        to: "/archived-requests",
-        icon: faArchive,
-      },
-      { text: "Incoming Assets", to: "/incoming-assets", icon: faTruckFast },
       { text: "Outgoing Assets", to: "/outgoing-assets", icon: faTruckFast },
       { text: "Asset Maintenance", to: "/asset-maintenance", icon: faWrench },
     ],

@@ -259,9 +259,9 @@ const AddAsset = ({ onAddAsset, categories, locations, isModalOpen, onCloseModal
     <>
       <button
         onClick={onOpenModal}
-        className="px-3 py-1.5 border-2 border-white text-white bg-white rounded-lg hover:bg-white duration-300 flex items-center gap-2"
+        className="px-3 py-1.5 border-2 border-black text-black bg-[#FEC00F] rounded-lg hover:bg-[#ffd042] duration-300 flex items-center gap-2"
       >
-        <FontAwesomeIcon icon={faPlus} className="text-white" />
+        <FontAwesomeIcon icon={faPlus} className="text-black" />
         <span>New Asset</span>
       </button>
 

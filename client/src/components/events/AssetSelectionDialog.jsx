@@ -12,7 +12,7 @@ const AssetSelectionDialog = ({ isOpen, onClose, assets, onConfirmSelection }) =
   if (!isOpen) return null;
 
   const filteredAssets = assets.filter(asset =>
-    asset.assetName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (asset.assetName && asset.assetName.toLowerCase().includes(searchQuery.toLowerCase())) ||
     (asset.productCode && asset.productCode.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 

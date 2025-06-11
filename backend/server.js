@@ -18,14 +18,10 @@ const assetActivityLogRoutes = require("./routes/assetactivitylogRoutes");
 const dashboardInfoCardsRoutes = require("./routes/dashboardinfocardsRoutes");
 const borrowingRequestRoutes = require("./routes/borrowingrequestRoutes");
 const borrowLogsRoutes = require("./routes/borrowLogsRoutes");
-const assetRequestRoutes = require("./routes/assetRequestRoutes");
-const AssetRequest = require("./models/assetrequest");
 const repairRoutes = require("./routes/RepairRoutes");
 const roleRoutes = require("./routes/roleRoutes");
 const AssetIssue = require("./models/assetissue");
 const supplierActivityLogRoutes = require("./routes/supplierActivityLogRoutes");
-const incomingAssetsRouter = require("./routes/incomingAssetsRoutes");
-const IncomingAssets = require("./models/incomingassets");
 const maintenanceRoutes = require("./routes/maintenanceRoutes");
 const BorrowingRequest = require("./models/borrowingrequest");
 const termsAndConditionsRoutes = require('./routes/termsandconditionsroutes');
@@ -78,11 +74,9 @@ app.use("/api/asset-activity-logs", assetActivityLogRoutes);
 app.use("/api/dashboard", dashboardInfoCardsRoutes);
 app.use("/api/borrowing-requests", borrowingRequestRoutes);
 app.use("/api/borrow-logs", borrowLogsRoutes);
-app.use("/api/asset-request", assetRequestRoutes);
 app.use("/api/repair", repairRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/supplier-activity-logs", supplierActivityLogRoutes);
-app.use("/api/incoming-assets", incomingAssetsRouter);
 app.use("/api/maintenance", maintenanceRoutes);
 app.use('/api/terms-and-conditions', termsAndConditionsRoutes);
 app.use("/api/notification-settings", notificationRoutes);
@@ -210,8 +204,6 @@ const initializeTables = async () => {
     console.log("Event assets table initialized");
     await AssetIssue.createIssuesTable();
     console.log("Asset issues table initialized");
-    await IncomingAssets.createIncomingAssetsTable();
-    console.log("Incoming assets table initialized");
     await BorrowingRequest.createBorrowingRequestTable();
     await BorrowingRequest.createBorrowedAssetsTable();
     await OutgoingAsset.createOutgoingAssetsTable();
@@ -341,28 +333,9 @@ app.delete("/api/Events/delete/:eventId", async (req, res) => {
 });
 
 // Add this line to create the table when the server starts
-AssetRequest.createAssetRequestTable();
 const assetIssueRoutes = require("./routes/assetissueRoutes");
 app.use("/api/asset-issues", assetIssueRoutes);
 
-app.post("/api/asset-request", async (req, res) => {
-  try {
-    const { assetName, quantity, comments, created_by, user_picture } =
-      req.body;
-
-    const result = await pool.query(
-      "INSERT INTO asset_requests (asset_name, quantity, comments, created_by, user_picture) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [assetName, quantity, comments, created_by, user_picture]
-    );
-
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.error("Error creating asset request:", error);
-    res.status(500).json({ error: "Failed to create asset request" });
-  }
-});
-
-// Add this near your other route definitions
 app.get("/api/Events/asset-cost/:eventId/:assetId", async (req, res) => {
   const client = await pool.connect();
   try {
