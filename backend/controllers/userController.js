@@ -128,7 +128,8 @@ const checkUserByEmail = async (req, res) => {
       console.log("User exists:", result);
       res.status(200).json({ exists: true, user: result[0] });
     } else {
-      res.status(404).json({ exists: false });
+      console.log("User does not exist");
+      res.status(200).json({ exists: false });
     }
   } catch (error) {
     console.error("Error checking user:", error);

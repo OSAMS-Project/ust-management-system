@@ -47,7 +47,14 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
     eventSource.onmessage = (event) => {
       const newLog = JSON.parse(event.data);
       if (newLog.asset_id === assetId) {
-        setLogs(prevLogs => [...prevLogs, newLog]);
+        setLogs(prevLogs => {
+          // Check if log already exists to prevent duplicates
+          const logExists = prevLogs.some(existingLog => existingLog.id === newLog.id);
+          if (!logExists) {
+            return [newLog, ...prevLogs]; // Add new log at the beginning
+          }
+          return prevLogs; // Return unchanged if log already exists
+        });
       }
     };
 
@@ -61,15 +68,6 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
     };
   }, [assetId]);
 
-  const groupedLogs = logs.reduce((acc, log) => {
-    const timestamp = moment(log.lastUpdated || log.created_at).format('MM-DD-YYYY');
-    if (!acc[timestamp]) {
-      acc[timestamp] = [];
-    }
-    acc[timestamp].push(log);
-    return acc;
-  }, {});
-
   const formatLogMessage = (log) => {
     const formatValue = (value) => {
       // Check if the value is a date string in ISO format
@@ -81,7 +79,7 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
 
     if (log.action === 'event_allocation') {
       return (
-        <p key={log.id} className="text-sm text-gray-600 mb-1">
+        <p className="text-sm text-gray-600 mb-1">
           <strong className="text-black">Event Allocation</strong>: 
           Allocated <strong className="text-blue-600">{formatValue(log.old_value)}</strong> units 
           to event "<strong className="text-green-600">{formatValue(log.new_value)}</strong>"
@@ -94,7 +92,7 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
       if (match) {
         const [, quantity, eventName] = match;
         return (
-          <p key={log.id} className="text-sm text-gray-600 mb-1">
+          <p className="text-sm text-gray-600 mb-1">
             <strong className="text-black">Event Return</strong>: 
             Returned <strong className="text-blue-600">{quantity}</strong> units 
             from event "<strong className="text-green-600">{eventName}</strong>"
@@ -102,7 +100,7 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
         );
       }
       return (
-        <p key={log.id} className="text-sm text-gray-600 mb-1">
+        <p className="text-sm text-gray-600 mb-1">
           <strong className="text-black">Event Return</strong>: {log.context}
         </p>
       );
@@ -113,28 +111,9 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
       return null;
     }
 
-    // Special handling for description field
-    if (log.field_name === 'assetDetails') {
-      return (
-        <div key={log.id} className="text-sm text-gray-600 mb-2">
-          <div className="flex flex-col space-y-1">
-            <strong className="text-black">{fieldNameMapping[log.field_name]}</strong>
-            <div className="flex flex-col pl-4">
-              <div className="break-words">
-                From: <span className="text-blue-600">{formatValue(log.old_value)}</span>
-              </div>
-              <div className="break-words">
-                To: <span className="text-green-600">{formatValue(log.new_value)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // Default side-by-side layout for other fields
+    // Default side-by-side layout for all fields including assetDetails
     return (
-      <div key={log.id} className="text-sm text-gray-600 mb-1">
+      <div className="text-sm text-gray-600 mb-1">
         <p>
           <strong className="text-black">{fieldNameMapping[log.field_name] || log.field_name}</strong>: 
           "<strong className="text-blue-600">{formatValue(log.old_value)}</strong>" → 
@@ -143,6 +122,28 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
       </div>
     );
   };
+
+  // Remove duplicates and group logs by timestamp and user
+  const uniqueLogs = logs.filter((log, index, self) => 
+    index === self.findIndex(l => l.id === log.id)
+  );
+
+  // Group logs by timestamp and user (same edit session)
+  const groupedLogs = uniqueLogs.reduce((acc, log) => {
+    const timestamp = moment(log.lastUpdated || log.created_at).format('MM-DD-YYYY HH:mm:ss');
+    const groupKey = `${timestamp}-${log.modified_by}`;
+    
+    if (!acc[groupKey]) {
+      acc[groupKey] = {
+        timestamp: moment(log.lastUpdated || log.created_at).format('MM-DD-YYYY'),
+        modified_by: log.modified_by,
+        user_picture: log.user_picture,
+        logs: []
+      };
+    }
+    acc[groupKey].logs.push(log);
+    return acc;
+  }, {});
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -163,7 +164,7 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
           </div>
         ) : error ? (
           <div className="text-red-500 text-center py-4">{error}</div>
-        ) : logs.length === 0 || (logs.length === 1 && logs[0].action === 'No Activity') ? (
+        ) : Object.keys(groupedLogs).length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-gray-500">
             <FontAwesomeIcon icon={faHistory} className="text-4xl mb-3" />
             <p className="text-lg font-semibold">No Activity Logs Found</p>
@@ -172,25 +173,40 @@ const AssetActivityLogs = ({ assetId, onClose }) => {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {Object.entries(groupedLogs).map(([timestamp, logGroup]) => (
-              <div key={timestamp} className="bg-gray-100 p-3 rounded-lg">
-                <p className="font-semibold text-sm text-gray-700 mb-2">
-                  Last Updated on {timestamp}
-                </p>
-                <div className="flex items-center mb-3 text-xs text-gray-500">
-                  {logGroup[0].user_picture && (
-                    <img 
-                      src={logGroup[0].user_picture} 
-                      alt="User"
-                      className="w-4 h-4 rounded-full mr-1"
-                    />
-                  )}
-                  <span>Modified by {logGroup[0].modified_by || 'Unknown User'}</span>
-                </div>
-                {logGroup.map((log) => formatLogMessage(log))}
-              </div>
-            ))}
+          <div className="space-y-3">
+            {Object.entries(groupedLogs)
+              .sort(([a], [b]) => b.localeCompare(a)) // Sort by timestamp descending
+              .map(([groupKey, group]) => {
+                // Filter out logs that return null from formatLogMessage
+                const validLogs = group.logs.filter(log => formatLogMessage(log) !== null);
+                
+                if (validLogs.length === 0) return null;
+                
+                return (
+                  <div key={groupKey} className="bg-gray-100 p-3 rounded-lg">
+                    <p className="font-semibold text-sm text-gray-700 mb-2">
+                      Last Updated on {group.timestamp}
+                    </p>
+                    <div className="flex items-center mb-3 text-xs text-gray-500">
+                      {group.user_picture && (
+                        <img 
+                          src={group.user_picture} 
+                          alt="User"
+                          className="w-4 h-4 rounded-full mr-1"
+                        />
+                      )}
+                      <span>Modified by {group.modified_by || 'Unknown User'}</span>
+                    </div>
+                    <div className="border-l-4 border-blue-500 pl-3">
+                      {validLogs.map((log) => (
+                        <div key={log.id}>
+                          {formatLogMessage(log)}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         )}
       </div>
