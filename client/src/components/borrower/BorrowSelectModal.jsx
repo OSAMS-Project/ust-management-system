@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import NotificationPopup from "../utils/NotificationsPopup";
-import moment from "moment";
-import "moment-timezone";
+import moment from "moment-timezone";
 
 function BorrowSelectModal({
   isOpen,
