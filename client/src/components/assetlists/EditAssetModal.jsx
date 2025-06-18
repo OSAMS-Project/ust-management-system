@@ -592,6 +592,15 @@ const EditAssetModal = ({
                   prefix="₱"
                   shake={shakeFields.includes("cost")}
                 />
+                <InputField
+                  label="Quantity"
+                  id="quantity"
+                  type="number"
+                  value={editedAsset.quantity}
+                  onChange={(e) => handleChange("quantity", e.target.value.replace(/[^0-9]/g, ""))}
+                  min="1"
+                  shake={shakeFields.includes("quantity")}
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
