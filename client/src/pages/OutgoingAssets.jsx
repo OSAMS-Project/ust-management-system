@@ -107,26 +107,29 @@ const OutgoingAssets = () => {
   );
 
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">Outgoing Assets</h1>
-        <p className="text-gray-600">Track all consumed assets and their details</p>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="bg-[#FEC00F] py-6 flex items-center justify-between px-6">
+        <h1 className="text-5xl font-extrabold text-black">Outgoing Assets</h1>
+        <i className="fas fa-arrow-right-arrow-left text-black text-5xl"></i>
       </div>
-      <TableControls
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        dateRange={dateRange}
-        setDateRange={setDateRange}
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        categories={categories}
-        outgoingAssets={filteredAssets}
-      />
-      <OutgoingAssetsTable
-        outgoingAssets={filteredAssets}
-        sortConfig={sortConfig}
-        onSort={handleSort}
-      />
+      <div className="px-4">
+        <TableControls
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          categories={categories}
+          outgoingAssets={filteredAssets}
+        />
+        <OutgoingAssetsTable
+          outgoingAssets={filteredAssets}
+          sortConfig={sortConfig}
+          onSort={handleSort}
+        />
+      </div>
     </div>
   );
 };
