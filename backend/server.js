@@ -21,6 +21,8 @@ const borrowLogsRoutes = require("./routes/borrowLogsRoutes");
 const repairRoutes = require("./routes/RepairRoutes");
 const roleRoutes = require("./routes/roleRoutes");
 const AssetIssue = require("./models/assetissue");
+const AssetActivityLog = require("./models/assetactivitylogs");
+const BorrowLogs = require("./models/borrowLogs");
 const supplierActivityLogRoutes = require("./routes/supplierActivityLogRoutes");
 const maintenanceRoutes = require("./routes/maintenanceRoutes");
 const BorrowingRequest = require("./models/borrowingrequest");
@@ -175,7 +177,11 @@ app.get("/test", (req, res) => {
   res.json({ message: "Server is running" });
 });
 
-const port = process.env.PORT || 5000;
+app.get('/', (req, res) => {
+  res.send('Backend is running!');
+});
+
+const port = process.env.PORT || 5001;
 app.listen(port, async () => {
   try {
     await Event.addCompletionColumns();
@@ -204,8 +210,13 @@ const initializeTables = async () => {
     console.log("Event assets table initialized");
     await AssetIssue.createIssuesTable();
     console.log("Asset issues table initialized");
+    await AssetActivityLog.createAssetActivityLogsTable();
+    console.log("Asset activity logs table initialized");
     await BorrowingRequest.createBorrowingRequestTable();
     await BorrowingRequest.createBorrowedAssetsTable();
+    console.log("Borrowing tables initialized");
+    await BorrowLogs.createBorrowLogsTable();
+    console.log("Borrow logs table initialized");
     await OutgoingAsset.createOutgoingAssetsTable();
     console.log("Outgoing assets table initialized");
     console.log("All tables initialized successfully");

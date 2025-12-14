@@ -12,7 +12,8 @@ const createAssetActivityLogsTable = async () => {
       new_value TEXT,
       modified_by VARCHAR(255),
       user_picture TEXT,
-      context TEXT
+      context TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `;
   return executeTransaction([{ query, params: [] }]);
